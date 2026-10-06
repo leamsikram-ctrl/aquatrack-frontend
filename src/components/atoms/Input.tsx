@@ -5,31 +5,25 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   helperText?: string;
   error?: string;
   leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, helperText, error, leftIcon, rightIcon, id, className = '', disabled, ...props }, ref) => {
+  ({ label, helperText, error, leftIcon, id, className = '', disabled, ...props }, ref) => {
     const generatedId = useId();
     const inputId = id || generatedId;
-    const errorId = `${inputId}-error`;
-    const helperId = `${inputId}-helper`;
 
     return (
-      <div className="w-full space-y-1.5 text-left">
+      <div className="w-full space-y-1 text-left">
         {label && (
-          <label
-            htmlFor={inputId}
-            className="block text-xs font-semibold tracking-wide text-slate-700 select-none"
-          >
+          <label htmlFor={inputId} className="block text-sm font-medium text-black">
             {label}
-            {props.required && <span className="ml-1 text-rose-500">*</span>}
+            {props.required && <span className="text-[#1E6FD9] ml-1">*</span>}
           </label>
         )}
 
         <div className="relative flex items-center">
           {leftIcon && (
-            <div className="pointer-events-none absolute left-3 flex items-center justify-center text-slate-400">
+            <div className="absolute left-3 flex items-center justify-center text-black">
               {leftIcon}
             </div>
           )}
@@ -38,35 +32,26 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             disabled={disabled}
-            aria-invalid={Boolean(error)}
-            aria-describedby={error ? errorId : helperText ? helperId : undefined}
-            className={`w-full h-9 rounded-lg border bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-2xs transition-all outline-none
+            className={`w-full h-10 px-3 text-sm text-black bg-white border rounded-md transition-colors placeholder:text-black/40 outline-none
               ${leftIcon ? 'pl-9' : ''}
-              ${rightIcon ? 'pr-9' : ''}
               ${
                 error
-                  ? 'border-rose-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20'
-                  : 'border-slate-200 hover:border-slate-300 focus:border-[#1E6FD9] focus:ring-2 focus:ring-[#1E6FD9]/20'
+                  ? 'border-black ring-2 ring-black'
+                  : 'border-black hover:border-[#1E6FD9] focus:border-[#1E6FD9] focus:ring-1 focus:ring-[#1E6FD9]'
               }
-              disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400
+              disabled:opacity-50 disabled:cursor-not-allowed
               ${className}
             `}
             {...props}
           />
-
-          {rightIcon && (
-            <div className="absolute right-3 flex items-center justify-center text-slate-400">
-              {rightIcon}
-            </div>
-          )}
         </div>
 
         {error ? (
-          <p id={errorId} className="text-xs text-rose-600 font-medium">
-            {error}
+          <p className="text-sm font-medium text-black">
+            [!] {error}
           </p>
         ) : helperText ? (
-          <p id={helperId} className="text-xs text-slate-500">
+          <p className="text-sm text-black/70">
             {helperText}
           </p>
         ) : null}
@@ -76,4 +61,3 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 );
 
 Input.displayName = 'Input';
-

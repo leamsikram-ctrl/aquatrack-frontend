@@ -6,11 +6,6 @@ export interface StatCardProps {
   value: string | number;
   subtext?: string;
   icon?: React.ReactNode;
-  trend?: {
-    value: string;
-    isPositive?: boolean;
-  };
-  onClick?: () => void;
 }
 
 export const StatCard: React.FC<StatCardProps> = ({
@@ -18,43 +13,27 @@ export const StatCard: React.FC<StatCardProps> = ({
   value,
   subtext,
   icon,
-  trend,
-  onClick,
 }) => {
   return (
-    <Card
-      hoverable={Boolean(onClick)}
-      onClick={onClick}
-      className="flex flex-col justify-between"
-      padding="md"
-    >
+    <Card className="flex flex-col justify-between">
       <div className="flex items-center justify-between">
-        <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider font-mono">
+        <span className="text-sm font-medium text-black">
           {label}
         </span>
         {icon && (
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-slate-50 border border-slate-200/60 text-slate-700">
+          <div className="text-[#1E6FD9]">
             {icon}
           </div>
         )}
       </div>
 
-      <div className="mt-3">
-        <div className="text-xl sm:text-2xl font-bold tracking-tight text-[#090A0F] font-mono">
+      <div className="mt-4">
+        <div className="text-sm font-bold text-black border-l-2 border-[#1E6FD9] pl-2">
           {value}
         </div>
-        {(subtext || trend) && (
-          <div className="mt-1 flex items-center gap-1.5 text-[11px] text-slate-500">
-            {trend && (
-              <span
-                className={`font-medium ${
-                  trend.isPositive ? 'text-emerald-600' : 'text-slate-600'
-                }`}
-              >
-                {trend.value}
-              </span>
-            )}
-            {subtext && <span>{subtext}</span>}
+        {subtext && (
+          <div className="mt-1 text-sm text-black/70">
+            {subtext}
           </div>
         )}
       </div>

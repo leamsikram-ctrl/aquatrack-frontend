@@ -1,6 +1,5 @@
 import React from 'react';
 import type { RequestStatus } from '../../types';
-import { IconCheck, IconClock, IconTools, IconCircleCheck } from '@tabler/icons-react';
 
 export interface StatusTimelineProps {
   status: RequestStatus;
@@ -18,10 +17,10 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
   resolvedAt,
 }) => {
   const steps = [
-    { key: 'submitted', label: 'Submitted', timestamp: submittedAt, icon: IconClock },
-    { key: 'assigned', label: 'Assigned', timestamp: assignedAt, icon: IconCheck },
-    { key: 'in_progress', label: 'In Progress', timestamp: startedAt, icon: IconTools },
-    { key: 'resolved', label: 'Resolved', timestamp: resolvedAt, icon: IconCircleCheck },
+    { key: 'submitted', label: 'Submitted', timestamp: submittedAt },
+    { key: 'assigned', label: 'Assigned', timestamp: assignedAt },
+    { key: 'in_progress', label: 'In Progress', timestamp: startedAt },
+    { key: 'resolved', label: 'Resolved', timestamp: resolvedAt },
   ];
 
   const getStepState = (stepKey: string) => {
@@ -37,61 +36,59 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
   };
 
   return (
-    <div className="w-full">
-      {/* Desktop 4-Step horizontal progress */}
+    <div className="w-full text-sm">
       <div className="grid grid-cols-4 gap-2">
         {steps.map((step, idx) => {
           const state = getStepState(step.key);
-          const Icon = step.icon;
 
           return (
             <div key={step.key} className="flex flex-col items-center text-center">
               <div className="flex items-center w-full">
                 <div
-                  className={`h-0.5 flex-1 transition-colors ${
+                  className={`h-0.5 flex-1 ${
                     idx === 0
                       ? 'invisible'
                       : state === 'completed' || state === 'current'
-                      ? 'bg-[#0B192C]'
-                      : 'bg-slate-200'
+                      ? 'bg-[#1E6FD9]'
+                      : 'bg-black/10'
                   }`}
                 />
                 <div
-                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-xs font-semibold transition-all ${
+                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-sm font-bold ${
                     state === 'completed'
-                      ? 'border-[#0B192C] bg-[#0B192C] text-white'
+                      ? 'border-[#1E6FD9] bg-[#1E6FD9] text-white'
                       : state === 'current'
-                      ? 'border-[#1E6FD9] bg-[#EBF3FC] text-[#1E6FD9] ring-4 ring-[#1E6FD9]/15'
-                      : 'border-slate-200 bg-white text-slate-400'
+                      ? 'border-[#1E6FD9] bg-white text-[#1E6FD9] ring-2 ring-[#1E6FD9]'
+                      : 'border-black/30 bg-white text-black/40'
                   }`}
                 >
-                  <Icon size={14} />
+                  {idx + 1}
                 </div>
                 <div
-                  className={`h-0.5 flex-1 transition-colors ${
+                  className={`h-0.5 flex-1 ${
                     idx === steps.length - 1
                       ? 'invisible'
                       : state === 'completed'
-                      ? 'bg-[#0B192C]'
-                      : 'bg-slate-200'
+                      ? 'bg-[#1E6FD9]'
+                      : 'bg-black/10'
                   }`}
                 />
               </div>
 
-              <div className="mt-2 text-left w-full pl-2">
+              <div className="mt-2 text-center w-full">
                 <div
-                  className={`text-xs font-medium ${
+                  className={`text-sm ${
                     state === 'current'
-                      ? 'text-[#1E6FD9] font-semibold'
+                      ? 'font-bold text-[#1E6FD9]'
                       : state === 'completed'
-                      ? 'text-slate-900'
-                      : 'text-slate-400'
+                      ? 'font-bold text-black'
+                      : 'font-normal text-black/50'
                   }`}
                 >
                   {step.label}
                 </div>
                 {step.timestamp && (
-                  <div className="text-[11px] text-slate-500 mt-0.5">{step.timestamp}</div>
+                  <div className="text-sm text-black/70 mt-0.5">{step.timestamp}</div>
                 )}
               </div>
             </div>

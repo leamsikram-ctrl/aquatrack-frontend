@@ -1,6 +1,5 @@
 import React from 'react';
 import { Button } from '../atoms/Button';
-import { IconInbox } from '@tabler/icons-react';
 
 export interface EmptyStateProps {
   title: string;
@@ -21,16 +20,14 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 }) => {
   return (
     <div
-      className={`flex flex-col items-center justify-center p-8 text-center rounded-xl border border-dashed border-slate-200 bg-white/50 ${className}`}
+      className={`flex flex-col items-center justify-center p-8 text-center rounded-lg border border-black/20 bg-white text-sm ${className}`}
     >
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-500 mb-3">
-        {icon || <IconInbox size={24} />}
-      </div>
-      <h3 className="text-sm font-semibold text-slate-800">{title}</h3>
-      <p className="mt-1 max-w-sm text-xs text-slate-500 leading-relaxed">{description}</p>
+      {icon && <div className="text-[#1E6FD9] mb-2">{icon}</div>}
+      <div className="font-bold text-black text-sm">{title}</div>
+      <div className="mt-1 max-w-sm text-sm text-black/70">{description}</div>
       {actionLabel && onAction && (
         <div className="mt-4">
-          <Button size="sm" variant="secondary" onClick={onAction}>
+          <Button variant="secondary" onClick={onAction}>
             {actionLabel}
           </Button>
         </div>
@@ -38,4 +35,3 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
     </div>
   );
 };
-

@@ -1,80 +1,54 @@
 @import "tailwindcss";
 
 @theme {
-  /* =========================================================
-     Clean Modern B2B SaaS (Linear / Raycast / Stripe Inspired)
-     Strict 2-Color Architecture + Precision Zinc Grayscale
-     ========================================================= */
+  /* Strict 3-Color System:
+     1. Blue (Primary Brand & Interactive Accent): #1E6FD9
+     2. White (Base Surfaces, Canvas, Cards): #FFFFFF
+     3. Black (All Text & Structural Lines): #000000
+  */
+  --color-brand-blue: #1E6FD9;
+  --color-brand-blue-hover: #1557AB;
+  --color-brand-blue-light: #F0F6FD;
 
-  /* 1. Structural Ink & Text: Obsidian Zinc (#090A0F) */
-  --color-zinc-950: #090A0F;
-  --color-zinc-900: #12141A;
-  --color-zinc-800: #1E222B;
-  --color-zinc-700: #2C323E;
-  --color-zinc-600: #4B5565;
-  --color-zinc-500: #697586;
-  --color-zinc-400: #9AA4B2;
-  --color-zinc-300: #CDD5DF;
-  --color-zinc-200: #E3E8EF;
-  --color-zinc-100: #EEF2F6;
-  --color-zinc-50:  #F8FAFC;
+  --color-brand-white: #FFFFFF;
+  --color-brand-black: #000000;
 
-  /* 2. Precision Electric Cobalt Accent (#2563EB) */
-  --color-accent: #2563EB;
-  --color-accent-hover: #1D4ED8;
-  --color-accent-light: #EFF6FF;
-  --color-accent-border: #DBEAFE;
+  /* Uniform Single Font: Inter */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
 
-  /* Surface & Hairline Borders */
-  --color-surface-base: #F8FAFC;
-  --color-surface-card: #FFFFFF;
-  --color-surface-card-subtle: #FAFCFE;
-  --color-hairline: rgba(15, 23, 42, 0.08);
-  --color-hairline-strong: rgba(15, 23, 42, 0.14);
-
-  /* Typography */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+:root {
+  font-family: var(--font-sans);
+  font-size: 14px; /* Uniform base font size */
+  line-height: 1.5;
+  color: #000000;
+  background-color: #FFFFFF;
 }
 
 body {
-  font-family: var(--font-sans);
-  background-color: var(--color-surface-base);
-  color: #090A0F;
   margin: 0;
   padding: 0;
+  color: #000000;
+  background-color: #FFFFFF;
+  font-family: var(--font-sans);
+  font-size: 14px;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  letter-spacing: -0.011em;
 }
 
-/* Linear-style smooth micro-interactions */
-button, input, select, textarea, a {
-  transition-property: all;
-  transition-duration: 140ms;
-  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+/* Ensure all form controls, headers, buttons share the exact same uniform font */
+button, input, select, textarea, h1, h2, h3, h4, p, span, th, td, label {
+  font-family: var(--font-sans);
 }
 
-/* Micro hairline border utility */
-.border-hairline {
-  border: 1px solid var(--color-hairline);
-}
-.border-hairline-strong {
-  border: 1px solid var(--color-hairline-strong);
-}
-
-/* Precision scrollbar */
+/* Subtle scrollbar using only black/white/blue tones */
 ::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #FFFFFF;
 }
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
-  border-radius: 9999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: #000000;
+  border-radius: 0px;
 }

@@ -1,26 +1,21 @@
 import React, { forwardRef } from 'react';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive';
-export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg';
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
-  size?: ButtonSize;
   isLoading?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
-  kbdShortcut?: string;
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
       variant = 'primary',
-      size = 'sm',
       isLoading = false,
       leftIcon,
       rightIcon,
-      kbdShortcut,
       children,
       className = '',
       disabled,
@@ -28,67 +23,33 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    // Linear style: tighter line-height, subtle rounded geometry, razor-thin borders
+    // Uniform font-size (14px / text-sm), clean borders, 3-color palette (Blue, White, Black)
     const baseStyles =
-      'inline-flex items-center justify-center font-medium rounded-md select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-45';
-
-    const sizeStyles = {
-      xs: 'text-[11px] px-2 py-1 h-7 gap-1.5',
-      sm: 'text-xs px-3 py-1.5 h-8 gap-1.5',
-      md: 'text-sm px-3.5 py-2 h-9 gap-2',
-      lg: 'text-sm px-4.5 py-2.5 h-10 gap-2 font-semibold',
-    }[size];
+      'inline-flex items-center justify-center text-sm font-medium px-4 py-2 rounded-md transition-colors cursor-pointer select-none border disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1E6FD9]';
 
     const variantStyles = {
       primary:
-        'bg-[#090A0F] text-white hover:bg-[#1E222B] active:bg-[#000000] shadow-xs border border-transparent',
+        'bg-[#1E6FD9] text-white border-[#1E6FD9] hover:bg-[#1557AB] active:bg-[#104382]',
       secondary:
-        'bg-white text-slate-800 border border-slate-200/90 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-950 active:bg-slate-100 shadow-2xs',
+        'bg-white text-black border-black hover:bg-[#F0F6FD] hover:text-[#1E6FD9] hover:border-[#1E6FD9]',
       ghost:
-        'bg-transparent text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 active:bg-slate-200/70',
-      destructive:
-        'bg-white text-rose-600 border border-rose-200/80 hover:bg-rose-50 hover:border-rose-300 active:bg-rose-100',
+        'bg-transparent text-black border-transparent hover:bg-[#F0F6FD] hover:text-[#1E6FD9]',
     }[variant];
 
     return (
       <button
         ref={ref}
         disabled={disabled || isLoading}
-        className={`${baseStyles} ${sizeStyles} ${variantStyles} ${className}`}
+        className={`${baseStyles} ${variantStyles} ${className}`}
         {...props}
       >
         {isLoading ? (
-          <svg
-            className="animate-spin -ml-0.5 mr-1.5 h-3.5 w-3.5 text-current"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            />
-          </svg>
+          <span className="inline-block w-4 h-4 mr-2 border-2 border-current border-t-transparent rounded-full animate-spin" />
         ) : (
-          leftIcon && <span className="inline-flex shrink-0 opacity-80">{leftIcon}</span>
+          leftIcon && <span className="mr-2 inline-flex items-center">{leftIcon}</span>
         )}
         <span>{children}</span>
-        {!isLoading && rightIcon && <span className="inline-flex shrink-0 opacity-80">{rightIcon}</span>}
-        {kbdShortcut && (
-          <kbd className="ml-1.5 hidden sm:inline-block rounded px-1 py-0.5 text-[10px] font-mono font-medium text-slate-400 bg-slate-100 border border-slate-200/60 leading-none">
-            {kbdShortcut}
-          </kbd>
-        )}
+        {!isLoading && rightIcon && <span className="ml-2 inline-flex items-center">{rightIcon}</span>}
       </button>
     );
   }
