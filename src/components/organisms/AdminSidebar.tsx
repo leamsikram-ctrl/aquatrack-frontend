@@ -23,29 +23,19 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 }) => {
   const sections: NavSection[] = [
     {
-      items: [
-        { name: 'Dashboard', path: '/admin/dashboard' },
-      ],
-    },
-    {
       title: 'Operations',
       items: [
-        { name: 'Service requests', path: '/admin/requests' },
-        { name: 'Billing', path: '/admin/billing' },
-        { name: 'Map', path: '/admin/map' },
+        { name: 'Dashboard', path: '/admin/dashboard' },
+        { name: 'Customer Verifications', path: '/admin/verification' },
+        { name: 'Billing Imports', path: '/admin/billing' },
+        { name: 'Water Interruptions', path: '/admin/interruptions' },
       ],
     },
     {
-      title: 'People',
+      title: 'Records & Audits',
       items: [
-        { name: 'Customers', path: '/admin/customers' },
-        { name: 'Staff', path: '/admin/staff' },
-      ],
-    },
-    {
-      title: 'Communication',
-      items: [
-        { name: 'Interruptions', path: '/admin/interruptions' },
+        { name: 'All Customers', path: '/admin/customers' },
+        { name: 'Activity Log', path: '/admin/activity-log' },
       ],
     },
     {

@@ -7,7 +7,12 @@ import { Button } from '../../components/atoms/Button';
 import { requestsApi, billingApi, interruptionsApi } from '../../api';
 import type { ServiceRequest } from '../../types';
 
+import { AdminVerificationView } from './AdminVerificationView';
+import { AdminBillingImportView } from './AdminBillingImportView';
+import { CustomerAdvisoriesView } from '../customer/CustomerAdvisoriesView';
+
 export function AdminDashboardView() {
+  const [currentTab, setCurrentTab] = useState<string>('/admin/dashboard');
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [openCount, setOpenCount] = useState<number>(0);
   const [unassignedCount, setUnassignedCount] = useState<number>(0);
@@ -42,23 +47,41 @@ export function AdminDashboardView() {
 
   return (
     <AdminLayout
-      title="Dashboard"
-      subtitle="Operational Overview"
-      currentPath="/admin/dashboard"
+      title={
+        currentTab === '/admin/verification'
+          ? 'Customer Verification'
+          : currentTab === '/admin/billing'
+          ? 'Billing & CSV Imports'
+          : currentTab === '/admin/interruptions'
+          ? 'Water Interruptions'
+          : 'Operations Dashboard'
+      }
+      subtitle="Sinacaban Municipal System"
+      currentPath={currentTab}
+      onNavigate={setCurrentTab}
     >
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/10 pb-3">
-          <div>
-            <h1 className="text-sm font-bold text-black">Administrator Dashboard</h1>
-            <p className="text-sm text-black/70">
-              Real-time operations, service requests, and utility statistics for Sinacaban (SIWASS).
-            </p>
+      {currentTab === '/admin/verification' && <AdminVerificationView />}
+      {currentTab === '/admin/billing' && <AdminBillingImportView />}
+      {currentTab === '/admin/interruptions' && <CustomerAdvisoriesView />}
+
+      {currentTab === '/admin/dashboard' && (
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/10 pb-3">
+            <div>
+              <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">Administrator Operations Overview</h1>
+              <p className="text-[10px] text-black/70">
+                Real-time operations, service requests, and utility statistics for Sinacaban (SIWASS).
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="secondary" onClick={() => setCurrentTab('/admin/verification')}>
+                Verification Queue
+              </Button>
+              <Button variant="secondary" onClick={() => setCurrentTab('/admin/billing')}>
+                Billing CSV Import
+              </Button>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="secondary">Search Records</Button>
-            <Button variant="primary">New Advisory</Button>
-          </div>
-        </div>
 
         {/* Dashboard Stat Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -140,6 +163,8 @@ export function AdminDashboardView() {
           </div>
         </Card>
       </div>
+      )}
     </AdminLayout>
   );
 }
+

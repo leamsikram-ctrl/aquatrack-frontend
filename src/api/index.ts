@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import type { ServiceRequest, Billing, WaterInterruption, User } from '../types';
+import type { ServiceRequest, Billing, WaterInterruption, User, Barangay, Meter, IssueType } from '../types';
 
 export const authApi = {
   login: async (credentials: { login: string; password: string; device_name?: string }) => {
@@ -68,6 +68,44 @@ export const requestsApi = {
   },
 };
 
+export const referenceApi = {
+  getBarangays: async () => {
+    const res = await apiClient.get<{ data: Barangay[] }>('/reference/barangays');
+    return res.data.data;
+  },
+
+  getIssueTypes: async () => {
+    const res = await apiClient.get<{ data: IssueType[] }>('/reference/issue-types');
+    return res.data.data;
+  },
+};
+
+export const adminApi = {
+  pendingRegistrations: async () => {
+    const res = await apiClient.get<{ data: User[]; pagination: { total: number } }>('/admin/pending-registrations');
+    return res.data;
+  },
+
+  availableMeters: async (params?: { barangay_id?: number }) => {
+    const res = await apiClient.get<{ data: Meter[] }>('/admin/available-meters', { params });
+    return res.data.data;
+  },
+
+  verifyRegistration: async (userId: number, meterId: number) => {
+    const res = await apiClient.post<{ message: string; user: User }>(`/admin/registrations/${userId}/verify`, {
+      meter_id: meterId,
+    });
+    return res.data;
+  },
+
+  declineRegistration: async (userId: number, remarks: string) => {
+    const res = await apiClient.post<{ message: string }>(`/admin/registrations/${userId}/decline`, {
+      remarks,
+    });
+    return res.data;
+  },
+};
+
 export const billingApi = {
   list: async (params?: { billing_period?: string; payment_status?: string }) => {
     const res = await apiClient.get<{ data: Billing[]; pagination: { total: number } }>('/billing', { params });
@@ -80,6 +118,19 @@ export const billingApi = {
     });
     return res.data;
   },
+
+  importCsv: async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await apiClient.post<{
+      message: string;
+      batch_id: number;
+      summary: { total_rows: number; created: number; updated: number; rejected: number; errors: string[] };
+    }>('/billing/import', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data;
+  },
 };
 
 export const interruptionsApi = {
@@ -87,18 +138,10 @@ export const interruptionsApi = {
     const res = await apiClient.get<{ data: WaterInterruption[]; pagination: { total: number } }>('/interruptions');
     return res.data;
   },
-};
 
-export const adminApi = {
-  pendingRegistrations: async () => {
-    const res = await apiClient.get<{ data: User[]; pagination: { total: number } }>('/admin/pending-registrations');
-    return res.data;
-  },
-
-  verifyRegistration: async (userId: number, meterId: number) => {
-    const res = await apiClient.post<{ message: string; user: User }>(`/admin/registrations/${userId}/verify`, {
-      meter_id: meterId,
-    });
+  create: async (data: { title: string; description: string; starts_at: string; ends_at: string; barangay_ids: number[] }) => {
+    const res = await apiClient.post<{ message: string; data: WaterInterruption }>('/interruptions', data);
     return res.data;
   },
 };
+

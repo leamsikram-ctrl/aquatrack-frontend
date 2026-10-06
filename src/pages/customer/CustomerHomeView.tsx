@@ -10,7 +10,11 @@ import { EmptyState } from '../../components/molecules/EmptyState';
 import { requestsApi, billingApi } from '../../api';
 import type { ServiceRequest, Billing } from '../../types';
 
+import { CustomerAdvisoriesView } from './CustomerAdvisoriesView';
+import { CustomerRegistrationView } from './CustomerRegistrationView';
+
 export function CustomerHomeView() {
+  const [currentTab, setCurrentTab] = useState<string>('/home');
   const [activeRequest, setActiveRequest] = useState<ServiceRequest | null>(null);
   const [currentBill, setCurrentBill] = useState<Billing | null>(null);
   const [showReportModal, setShowReportModal] = useState<boolean>(false);
@@ -62,17 +66,29 @@ export function CustomerHomeView() {
   };
 
   return (
-    <CustomerLayout currentPath="/home">
-      <div className="space-y-6">
-        <div className="flex items-center justify-between border-b border-black/10 pb-3">
-          <div>
-            <h1 className="text-sm font-bold text-black">Consumer Account Overview</h1>
-            <p className="text-sm text-black/70">Barangay Poblacion, Sinacaban</p>
+    <CustomerLayout currentPath={currentTab} onNavigate={setCurrentTab}>
+      {currentTab === '/advisories' && <CustomerAdvisoriesView />}
+      {currentTab === '/register' && <CustomerRegistrationView onBackToPortal={() => setCurrentTab('/home')} />}
+
+      {currentTab === '/home' && (
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/10 pb-3">
+            <div>
+              <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">Consumer Account Overview</h1>
+              <p className="text-[10px] text-black/70">Barangay Poblacion, Sinacaban Municipal Service</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="secondary" onClick={() => setCurrentTab('/advisories')}>
+                Advisories Calendar
+              </Button>
+              <Button variant="secondary" onClick={() => setCurrentTab('/register')}>
+                Register Account
+              </Button>
+              <Button variant="primary" onClick={() => setShowReportModal(true)}>
+                Report Issue
+              </Button>
+            </div>
           </div>
-          <Button variant="primary" onClick={() => setShowReportModal(true)}>
-            Report Issue
-          </Button>
-        </div>
 
         {/* Current Billing Card */}
         <Card className="border-l-4 border-l-[#1E6FD9]">
@@ -178,6 +194,8 @@ export function CustomerHomeView() {
           </div>
         )}
       </div>
+      )}
     </CustomerLayout>
   );
 }
+

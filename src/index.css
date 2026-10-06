@@ -19,8 +19,8 @@
 
 :root {
   font-family: var(--font-sans);
-  font-size: 14px; /* Uniform base font size */
-  line-height: 1.5;
+  font-size: 10px; /* Uniform 10px base font size */
+  line-height: 1.4;
   color: #000000;
   background-color: #FFFFFF;
 }
@@ -31,13 +31,14 @@ body {
   color: #000000;
   background-color: #FFFFFF;
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 10px;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Ensure all form controls, headers, buttons share the exact same uniform font */
-button, input, select, textarea, h1, h2, h3, h4, p, span, th, td, label {
+/* Ensure all form controls, headers, buttons share the exact same uniform 10px font */
+*, button, input, select, textarea, h1, h2, h3, h4, h5, h6, p, span, th, td, label, a {
   font-family: var(--font-sans);
+  font-size: 10px !important;
 }
 
 /* Subtle scrollbar using only black/white/blue tones */
