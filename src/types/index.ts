@@ -39,6 +39,7 @@ export interface StaffProfile {
   user_id: number;
   first_name: string;
   last_name: string;
+  name?: string;
   assigned_barangay_id?: number;
   assigned_barangay?: Barangay;
 }
@@ -60,9 +61,17 @@ export interface IssueType {
 
 export interface ServiceRequest {
   id: number;
-  reference_no: string; // e.g. AT-0001
+  reference_no?: string;
+  reference: string; // e.g. AT-0001
   customer_profile_id: number;
   customer_profile?: CustomerProfile;
+  customer?: {
+    id: number;
+    account_number?: string;
+    full_name: string;
+    barangay?: string;
+    address?: string;
+  };
   issue_type_id: number;
   issue_type?: IssueType;
   customer_urgency: Urgency;
@@ -70,7 +79,12 @@ export interface ServiceRequest {
   urgency_adjustment_reason?: string;
   status: RequestStatus;
   assigned_staff_id?: number;
-  assigned_staff?: StaffProfile;
+  assigned_staff?: {
+    id: number;
+    email?: string;
+    mobile_number: string;
+    name: string;
+  };
   assigned_at?: string;
   assignment_notes?: string;
   started_at?: string;

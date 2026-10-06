@@ -23,7 +23,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 
         <div className="relative flex items-center">
           {leftIcon && (
-            <div className="absolute left-3 flex items-center justify-center text-black/60 pointer-events-none">
+            <div className="absolute left-3 flex items-center justify-center text-black">
               {leftIcon}
             </div>
           )}
@@ -32,12 +32,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             disabled={disabled}
-            className={`w-full h-10 px-3 text-sm text-black bg-white border rounded-lg transition-all placeholder:text-black/35 outline-none shadow-2xs
+            className={`w-full h-10 px-3 text-sm text-black bg-white border rounded-md transition-colors placeholder:text-black/40 outline-none
               ${leftIcon ? 'pl-9' : ''}
               ${
                 error
                   ? 'border-black ring-2 ring-black'
-                  : 'border-black/15 hover:border-black/40 focus:border-[#1E6FD9] focus:ring-2 focus:ring-[#1E6FD9]/15'
+                  : 'border-black hover:border-[#1E6FD9] focus:border-[#1E6FD9] focus:ring-1 focus:ring-[#1E6FD9]'
               }
               disabled:opacity-50 disabled:cursor-not-allowed
               ${className}
@@ -48,10 +48,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 
         {error ? (
           <p className="text-sm font-medium text-black">
-            {error}
+            [!] {error}
           </p>
         ) : helperText ? (
-          <p className="text-sm text-black/60">
+          <p className="text-sm text-black/70">
             {helperText}
           </p>
         ) : null}
