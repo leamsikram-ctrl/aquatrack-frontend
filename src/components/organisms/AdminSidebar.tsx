@@ -80,11 +80,12 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     <aside
       className={`w-60 shrink-0 border-r border-black/10 bg-white flex flex-col justify-between text-sm select-none ${className}`}
     >
-      <div className="flex flex-col flex-1 overflow-y-auto p-4 space-y-5">
+      <div className="flex flex-col flex-1 overflow-y-auto p-3.5 space-y-4">
         {sections.map((section, idx) => (
           <div key={idx} className="space-y-1">
+            {/* Clear Section Header Hierarchy: uppercase, subtle, tracked, 14px font */}
             {section.title && (
-              <div className="px-3 text-sm font-bold text-black/40 uppercase tracking-wider mb-1">
+              <div className="px-3 pt-2 pb-1 text-sm font-bold uppercase tracking-wider text-black/40 border-b border-black/5">
                 {section.title}
               </div>
             )}
@@ -97,16 +98,30 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                   <button
                     key={item.path}
                     onClick={() => onNavigate?.(item.path)}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all text-left
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-all text-left group
                       ${
                         isActive
                           ? 'bg-[#1E6FD9] text-white font-bold shadow-xs'
-                          : 'text-black hover:bg-[#F0F6FD] hover:text-[#1E6FD9]'
+                          : 'text-black/80 font-normal hover:bg-[#F0F6FD] hover:text-[#1E6FD9] hover:font-medium'
                       }
                     `}
                   >
-                    <Icon size={16} className={isActive ? 'text-white' : 'text-black/60'} />
-                    <span>{item.name}</span>
+                    <div className="flex items-center gap-2.5">
+                      <Icon
+                        size={17}
+                        className={`transition-colors shrink-0 ${
+                          isActive
+                            ? 'text-white'
+                            : 'text-black/50 group-hover:text-[#1E6FD9]'
+                        }`}
+                      />
+                      <span>{item.name}</span>
+                    </div>
+
+                    {/* Active indicator dot for enhanced hierarchy */}
+                    {isActive && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-white shrink-0" />
+                    )}
                   </button>
                 );
               })}
