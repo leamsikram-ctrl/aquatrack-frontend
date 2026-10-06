@@ -116,3 +116,4 @@ export const FastoSidebar: React.FC<FastoSidebarProps> = ({
     </aside>
   );
 };
+

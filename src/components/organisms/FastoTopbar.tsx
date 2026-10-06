@@ -86,3 +86,4 @@ export const FastoTopbar: React.FC<FastoTopbarProps> = ({
     </header>
   );
 };
+

@@ -2,27 +2,33 @@
 
 @theme {
   /* =========================================================
-     Fasto SaaS Inspired Theme
-     Solid Deep Royal Purple/Indigo Sidebar + Vibrant Accent + Clean Crisp White Cards
+     AquaTrack Modern SaaS Theme (Inspired by Fasto & Modern B2B)
+     Strict 2-Color Hierarchy + Clean Neutral Surfaces
      ========================================================= */
 
-  /* Primary Brand: Deep Vibrant Indigo / Royal Purple (#4F46E5 or #5434d6 / #5842be) */
-  --color-brand-sidebar: #4F46E5;
-  --color-brand-sidebar-hover: #4338CA;
-  --color-brand-sidebar-active: #3730A3;
-  --color-brand-accent: #6366F1;
-  --color-brand-accent-light: #EEF2FF;
+  /* 1. Structural Ink & Text: Clean Deep Slate (#0F172A) */
+  --color-slate-950: #020617;
+  --color-slate-900: #0F172A;
+  --color-slate-800: #1E293B;
+  --color-slate-700: #334155;
+  --color-slate-600: #475569;
+  --color-slate-500: #64748B;
+  --color-slate-400: #94A3B8;
+  --color-slate-300: #CBD5E1;
+  --color-slate-200: #E2E8F0;
+  --color-slate-100: #F1F5F9;
+  --color-slate-50:  #F8FAFC;
 
-  /* Card Accent Lines */
-  --color-card-line-purple: #6366F1;
-  --color-card-line-amber: #F59E0B;
-  --color-card-line-indigo: #4338CA;
-  --color-card-line-emerald: #10B981;
+  /* 2. Interactive Accent: Modern Indigo / Blue (#4F46E5) */
+  --color-accent: #4F46E5;
+  --color-accent-hover: #4338CA;
+  --color-accent-light: #EEF2FF;
+  --color-accent-subtle: #E0E7FF;
 
   /* Canvas and Surfaces */
-  --color-canvas-bg: #F8F9FD;
+  --color-canvas-bg: #F8FAFC;
   --color-card-bg: #FFFFFF;
-  --color-card-border: #F1F4F9;
+  --color-card-border: #E2E8F0;
 
   /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -31,48 +37,32 @@
 body {
   font-family: var(--font-sans);
   background-color: var(--color-canvas-bg);
-  color: #1E293B;
+  color: var(--color-slate-900);
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Rounded Card Shadows from Fasto */
-.fasto-card {
-  background-color: #FFFFFF;
-  border-radius: 1.25rem; /* rounded-2xl */
-  box-shadow: 0 4px 20px -2px rgba(100, 116, 139, 0.06);
-  border: 1px solid rgba(241, 245, 249, 0.8);
-  transition: all 0.2s ease;
+/* Subtle transitions on interactive elements */
+button, input, select, textarea, a {
+  transition-property: all;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.fasto-card:hover {
-  box-shadow: 0 8px 25px -4px rgba(100, 116, 139, 0.1);
+/* Precision scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
 }
-
-/* Fasto-style search input pill */
-.fasto-search-pill {
-  background-color: #F8FAFC;
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
   border-radius: 9999px;
-  border: 1px solid #EEF2F6;
-  padding: 0.5rem 1.25rem;
 }
-
-/* Fasto-style circular action icons */
-.fasto-action-icon {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 9999px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #F8FAFC;
-  color: #64748B;
-  transition: all 0.15s ease;
-}
-
-.fasto-action-icon:hover {
-  background-color: #EEF2FF;
-  color: #4F46E5;
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
 }

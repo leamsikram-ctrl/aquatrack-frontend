@@ -48,3 +48,4 @@ export const FastoStatCard: React.FC<FastoStatCardProps> = ({
     </div>
   );
 };
+

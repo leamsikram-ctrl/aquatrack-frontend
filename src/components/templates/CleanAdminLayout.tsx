@@ -1,38 +1,40 @@
 import React, { useState } from 'react';
-import { FastoSidebar } from '../organisms/FastoSidebar';
-import { FastoTopbar } from '../organisms/FastoTopbar';
+import { ModernSidebar } from '../organisms/ModernSidebar';
+import { CleanTopbar } from '../organisms/CleanTopbar';
 
-export interface FastoAdminLayoutProps {
+export interface CleanAdminLayoutProps {
   children: React.ReactNode;
   currentPath?: string;
   onNavigate?: (path: string) => void;
   pageTitle?: string;
+  pageSubtitle?: string;
 }
 
-export const FastoAdminLayout: React.FC<FastoAdminLayoutProps> = ({
+export const CleanAdminLayout: React.FC<CleanAdminLayoutProps> = ({
   children,
   currentPath = '/admin/dashboard',
   onNavigate,
   pageTitle = 'Dashboard',
+  pageSubtitle = 'Water Utility Operational Overview',
 }) => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#F8F9FD] flex text-slate-800">
-      {/* Permanent Fasto Indigo Sidebar on Desktop (>= 1024px) */}
+    <div className="min-h-screen bg-[#F8FAFC] flex text-slate-800">
+      {/* Permanent Clean Sidebar on Desktop (>= 1024px) */}
       <div className="hidden lg:flex shrink-0">
-        <FastoSidebar currentPath={currentPath} onNavigate={onNavigate} />
+        <ModernSidebar currentPath={currentPath} onNavigate={onNavigate} />
       </div>
 
-      {/* Mobile Drawer Sidebar */}
+      {/* Mobile Drawer */}
       {isMobileSidebarOpen && (
         <div className="fixed inset-0 z-50 lg:hidden flex">
           <div
-            className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-2xs transition-opacity"
             onClick={() => setIsMobileSidebarOpen(false)}
           />
-          <div className="relative z-50 flex w-68 max-w-full flex-col shadow-2xl">
-            <FastoSidebar
+          <div className="relative z-50 flex w-64 max-w-full flex-col shadow-xl">
+            <ModernSidebar
               currentPath={currentPath}
               onNavigate={(path) => {
                 onNavigate?.(path);
@@ -44,19 +46,19 @@ export const FastoAdminLayout: React.FC<FastoAdminLayoutProps> = ({
         </div>
       )}
 
-      {/* Main Canvas Area */}
+      {/* Main App Canvas */}
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        <FastoTopbar
+        <CleanTopbar
           title={pageTitle}
+          subtitle={pageSubtitle}
           onToggleMobileSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
           isMobileSidebarOpen={isMobileSidebarOpen}
         />
 
-        <main className="flex-1 px-6 sm:px-8 pb-12 space-y-6 max-w-[1600px] w-full">
+        <main className="flex-1 p-5 sm:p-7 space-y-6 max-w-7xl w-full mx-auto">
           {children}
         </main>
       </div>
     </div>
   );
 };
-
