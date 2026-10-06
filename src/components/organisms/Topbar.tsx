@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { IconLogout } from '@tabler/icons-react';
+import { IconLogout, IconBell } from '@tabler/icons-react';
+import { NotificationCenter } from './NotificationCenter';
 
 export interface TopbarProps {
   title?: string;
@@ -24,6 +25,8 @@ export const Topbar: React.FC<TopbarProps> = ({
 }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(2);
 
   const displayName = userName || user?.name || 'Authorized User';
   const displayRole =
@@ -73,6 +76,21 @@ export const Topbar: React.FC<TopbarProps> = ({
       </div>
 
       <div className="flex items-center gap-3">
+        {/* Notification Bell Trigger */}
+        <button
+          onClick={() => setIsNotificationsOpen(true)}
+          title="Notifications"
+          className="relative flex items-center justify-center h-7 px-2 rounded border border-black text-black hover:bg-[#F0F6FD] text-[10px] font-bold transition-colors"
+          aria-label="Open notifications"
+        >
+          <IconBell size={13} className="text-black" />
+          {unreadCount > 0 && (
+            <span className="ml-1 px-1 py-0.5 rounded-full bg-[#1E6FD9] text-white text-[9px] font-bold leading-none">
+              {unreadCount}
+            </span>
+          )}
+        </button>
+
         <div className="text-right">
           <div className="font-bold text-black text-[10px]">{displayName}</div>
           <div className="text-black/60 text-[10px]">{displayRole}</div>
@@ -86,6 +104,14 @@ export const Topbar: React.FC<TopbarProps> = ({
           <span className="hidden sm:inline">Sign Out</span>
         </button>
       </div>
+
+      {/* Slide-over Notification Center */}
+      <NotificationCenter
+        isOpen={isNotificationsOpen}
+        onClose={() => setIsNotificationsOpen(false)}
+        userRole={user?.role}
+        onUnreadCountChange={setUnreadCount}
+      />
     </header>
   );
 };

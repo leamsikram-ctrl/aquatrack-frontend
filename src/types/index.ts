@@ -76,6 +76,7 @@ export interface ServiceRequest {
     full_name: string;
     barangay?: string;
     address?: string;
+    mobile_number?: string;
   };
   issue_type_id: number;
   issue_type?: IssueType;
