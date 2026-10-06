@@ -5,17 +5,15 @@ import { Card } from '../../components/atoms/Card';
 import { Button } from '../../components/atoms/Button';
 import { Badge } from '../../components/atoms/Badge';
 import { EmptyState } from '../../components/molecules/EmptyState';
-import { InterruptionCalendar } from '../../components/organisms/InterruptionCalendar';
 import { interruptionsApi, referenceApi } from '../../api';
 import type { WaterInterruption, Barangay } from '../../types';
-import { IconAlertTriangle, IconPlus, IconX, IconCheck, IconCalendarTime, IconMapPin, IconCalendar, IconList } from '@tabler/icons-react';
+import { IconAlertTriangle, IconPlus, IconX, IconCheck, IconCalendarTime, IconMapPin } from '@tabler/icons-react';
 
 export function AdminInterruptionsView() {
   const navigate = useNavigate();
   const [interruptions, setInterruptions] = useState<WaterInterruption[]>([]);
   const [barangays, setBarangays] = useState<Barangay[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
 
   // New Advisory Modal
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -141,42 +139,8 @@ export function AdminInterruptionsView() {
         </Card>
       </div>
 
-      {/* View Switcher Bar */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1 border border-black rounded p-0.5 bg-white">
-          <button
-            onClick={() => setViewMode('list')}
-            className={`flex items-center gap-1 px-3 py-1 rounded text-[10px] font-bold transition-colors ${
-              viewMode === 'list'
-                ? 'bg-[#1E6FD9] text-white'
-                : 'text-black hover:bg-[#F0F6FD]'
-            }`}
-          >
-            <IconList size={12} />
-            <span>List View</span>
-          </button>
-          <button
-            onClick={() => setViewMode('calendar')}
-            className={`flex items-center gap-1 px-3 py-1 rounded text-[10px] font-bold transition-colors ${
-              viewMode === 'calendar'
-                ? 'bg-[#1E6FD9] text-white'
-                : 'text-black hover:bg-[#F0F6FD]'
-            }`}
-          >
-            <IconCalendar size={12} />
-            <span>Calendar View</span>
-          </button>
-        </div>
-
-        <span className="text-[10px] text-black/60 hidden sm:inline">
-          Showing {interruptions.length} scheduled disruptions in Sinacaban
-        </span>
-      </div>
-
-      {/* Calendar or List View */}
-      {viewMode === 'calendar' ? (
-        <InterruptionCalendar interruptions={interruptions} />
-      ) : isLoading ? (
+      {/* List of Advisories */}
+      {isLoading ? (
         <Card className="p-8 text-center text-black/60 border border-black/15">
           Loading water interruption advisories...
         </Card>

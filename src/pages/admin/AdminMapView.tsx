@@ -1,195 +1,460 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '../../components/templates/AdminLayout';
 import { Card } from '../../components/atoms/Card';
-import { Button } from '../../components/atoms/Button';
 import { Badge } from '../../components/atoms/Badge';
-import { requestsApi, referenceApi } from '../../api';
-import type { ServiceRequest, Barangay } from '../../types';
-import { IconTool } from '@tabler/icons-react';
+import { Button } from '../../components/atoms/Button';
+import { requestsApi, referenceApi, adminApi } from '../../api';
+import type { ServiceRequest, Barangay, User } from '../../types';
+import { IconMapPin, IconUsers, IconAlertTriangle, IconFlame, IconCheck } from '@tabler/icons-react';
 
 export function AdminMapView() {
   const navigate = useNavigate();
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
+  const [customers, setCustomers] = useState<User[]>([]);
+  const [staffList, setStaffList] = useState<User[]>([]);
   const [barangays, setBarangays] = useState<Barangay[]>([]);
-  const [selectedLayer, setSelectedLayer] = useState<'requests' | 'customers' | 'hotspots'>('requests');
-  const [selectedBarangayId, setSelectedBarangayId] = useState<number | 'all'>('all');
-  const [selectedPin, setSelectedPin] = useState<ServiceRequest | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Wireframe A6 Layer Toggles: Customers, Requests, Hotspots
+  const [showCustomers, setShowCustomers] = useState(true);
+  const [showRequests, setShowRequests] = useState(true);
+  const [showHotspots, setShowHotspots] = useState(false);
+
+  // Wireframe A6 Filters: Barangay, Status, Staff
+  const [selectedBarangay, setSelectedBarangay] = useState<string>('all');
+  const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [selectedStaff, setSelectedStaff] = useState<string>('all');
+
+  // Selected Pin / Item for Bottom Card
+  const [selectedItem, setSelectedItem] = useState<{
+    type: 'request' | 'customer';
+    id: number;
+    reference: string;
+    name: string;
+    barangay: string;
+    status?: string;
+    urgency?: string;
+    details?: string;
+  } | null>(null);
+
+  // Quick Assign Staff Modal State
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [assignStaffId, setAssignStaffId] = useState<number | ''>('');
+  const [assignNotes, setAssignNotes] = useState('');
+  const [isAssigning, setIsAssigning] = useState(false);
 
   useEffect(() => {
-    Promise.all([
-      requestsApi.list({ per_page: 50 }),
-      referenceApi.getBarangays().catch(() => []),
-    ]).then(([reqRes, bgRes]) => {
-      setRequests(reqRes.data);
-      setBarangays(bgRes);
-      if (reqRes.data.length > 0) {
-        setSelectedPin(reqRes.data[0]);
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const [reqRes, custRes, staffRes, bgRes] = await Promise.all([
+          requestsApi.list({ per_page: 100 }),
+          adminApi.customersList({ per_page: 50 }).catch(() => ({ data: [] })),
+          adminApi.staffList().catch(() => []),
+          referenceApi.getBarangays().catch(() => []),
+        ]);
+        setRequests(reqRes.data);
+        setCustomers(custRes.data);
+        setStaffList(staffRes);
+        setBarangays(bgRes);
+
+        // Pre-select first request if available
+        if (reqRes.data.length > 0) {
+          const first = reqRes.data[0];
+          setSelectedItem({
+            type: 'request',
+            id: first.id,
+            reference: first.reference_no || first.reference || `AT-${first.id}`,
+            name: first.description,
+            barangay: first.customer?.barangay || 'Poblacion',
+            status: first.status,
+            urgency: first.urgency,
+            details: first.customer?.full_name || 'Customer Residence',
+          });
+        }
+      } catch {
+        // Fallback
+      } finally {
+        setIsLoading(false);
       }
-    });
+    };
+    fetchData();
   }, []);
 
-  const filteredRequests = requests.filter((r) => {
-    if (selectedBarangayId === 'all') return true;
-    return r.barangay?.id === selectedBarangayId || r.customer_profile?.barangay_id === selectedBarangayId;
-  });
+  // Filtered requests and customers
+  const filteredRequests = useMemo(() => {
+    return requests.filter((r) => {
+      if (selectedBarangay !== 'all' && (r.customer?.barangay || 'Poblacion') !== selectedBarangay) return false;
+      if (selectedStatus !== 'all' && r.status !== selectedStatus) return false;
+      if (selectedStaff !== 'all' && String(r.assigned_staff_id) !== selectedStaff) return false;
+      return true;
+    });
+  }, [requests, selectedBarangay, selectedStatus, selectedStaff]);
+
+  const filteredCustomers = useMemo(() => {
+    return customers.filter((c) => {
+      if (selectedBarangay !== 'all') {
+        const bg = c.customer_profile?.barangay?.name || 'Poblacion';
+        if (bg !== selectedBarangay) return false;
+      }
+      return true;
+    });
+  }, [customers, selectedBarangay]);
+
+  const handleAssignSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedItem || selectedItem.type !== 'request' || !assignStaffId) return;
+
+    setIsAssigning(true);
+    try {
+      await requestsApi.assign(selectedItem.id, Number(assignStaffId), assignNotes);
+      setShowAssignModal(false);
+      setAssignNotes('');
+      // Refresh requests list
+      const updated = await requestsApi.list({ per_page: 100 });
+      setRequests(updated.data);
+      if (selectedItem) {
+        setSelectedItem((prev) => prev ? { ...prev, status: 'assigned' } : null);
+      }
+    } catch {
+      alert('Failed to assign staff.');
+    } finally {
+      setIsAssigning(false);
+    }
+  };
 
   return (
-    <AdminLayout
-      title="Municipal Map"
-      subtitle="Geographic Operations & Hotspots"
-      currentPath="/admin/map"
-      onNavigate={(path) => navigate(path)}
-    >
-      <div className="space-y-4">
-        {/* Header - Matches Wireframe A6 */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/15 pb-3">
+    <AdminLayout currentPath="/admin/map" onNavigate={(path) => navigate(path)}>
+      <div className="space-y-4 text-[10px] text-black">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-black/15 pb-3">
           <div>
             <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">
-              Sinacaban Infrastructure & Incident Map
+              Municipal Map
             </h1>
             <p className="text-[10px] text-black/60">
-              Interactive location overview of customer households, active repair pins, and pipeline incidents.
+              Sinacaban GIS service map, customer pins, work order coordinates, and failure hotspots.
             </p>
           </div>
-
-          {/* Layer toggles: Customers, Requests, Hotspots */}
-          <div className="flex items-center gap-1.5">
-            {(['requests', 'customers', 'hotspots'] as const).map((layer) => (
-              <button
-                key={layer}
-                onClick={() => setSelectedLayer(layer)}
-                className={`px-3 py-1 rounded text-[10px] font-bold capitalize transition-colors border border-black ${
-                  selectedLayer === layer
-                    ? 'bg-[#1E6FD9] text-white'
-                    : 'bg-white text-black hover:bg-[#F0F6FD]'
-                }`}
-              >
-                {layer}
-              </button>
-            ))}
+          <div className="flex items-center gap-2">
+            <span className="text-[9px] text-black/60 bg-[#F0F6FD] px-2 py-1 border border-black/15 rounded">
+              {filteredRequests.length} Active Incidents · {filteredCustomers.length} Consumers Mapped
+            </span>
           </div>
         </div>
 
-        {/* Filter bar: Barangay, Status, Staff */}
-        <div className="flex flex-wrap items-center gap-2 p-2 bg-[#F0F6FD] border border-black/15 rounded text-[10px]">
-          <span className="font-bold text-black uppercase">Area Zone:</span>
-          <select
-            className="p-1 bg-white text-black border border-black rounded outline-none"
-            value={selectedBarangayId}
-            onChange={(e) => setSelectedBarangayId(e.target.value === 'all' ? 'all' : Number(e.target.value))}
-          >
-            <option value="all">All Sinacaban Barangays</option>
-            {barangays.map((b) => (
-              <option key={b.id} value={b.id}>
-                {b.name}
-              </option>
-            ))}
-          </select>
-          <span className="text-black/40">|</span>
-          <span className="text-black/70">
-            Showing <strong>{filteredRequests.length} geo-referenced items</strong>
-          </span>
+        {/* Wireframe A6 Controls Row: Layer Toggles & Dropdown Filters */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-white p-3 border border-black/15 rounded">
+          {/* Layer Toggles (Pills) */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="font-bold text-black uppercase tracking-wider text-[9px] mr-1">
+              Layers:
+            </span>
+            <button
+              onClick={() => setShowCustomers(!showCustomers)}
+              className={`px-2.5 py-1 rounded text-[10px] font-bold flex items-center gap-1 border transition-colors ${
+                showCustomers
+                  ? 'bg-[#1E6FD9] text-white border-[#1E6FD9]'
+                  : 'bg-white text-black border-black/20 hover:bg-[#F0F6FD]'
+              }`}
+            >
+              <IconUsers size={12} />
+              <span>Customers</span>
+            </button>
+
+            <button
+              onClick={() => setShowRequests(!showRequests)}
+              className={`px-2.5 py-1 rounded text-[10px] font-bold flex items-center gap-1 border transition-colors ${
+                showRequests
+                  ? 'bg-[#1E6FD9] text-white border-[#1E6FD9]'
+                  : 'bg-white text-black border-black/20 hover:bg-[#F0F6FD]'
+              }`}
+            >
+              <IconAlertTriangle size={12} />
+              <span>Requests</span>
+            </button>
+
+            <button
+              onClick={() => setShowHotspots(!showHotspots)}
+              className={`px-2.5 py-1 rounded text-[10px] font-bold flex items-center gap-1 border transition-colors ${
+                showHotspots
+                  ? 'bg-black text-white border-black'
+                  : 'bg-white text-black border-black/20 hover:bg-[#F0F6FD]'
+              }`}
+            >
+              <IconFlame size={12} />
+              <span>Hotspots</span>
+            </button>
+          </div>
+
+          {/* Filters: Barangay, Status, Staff */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <select
+              value={selectedBarangay}
+              onChange={(e) => setSelectedBarangay(e.target.value)}
+              className="px-2 py-1 bg-white border border-black/20 rounded text-[10px] outline-none font-sans"
+            >
+              <option value="all">Barangay ∨ (All)</option>
+              {barangays.map((b) => (
+                <option key={b.id} value={b.name}>
+                  {b.name}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              className="px-2 py-1 bg-white border border-black/20 rounded text-[10px] outline-none font-sans"
+            >
+              <option value="all">Status ∨ (All)</option>
+              <option value="submitted">Submitted</option>
+              <option value="assigned">Assigned</option>
+              <option value="in_progress">In progress</option>
+              <option value="resolved">Resolved</option>
+            </select>
+
+            <select
+              value={selectedStaff}
+              onChange={(e) => setSelectedStaff(e.target.value)}
+              className="px-2 py-1 bg-white border border-black/20 rounded text-[10px] outline-none font-sans"
+            >
+              <option value="all">Staff ∨ (All)</option>
+              {staffList.map((s) => (
+                <option key={s.id} value={String(s.id)}>
+                  {s.name || `Staff #${s.id}`}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        {/* Map Canvas & Selected Pin Detail - Matches Wireframe A6 */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* Schematic Geographic Grid / Map View */}
-          <Card className="lg:col-span-2 p-4 border border-black/15 space-y-3 min-h-[360px] flex flex-col justify-between bg-white relative">
-            <div className="flex items-center justify-between border-b border-black/10 pb-2">
-              <span className="font-bold text-black text-[10px] uppercase tracking-wider">
-                Sinacaban Municipal Grid (Leaflet Map Vector)
-              </span>
-              <Badge variant="blue">{selectedLayer.toUpperCase()} LAYER ACTIVE</Badge>
-            </div>
-
-            {/* Visual Schematic Map Representation with Interactive Pins */}
-            <div className="flex-1 bg-[#F0F6FD] border border-dashed border-black/30 rounded p-6 relative flex flex-wrap items-center justify-around gap-4 min-h-[260px]">
-              {filteredRequests.map((req) => (
-                <button
-                  key={req.id}
-                  onClick={() => setSelectedPin(req)}
-                  className={`p-2 rounded border text-left shadow-sm transition-transform hover:scale-105 text-[10px] ${
-                    selectedPin?.id === req.id
-                      ? 'bg-[#1E6FD9] text-white border-black font-bold scale-105'
-                      : 'bg-white text-black border-black/30'
-                  }`}
-                >
-                  <div className="flex items-center gap-1">
-                    <IconTool size={10} />
-                    <span>{req.reference_no || req.reference}</span>
-                  </div>
-                  <div className="text-[9px] opacity-80 truncate max-w-[120px]">
-                    {req.barangay?.name || 'Poblacion'}
-                  </div>
-                </button>
-              ))}
-
-              <div className="absolute bottom-2 left-2 text-[9px] text-black/50 bg-white/90 px-2 py-0.5 rounded border border-black/10">
-                Lat: 8.2833° N, Long: 123.8333° E · Sinacaban, Misamis Occidental
+        {/* Wireframe A6 Map Canvas & Hotspot Layer */}
+        <Card className="p-0 border border-black/15 overflow-hidden relative">
+          <div className="h-96 w-full bg-[#F0F6FD] relative flex flex-col justify-between p-4 overflow-hidden select-none">
+            {/* Top Coordinate Badge */}
+            <div className="flex justify-between items-center z-10">
+              <div className="bg-white/90 backdrop-blur px-2 py-1 border border-black/20 rounded text-[9px] font-mono text-black">
+                Sinacaban, Misamis Occidental · 8.2833° N, 123.8333° E
               </div>
-            </div>
-          </Card>
-
-          {/* Selected Pin Details & Dispatch Action */}
-          <Card className="p-4 border border-black/15 space-y-3 flex flex-col justify-between">
-            <div className="space-y-3">
-              <div className="border-b border-black/10 pb-2 flex items-center justify-between">
-                <span className="font-bold text-black uppercase tracking-wider text-[10px]">
-                  Selected Marker Info
-                </span>
-                {selectedPin && (
-                  <Badge variant={selectedPin.status === 'resolved' ? 'blue' : 'black'}>
-                    {selectedPin.status.toUpperCase()}
-                  </Badge>
-                )}
-              </div>
-
-              {selectedPin ? (
-                <div className="space-y-2 text-[10px]">
-                  <div>
-                    <span className="text-black/60 font-bold uppercase block">Reference:</span>
-                    <strong className="text-[#1E6FD9] font-mono text-[11px]">
-                      {selectedPin.reference_no || selectedPin.reference}
-                    </strong>
-                  </div>
-                  <div>
-                    <span className="text-black/60 font-bold uppercase block">Barangay Location:</span>
-                    <span className="text-black">{selectedPin.customer?.barangay || selectedPin.barangay?.name || 'Poblacion'}</span>
-                  </div>
-                  <div>
-                    <span className="text-black/60 font-bold uppercase block">Issue Description:</span>
-                    <p className="text-black bg-[#F0F6FD] p-2 rounded border border-black/10">
-                      {selectedPin.description}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-black/60 font-bold uppercase block">Assigned Technician:</span>
-                    <strong className="text-black">
-                      {selectedPin.assigned_staff?.name || 'Unassigned'}
-                    </strong>
-                  </div>
-                </div>
-              ) : (
-                <div className="p-6 text-center text-black/50 text-[10px] italic">
-                  Click any marker on the map to inspect details.
+              {showHotspots && (
+                <div className="bg-black text-white px-2 py-1 rounded text-[9px] font-bold flex items-center gap-1 shadow">
+                  <IconFlame size={12} className="text-[#1E6FD9]" />
+                  <span>Pipe Failure Hotspots Active (Sector 1 High Pressure Zone)</span>
                 </div>
               )}
             </div>
 
-            {selectedPin && (
-              <div className="pt-2 border-t border-black/10">
-                <Button
-                  variant="primary"
-                  className="w-full"
-                  onClick={() => navigate('/admin/requests')}
-                >
-                  Open in Service Dispatcher
-                </Button>
+            {/* Simulated Geometric Map Canvas with Pins */}
+            <div className="absolute inset-0 bg-[radial-gradient(#1E6FD9_1.5px,transparent_1.5px)] [background-size:24px_24px] opacity-25" />
+
+            {isLoading && (
+              <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-30 font-bold text-[10px] text-black">
+                Loading Sinacaban municipal GIS data...
               </div>
             )}
-          </Card>
-        </div>
+
+            {/* Hotspot Cluster Rings (when enabled) */}
+            {showHotspots && (
+              <>
+                <div className="absolute top-[35%] left-[45%] w-32 h-32 rounded-full border-2 border-[#1E6FD9] bg-[#1E6FD9]/10 animate-pulse pointer-events-none" />
+                <div className="absolute top-[30%] left-[65%] w-24 h-24 rounded-full border-2 border-black bg-black/5 pointer-events-none" />
+              </>
+            )}
+
+            {/* Request Pins */}
+            {showRequests &&
+              filteredRequests.map((req, idx) => {
+                const topPos = 25 + ((idx * 17) % 55);
+                const leftPos = 20 + ((idx * 23) % 65);
+                const isSelected = selectedItem?.type === 'request' && selectedItem.id === req.id;
+
+                return (
+                  <button
+                    key={`req-${req.id}`}
+                    onClick={() =>
+                      setSelectedItem({
+                        type: 'request',
+                        id: req.id,
+                        reference: req.reference_no || req.reference || `AT-${req.id}`,
+                        name: req.description,
+                        barangay: req.customer?.barangay || 'Poblacion',
+                        status: req.status,
+                        urgency: req.urgency,
+                        details: req.customer?.full_name || 'Consumer Residence',
+                      })
+                    }
+                    style={{ top: `${topPos}%`, left: `${leftPos}%` }}
+                    className={`absolute p-1 rounded-full border transition-transform flex items-center gap-1 font-mono text-[8px] z-20 shadow ${
+                      isSelected
+                        ? 'bg-black text-white border-[#1E6FD9] scale-125 ring-2 ring-[#1E6FD9]'
+                        : 'bg-[#1E6FD9] text-white border-black hover:scale-110'
+                    }`}
+                    title={`${req.reference_no || req.reference}: ${req.description}`}
+                  >
+                    <IconAlertTriangle size={10} />
+                    <span>{req.reference_no || req.reference || `AT-${req.id}`}</span>
+                  </button>
+                );
+              })}
+
+            {/* Customer Household Pins */}
+            {showCustomers &&
+              filteredCustomers.map((cust, idx) => {
+                const topPos = 18 + ((idx * 19) % 60);
+                const leftPos = 15 + ((idx * 27) % 70);
+                const isSelected = selectedItem?.type === 'customer' && selectedItem.id === cust.id;
+
+                return (
+                  <button
+                    key={`cust-${cust.id}`}
+                    onClick={() =>
+                      setSelectedItem({
+                        type: 'customer',
+                        id: cust.id,
+                        reference: cust.customer_profile?.account_number || `ACC-${cust.id}`,
+                        name: cust.name || 'Verified Consumer',
+                        barangay: cust.customer_profile?.barangay?.name || 'Poblacion',
+                        status: cust.is_verified ? 'Active' : 'Pending',
+                        details: cust.customer_profile?.address || 'Household Connection',
+                      })
+                    }
+                    style={{ top: `${topPos}%`, left: `${leftPos}%` }}
+                    className={`absolute p-1 rounded-full border transition-transform flex items-center gap-1 text-[8px] z-10 ${
+                      isSelected
+                        ? 'bg-black text-white border-white scale-125'
+                        : 'bg-white text-black border-black/30 hover:scale-110'
+                    }`}
+                    title={cust.name || 'Household Consumer'}
+                  >
+                    <IconMapPin size={9} className="text-[#1E6FD9]" />
+                    <span>{cust.name ? cust.name.split(' ')[0] : 'Consumer'}</span>
+                  </button>
+                );
+              })}
+
+            {/* Wireframe A6 Bottom Card: AT-0000 | Barangay | Assigned | [Assign staff] */}
+            {selectedItem && (
+              <div className="z-30 bg-white border border-black/20 rounded p-3 shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-2">
+                    <strong className="font-mono text-black text-[10px]">
+                      {selectedItem.reference}
+                    </strong>
+                    <span className="text-black/50">·</span>
+                    <span className="text-black font-medium">{selectedItem.barangay}</span>
+                    <span className="text-black/50">·</span>
+                    <Badge variant={selectedItem.status === 'assigned' ? 'blue' : 'black'}>
+                      {(selectedItem.status || 'ACTIVE').toUpperCase()}
+                    </Badge>
+                  </div>
+                  <div className="text-[10px] text-black/70">
+                    {selectedItem.name} — <span className="italic">{selectedItem.details}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  {selectedItem.type === 'request' && (
+                    <>
+                      <Button
+                        variant="secondary"
+                        onClick={() => setShowAssignModal(true)}
+                      >
+                        Assign staff
+                      </Button>
+                      <Button
+                        variant="primary"
+                        onClick={() => navigate('/admin/requests')}
+                      >
+                        View in dispatch queue
+                      </Button>
+                    </>
+                  )}
+                  {selectedItem.type === 'customer' && (
+                    <Button
+                      variant="primary"
+                      onClick={() => navigate('/admin/customers')}
+                    >
+                      View customer record
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </Card>
+
+        {/* Quick Assign Modal (Wireframe A4 format) */}
+        {showAssignModal && selectedItem && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+            <div className="w-full max-w-sm bg-white rounded border border-black p-5 space-y-4 shadow-xl">
+              <div className="flex items-center justify-between border-b border-black/15 pb-2">
+                <span className="font-bold text-black uppercase tracking-wider text-[10px]">
+                  Assign Staff to {selectedItem.reference}
+                </span>
+                <button
+                  onClick={() => setShowAssignModal(false)}
+                  className="text-black hover:text-[#1E6FD9] p-1 font-bold text-[10px]"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <form onSubmit={handleAssignSubmit} className="space-y-3">
+                <div>
+                  <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                    Field Technician
+                  </label>
+                  <select
+                    className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none"
+                    value={assignStaffId}
+                    onChange={(e) => setAssignStaffId(Number(e.target.value) || '')}
+                    required
+                  >
+                    <option value="">Select field technician...</option>
+                    {staffList.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name || `Staff #${s.id}`} ({s.staff_profile?.assigned_barangay?.name || 'All Sectors'})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                    Assignment Instructions / Notes
+                  </label>
+                  <textarea
+                    rows={2}
+                    placeholder="e.g. Bring 1-inch pipe clamps and check main valve."
+                    className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none"
+                    value={assignNotes}
+                    onChange={(e) => setAssignNotes(e.target.value)}
+                  />
+                </div>
+
+                <div className="flex justify-end gap-2 pt-2 border-t border-black/10">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => setShowAssignModal(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    isLoading={isAssigning}
+                  >
+                    <IconCheck size={12} className="inline mr-1" />
+                    Assign Technician
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </AdminLayout>
   );

@@ -4,10 +4,9 @@ import { CustomerLayout } from '../../components/templates/CustomerLayout';
 import { Card } from '../../components/atoms/Card';
 import { Badge } from '../../components/atoms/Badge';
 import { EmptyState } from '../../components/molecules/EmptyState';
-import { InterruptionCalendar } from '../../components/organisms/InterruptionCalendar';
 import { interruptionsApi, referenceApi } from '../../api';
 import type { WaterInterruption, Barangay } from '../../types';
-import { IconAlertTriangle, IconCalendarTime, IconMapPin, IconCalendar, IconList } from '@tabler/icons-react';
+import { IconAlertTriangle, IconCalendarTime, IconMapPin } from '@tabler/icons-react';
 
 export function CustomerAdvisoriesView() {
   const navigate = useNavigate();
@@ -15,7 +14,6 @@ export function CustomerAdvisoriesView() {
   const [barangays, setBarangays] = useState<Barangay[]>([]);
   const [selectedBarangayId, setSelectedBarangayId] = useState<number | 'all'>('all');
   const [isLoading, setIsLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
 
   useEffect(() => {
     Promise.all([
@@ -65,56 +63,21 @@ export function CustomerAdvisoriesView() {
           </div>
         </div>
 
-      {/* View Switcher Bar */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1 border border-black rounded p-0.5 bg-white">
-          <button
-            onClick={() => setViewMode('list')}
-            className={`flex items-center gap-1 px-3 py-1 rounded text-[10px] font-bold transition-colors ${
-              viewMode === 'list'
-                ? 'bg-[#1E6FD9] text-white'
-                : 'text-black hover:bg-[#F0F6FD]'
-            }`}
-          >
-            <IconList size={12} />
-            <span>List View</span>
-          </button>
-          <button
-            onClick={() => setViewMode('calendar')}
-            className={`flex items-center gap-1 px-3 py-1 rounded text-[10px] font-bold transition-colors ${
-              viewMode === 'calendar'
-                ? 'bg-[#1E6FD9] text-white'
-                : 'text-black hover:bg-[#F0F6FD]'
-            }`}
-          >
-            <IconCalendar size={12} />
-            <span>Calendar View</span>
-          </button>
-        </div>
-
-        <span className="text-[10px] text-black/60 hidden sm:inline">
-          Showing {filteredAdvisories.length} scheduled disruptions in Sinacaban
-        </span>
-      </div>
-
-      {/* Calendar or List View */}
-      {viewMode === 'calendar' ? (
-        <InterruptionCalendar interruptions={filteredAdvisories} />
-      ) : isLoading ? (
-        <Card className="p-8 text-center text-black/60 border border-black/15">
-          Loading service interruption notices...
-        </Card>
-      ) : filteredAdvisories.length === 0 ? (
-        <EmptyState
-          title="No Active Water Interruptions"
-          description={
-            selectedBarangayId === 'all'
-              ? 'All municipal pipelines in Sinacaban are currently operating normally.'
-              : 'There are no active or scheduled service advisories for the selected barangay.'
-          }
-        />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {isLoading ? (
+          <Card className="p-8 text-center text-black/60 border border-black/15">
+            Loading service interruption notices...
+          </Card>
+        ) : filteredAdvisories.length === 0 ? (
+          <EmptyState
+            title="No Active Water Interruptions"
+            description={
+              selectedBarangayId === 'all'
+                ? 'All municipal pipelines in Sinacaban are currently operating normally.'
+                : 'There are no active or scheduled service advisories for the selected barangay.'
+            }
+          />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredAdvisories.map((advisory) => (
               <Card
                 key={advisory.id}

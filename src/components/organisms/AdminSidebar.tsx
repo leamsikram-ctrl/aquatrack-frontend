@@ -1,16 +1,4 @@
 import React from 'react';
-import {
-  IconLayoutDashboard,
-  IconTool,
-  IconReceipt,
-  IconMap,
-  IconUsers,
-  IconUserCheck,
-  IconAlertTriangle,
-  IconFileText,
-  IconHistory,
-  IconSettings,
-} from '@tabler/icons-react';
 
 export interface AdminSidebarProps {
   currentPath?: string;
@@ -21,7 +9,6 @@ export interface AdminSidebarProps {
 interface NavItem {
   name: string;
   path: string;
-  icon?: React.ComponentType<{ size?: number; className?: string }>;
 }
 
 interface NavSection {
@@ -38,37 +25,27 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     {
       title: 'Operations',
       items: [
-        { name: 'Dashboard', path: '/admin/dashboard', icon: IconLayoutDashboard },
-        { name: 'Service requests', path: '/admin/requests', icon: IconTool },
-        { name: 'Billing', path: '/admin/billing', icon: IconReceipt },
-        { name: 'Map', path: '/admin/map', icon: IconMap },
+        { name: 'Dashboard', path: '/admin/dashboard' },
+        { name: 'Customer Verifications', path: '/admin/verification' },
+        { name: 'Service Requests Dispatch', path: '/admin/requests' },
+        { name: 'Municipal Map', path: '/admin/map' },
+        { name: 'Billing Imports', path: '/admin/billing' },
+        { name: 'Water Advisories', path: '/admin/interruptions' },
       ],
     },
     {
-      title: 'People',
+      title: 'Records & Directory',
       items: [
-        { name: 'Customers', path: '/admin/customers', icon: IconUsers },
-        { name: 'Verification queue', path: '/admin/verification', icon: IconUserCheck },
-        { name: 'Staff', path: '/admin/staff', icon: IconUsers },
+        { name: 'All Customers', path: '/admin/customers' },
+        { name: 'Staff Directory', path: '/admin/staff' },
       ],
     },
     {
-      title: 'Communication',
+      title: 'System & Analytics',
       items: [
-        { name: 'Interruptions', path: '/admin/interruptions', icon: IconAlertTriangle },
-      ],
-    },
-    {
-      title: 'Records',
-      items: [
-        { name: 'Reports', path: '/admin/reports', icon: IconFileText },
-        { name: 'Activity log', path: '/admin/activity-log', icon: IconHistory },
-      ],
-    },
-    {
-      title: 'System',
-      items: [
-        { name: 'Settings', path: '/admin/settings', icon: IconSettings },
+        { name: 'Maintenance Reports', path: '/admin/reports' },
+        { name: 'Activity Log', path: '/admin/activity-log' },
+        { name: 'Settings & Issue Types', path: '/admin/settings' },
       ],
     },
   ];
@@ -77,7 +54,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     <aside
       className={`w-60 shrink-0 border-r border-black/15 bg-white flex flex-col justify-between text-[10px] select-none ${className}`}
     >
-      <div className="flex flex-col flex-1 overflow-y-auto p-3 space-y-3">
+      <div className="flex flex-col flex-1 overflow-y-auto p-3 space-y-4">
         {sections.map((section, idx) => (
           <div key={idx} className="space-y-1">
             {section.title && (
@@ -85,16 +62,15 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                 {section.title}
               </div>
             )}
-            <nav className="space-y-0.5">
+            <nav className="space-y-1">
               {section.items.map((item) => {
                 const isActive = currentPath === item.path;
-                const Icon = item.icon;
 
                 return (
                   <button
                     key={item.path}
                     onClick={() => onNavigate?.(item.path)}
-                    className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded text-[10px] font-medium transition-colors text-left
+                    className={`w-full flex items-center px-2.5 py-1.5 rounded text-[10px] font-medium transition-colors text-left
                       ${
                         isActive
                           ? 'bg-[#1E6FD9] text-white font-bold'
@@ -102,7 +78,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                       }
                     `}
                   >
-                    {Icon && <Icon size={12} className={isActive ? 'text-white' : 'text-black/60'} />}
                     <span>{item.name}</span>
                   </button>
                 );

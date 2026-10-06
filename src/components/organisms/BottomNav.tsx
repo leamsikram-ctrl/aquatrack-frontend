@@ -24,7 +24,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   const staffItems = [
     { name: 'Tasks', path: '/staff/tasks' },
     { name: 'Scan Meter', path: '/staff/scan' },
-    { name: 'History', path: '/staff/history' },
+    { name: 'Profile', path: '/staff/profile' },
   ];
 
   const items = variant === 'customer' ? customerItems : staffItems;

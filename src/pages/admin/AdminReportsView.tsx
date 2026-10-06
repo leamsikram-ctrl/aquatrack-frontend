@@ -1,213 +1,282 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '../../components/templates/AdminLayout';
 import { Card } from '../../components/atoms/Card';
-import { Button } from '../../components/atoms/Button';
 import { Badge } from '../../components/atoms/Badge';
-import { requestsApi, referenceApi } from '../../api';
-import type { ServiceRequest, Barangay } from '../../types';
-import { IconDownload, IconPrinter } from '@tabler/icons-react';
+import { Button } from '../../components/atoms/Button';
+import { requestsApi, referenceApi, interruptionsApi } from '../../api';
+import type { ServiceRequest, Barangay, WaterInterruption } from '../../types';
+import {
+  IconFileText,
+  IconDownload,
+  IconCalendar,
+  IconFilter,
+  IconCheck,
+} from '@tabler/icons-react';
 
 export function AdminReportsView() {
   const navigate = useNavigate();
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [barangays, setBarangays] = useState<Barangay[]>([]);
-  const [reportType, setReportType] = useState('Maintenance report');
-  const [selectedBarangayId, setSelectedBarangayId] = useState<number | 'all'>('all');
-  const [fromDate, setFromDate] = useState('2026-10-01');
-  const [toDate, setToDate] = useState('2026-10-31');
+  const [interruptions, setInterruptions] = useState<WaterInterruption[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Wireframe A11 Form State
+  const [reportType, setReportType] = useState<string>('maintenance');
+  const [fromDate, setFromDate] = useState<string>('2026-10-01');
+  const [toDate, setToDate] = useState<string>('2026-10-31');
+  const [selectedBarangay, setSelectedBarangay] = useState<string>('all');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [reportGenerated, setReportGenerated] = useState(false);
 
   useEffect(() => {
-    Promise.all([
-      requestsApi.list({ per_page: 50 }),
-      referenceApi.getBarangays().catch(() => []),
-    ]).then(([reqRes, bgRes]) => {
-      setRequests(reqRes.data);
-      setBarangays(bgRes);
-    });
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const [reqRes, bgRes, intRes] = await Promise.all([
+          requestsApi.list({ per_page: 100 }).catch(() => ({ data: [] })),
+          referenceApi.getBarangays().catch(() => []),
+          interruptionsApi.list().catch(() => ({ data: [] })),
+        ]);
+        setRequests(reqRes.data);
+        setBarangays(bgRes);
+        setInterruptions(intRes.data);
+      } catch {
+        // Fallback
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
   }, []);
 
-  const filteredRequests = requests.filter((r) => {
-    if (selectedBarangayId === 'all') return true;
-    return r.barangay?.id === selectedBarangayId || r.customer_profile?.barangay_id === selectedBarangayId;
-  });
+  // Filter requests matching report criteria
+  const filteredData = useMemo(() => {
+    return requests.filter((r) => {
+      if (selectedBarangay !== 'all') {
+        const bg = r.customer?.barangay || 'Poblacion';
+        if (bg !== selectedBarangay) return false;
+      }
+      return true;
+    });
+  }, [requests, selectedBarangay]);
+
+  // Breakdown statistics for preview
+  const countsByStatus = useMemo(() => {
+    const counts: Record<string, number> = { submitted: 0, assigned: 0, in_progress: 0, resolved: 0, cancelled: 0 };
+    filteredData.forEach((r) => {
+      counts[r.status] = (counts[r.status] || 0) + 1;
+    });
+    return counts;
+  }, [filteredData]);
+
+  const countsByUrgency = useMemo(() => {
+    const counts: Record<string, number> = { high: 0, medium: 0, low: 0 };
+    filteredData.forEach((r) => {
+      counts[r.urgency] = (counts[r.urgency] || 0) + 1;
+    });
+    return counts;
+  }, [filteredData]);
+
+  const handleGenerateReport = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsGenerating(true);
+    setTimeout(() => {
+      setIsGenerating(false);
+      setReportGenerated(true);
+    }, 400);
+  };
 
   const handleExportCsv = () => {
-    const csvContent =
-      'data:text/csv;charset=utf-8,' +
-      ['Reference,Issue,Barangay,Urgency,Status,Assigned Staff']
-        .concat(
-          filteredRequests.map(
-            (r) =>
-              `"${r.reference_no || r.reference}","${r.issue_type?.name || 'General'}","${
-                r.customer?.barangay || r.barangay?.name || 'Poblacion'
-              }","${r.urgency}","${r.status}","${r.assigned_staff?.name || 'Unassigned'}"`
-          )
-        )
-        .join('\n');
+    const headers = ['Reference', 'Issue Type', 'Barangay', 'Customer Urgency', 'Derived Urgency', 'Status', 'Date'];
+    const rows = filteredData.map((r) => [
+      r.reference_no || r.reference || `AT-${r.id}`,
+      `"${r.description.replace(/"/g, '""')}"`,
+      r.customer?.barangay || 'Poblacion',
+      r.customer_urgency,
+      r.urgency,
+      r.status,
+      r.created_at,
+    ]);
 
-    const encodedUri = encodeURI(csvContent);
+    const csvContent = [headers.join(','), ...rows.map((row) => row.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `SIWASS_Report_${fromDate}_to_${toDate}.csv`);
+    link.href = url;
+    link.setAttribute('download', `SIWASS_${reportType}_report_${fromDate}_to_${toDate}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
   return (
-    <AdminLayout
-      title="Reports & Analytics"
-      subtitle="Municipal Utility Audits"
-      currentPath="/admin/reports"
-      onNavigate={(path) => navigate(path)}
-    >
-      <div className="space-y-4">
-        {/* Header - Matches Wireframe A11 */}
+    <AdminLayout currentPath="/admin/reports" onNavigate={(path) => navigate(path)}>
+      <div className="space-y-4 text-[10px] text-black">
+        {/* Wireframe A11 Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/15 pb-3">
           <div>
             <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">
-              Generate Maintenance & Utility Reports
+              Maintenance Reports
             </h1>
             <p className="text-[10px] text-black/60">
-              Export comprehensive counts by status, repair categories, and barangay distributions.
+              Compile statutory municipal utility analytics, response times, and failure reports.
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="secondary" onClick={() => window.print()}>
-              <IconPrinter size={12} className="inline mr-1" />
-              Print Preview
-            </Button>
-            <Button variant="primary" onClick={handleExportCsv}>
-              <IconDownload size={12} className="inline mr-1" />
-              Export CSV
-            </Button>
-          </div>
+          <Button
+            variant="primary"
+            onClick={handleGenerateReport}
+            isLoading={isGenerating}
+            className="flex items-center gap-1 self-start sm:self-auto"
+          >
+            <IconFileText size={14} />
+            <span>Generate report</span>
+          </Button>
         </div>
 
-        {/* Filter Form Card - Matches Wireframe A11 */}
-        <Card className="p-4 border border-black/15 space-y-3 bg-[#F0F6FD]">
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-[10px]">
+        {/* Wireframe A11 Form */}
+        <Card className="p-5 border border-black/15 shadow-sm space-y-4">
+          {reportGenerated && (
+            <div className="p-2.5 bg-[#F0F6FD] border border-black rounded text-[10px] text-black flex items-center gap-2">
+              <IconCheck size={14} className="text-[#1E6FD9] shrink-0" />
+              <span>Report successfully compiled from municipal ledger records!</span>
+            </div>
+          )}
+
+          <form onSubmit={handleGenerateReport} className="space-y-3">
+            {/* Report Type */}
             <div>
-              <label className="block font-bold text-black uppercase mb-1">Report type</label>
+              <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                Report type
+              </label>
               <select
-                className="w-full p-2 bg-white text-black border border-black rounded outline-none"
                 value={reportType}
                 onChange={(e) => setReportType(e.target.value)}
+                className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-sans"
               >
-                <option value="Maintenance report">Maintenance report</option>
-                <option value="Billing compliance report">Billing compliance report</option>
-                <option value="Interruption frequency report">Interruption frequency report</option>
+                <option value="maintenance">Maintenance report (Repairs & SLA)</option>
+                <option value="service_requests">Service requests summary & dispatch backlog</option>
+                <option value="water_interruptions">Water disruptions & advisory log</option>
+                <option value="consumer_registry">Consumer verification & meter inventory</option>
               </select>
             </div>
 
-            <div>
-              <label className="block font-bold text-black uppercase mb-1">From Date</label>
-              <input
-                type="date"
-                className="w-full p-2 bg-white text-black border border-black rounded outline-none"
-                value={fromDate}
-                onChange={(e) => setFromDate(e.target.value)}
-              />
+            {/* Date Range: From & To */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[10px] font-bold text-black uppercase mb-1 flex items-center gap-1">
+                  <IconCalendar size={12} className="text-[#1E6FD9]" />
+                  <span>From</span>
+                </label>
+                <input
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => setFromDate(e.target.value)}
+                  className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-mono"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-black uppercase mb-1 flex items-center gap-1">
+                  <IconCalendar size={12} className="text-[#1E6FD9]" />
+                  <span>To</span>
+                </label>
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => setToDate(e.target.value)}
+                  className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-mono"
+                  required
+                />
+              </div>
             </div>
 
+            {/* Barangay Filter */}
             <div>
-              <label className="block font-bold text-black uppercase mb-1">To Date</label>
-              <input
-                type="date"
-                className="w-full p-2 bg-white text-black border border-black rounded outline-none"
-                value={toDate}
-                onChange={(e) => setToDate(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <label className="block font-bold text-black uppercase mb-1">Barangay Zone</label>
+              <label className="block text-[10px] font-bold text-black uppercase mb-1 flex items-center gap-1">
+                <IconFilter size={12} className="text-[#1E6FD9]" />
+                <span>Barangay</span>
+              </label>
               <select
-                className="w-full p-2 bg-white text-black border border-black rounded outline-none"
-                value={selectedBarangayId}
-                onChange={(e) => setSelectedBarangayId(e.target.value === 'all' ? 'all' : Number(e.target.value))}
+                value={selectedBarangay}
+                onChange={(e) => setSelectedBarangay(e.target.value)}
+                className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-sans"
               >
-                <option value="all">All barangays</option>
+                <option value="all">All barangays (Sinacaban Municipal Wide)</option>
                 {barangays.map((b) => (
-                  <option key={b.id} value={b.id}>
+                  <option key={b.id} value={b.name}>
                     {b.name}
                   </option>
                 ))}
               </select>
             </div>
-          </div>
+
+            {/* Wireframe A11 Preview Box: counts by status, issue type, barangay */}
+            <div className="border border-dashed border-black/30 rounded p-4 bg-[#F0F6FD] space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-black uppercase tracking-wider text-[10px]">
+                  Preview: counts by status, issue type, barangay
+                </span>
+                <Badge variant="blue">{filteredData.length} Matching Records</Badge>
+              </div>
+
+              {isLoading ? (
+                <div className="py-4 text-center text-black/50">Computing municipal dataset...</div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px]">
+                  <div className="bg-white p-2 border border-black/15 rounded">
+                    <span className="text-black/60 uppercase block text-[9px]">Resolved Repairs</span>
+                    <strong className="text-[#1E6FD9] text-[12px]">{countsByStatus.resolved}</strong>
+                  </div>
+
+                  <div className="bg-white p-2 border border-black/15 rounded">
+                    <span className="text-black/60 uppercase block text-[9px]">In Progress Jobs</span>
+                    <strong className="text-black text-[12px]">{countsByStatus.in_progress}</strong>
+                  </div>
+
+                  <div className="bg-white p-2 border border-black/15 rounded">
+                    <span className="text-black/60 uppercase block text-[9px]">High Priority</span>
+                    <strong className="text-black text-[12px]">{countsByUrgency.high}</strong>
+                  </div>
+
+                  <div className="bg-white p-2 border border-black/15 rounded">
+                    <span className="text-black/60 uppercase block text-[9px]">Total Advisories</span>
+                    <strong className="text-black text-[12px]">{interruptions.length}</strong>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Wireframe A11 Actions: Export & Generate */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-2 border-t border-black/10">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleExportCsv}
+                className="w-full sm:w-auto flex items-center justify-center gap-1.5"
+              >
+                <IconDownload size={14} />
+                <span>Export CSV</span>
+              </Button>
+
+              <Button
+                type="submit"
+                variant="primary"
+                className="w-full sm:w-auto"
+                isLoading={isGenerating}
+              >
+                <IconCheck size={14} className="inline mr-1" />
+                Generate report
+              </Button>
+            </div>
+          </form>
         </Card>
 
-        {/* Summary Metric Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <Card className="p-3 border border-black/15">
-            <span className="text-[10px] text-black/60 uppercase font-bold block">Filtered Records</span>
-            <strong className="text-[12px] text-black mt-1 block">{filteredRequests.length}</strong>
-            <span className="text-[10px] text-black/50">Total incidents in range</span>
-          </Card>
-          <Card className="p-3 border border-black/15">
-            <span className="text-[10px] text-black/60 uppercase font-bold block">Resolved Ratio</span>
-            <strong className="text-[12px] text-[#1E6FD9] mt-1 block">
-              {filteredRequests.filter((r) => r.status === 'resolved').length} Resolved
-            </strong>
-            <span className="text-[10px] text-black/50">Completed repairs</span>
-          </Card>
-          <Card className="p-3 border border-black/15">
-            <span className="text-[10px] text-black/60 uppercase font-bold block">Active Pipeline Tickets</span>
-            <strong className="text-[12px] text-black mt-1 block">
-              {filteredRequests.filter((r) => r.status !== 'resolved' && r.status !== 'cancelled').length} Pending
-            </strong>
-            <span className="text-[10px] text-black/50">Field tasks undergoing work</span>
-          </Card>
-        </div>
-
-        {/* Preview Table - Matches Wireframe A11 */}
-        <Card className="p-0 overflow-hidden border border-black/15">
-          <div className="px-4 py-2 border-b border-black/15 flex items-center justify-between bg-white text-[10px]">
-            <span className="font-bold text-black uppercase tracking-wider">
-              Preview: counts by status, issue type, barangay
-            </span>
-            <Badge variant="blue">{filteredRequests.length} Results</Badge>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-[10px]">
-              <thead className="bg-[#F0F6FD] text-black border-b border-black/15">
-                <tr>
-                  <th className="px-4 py-2 font-bold uppercase">Reference</th>
-                  <th className="px-4 py-2 font-bold uppercase">Issue Category</th>
-                  <th className="px-4 py-2 font-bold uppercase">Barangay Zone</th>
-                  <th className="px-4 py-2 font-bold uppercase">Urgency</th>
-                  <th className="px-4 py-2 font-bold uppercase">Status</th>
-                  <th className="px-4 py-2 font-bold uppercase">Technician</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-black/10">
-                {filteredRequests.map((r) => (
-                  <tr key={r.id} className="hover:bg-[#F0F6FD]/50">
-                    <td className="px-4 py-2 font-bold text-[#1E6FD9]">
-                      {r.reference_no || r.reference}
-                    </td>
-                    <td className="px-4 py-2 text-black">{r.issue_type?.name || 'General Leak'}</td>
-                    <td className="px-4 py-2 text-black">{r.customer?.barangay || r.barangay?.name || 'Poblacion'}</td>
-                    <td className="px-4 py-2">
-                      <Badge variant={r.urgency === 'high' ? 'blue' : 'black'}>
-                        {r.urgency ? r.urgency.toUpperCase() : 'MEDIUM'}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-2">
-                      <Badge variant={r.status === 'resolved' ? 'blue' : 'black'}>
-                        {r.status.toUpperCase()}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-2 text-black">{r.assigned_staff?.name || 'Unassigned'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
+        {/* Footnote matching Wireframe A11 */}
+        <p className="text-[9px] text-black/50 italic">
+          Matches Generate Maintenance Reports on the Admin use case diagram.
+        </p>
       </div>
     </AdminLayout>
   );

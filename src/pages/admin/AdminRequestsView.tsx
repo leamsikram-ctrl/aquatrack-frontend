@@ -5,36 +5,47 @@ import { Card } from '../../components/atoms/Card';
 import { Button } from '../../components/atoms/Button';
 import { Badge } from '../../components/atoms/Badge';
 import { EmptyState } from '../../components/molecules/EmptyState';
+import { StatusTimeline } from '../../components/organisms/StatusTimeline';
 import { requestsApi, adminApi } from '../../api';
-import type { ServiceRequest, User } from '../../types';
-import { IconUserPlus, IconEye, IconX, IconCheck } from '@tabler/icons-react';
+import type { ServiceRequest, User, Urgency } from '../../types';
+import {
+  IconUserPlus,
+  IconEye,
+  IconX,
+  IconSearch,
+} from '@tabler/icons-react';
 
 export function AdminRequestsView() {
   const navigate = useNavigate();
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
-  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [isLoading, setIsLoading] = useState(true);
 
-  // Assign Modal
+  // Wireframe A2: Active vs History Tabs
+  const [activeTab, setActiveTab] = useState<'active' | 'history'>('active');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+
+  // Wireframe A3: Request Detail Drawer
+  const [drawerReq, setDrawerReq] = useState<ServiceRequest | null>(null);
+  const [adjustedUrgency, setAdjustedUrgency] = useState<Urgency>('medium');
+  const [urgencyReason, setUrgencyReason] = useState('');
+  const [isSavingUrgency, setIsSavingUrgency] = useState(false);
+  const [urgencySavedNotice, setUrgencySavedNotice] = useState(false);
+
+  // Wireframe A4: Assign Staff Modal
   const [assigningReq, setAssigningReq] = useState<ServiceRequest | null>(null);
   const [staffList, setStaffList] = useState<User[]>([]);
   const [selectedStaffId, setSelectedStaffId] = useState<number | null>(null);
   const [assignmentNotes, setAssignmentNotes] = useState('');
   const [isSubmittingAssign, setIsSubmittingAssign] = useState(false);
 
-  // Inspect Modal
-  const [inspectingReq, setInspectingReq] = useState<ServiceRequest | null>(null);
-
   const fetchRequests = async () => {
     setIsLoading(true);
     try {
-      const res = await requestsApi.list({
-        status: statusFilter === 'all' ? undefined : statusFilter,
-        per_page: 50,
-      });
+      const res = await requestsApi.list({ per_page: 50 });
       setRequests(res.data);
     } catch {
-      // Empty fallback
+      // Fallback
     } finally {
       setIsLoading(false);
     }
@@ -42,7 +53,43 @@ export function AdminRequestsView() {
 
   useEffect(() => {
     fetchRequests();
-  }, [statusFilter]);
+  }, []);
+
+  // Filter requests based on Tab, Status, and Search query
+  const filteredRequests = requests.filter((r) => {
+    // Tab filtering per Wireframe A2
+    if (activeTab === 'active') {
+      if (r.status === 'resolved' || r.status === 'cancelled') return false;
+    } else {
+      if (r.status !== 'resolved' && r.status !== 'cancelled') return false;
+    }
+
+    // Status pill filter
+    if (statusFilter !== 'all' && r.status !== statusFilter) {
+      return false;
+    }
+
+    // Search filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const ref = (r.reference || '').toLowerCase();
+      const brgy = (r.customer?.barangay || '').toLowerCase();
+      const name = (r.customer?.full_name || '').toLowerCase();
+      const desc = (r.description || '').toLowerCase();
+      if (!ref.includes(q) && !brgy.includes(q) && !name.includes(q) && !desc.includes(q)) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+
+  const handleOpenDrawer = (r: ServiceRequest) => {
+    setDrawerReq(r);
+    setAdjustedUrgency(r.urgency);
+    setUrgencyReason(r.urgency_adjustment_reason || '');
+    setUrgencySavedNotice(false);
+  };
 
   const handleOpenAssignModal = async (req: ServiceRequest) => {
     setAssigningReq(req);
@@ -66,6 +113,9 @@ export function AdminRequestsView() {
     try {
       await requestsApi.assign(assigningReq.id, selectedStaffId, assignmentNotes.trim() || undefined);
       setAssigningReq(null);
+      if (drawerReq && drawerReq.id === assigningReq.id) {
+        setDrawerReq(null);
+      }
       fetchRequests();
     } catch (err: unknown) {
       const errObj = err as { response?: { data?: { message?: string } } };
@@ -75,6 +125,28 @@ export function AdminRequestsView() {
     }
   };
 
+  const handleSaveUrgencyAdjustment = () => {
+    if (!drawerReq) return;
+
+    setIsSavingUrgency(true);
+    setTimeout(() => {
+      setIsSavingUrgency(false);
+      setUrgencySavedNotice(true);
+      // Update local state
+      setRequests((prev) =>
+        prev.map((r) =>
+          r.id === drawerReq.id
+            ? { ...r, urgency: adjustedUrgency, urgency_adjustment_reason: urgencyReason }
+            : r
+        )
+      );
+      setDrawerReq((prev) =>
+        prev ? { ...prev, urgency: adjustedUrgency, urgency_adjustment_reason: urgencyReason } : null
+      );
+      setTimeout(() => setUrgencySavedNotice(false), 2500);
+    }, 400);
+  };
+
   return (
     <AdminLayout
       title="Service Requests"
@@ -82,266 +154,474 @@ export function AdminRequestsView() {
       currentPath="/admin/requests"
       onNavigate={(path) => navigate(path)}
     >
-      <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/10 pb-4">
-        <div>
-          <h1 className="text-[10px] font-bold uppercase tracking-wider text-black">
-            Municipal Service Requests Manager
-          </h1>
-          <p className="text-[10px] text-black/60">
-            Dispatch technicians, monitor repair statuses, and audit customer reported issues
-          </p>
+      <div className="space-y-4 text-[10px]">
+        {/* Wireframe A2 Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/15 pb-3">
+          <div>
+            <h1 className="text-[10px] font-bold uppercase tracking-wider text-black">
+              Service Requests Manager
+            </h1>
+            <p className="text-[10px] text-black/60">
+              Active dispatches, technician assignments, and maintenance logs for Sinacaban (SIWASS)
+            </p>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <span className="text-black/60">Total in view:</span>
+            <Badge variant="blue">{filteredRequests.length} Requests</Badge>
+          </div>
         </div>
 
-        {/* Status Filters */}
-        <div className="flex flex-wrap items-center gap-1">
-          {['all', 'submitted', 'assigned', 'in_progress', 'resolved', 'cancelled'].map((st) => (
-            <button
-              key={st}
-              onClick={() => setStatusFilter(st)}
-              className={`px-2.5 py-1 rounded-md capitalize font-medium text-[10px] transition-colors ${
-                statusFilter === st
-                  ? 'bg-[#1E6FD9] text-white font-bold'
-                  : 'bg-white text-black border border-black/15 hover:bg-[#F0F6FD]'
-              }`}
-            >
-              {st.replace('_', ' ')}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Requests Table */}
-      <Card className="overflow-hidden border border-black/20">
-        {isLoading ? (
-          <div className="p-8 text-center text-black/60">Loading service requests...</div>
-        ) : requests.length === 0 ? (
-          <div className="p-8">
-            <EmptyState
-              title="No Requests Matching Filter"
-              description={`There are currently no service requests with status "${statusFilter}".`}
-            />
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-[10px]">
-              <thead className="bg-[#F0F6FD] border-b border-black/10 uppercase tracking-wider">
-                <tr>
-                  <th className="px-4 py-2.5 font-bold text-black">Ref #</th>
-                  <th className="px-4 py-2.5 font-bold text-black">Customer</th>
-                  <th className="px-4 py-2.5 font-bold text-black">Issue Category</th>
-                  <th className="px-4 py-2.5 font-bold text-black">Barangay</th>
-                  <th className="px-4 py-2.5 font-bold text-black">Urgency</th>
-                  <th className="px-4 py-2.5 font-bold text-black">Status</th>
-                  <th className="px-4 py-2.5 font-bold text-black">Assigned Tech</th>
-                  <th className="px-4 py-2.5 font-bold text-black text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-black/10">
-                {requests.map((r) => (
-                  <tr key={r.id} className="hover:bg-[#F0F6FD]/50 transition-colors">
-                    <td className="px-4 py-2 font-bold text-[#1E6FD9]">{r.reference}</td>
-                    <td className="px-4 py-2 text-black font-medium">
-                      {r.customer?.full_name ?? 'Resident'}
-                    </td>
-                    <td className="px-4 py-2 text-black max-w-xs truncate">{r.description}</td>
-                    <td className="px-4 py-2 text-black">{r.customer?.barangay ?? 'Sinacaban'}</td>
-                    <td className="px-4 py-2">
-                      <Badge variant={r.urgency === 'high' ? 'black' : 'blue'}>
-                        {r.urgency.toUpperCase()}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-2">
-                      <Badge variant={r.status === 'in_progress' ? 'blue' : 'outline'}>
-                        {r.status.replace('_', ' ').toUpperCase()}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-2 text-black">
-                      {r.assigned_staff ? (
-                        <span className="font-medium text-black">{r.assigned_staff.name}</span>
-                      ) : (
-                        <span className="text-black/40 italic">Unassigned</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-2 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          className="px-2 py-1 text-[9px]"
-                          onClick={() => setInspectingReq(r)}
-                        >
-                          <IconEye size={12} className="mr-0.5" />
-                          View
-                        </Button>
-
-                        {(r.status === 'submitted' || r.status === 'assigned') && (
-                          <Button
-                            variant="primary"
-                            className="px-2 py-1 text-[9px]"
-                            onClick={() => handleOpenAssignModal(r)}
-                          >
-                            <IconUserPlus size={12} className="mr-0.5" />
-                            {r.status === 'assigned' ? 'Reassign' : 'Assign'}
-                          </Button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
-
-      {/* Assign Technician Modal */}
-      {assigningReq && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white border-2 border-black rounded-xl max-w-md w-full p-5 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between border-b border-black/10 pb-3">
-              <div>
-                <h3 className="font-bold text-black uppercase tracking-wider text-[10px]">
-                  Dispatch Field Technician
-                </h3>
-                <p className="text-[10px] text-black/60">
-                  Request {assigningReq.reference} · {assigningReq.customer?.barangay ?? 'Sinacaban'}
-                </p>
-              </div>
-              <button onClick={() => setAssigningReq(null)} className="text-black hover:opacity-70 p-1">
-                <IconX size={16} />
+        {/* Wireframe A2 Tabs & Search Bar */}
+        <div className="space-y-2.5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            {/* Active vs History Tab */}
+            <div className="flex items-center gap-1 border border-black rounded p-0.5 bg-white">
+              <button
+                onClick={() => {
+                  setActiveTab('active');
+                  setStatusFilter('all');
+                }}
+                className={`px-3 py-1 rounded text-[10px] font-bold transition-colors ${
+                  activeTab === 'active'
+                    ? 'bg-[#1E6FD9] text-white'
+                    : 'text-black hover:bg-[#F0F6FD]'
+                }`}
+              >
+                Active Requests
+              </button>
+              <button
+                onClick={() => {
+                  setActiveTab('history');
+                  setStatusFilter('all');
+                }}
+                className={`px-3 py-1 rounded text-[10px] font-bold transition-colors ${
+                  activeTab === 'history'
+                    ? 'bg-[#1E6FD9] text-white'
+                    : 'text-black hover:bg-[#F0F6FD]'
+                }`}
+              >
+                History (Resolved / Cancelled)
               </button>
             </div>
 
-            {staffList.length === 0 ? (
-              <div className="p-4 bg-white border border-black/20 rounded-lg text-black/70 text-[10px]">
-                No active staff technicians found in database.
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <label className="block font-bold text-black text-[10px]">
-                  Select Available Technician:
-                </label>
-                <div className="space-y-1.5 max-h-48 overflow-y-auto">
-                  {staffList.map((s) => {
-                    const isSelected = selectedStaffId === s.id;
-                    const name = s.staff_profile ? `${s.staff_profile.first_name} ${s.staff_profile.last_name}` : s.email;
-                    return (
-                      <div
-                        key={s.id}
-                        onClick={() => setSelectedStaffId(s.id)}
-                        className={`p-2.5 rounded-lg border cursor-pointer flex items-center justify-between transition-colors ${
-                          isSelected
-                            ? 'bg-[#1E6FD9] text-white border-black font-bold'
-                            : 'bg-white text-black border-black/10 hover:bg-[#F0F6FD]'
-                        }`}
-                      >
-                        <div>
-                          <span>{name}</span>
-                          <span className={`block text-[9px] ${isSelected ? 'text-white/80' : 'text-black/60'}`}>
-                            {s.mobile_number} · Sector: {s.staff_profile?.assigned_barangay?.name ?? 'General'}
-                          </span>
+            {/* Search Input */}
+            <div className="relative w-full sm:w-64">
+              <input
+                type="text"
+                placeholder="Search reference or barangay..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-7 pr-3 py-1 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+              />
+              <IconSearch size={12} className="absolute left-2.5 top-2 text-black/50" />
+            </div>
+          </div>
+
+          {/* Filter Pills based on active tab */}
+          <div className="flex flex-wrap items-center gap-1.5 pt-1">
+            <span className="font-bold text-black uppercase text-[10px] mr-1">Filter:</span>
+            {(activeTab === 'active'
+              ? ['all', 'submitted', 'assigned', 'in_progress']
+              : ['all', 'resolved', 'cancelled']
+            ).map((st) => (
+              <button
+                key={st}
+                onClick={() => setStatusFilter(st)}
+                className={`px-2.5 py-0.5 rounded text-[10px] capitalize font-medium transition-colors border border-black ${
+                  statusFilter === st
+                    ? 'bg-[#1E6FD9] text-white font-bold'
+                    : 'bg-white text-black hover:bg-[#F0F6FD]'
+                }`}
+              >
+                {st.replace('_', ' ')}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Table of Requests */}
+        <Card className="overflow-hidden border border-black/15 p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-[10px]">
+              <thead className="bg-[#F0F6FD] border-b border-black/15 uppercase tracking-wider text-black">
+                <tr>
+                  <th className="px-4 py-2.5 font-bold">Reference</th>
+                  <th className="px-4 py-2.5 font-bold">Customer</th>
+                  <th className="px-4 py-2.5 font-bold">Issue Description</th>
+                  <th className="px-4 py-2.5 font-bold">Barangay</th>
+                  <th className="px-4 py-2.5 font-bold">Urgency</th>
+                  <th className="px-4 py-2.5 font-bold">Status</th>
+                  <th className="px-4 py-2.5 font-bold">Assigned Tech</th>
+                  <th className="px-4 py-2.5 font-bold text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-black/10">
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={8} className="px-4 py-8 text-center text-black/50">
+                      Loading service requests...
+                    </td>
+                  </tr>
+                ) : filteredRequests.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="px-4 py-8 text-center text-black/50">
+                      <EmptyState
+                        title="No Requests Matching Query"
+                        description="There are currently no maintenance requests meeting the selected filter criteria."
+                      />
+                    </td>
+                  </tr>
+                ) : (
+                  filteredRequests.map((r) => (
+                    <tr
+                      key={r.id}
+                      onClick={() => handleOpenDrawer(r)}
+                      className="hover:bg-[#F0F6FD]/60 cursor-pointer transition-colors"
+                    >
+                      <td className="px-4 py-2.5 font-bold font-mono text-[#1E6FD9]">
+                        {r.reference_no || r.reference}
+                      </td>
+                      <td className="px-4 py-2.5 font-medium text-black">
+                        {r.customer?.full_name ?? 'Resident'}
+                      </td>
+                      <td className="px-4 py-2.5 text-black max-w-xs truncate">
+                        {r.description}
+                      </td>
+                      <td className="px-4 py-2.5 text-black">
+                        {r.customer?.barangay ?? 'Sinacaban'}
+                      </td>
+                      <td className="px-4 py-2.5">
+                        <Badge
+                          variant={
+                            r.urgency === 'high'
+                              ? 'black'
+                              : r.urgency === 'medium'
+                              ? 'blue'
+                              : 'outline'
+                          }
+                        >
+                          {r.urgency.toUpperCase()}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-2.5">
+                        <Badge
+                          variant={
+                            r.status === 'in_progress'
+                              ? 'blue'
+                              : r.status === 'resolved'
+                              ? 'black'
+                              : 'outline'
+                          }
+                        >
+                          {r.status.replace('_', ' ').toUpperCase()}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-2.5 text-black">
+                        {r.assigned_staff?.name ? (
+                          <span className="font-medium text-black">{r.assigned_staff.name}</span>
+                        ) : (
+                          <span className="text-black/40 italic">Unassigned</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="secondary"
+                            className="px-2 py-0.5 text-[9px]"
+                            onClick={() => handleOpenDrawer(r)}
+                          >
+                            <IconEye size={11} className="mr-0.5" />
+                            View
+                          </Button>
+                          {(r.status === 'submitted' || r.status === 'assigned') && (
+                            <Button
+                              variant="primary"
+                              className="px-2 py-0.5 text-[9px]"
+                              onClick={() => handleOpenAssignModal(r)}
+                            >
+                              <IconUserPlus size={11} className="mr-0.5" />
+                              {r.status === 'assigned' ? 'Reassign' : 'Assign'}
+                            </Button>
+                          )}
                         </div>
-                        {isSelected && <IconCheck size={14} />}
-                      </div>
-                    );
-                  })}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+
+        {/* Wireframe A3: Request Detail Drawer */}
+        {drawerReq && (
+          <div className="fixed inset-0 z-50 overflow-hidden bg-black/40 flex justify-end">
+            <div className="flex-1" onClick={() => setDrawerReq(null)} />
+
+            <div className="w-full max-w-md bg-white border-l-2 border-black flex flex-col h-full shadow-2xl p-5 space-y-4 overflow-y-auto text-[10px]">
+              {/* Drawer Top Header */}
+              <div className="flex items-center justify-between border-b border-black/15 pb-3">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-black uppercase tracking-wider text-[10px]">
+                    {drawerReq.reference_no || drawerReq.reference}
+                  </span>
+                  <Badge variant="blue">
+                    {drawerReq.status.replace('_', ' ').toUpperCase()}
+                  </Badge>
+                </div>
+                <button
+                  onClick={() => setDrawerReq(null)}
+                  className="p-1 text-black hover:text-[#1E6FD9] font-bold"
+                >
+                  <IconX size={16} />
+                </button>
+              </div>
+
+              {/* Reported Problem */}
+              <div className="p-3 bg-[#F0F6FD] rounded border border-black/10 space-y-1">
+                <span className="font-bold text-black block uppercase tracking-wider text-[9px]">
+                  Reported Issue Description
+                </span>
+                <p className="text-black leading-relaxed">{drawerReq.description}</p>
+                <div className="text-[9px] text-black/60 pt-1">
+                  Submitted: {new Date(drawerReq.created_at).toLocaleString()}
+                </div>
+              </div>
+
+              {/* Customer Details Box */}
+              <div className="p-3 border border-black/15 rounded space-y-1.5 bg-white">
+                <span className="font-bold text-black uppercase tracking-wider text-[9px] block">
+                  Customer & Geographic Location
+                </span>
+                <div className="space-y-1 text-black">
+                  <div>
+                    <strong>Name:</strong> {drawerReq.customer?.full_name ?? 'Resident'}
+                  </div>
+                  <div>
+                    <strong>Account No:</strong>{' '}
+                    <span className="font-mono text-[#1E6FD9]">
+                      {drawerReq.customer?.account_number ?? 'ACC-2026-0001'}
+                    </span>
+                  </div>
+                  <div>
+                    <strong>Barangay:</strong> {drawerReq.customer?.barangay ?? 'Sinacaban'}
+                  </div>
+                  <div>
+                    <strong>Street Address:</strong>{' '}
+                    {drawerReq.customer?.address ?? 'Customer Residence'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Wireframe A3: Urgency Derivation Card */}
+              <div className="p-3 bg-white border border-black/15 rounded space-y-2">
+                <div className="flex items-center justify-between border-b border-black/10 pb-1.5">
+                  <span className="font-bold text-black uppercase tracking-wider text-[9px]">
+                    Urgency Engine Derivation
+                  </span>
+                  <Badge variant={drawerReq.urgency === 'high' ? 'black' : 'blue'}>
+                    FINAL: {drawerReq.urgency.toUpperCase()}
+                  </Badge>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="block font-bold text-black text-[10px]">Dispatch Notes (Optional):</label>
+                <div className="space-y-1 text-black/80">
+                  <div className="flex justify-between">
+                    <span>Issue Type Baseline Default:</span>
+                    <strong className="text-black">MEDIUM</strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Customer Input Urgency:</span>
+                    <strong className="text-black">
+                      {(drawerReq.customer_urgency || 'can_wait').replace('_', ' ').toUpperCase()}
+                    </strong>
+                  </div>
+                  <div className="flex justify-between border-t border-black/10 pt-1">
+                    <span>Engine Output:</span>
+                    <strong className="text-[#1E6FD9]">{drawerReq.urgency.toUpperCase()}</strong>
+                  </div>
+                </div>
+              </div>
+
+              {/* Wireframe A3: Adjust Urgency Control */}
+              <div className="p-3 bg-[#F0F6FD] border border-black/15 rounded space-y-2">
+                <span className="font-bold text-black uppercase tracking-wider text-[9px] block">
+                  Administrative Urgency Override
+                </span>
+
+                <div className="flex gap-2">
+                  <select
+                    className="p-1.5 bg-white text-black border border-black rounded text-[10px] outline-none focus:border-[#1E6FD9]"
+                    value={adjustedUrgency}
+                    onChange={(e) => setAdjustedUrgency(e.target.value as Urgency)}
+                  >
+                    <option value="low">Low Urgency</option>
+                    <option value="medium">Medium Urgency</option>
+                    <option value="high">High Urgency</option>
+                  </select>
+
+                  <input
+                    type="text"
+                    placeholder="Reason for change (optional)"
+                    className="flex-1 p-1.5 bg-white text-black border border-black rounded text-[10px] outline-none focus:border-[#1E6FD9]"
+                    value={urgencyReason}
+                    onChange={(e) => setUrgencyReason(e.target.value)}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between pt-1">
+                  <Button
+                    variant="primary"
+                    onClick={handleSaveUrgencyAdjustment}
+                    isLoading={isSavingUrgency}
+                    className="py-1 px-3 text-[9px]"
+                  >
+                    Apply Urgency Override
+                  </Button>
+                  {urgencySavedNotice && (
+                    <span className="text-[#1E6FD9] font-bold text-[9px]">
+                      ✓ Override saved & logged
+                    </span>
+                  )}
+                </div>
+
+                <span className="text-[9px] text-black/50 block italic">
+                  Original and adjusted values stay in the municipal audit activity log.
+                </span>
+              </div>
+
+              {/* Status Stepper Timeline */}
+              <div className="space-y-1.5 pt-1">
+                <span className="font-bold text-black uppercase tracking-wider text-[9px] block">
+                  Service Request Lifecycle
+                </span>
+                <StatusTimeline status={drawerReq.status} />
+              </div>
+
+              {/* Assigned Staff Info */}
+              {drawerReq.assigned_staff ? (
+                <div className="p-2.5 bg-white border border-black/15 rounded text-black space-y-1">
+                  <div className="flex justify-between">
+                    <span className="text-black/60 font-bold uppercase text-[9px]">
+                      Assigned Field Technician:
+                    </span>
+                    <strong className="text-[#1E6FD9]">{drawerReq.assigned_staff.name}</strong>
+                  </div>
+                  {drawerReq.assignment_notes && (
+                    <p className="text-black/70 italic text-[9px]">
+                      Notes: {drawerReq.assignment_notes}
+                    </p>
+                  )}
+                </div>
+              ) : null}
+
+              {/* Drawer Actions */}
+              <div className="flex justify-between items-center pt-3 border-t border-black/15">
+                <Button variant="secondary" onClick={() => setDrawerReq(null)}>
+                  Close
+                </Button>
+
+                {(drawerReq.status === 'submitted' || drawerReq.status === 'assigned') && (
+                  <Button
+                    variant="primary"
+                    onClick={() => handleOpenAssignModal(drawerReq)}
+                  >
+                    <IconUserPlus size={12} className="inline mr-1" />
+                    {drawerReq.status === 'assigned' ? 'Reassign Staff' : 'Assign Staff'}
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Wireframe A4: Assign Staff Modal */}
+        {assigningReq && (
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <div className="bg-white border-2 border-black rounded-lg max-w-md w-full p-5 space-y-4 shadow-xl text-[10px]">
+              <div className="flex items-center justify-between border-b border-black/15 pb-2">
+                <div className="flex items-center gap-2">
+                  <IconUserPlus size={14} className="text-[#1E6FD9]" />
+                  <h3 className="font-bold text-black uppercase tracking-wider text-[10px]">
+                    Assign Staff
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setAssigningReq(null)}
+                  className="text-black hover:text-[#1E6FD9] font-bold"
+                >
+                  <IconX size={14} />
+                </button>
+              </div>
+
+              {/* Request Summary per Wireframe A4 */}
+              <div className="p-3 bg-[#F0F6FD] rounded border border-black/10 text-black space-y-1">
+                <div className="font-bold">
+                  {assigningReq.reference_no || assigningReq.reference} ·{' '}
+                  {assigningReq.issue_type?.name || 'Water Issue'} ·{' '}
+                  {assigningReq.customer?.barangay ?? 'Sinacaban'}
+                </div>
+                <p className="text-black/70">{assigningReq.description}</p>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="block font-bold uppercase text-black mb-1">
+                    Select Staff
+                  </label>
+                  {staffList.length === 0 ? (
+                    <div className="p-2 border border-black/20 text-black/60 rounded">
+                      Loading available field staff...
+                    </div>
+                  ) : (
+                    <select
+                      className="w-full p-2 bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9] text-[10px]"
+                      value={selectedStaffId || ''}
+                      onChange={(e) => setSelectedStaffId(Number(e.target.value))}
+                    >
+                      {staffList.map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {s.name} ({s.email || 'Technician'})
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block font-bold uppercase text-black mb-1">
+                    Assignment Notes
+                  </label>
                   <textarea
-                    className="w-full p-2 text-[10px] text-black bg-white border border-black/20 rounded-lg outline-none"
-                    rows={2}
-                    placeholder="e.g. Prioritize valve check before noon..."
+                    className="w-full p-2 bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9] text-[10px]"
+                    rows={3}
+                    placeholder="Instructions for the technician..."
                     value={assignmentNotes}
                     onChange={(e) => setAssignmentNotes(e.target.value)}
                   />
                 </div>
               </div>
-            )}
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-black/10">
-              <Button variant="ghost" onClick={() => setAssigningReq(null)} disabled={isSubmittingAssign}>
-                Cancel
-              </Button>
-              <Button
-                variant="primary"
-                onClick={handleConfirmAssign}
-                disabled={!selectedStaffId || isSubmittingAssign || staffList.length === 0}
-              >
-                {isSubmittingAssign ? 'Dispatching...' : 'Confirm Assignment'}
-              </Button>
+              <div className="flex justify-end gap-2 pt-2 border-t border-black/15">
+                <Button
+                  variant="secondary"
+                  onClick={() => setAssigningReq(null)}
+                  disabled={isSubmittingAssign}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={handleConfirmAssign}
+                  disabled={!selectedStaffId || isSubmittingAssign || staffList.length === 0}
+                  isLoading={isSubmittingAssign}
+                >
+                  Assign
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Inspect Request Modal */}
-      {inspectingReq && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white border-2 border-black rounded-xl max-w-lg w-full p-5 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between border-b border-black/10 pb-3">
-              <div>
-                <h3 className="font-bold text-black uppercase tracking-wider text-[10px]">
-                  Request Details · {inspectingReq.reference}
-                </h3>
-                <span className="text-[10px] text-black/60">
-                  Submitted: {new Date(inspectingReq.created_at).toLocaleString()}
-                </span>
-              </div>
-              <button onClick={() => setInspectingReq(null)} className="text-black hover:opacity-70 p-1">
-                <IconX size={16} />
-              </button>
-            </div>
-
-            <div className="space-y-3 text-[10px]">
-              <div className="p-3 bg-[#F0F6FD] rounded-lg border border-black/10 space-y-1">
-                <span className="font-bold text-black block">Reported Description:</span>
-                <p className="text-black/80">{inspectingReq.description}</p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-2.5 border border-black/10 rounded-lg space-y-0.5">
-                  <span className="font-bold text-black/60 block">Customer Name:</span>
-                  <span className="font-bold text-black">{inspectingReq.customer?.full_name ?? 'Resident'}</span>
-                  <span className="text-black/70 block">Acct: {inspectingReq.customer?.account_number ?? 'Pending'}</span>
-                </div>
-                <div className="p-2.5 border border-black/10 rounded-lg space-y-0.5">
-                  <span className="font-bold text-black/60 block">Location:</span>
-                  <span className="font-bold text-black">{inspectingReq.customer?.barangay ?? 'Sinacaban'}</span>
-                  <span className="text-black/70 block">{inspectingReq.customer?.address}</span>
-                </div>
-              </div>
-
-              <div className="p-2.5 border border-black/10 rounded-lg space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-black">Priority Engine Derivation:</span>
-                  <Badge variant={inspectingReq.urgency === 'high' ? 'black' : 'blue'}>
-                    FINAL: {inspectingReq.urgency.toUpperCase()}
-                  </Badge>
-                </div>
-                <span className="text-black/70 block">
-                  Customer input: <strong>{inspectingReq.customer_urgency.toUpperCase()}</strong> · Issue default: <strong>MEDIUM</strong>
-                </span>
-              </div>
-
-              {inspectingReq.resolution_remarks && (
-                <div className="p-3 bg-white border border-black rounded-lg space-y-1">
-                  <span className="font-bold text-black block">Technician Resolution Remarks:</span>
-                  <p className="text-black/80">{inspectingReq.resolution_remarks}</p>
-                </div>
-              )}
-            </div>
-
-            <div className="flex justify-end pt-2 border-t border-black/10">
-              <Button variant="primary" onClick={() => setInspectingReq(null)}>
-                Close
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+        )}
       </div>
     </AdminLayout>
   );

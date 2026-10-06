@@ -37,6 +37,7 @@ export const StaffLayout: React.FC<StaffLayoutProps> = ({
               { name: 'Assigned Tasks', path: '/staff/tasks' },
               { name: 'Scan / Inspect Meter', path: '/staff/scan' },
               { name: 'Resolution History', path: '/staff/history' },
+              { name: 'Staff Profile', path: '/staff/profile' },
             ].map((item) => {
               const isActive = currentPath === item.path;
               return (

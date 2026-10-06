@@ -5,7 +5,7 @@ import { Card } from '../../components/atoms/Card';
 import { Button } from '../../components/atoms/Button';
 import { Badge } from '../../components/atoms/Badge';
 import { metersApi } from '../../api';
-import { IconQrcode, IconSearch, IconCheck, IconAlertCircle, IconGauge, IconUser } from '@tabler/icons-react';
+import { IconQrcode, IconSearch, IconCheck, IconAlertCircle, IconGauge, IconUser, IconDeviceMobile } from '@tabler/icons-react';
 
 interface MeterData {
   meter_id: number;
@@ -25,6 +25,7 @@ interface MeterData {
 
 export function StaffScannerView() {
   const navigate = useNavigate();
+  const [activeMode, setActiveMode] = useState<'placeholder' | 'simulator'>('placeholder');
   const [meterInput, setMeterInput] = useState('');
   const [tokenInput, setTokenInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -92,16 +93,82 @@ export function StaffScannerView() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/15 pb-4">
         <div>
           <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">
-            Field Meter Scanner & Inspection
+            {activeMode === 'placeholder' ? 'Scan meter' : 'Field Meter Scanner & Inspection'}
           </h1>
           <p className="text-[10px] text-black/60">
-            Scan physical meter QR codes or enter meter serial numbers for instant on-site lookup and reading verification.
+            {activeMode === 'placeholder'
+              ? 'Web staff portal meter scanning placeholder (Wireframe S4).'
+              : 'Scan physical meter QR codes or enter meter serial numbers for instant on-site lookup and reading verification.'}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="blue">Sinacaban Field Operations</Badge>
+          {/* Tab Switcher */}
+          <div className="flex border border-black/20 rounded p-0.5 bg-[#F0F6FD]">
+            <button
+              onClick={() => setActiveMode('placeholder')}
+              className={`px-2.5 py-1 text-[10px] rounded transition-colors ${
+                activeMode === 'placeholder'
+                  ? 'bg-[#1E6FD9] text-white font-bold'
+                  : 'text-black hover:text-[#1E6FD9]'
+              }`}
+            >
+              Wireframe S4: Scan meter
+            </button>
+            <button
+              onClick={() => setActiveMode('simulator')}
+              className={`px-2.5 py-1 text-[10px] rounded transition-colors ${
+                activeMode === 'simulator'
+                  ? 'bg-[#1E6FD9] text-white font-bold'
+                  : 'text-black hover:text-[#1E6FD9]'
+              }`}
+            >
+              Interactive Simulator
+            </button>
+          </div>
         </div>
       </div>
+
+      {activeMode === 'placeholder' ? (
+        /* Wireframe S4: Exact Web Placeholder Layout */
+        <div className="max-w-md mx-auto py-8">
+          <Card className="p-8 border border-black/15 text-center space-y-5">
+            <div className="w-16 h-16 rounded-full bg-[#F0F6FD] border border-black/20 flex items-center justify-center mx-auto text-[#1E6FD9]">
+              <IconDeviceMobile size={36} />
+            </div>
+
+            <div className="space-y-2">
+              <h2 className="text-[10px] font-bold text-black uppercase tracking-wider">
+                Scan meters in the mobile app
+              </h2>
+              <p className="text-[10px] text-black/70 leading-relaxed px-4">
+                Meter QR scanning is done in the AquaTrack Android app. Sign in with your staff account.
+              </p>
+            </div>
+
+            <div className="pt-2 space-y-2">
+              <button
+                disabled
+                className="w-full py-2 bg-black/5 text-black/40 border border-black/20 rounded font-bold text-[10px] cursor-not-allowed select-none"
+              >
+                Download the app (coming soon)
+              </button>
+              <div className="text-[10px] text-black/50 italic">
+                The installable file is not yet available.
+              </div>
+            </div>
+
+            <div className="border-t border-black/10 pt-3 text-[10px] text-black/60">
+              Need to test meter lookups in this web demo?{' '}
+              <button
+                onClick={() => setActiveMode('simulator')}
+                className="text-[#1E6FD9] font-bold underline ml-1"
+              >
+                Switch to Interactive Simulator
+              </button>
+            </div>
+          </Card>
+        </div>
+      ) : (
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Lookup Methods */}
@@ -287,6 +354,7 @@ export function StaffScannerView() {
           )}
         </div>
       </div>
+      )}
       </div>
     </StaffLayout>
   );

@@ -3,38 +3,65 @@ import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '../../components/templates/AdminLayout';
 import { Card } from '../../components/atoms/Card';
 import { Button } from '../../components/atoms/Button';
-import { Badge } from '../../components/atoms/Badge';
 import { referenceApi } from '../../api';
-import type { IssueType } from '../../types';
+import type { IssueType, Urgency } from '../../types';
+import { IconCheck, IconPlus, IconBuilding, IconList, IconMessage, IconLock } from '@tabler/icons-react';
+
 export function AdminSettingsView() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'utility' | 'issues' | 'sms' | 'security'>('utility');
+  const [activeTab, setActiveTab] = useState<'profile' | 'issue_types' | 'sms' | 'security'>('profile');
 
-  // Utility Profile Settings (Wireframe A13)
+  // Wireframe A13: Utility Profile Form State
   const [utilityName, setUtilityName] = useState('Sinacaban Water Works System (SIWASS)');
-  const [address, setAddress] = useState('Municipal Hall, Poblacion, Sinacaban, Misamis Occidental');
-  const [contactNumber, setContactNumber] = useState('(088) 545-0000 / 0917-123-4567');
-  const [savedSuccess, setSavedSuccess] = useState(false);
+  const [utilityAddress, setUtilityAddress] = useState('Municipal Hall, Poblacion, Sinacaban, Misamis Occidental');
+  const [contactNumber, setContactNumber] = useState('0917 555 0199');
+  const [profileSaved, setProfileSaved] = useState(false);
 
-  // Issue Types and Default Urgency (Wireframe A14)
-  const [issueTypes, setIssueTypes] = useState<IssueType[]>([]);
+  // Wireframe A14: Issue Types State
+  const [issueTypes, setIssueTypes] = useState<IssueType[]>([
+    { id: 1, name: 'Main Line Pipe Burst', default_urgency: 'high' },
+    { id: 2, name: 'Low Pressure / Disruption', default_urgency: 'high' },
+    { id: 3, name: 'Meter Leakage or Defect', default_urgency: 'medium' },
+    { id: 4, name: 'Water Quality / Discoloration', default_urgency: 'medium' },
+    { id: 5, name: 'Billing Inquiry & General Concern', default_urgency: 'low' },
+  ]);
+  const [issuesSaved, setIssuesSaved] = useState(false);
 
-  // New issue modal state
+  // Add issue type modal
+  const [showAddIssueModal, setShowAddIssueModal] = useState(false);
   const [newIssueName, setNewIssueName] = useState('');
-  const [newIssueUrgency, setNewIssueUrgency] = useState<'low' | 'medium' | 'high'>('medium');
+  const [newIssueUrgency, setNewIssueUrgency] = useState<Urgency>('medium');
+
+  // SMS & Notifications Tab
+  const [smsSenderId, setSmsSenderId] = useState('SIWASS');
+  const [notifyOnAssign, setNotifyOnAssign] = useState(true);
+  const [notifyOnAdvisory, setNotifyOnAdvisory] = useState(true);
+  const [smsSaved, setSmsSaved] = useState(false);
+
+  // Security Tab
+  const [adminEmail, setAdminEmail] = useState('admin@siwass.gov');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [securitySaved, setSecuritySaved] = useState(false);
 
   useEffect(() => {
     referenceApi.getIssueTypes().then((types) => {
-      setIssueTypes(types);
-    }).catch(() => {
-      // fallback to initial
-    });
+      if (types && types.length > 0) {
+        setIssueTypes(types);
+      }
+    }).catch(() => {});
   }, []);
 
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
-    setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 2500);
+    setProfileSaved(true);
+    setTimeout(() => setProfileSaved(false), 2500);
+  };
+
+  const handleSaveIssueTypes = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIssuesSaved(true);
+    setTimeout(() => setIssuesSaved(false), 2500);
   };
 
   const handleAddIssueType = (e: React.FormEvent) => {
@@ -47,106 +74,143 @@ export function AdminSettingsView() {
       default_urgency: newIssueUrgency,
     };
 
-    setIssueTypes([...issueTypes, newType]);
+    setIssueTypes((prev) => [...prev, newType]);
     setNewIssueName('');
-    alert(`Issue category "${newType.name}" added successfully!`);
+    setShowAddIssueModal(false);
+  };
+
+  const handleUrgencyChange = (id: number, urgency: Urgency) => {
+    setIssueTypes((prev) =>
+      prev.map((it) => (it.id === id ? { ...it, default_urgency: urgency } : it))
+    );
   };
 
   return (
-    <AdminLayout
-      title="Settings"
-      subtitle="System & Utility Configuration"
-      currentPath="/admin/settings"
-      onNavigate={(path) => navigate(path)}
-    >
-      <div className="space-y-4">
+    <AdminLayout currentPath="/admin/settings" onNavigate={(path) => navigate(path)}>
+      <div className="space-y-4 text-[10px] text-black">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/15 pb-3">
-          <div>
-            <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">
-              System Settings & Service Parameters
-            </h1>
-            <p className="text-[10px] text-black/60">
-              Configure municipal utility profile, baseline urgency policies, and automated SMS templates.
-            </p>
-          </div>
-          {savedSuccess && (
-            <Badge variant="blue">✓ Configuration Saved</Badge>
-          )}
+        <div className="border-b border-black/15 pb-3">
+          <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">
+            System Settings & Configuration
+          </h1>
+          <p className="text-[10px] text-black/60">
+            Institutional utility parameters, priority matrix rules, and communication templates.
+          </p>
         </div>
 
-        {/* Tab Navigation - Matches Wireframes A13 & A14 Tabs */}
-        <div className="flex border-b border-black/15 gap-2 text-[10px]">
-          {[
-            { id: 'utility', label: 'Utility profile' },
-            { id: 'issues', label: 'Issue types & urgencies' },
-            { id: 'sms', label: 'SMS and notifications' },
-            { id: 'security', label: 'Account and security' },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as typeof activeTab)}
-              className={`px-3 py-2 font-bold uppercase transition-colors border-b-2 -mb-px ${
-                activeTab === tab.id
-                  ? 'border-[#1E6FD9] text-[#1E6FD9] bg-[#F0F6FD]'
-                  : 'border-transparent text-black/70 hover:text-black'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        {/* Wireframe A13 / A14 Tabs */}
+        <div className="flex border border-black/20 rounded p-0.5 bg-[#F0F6FD] max-w-2xl overflow-x-auto">
+          <button
+            onClick={() => setActiveTab('profile')}
+            className={`px-3 py-1.5 text-[10px] rounded transition-colors whitespace-nowrap flex items-center gap-1.5 ${
+              activeTab === 'profile'
+                ? 'bg-[#1E6FD9] text-white font-bold'
+                : 'text-black hover:text-[#1E6FD9]'
+            }`}
+          >
+            <IconBuilding size={12} />
+            <span>Utility profile</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('issue_types')}
+            className={`px-3 py-1.5 text-[10px] rounded transition-colors whitespace-nowrap flex items-center gap-1.5 ${
+              activeTab === 'issue_types'
+                ? 'bg-[#1E6FD9] text-white font-bold'
+                : 'text-black hover:text-[#1E6FD9]'
+            }`}
+          >
+            <IconList size={12} />
+            <span>Issue types</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('sms')}
+            className={`px-3 py-1.5 text-[10px] rounded transition-colors whitespace-nowrap flex items-center gap-1.5 ${
+              activeTab === 'sms'
+                ? 'bg-[#1E6FD9] text-white font-bold'
+                : 'text-black hover:text-[#1E6FD9]'
+            }`}
+          >
+            <IconMessage size={12} />
+            <span>SMS and notifications</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('security')}
+            className={`px-3 py-1.5 text-[10px] rounded transition-colors whitespace-nowrap flex items-center gap-1.5 ${
+              activeTab === 'security'
+                ? 'bg-[#1E6FD9] text-white font-bold'
+                : 'text-black hover:text-[#1E6FD9]'
+            }`}
+          >
+            <IconLock size={12} />
+            <span>Account and security</span>
+          </button>
         </div>
 
-        {/* Tab 1: Utility Profile (Wireframe A13) */}
-        {activeTab === 'utility' && (
-          <Card className="p-5 border border-black/15 max-w-xl space-y-4">
+        {/* ------------------------------------------------------------- */}
+        {/* Wireframe A13: Utility Profile Tab */}
+        {/* ------------------------------------------------------------- */}
+        {activeTab === 'profile' && (
+          <Card className="p-5 border border-black/15 shadow-sm space-y-4 max-w-xl">
             <div className="border-b border-black/10 pb-2">
-              <span className="font-bold text-black uppercase tracking-wider text-[10px]">
-                Sinacaban Municipal Profile
-              </span>
+              <h2 className="text-[10px] font-bold text-black uppercase tracking-wider">
+                Utility Profile
+              </h2>
+              <p className="text-[10px] text-black/60">
+                Municipal identity appearing on consumer billing statements and public advisories.
+              </p>
             </div>
 
-            <form onSubmit={handleSaveProfile} className="space-y-3 text-[10px]">
+            {profileSaved && (
+              <div className="p-2.5 bg-[#F0F6FD] border border-black rounded text-[10px] text-black flex items-center gap-2">
+                <IconCheck size={14} className="text-[#1E6FD9] shrink-0" />
+                <span>Utility profile settings successfully saved!</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSaveProfile} className="space-y-3">
               <div>
-                <label className="block font-bold text-black uppercase mb-1">
+                <label className="block text-[10px] font-bold text-black uppercase mb-1">
                   Utility name
                 </label>
                 <input
                   type="text"
-                  required
-                  className="w-full p-2 bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+                  className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none focus:border-[#1E6FD9]"
                   value={utilityName}
                   onChange={(e) => setUtilityName(e.target.value)}
+                  required
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-black uppercase mb-1">
-                  Physical Office Address
+                <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                  Address
                 </label>
                 <input
                   type="text"
+                  className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none focus:border-[#1E6FD9]"
+                  value={utilityAddress}
+                  onChange={(e) => setUtilityAddress(e.target.value)}
                   required
-                  className="w-full p-2 bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-black uppercase mb-1">
-                  Official Contact Number
+                <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                  Contact number
                 </label>
                 <input
                   type="text"
-                  required
-                  className="w-full p-2 bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+                  className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-mono focus:border-[#1E6FD9]"
                   value={contactNumber}
                   onChange={(e) => setContactNumber(e.target.value)}
+                  required
                 />
               </div>
 
-              <div className="pt-2">
+              <div className="pt-2 border-t border-black/10 flex justify-end">
                 <Button variant="primary" type="submit">
                   Save changes
                 </Button>
@@ -155,138 +219,300 @@ export function AdminSettingsView() {
           </Card>
         )}
 
-        {/* Tab 2: Issue Types & Urgencies (Wireframe A14) */}
-        {activeTab === 'issues' && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="md:col-span-2 p-0 overflow-hidden border border-black/15">
-              <div className="p-3 border-b border-black/15 bg-white flex items-center justify-between text-[10px]">
-                <span className="font-bold text-black uppercase tracking-wider">
-                  Configured Service Issue Categories
-                </span>
-                <span className="text-black/60">Automated baseline urgencies</span>
+        {/* ------------------------------------------------------------- */}
+        {/* Wireframe A14: Issue Types Tab */}
+        {/* ------------------------------------------------------------- */}
+        {activeTab === 'issue_types' && (
+          <div className="space-y-4 max-w-2xl">
+            <Card className="p-5 border border-black/15 shadow-sm space-y-4">
+              <div className="flex items-center justify-between border-b border-black/10 pb-2">
+                <div>
+                  <h2 className="text-[10px] font-bold text-black uppercase tracking-wider">
+                    Configured Issue Categories & Priority Weights
+                  </h2>
+                  <p className="text-[10px] text-black/60">
+                    Defines the base urgency for incoming customer reports prior to priority engine evaluation.
+                  </p>
+                </div>
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowAddIssueModal(true)}
+                  className="flex items-center gap-1"
+                >
+                  <IconPlus size={12} />
+                  <span>Add issue type</span>
+                </Button>
               </div>
 
-              <div className="overflow-x-auto">
+              {issuesSaved && (
+                <div className="p-2.5 bg-[#F0F6FD] border border-black rounded text-[10px] text-black flex items-center gap-2">
+                  <IconCheck size={14} className="text-[#1E6FD9] shrink-0" />
+                  <span>Issue type priority rules successfully updated!</span>
+                </div>
+              )}
+
+              {/* Wireframe A14 Table: Issue type | Default urgency */}
+              <div className="border border-black/15 rounded overflow-hidden">
                 <table className="w-full text-left text-[10px]">
                   <thead className="bg-[#F0F6FD] text-black border-b border-black/15">
                     <tr>
-                      <th className="px-4 py-2 font-bold uppercase">Issue type</th>
-                      <th className="px-4 py-2 font-bold uppercase">Default urgency</th>
-                      <th className="px-4 py-2 font-bold uppercase text-right">Rule</th>
+                      <th className="px-4 py-2.5 font-bold uppercase tracking-wider">Issue type</th>
+                      <th className="px-4 py-2.5 font-bold uppercase tracking-wider text-right">Default urgency</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-black/10">
-                    {issueTypes.map((t) => (
-                      <tr key={t.id} className="hover:bg-[#F0F6FD]/40">
-                        <td className="px-4 py-2.5 font-bold text-black">{t.name}</td>
-                        <td className="px-4 py-2.5">
-                          <Badge variant={t.default_urgency === 'high' ? 'blue' : 'black'}>
-                            {t.default_urgency.toUpperCase()}
-                          </Badge>
+                    {issueTypes.map((it) => (
+                      <tr key={it.id} className="hover:bg-[#F0F6FD]/40 transition-colors">
+                        <td className="px-4 py-3 font-bold text-black">
+                          {it.name}
                         </td>
-                        <td className="px-4 py-2.5 text-right text-black/60">
-                          Baseline Capped (+1 Max)
+                        <td className="px-4 py-3 text-right">
+                          <select
+                            value={it.default_urgency}
+                            onChange={(e) => handleUrgencyChange(it.id, e.target.value as Urgency)}
+                            className="p-1 text-[10px] bg-white border border-black/20 rounded font-bold uppercase outline-none"
+                          >
+                            <option value="high">HIGH</option>
+                            <option value="medium">MEDIUM</option>
+                            <option value="low">LOW</option>
+                          </select>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
+
+              <div className="flex justify-between items-center pt-2 border-t border-black/10">
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowAddIssueModal(true)}
+                >
+                  Add issue type
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={handleSaveIssueTypes}
+                >
+                  Save changes
+                </Button>
+              </div>
             </Card>
 
-            {/* Add Issue Type Card */}
-            <Card className="p-4 border border-black/15 space-y-3">
-              <span className="font-bold text-black uppercase tracking-wider text-[10px] block border-b border-black/10 pb-2">
-                Add Issue Type
-              </span>
+            <p className="text-[9px] text-black/50 italic">
+              Admin sets the default urgency per issue type. Customer bump adds at most 1 level per manuscript capping rule.
+            </p>
+          </div>
+        )}
 
-              <form onSubmit={handleAddIssueType} className="space-y-3 text-[10px]">
+        {/* ------------------------------------------------------------- */}
+        {/* SMS and Notifications Tab */}
+        {/* ------------------------------------------------------------- */}
+        {activeTab === 'sms' && (
+          <Card className="p-5 border border-black/15 shadow-sm space-y-4 max-w-xl">
+            <div className="border-b border-black/10 pb-2">
+              <h2 className="text-[10px] font-bold text-black uppercase tracking-wider">
+                SMS Gateway & Dispatch Triggers
+              </h2>
+              <p className="text-[10px] text-black/60">
+                Configures the municipal SMS broadcasting gateway for customer alerts.
+              </p>
+            </div>
+
+            {smsSaved && (
+              <div className="p-2.5 bg-[#F0F6FD] border border-black rounded text-[10px] text-black flex items-center gap-2">
+                <IconCheck size={14} className="text-[#1E6FD9] shrink-0" />
+                <span>SMS notification triggers saved!</span>
+              </div>
+            )}
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                  SMS Sender ID
+                </label>
+                <input
+                  type="text"
+                  className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-mono"
+                  value={smsSenderId}
+                  onChange={(e) => setSmsSenderId(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2 pt-1">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={notifyOnAssign}
+                    onChange={(e) => setNotifyOnAssign(e.target.checked)}
+                    className="accent-[#1E6FD9]"
+                  />
+                  <span>Send SMS to customer when request is assigned to technician</span>
+                </label>
+
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={notifyOnAdvisory}
+                    onChange={(e) => setNotifyOnAdvisory(e.target.checked)}
+                    className="accent-[#1E6FD9]"
+                  />
+                  <span>Send SMS broadcast to barangay when water interruption advisory is published</span>
+                </label>
+              </div>
+
+              <div className="pt-2 border-t border-black/10 flex justify-end">
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    setSmsSaved(true);
+                    setTimeout(() => setSmsSaved(false), 2500);
+                  }}
+                >
+                  Save changes
+                </Button>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* ------------------------------------------------------------- */}
+        {/* Account and Security Tab */}
+        {activeTab === 'security' && (
+          <Card className="p-5 border border-black/15 shadow-sm space-y-4 max-w-xl">
+            <div className="border-b border-black/10 pb-2">
+              <h2 className="text-[10px] font-bold text-black uppercase tracking-wider">
+                Institutional Security & Access
+              </h2>
+              <p className="text-[10px] text-black/60">
+                Administrative session settings and credentials.
+              </p>
+            </div>
+
+            {securitySaved && (
+              <div className="p-2.5 bg-[#F0F6FD] border border-black rounded text-[10px] text-black flex items-center gap-2">
+                <IconCheck size={14} className="text-[#1E6FD9] shrink-0" />
+                <span>Security configuration saved!</span>
+              </div>
+            )}
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                  Master Admin Email
+                </label>
+                <input
+                  type="email"
+                  className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none"
+                  value={adminEmail}
+                  onChange={(e) => setAdminEmail(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                  Current Password
+                </label>
+                <input
+                  type="password"
+                  placeholder="••••••••"
+                  className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                  New Master Password
+                </label>
+                <input
+                  type="password"
+                  placeholder="••••••••"
+                  className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
+              </div>
+
+              <div className="pt-2 border-t border-black/10 flex justify-end">
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    setSecuritySaved(true);
+                    setCurrentPassword('');
+                    setNewPassword('');
+                    setTimeout(() => setSecuritySaved(false), 2500);
+                  }}
+                >
+                  Save changes
+                </Button>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* Add Issue Type Modal */}
+        {showAddIssueModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+            <div className="w-full max-w-sm bg-white rounded border border-black p-5 space-y-4 shadow-xl">
+              <div className="flex items-center justify-between border-b border-black/15 pb-2">
+                <span className="font-bold text-black uppercase tracking-wider text-[10px]">
+                  Add Issue Category
+                </span>
+                <button
+                  onClick={() => setShowAddIssueModal(false)}
+                  className="text-black hover:text-[#1E6FD9] p-1 font-bold text-[10px]"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <form onSubmit={handleAddIssueType} className="space-y-3">
                 <div>
-                  <label className="block font-bold text-black uppercase mb-1">
-                    Category Name
+                  <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                    Issue Category Name
                   </label>
                   <input
                     type="text"
-                    required
-                    placeholder="e.g. Major Mainline Rupture"
-                    className="w-full p-2 bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+                    placeholder="e.g. Pump Station Pressure Surge"
+                    className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none focus:border-[#1E6FD9]"
                     value={newIssueName}
                     onChange={(e) => setNewIssueName(e.target.value)}
+                    required
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-black uppercase mb-1">
-                    Default Base Urgency
+                  <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                    Default Urgency
                   </label>
                   <select
-                    className="w-full p-2 bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+                    className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none uppercase font-bold"
                     value={newIssueUrgency}
-                    onChange={(e) => setNewIssueUrgency(e.target.value as 'low' | 'medium' | 'high')}
+                    onChange={(e) => setNewIssueUrgency(e.target.value as Urgency)}
                   >
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
+                    <option value="high">HIGH</option>
+                    <option value="medium">MEDIUM</option>
+                    <option value="low">LOW</option>
                   </select>
                 </div>
 
-                <Button variant="primary" type="submit" className="w-full">
-                  Add issue type
-                </Button>
+                <div className="flex justify-end gap-2 pt-2 border-t border-black/10">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => setShowAddIssueModal(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit" variant="primary">
+                    Add Category
+                  </Button>
+                </div>
               </form>
-            </Card>
+            </div>
           </div>
-        )}
-
-        {/* Tab 3: SMS and Notifications */}
-        {activeTab === 'sms' && (
-          <Card className="p-5 border border-black/15 max-w-xl space-y-3 text-[10px]">
-            <span className="font-bold text-black uppercase tracking-wider block border-b border-black/10 pb-2">
-              SMS Gateway Integration (SIWASS Alerts)
-            </span>
-            <p className="text-black/70">
-              Automated SMS notifications are dispatched on registration verification, technician assignment, statement publication, and water advisory broadcasts.
-            </p>
-            <div className="p-3 bg-[#F0F6FD] border border-black/15 rounded space-y-1">
-              <strong>Sample Dispatch Template:</strong>
-              <div className="font-mono text-black/80">
-                [SIWASS] Your water issue ticket AT-0001 has been assigned to Technician Cruz. Expected site inspection within 4 hours.
-              </div>
-            </div>
-            <Button variant="secondary" onClick={() => alert('SMS Gateway test ping sent successfully.')}>
-              Test SMS Gateway Ping
-            </Button>
-          </Card>
-        )}
-
-        {/* Tab 4: Account and Security */}
-        {activeTab === 'security' && (
-          <Card className="p-5 border border-black/15 max-w-xl space-y-3 text-[10px]">
-            <span className="font-bold text-black uppercase tracking-wider block border-b border-black/10 pb-2">
-              Administrator Security Settings
-            </span>
-            <div className="space-y-2">
-              <div>
-                <label className="block font-bold text-black uppercase mb-1">Current Password</label>
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  className="w-full p-2 bg-white text-black border border-black rounded outline-none"
-                />
-              </div>
-              <div>
-                <label className="block font-bold text-black uppercase mb-1">New Password</label>
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  className="w-full p-2 bg-white text-black border border-black rounded outline-none"
-                />
-              </div>
-              <Button variant="primary" onClick={() => alert('Administrator security credentials updated.')}>
-                Update Password
-              </Button>
-            </div>
-          </Card>
         )}
       </div>
     </AdminLayout>
