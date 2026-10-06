@@ -1,5 +1,6 @@
 import React from 'react';
 import type { RequestStatus } from '../../types';
+import { IconCheck, IconClock, IconTool, IconCircleCheck } from '@tabler/icons-react';
 
 export interface StatusTimelineProps {
   status: RequestStatus;
@@ -17,10 +18,10 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
   resolvedAt,
 }) => {
   const steps = [
-    { key: 'submitted', label: 'Submitted', timestamp: submittedAt },
-    { key: 'assigned', label: 'Assigned', timestamp: assignedAt },
-    { key: 'in_progress', label: 'In Progress', timestamp: startedAt },
-    { key: 'resolved', label: 'Resolved', timestamp: resolvedAt },
+    { key: 'submitted', label: 'Submitted', timestamp: submittedAt, icon: IconClock },
+    { key: 'assigned', label: 'Assigned', timestamp: assignedAt, icon: IconCheck },
+    { key: 'in_progress', label: 'In Progress', timestamp: startedAt, icon: IconTool },
+    { key: 'resolved', label: 'Resolved', timestamp: resolvedAt, icon: IconCircleCheck },
   ];
 
   const getStepState = (stepKey: string) => {
@@ -40,6 +41,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
       <div className="grid grid-cols-4 gap-2">
         {steps.map((step, idx) => {
           const state = getStepState(step.key);
+          const Icon = step.icon;
 
           return (
             <div key={step.key} className="flex flex-col items-center text-center">
@@ -54,15 +56,15 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
                   }`}
                 />
                 <div
-                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-sm font-bold ${
+                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-sm font-bold shadow-xs transition-all ${
                     state === 'completed'
                       ? 'border-[#1E6FD9] bg-[#1E6FD9] text-white'
                       : state === 'current'
-                      ? 'border-[#1E6FD9] bg-white text-[#1E6FD9] ring-2 ring-[#1E6FD9]'
-                      : 'border-black/30 bg-white text-black/40'
+                      ? 'border-[#1E6FD9] bg-white text-[#1E6FD9] ring-2 ring-[#1E6FD9]/20'
+                      : 'border-black/20 bg-white text-black/40'
                   }`}
                 >
-                  {idx + 1}
+                  <Icon size={14} />
                 </div>
                 <div
                   className={`h-0.5 flex-1 ${
@@ -88,7 +90,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
                   {step.label}
                 </div>
                 {step.timestamp && (
-                  <div className="text-sm text-black/70 mt-0.5">{step.timestamp}</div>
+                  <div className="text-sm text-black/60 mt-0.5">{step.timestamp}</div>
                 )}
               </div>
             </div>
