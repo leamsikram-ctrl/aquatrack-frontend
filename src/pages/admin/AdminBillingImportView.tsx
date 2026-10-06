@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AdminLayout } from '../../components/templates/AdminLayout';
 import { Card } from '../../components/atoms/Card';
 import { Button } from '../../components/atoms/Button';
 import { Badge } from '../../components/atoms/Badge';
@@ -8,6 +10,7 @@ import type { Billing } from '../../types';
 import { IconUpload, IconFileSpreadsheet, IconCheck, IconAlertCircle, IconLock } from '@tabler/icons-react';
 
 export function AdminBillingImportView() {
+  const navigate = useNavigate();
   const [billings, setBillings] = useState<Billing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -89,7 +92,13 @@ export function AdminBillingImportView() {
   const unpublishedCount = billings.filter((b) => !b.is_published).length;
 
   return (
-    <div className="space-y-6">
+    <AdminLayout
+      title="Billing Imports"
+      subtitle="Monthly CSV Batches"
+      currentPath="/admin/billing"
+      onNavigate={(path) => navigate(path)}
+    >
+      <div className="space-y-6">
       {/* View Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/10 pb-4">
         <div>
@@ -281,6 +290,7 @@ export function AdminBillingImportView() {
           </div>
         )}
       </Card>
-    </div>
+      </div>
+    </AdminLayout>
   );
 }

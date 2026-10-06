@@ -1,20 +1,17 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CustomerLayout } from '../../components/templates/CustomerLayout';
 import { Card } from '../../components/atoms/Card';
 import { Badge } from '../../components/atoms/Badge';
 import { Button } from '../../components/atoms/Button';
-import { Input } from '../../components/atoms/Input';
 import { StatusTimeline } from '../../components/organisms/StatusTimeline';
 import { UrgencyDerivation } from '../../components/molecules/UrgencyDerivation';
 import { EmptyState } from '../../components/molecules/EmptyState';
 import { requestsApi, billingApi } from '../../api';
 import type { ServiceRequest, Billing } from '../../types';
 
-import { CustomerAdvisoriesView } from './CustomerAdvisoriesView';
-import { CustomerRegistrationView } from './CustomerRegistrationView';
-
 export function CustomerHomeView() {
-  const [currentTab, setCurrentTab] = useState<string>('/home');
+  const navigate = useNavigate();
   const [activeRequest, setActiveRequest] = useState<ServiceRequest | null>(null);
   const [currentBill, setCurrentBill] = useState<Billing | null>(null);
   const [showReportModal, setShowReportModal] = useState<boolean>(false);
@@ -51,7 +48,7 @@ export function CustomerHomeView() {
     setIsSubmitting(true);
     try {
       const newReq = await requestsApi.create({
-        issue_type_id: 1, // Default to first issue type
+        issue_type_id: 1,
         customer_urgency: customerUrgency,
         description,
       });
@@ -66,85 +63,111 @@ export function CustomerHomeView() {
   };
 
   return (
-    <CustomerLayout currentPath={currentTab} onNavigate={setCurrentTab}>
-      {currentTab === '/advisories' && <CustomerAdvisoriesView />}
-      {currentTab === '/register' && <CustomerRegistrationView onBackToPortal={() => setCurrentTab('/home')} />}
-
-      {currentTab === '/home' && (
-        <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/10 pb-3">
-            <div>
-              <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">Consumer Account Overview</h1>
-              <p className="text-[10px] text-black/70">Barangay Poblacion, Sinacaban Municipal Service</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="secondary" onClick={() => setCurrentTab('/advisories')}>
-                Advisories Calendar
-              </Button>
-              <Button variant="secondary" onClick={() => setCurrentTab('/register')}>
-                Register Account
-              </Button>
-              <Button variant="primary" onClick={() => setShowReportModal(true)}>
-                Report Issue
-              </Button>
-            </div>
+    <CustomerLayout currentPath="/customer/home" onNavigate={(path) => navigate(path)}>
+      <div className="space-y-6">
+        {/* Top Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/15 pb-3">
+          <div>
+            <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">
+              Consumer Account Overview
+            </h1>
+            <p className="text-[10px] text-black/60">
+              Barangay Poblacion, Sinacaban Municipal Water District (SIWASS)
+            </p>
           </div>
+          <div className="flex items-center gap-2">
+            <Button variant="secondary" onClick={() => navigate('/customer/advisories')}>
+              View Advisories
+            </Button>
+            <Button variant="primary" onClick={() => setShowReportModal(true)}>
+              Report Water Issue
+            </Button>
+          </div>
+        </div>
 
         {/* Current Billing Card */}
-        <Card className="border-l-4 border-l-[#1E6FD9]">
+        <Card className="border-l-4 border-l-[#1E6FD9] border border-black/15 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-sm text-black/70">
+              <div className="text-[10px] text-black/60 uppercase font-bold">
                 Current Statement {currentBill ? `(${currentBill.billing_period})` : ''}
               </div>
-              <div className="text-sm font-bold text-black mt-1">
-                {currentBill ? `₱${currentBill.amount_paid.toFixed(2)}` : '₱0.00'}
+              <div className="text-[10px] font-bold text-black mt-1">
+                {currentBill ? `₱${Number(currentBill.amount_paid || 0).toFixed(2)}` : '₱0.00'}
               </div>
-              <div className="text-sm text-black/70 mt-0.5">
-                {currentBill ? 'Payment due soon' : 'No outstanding balance'}
+              <div className="text-[10px] text-black/50 mt-0.5">
+                {currentBill ? 'Payable at Sinacaban Municipal Treasurer' : 'No outstanding balance for this account'}
               </div>
             </div>
-            <Badge variant={currentBill?.payment_status === 'paid' ? 'blue' : 'black'}>
-              {currentBill ? currentBill.payment_status.toUpperCase() : 'NO BILL'}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge variant={currentBill?.payment_status === 'paid' ? 'blue' : 'black'}>
+                {currentBill ? currentBill.payment_status.toUpperCase() : 'SETTLED'}
+              </Badge>
+              <Button variant="secondary" onClick={() => navigate('/customer/bills')}>
+                Bills History
+              </Button>
+            </div>
           </div>
         </Card>
 
         {/* Active Request Progress */}
         {activeRequest ? (
           <div className="space-y-4">
-            <Card className="space-y-4">
-              <div className="flex items-center justify-between">
+            <Card className="p-4 border border-black/15 space-y-3">
+              <div className="flex items-center justify-between border-b border-black/10 pb-2">
                 <div>
-                  <div className="text-sm font-bold text-black">
-                    Active Request: {activeRequest.reference}
+                  <div className="text-[10px] font-bold text-black uppercase tracking-wider">
+                    Active Request: {activeRequest.reference_no || activeRequest.reference}
                   </div>
-                  <div className="text-sm text-black/70">{activeRequest.description}</div>
+                  <div className="text-[10px] text-black/70 mt-0.5">
+                    {activeRequest.description}
+                  </div>
                 </div>
-                <Badge variant={activeRequest.status === 'in_progress' ? 'blue' : 'outline'}>
+                <Badge variant={activeRequest.status === 'resolved' ? 'blue' : 'black'}>
                   {activeRequest.status.replace('_', ' ').toUpperCase()}
                 </Badge>
               </div>
 
               <StatusTimeline
                 status={activeRequest.status}
-                submittedAt={activeRequest.created_at ? new Date(activeRequest.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : undefined}
-                startedAt={activeRequest.started_at ? new Date(activeRequest.started_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : undefined}
-                resolvedAt={activeRequest.resolved_at ? new Date(activeRequest.resolved_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : undefined}
+                submittedAt={
+                  activeRequest.created_at
+                    ? new Date(activeRequest.created_at).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })
+                    : undefined
+                }
+                startedAt={
+                  activeRequest.started_at
+                    ? new Date(activeRequest.started_at).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })
+                    : undefined
+                }
+                resolvedAt={
+                  activeRequest.resolved_at
+                    ? new Date(activeRequest.resolved_at).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })
+                    : undefined
+                }
               />
             </Card>
 
             <UrgencyDerivation
               defaultUrgency="medium"
-              customerUrgency={activeRequest.customer_urgency ?? 'low'}
+              customerUrgency={activeRequest.customer_urgency ?? 'can_wait'}
               finalUrgency={activeRequest.urgency ?? 'medium'}
               adjustedByAdmin={false}
             />
           </div>
         ) : (
           <EmptyState
-            title="No active service requests"
-            description="You do not have any open water issues logged for your household."
+            title="No Active Service Requests"
+            description="You do not have any open water issues or pipeline repair tickets logged for your household."
             actionLabel="Report an Issue"
             onAction={() => setShowReportModal(true)}
           />
@@ -153,25 +176,39 @@ export function CustomerHomeView() {
         {/* Modal for reporting an issue */}
         {showReportModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-md bg-white rounded-lg border border-black p-6 space-y-4 shadow-xl">
-              <div className="flex items-center justify-between border-b border-black/10 pb-2">
-                <span className="font-bold text-sm text-black">Report a Water Service Issue</span>
-                <button onClick={() => setShowReportModal(false)} className="text-black font-bold">✕</button>
+            <div className="w-full max-w-md bg-white rounded-lg border border-black p-5 space-y-4 shadow-xl">
+              <div className="flex items-center justify-between border-b border-black/15 pb-2">
+                <span className="font-bold text-[10px] text-black uppercase tracking-wider">
+                  Report a Water Service Issue
+                </span>
+                <button
+                  onClick={() => setShowReportModal(false)}
+                  className="text-black font-bold p-1 hover:text-[#1E6FD9]"
+                >
+                  ✕
+                </button>
               </div>
 
-              <form onSubmit={handleReportSubmit} className="space-y-4 text-left">
-                <Input
-                  label="Description of the issue"
-                  placeholder="e.g. Pipe leak near the main connection meter..."
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  required
-                />
+              <form onSubmit={handleReportSubmit} className="space-y-3 text-left">
+                <div>
+                  <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                    Description of the issue
+                  </label>
+                  <textarea
+                    placeholder="e.g. Pipe leak near main connection meter, sudden low water pressure..."
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="w-full p-2.5 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9] h-24"
+                    required
+                  />
+                </div>
 
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-black">How urgent is it for your household?</label>
+                <div>
+                  <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                    How urgent is it for your household?
+                  </label>
                   <select
-                    className="w-full h-10 px-3 text-sm text-black bg-white border border-black rounded-md outline-none"
+                    className="w-full p-2 text-[10px] text-black bg-white border border-black rounded outline-none focus:border-[#1E6FD9]"
                     value={customerUrgency}
                     onChange={(e) => setCustomerUrgency(e.target.value)}
                   >
@@ -181,7 +218,7 @@ export function CustomerHomeView() {
                   </select>
                 </div>
 
-                <div className="flex justify-end gap-2 pt-2 border-t border-black/10">
+                <div className="flex justify-end gap-2 pt-2 border-t border-black/15">
                   <Button variant="secondary" type="button" onClick={() => setShowReportModal(false)}>
                     Cancel
                   </Button>
@@ -194,8 +231,6 @@ export function CustomerHomeView() {
           </div>
         )}
       </div>
-      )}
     </CustomerLayout>
   );
 }
-

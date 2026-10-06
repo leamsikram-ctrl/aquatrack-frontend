@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AdminLayout } from '../../components/templates/AdminLayout';
 import { Card } from '../../components/atoms/Card';
 import { Button } from '../../components/atoms/Button';
 import { Badge } from '../../components/atoms/Badge';
@@ -8,6 +10,7 @@ import type { User, Meter } from '../../types';
 import { IconCheck, IconX, IconQrcode, IconMapPin } from '@tabler/icons-react';
 
 export function AdminVerificationView() {
+  const navigate = useNavigate();
   const [pendingUsers, setPendingUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -95,7 +98,13 @@ export function AdminVerificationView() {
   };
 
   return (
-    <div className="space-y-6">
+    <AdminLayout
+      title="Customer Verification"
+      subtitle="Pending Registrations"
+      currentPath="/admin/verification"
+      onNavigate={(path) => navigate(path)}
+    >
+      <div className="space-y-6">
       {/* View Header */}
       <div className="flex items-center justify-between border-b border-black/10 pb-4">
         <div>
@@ -341,6 +350,7 @@ export function AdminVerificationView() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </AdminLayout>
   );
 }

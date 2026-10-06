@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { Card } from '../../components/atoms/Card';
 import { Button } from '../../components/atoms/Button';
 import { Input } from '../../components/atoms/Input';
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export function CustomerRegistrationView({ onBackToPortal }: Props) {
+  const navigate = useNavigate();
   const [step, setStep] = useState<1 | 2>(1);
   const [barangays, setBarangays] = useState<Barangay[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -116,11 +118,15 @@ export function CustomerRegistrationView({ onBackToPortal }: Props) {
               An administrator will inspect your application, assign an unassigned Sinacaban water meter, and activate your account. You will receive an SMS notification once verified.
             </div>
           </div>
-          {onBackToPortal && (
-            <Button variant="primary" onClick={onBackToPortal} className="w-full">
-              Back to Home
+          <div className="flex gap-2">
+            <Button
+              variant="primary"
+              onClick={() => (onBackToPortal ? onBackToPortal() : navigate('/login'))}
+              className="w-full"
+            >
+              Back to Sign In
             </Button>
-          )}
+          </div>
         </Card>
       </div>
     );
@@ -138,7 +144,13 @@ export function CustomerRegistrationView({ onBackToPortal }: Props) {
             SIWASS Sinacaban Municipal Water Service System
           </p>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
+          <Link
+            to="/login"
+            className="text-[10px] text-black hover:text-[#1E6FD9] font-bold underline"
+          >
+            ← Back to Sign In
+          </Link>
           <Badge variant={step === 1 ? 'blue' : 'outline'}>Step 1: Details</Badge>
           <Badge variant={step === 2 ? 'blue' : 'outline'}>Step 2: Consent</Badge>
         </div>

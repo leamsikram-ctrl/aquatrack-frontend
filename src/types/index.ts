@@ -8,8 +8,10 @@ export interface User {
   id: number;
   role: UserRole;
   status: UserStatus;
+  name?: string;
   mobile_number: string;
   email?: string;
+  is_verified?: boolean;
   must_change_password: boolean;
   customer_profile?: CustomerProfile;
   staff_profile?: StaffProfile;
@@ -26,6 +28,7 @@ export interface CustomerProfile {
   account_number?: string;
   first_name: string;
   last_name: string;
+  mobile_number?: string;
   barangay_id: number;
   barangay?: Barangay;
   address: string;
@@ -63,8 +66,10 @@ export interface ServiceRequest {
   id: number;
   reference_no?: string;
   reference: string; // e.g. AT-0001
+  reference_number?: string;
   customer_profile_id: number;
   customer_profile?: CustomerProfile;
+  barangay?: Barangay;
   customer?: {
     id: number;
     account_number?: string;
@@ -116,11 +121,13 @@ export interface Billing {
 
 export interface WaterInterruption {
   id: number;
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
+  message?: string;
   starts_at: string;
   ends_at: string;
-  status: 'scheduled' | 'ongoing' | 'ended' | 'cancelled';
+  is_published?: boolean;
+  status?: 'scheduled' | 'ongoing' | 'ended' | 'cancelled';
   barangays?: Barangay[];
 }
 

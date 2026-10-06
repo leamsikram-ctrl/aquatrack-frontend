@@ -104,6 +104,60 @@ export const adminApi = {
     });
     return res.data;
   },
+
+  staffList: async () => {
+    const res = await apiClient.get<{ data: User[] }>('/admin/staff');
+    return res.data.data;
+  },
+
+  customersList: async (params?: { status?: string; page?: number; per_page?: number }) => {
+    const res = await apiClient.get<{ data: User[]; pagination: { total: number } }>('/admin/customers', { params });
+    return res.data;
+  },
+};
+
+export const metersApi = {
+  lookupByNumber: async (meterNumber: string) => {
+    const res = await apiClient.get<{
+      data: {
+        meter_id: number;
+        meter_number: string;
+        qr_token: string;
+        status: string;
+        barangay?: string;
+        customer?: {
+          id: number;
+          account_number?: string;
+          name: string;
+          address?: string;
+          barangay?: string;
+          mobile_number?: string;
+        };
+      };
+    }>(`/meters/${meterNumber}`);
+    return res.data.data;
+  },
+
+  lookupByQr: async (token: string) => {
+    const res = await apiClient.get<{
+      data: {
+        meter_id: number;
+        meter_number: string;
+        qr_token: string;
+        status: string;
+        barangay?: string;
+        customer?: {
+          id: number;
+          account_number?: string;
+          name: string;
+          address?: string;
+          barangay?: string;
+          mobile_number?: string;
+        };
+      };
+    }>(`/meters/qr/${token}`);
+    return res.data.data;
+  },
 };
 
 export const billingApi = {
@@ -139,7 +193,7 @@ export const interruptionsApi = {
     return res.data;
   },
 
-  create: async (data: { title: string; description: string; starts_at: string; ends_at: string; barangay_ids: number[] }) => {
+  create: async (data: { message: string; starts_at: string; ends_at: string; barangay_ids: number[] }) => {
     const res = await apiClient.post<{ message: string; data: WaterInterruption }>('/interruptions', data);
     return res.data;
   },

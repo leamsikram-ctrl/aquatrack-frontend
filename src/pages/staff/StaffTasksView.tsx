@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { StaffLayout } from '../../components/templates/StaffLayout';
 import { Card } from '../../components/atoms/Card';
 import { Badge } from '../../components/atoms/Badge';
@@ -8,6 +9,7 @@ import { requestsApi } from '../../api';
 import type { ServiceRequest } from '../../types';
 
 export function StaffTasksView() {
+  const navigate = useNavigate();
   const [tasks, setTasks] = useState<ServiceRequest[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [resolvingTaskId, setResolvingTaskId] = useState<number | null>(null);
@@ -55,7 +57,7 @@ export function StaffTasksView() {
   };
 
   return (
-    <StaffLayout currentPath="/staff/tasks">
+    <StaffLayout currentPath="/staff/tasks" onNavigate={(path) => navigate(path)}>
       <div className="space-y-6">
         <div className="flex items-center justify-between border-b border-black/10 pb-3">
           <div>

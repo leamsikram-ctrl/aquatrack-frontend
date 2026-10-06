@@ -1,45 +1,100 @@
-import { useState } from 'react';
-import { AuthProvider } from './contexts/AuthContext';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+
+// Auth Pages
+import { LoginView } from './pages/auth/LoginView';
+
+// Admin Pages
 import { AdminDashboardView } from './pages/admin/AdminDashboardView';
+import { AdminVerificationView } from './pages/admin/AdminVerificationView';
+import { AdminRequestsView } from './pages/admin/AdminRequestsView';
+import { AdminBillingImportView } from './pages/admin/AdminBillingImportView';
+import { AdminInterruptionsView } from './pages/admin/AdminInterruptionsView';
+import { AdminCustomersView } from './pages/admin/AdminCustomersView';
+
+// Customer Pages
 import { CustomerHomeView } from './pages/customer/CustomerHomeView';
+import { CustomerBillsView } from './pages/customer/CustomerBillsView';
+import { CustomerRequestsView } from './pages/customer/CustomerRequestsView';
+import { CustomerAdvisoriesView } from './pages/customer/CustomerAdvisoriesView';
+import { CustomerProfileView } from './pages/customer/CustomerProfileView';
+import { CustomerRegistrationView } from './pages/customer/CustomerRegistrationView';
+
+// Staff Pages
 import { StaffTasksView } from './pages/staff/StaffTasksView';
+import { StaffScannerView } from './pages/staff/StaffScannerView';
+import { StaffHistoryView } from './pages/staff/StaffHistoryView';
+
+function RootRedirect() {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center text-[10px] font-bold text-black">
+        Loading Sinacaban Municipal System...
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (user.role === 'admin') {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
+
+  if (user.role === 'staff') {
+    return <Navigate to="/staff/tasks" replace />;
+  }
+
+  return <Navigate to="/customer/home" replace />;
+}
 
 export function App() {
-  const [activePortal, setActivePortal] = useState<'admin' | 'customer' | 'staff'>('admin');
-
   return (
     <AuthProvider>
-      <div className="text-black bg-white min-h-screen text-sm">
-        {/* Top Portal Switcher Bar */}
-        <div className="bg-black text-white px-4 py-2 flex items-center justify-between text-sm border-b border-black">
-          <div className="flex items-center gap-3">
-            <span className="font-bold">AquaTrack Portal:</span>
-            <div className="inline-flex gap-1">
-              {(['admin', 'customer', 'staff'] as const).map((portal) => (
-                <button
-                  key={portal}
-                  onClick={() => setActivePortal(portal)}
-                  className={`px-3 py-1 rounded-md capitalize font-medium text-sm transition-colors ${
-                    activePortal === portal
-                      ? 'bg-[#1E6FD9] text-white font-bold'
-                      : 'bg-white text-black hover:bg-[#F0F6FD]'
-                  }`}
-                >
-                  {portal} View
-                </button>
-              ))}
-            </div>
-          </div>
-          <span className="text-sm hidden sm:inline text-white/80">
-            SIWASS · Connected to Live Backend API
-          </span>
-        </div>
+      <BrowserRouter>
+        <Routes>
+          {/* Public & Authentication Routes */}
+          <Route path="/" element={<RootRedirect />} />
+          <Route path="/login" element={<LoginView />} />
+          <Route path="/register" element={<CustomerRegistrationView />} />
 
-        {/* Live Connected Portal Pages */}
-        {activePortal === 'admin' && <AdminDashboardView />}
-        {activePortal === 'customer' && <CustomerHomeView />}
-        {activePortal === 'staff' && <StaffTasksView />}
-      </div>
+          {/* Dedicated Admin Portal Routes */}
+          <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+          <Route path="/admin/dashboard" element={<AdminDashboardView />} />
+          <Route path="/admin/verification" element={<AdminVerificationView />} />
+          <Route path="/admin/requests" element={<AdminRequestsView />} />
+          <Route path="/admin/billing" element={<AdminBillingImportView />} />
+          <Route path="/admin/interruptions" element={<AdminInterruptionsView />} />
+          <Route path="/admin/customers" element={<AdminCustomersView />} />
+
+          {/* Dedicated Customer Portal Routes */}
+          <Route path="/customer" element={<Navigate to="/customer/home" replace />} />
+          <Route path="/customer/home" element={<CustomerHomeView />} />
+          <Route path="/customer/bills" element={<CustomerBillsView />} />
+          <Route path="/customer/requests" element={<CustomerRequestsView />} />
+          <Route path="/customer/advisories" element={<CustomerAdvisoriesView />} />
+          <Route path="/customer/profile" element={<CustomerProfileView />} />
+
+          {/* Customer Portal Backward Compatibility / Direct shortcuts */}
+          <Route path="/home" element={<Navigate to="/customer/home" replace />} />
+          <Route path="/bills" element={<Navigate to="/customer/bills" replace />} />
+          <Route path="/requests" element={<Navigate to="/customer/requests" replace />} />
+          <Route path="/advisories" element={<Navigate to="/customer/advisories" replace />} />
+          <Route path="/profile" element={<Navigate to="/customer/profile" replace />} />
+
+          {/* Dedicated Staff Portal Routes */}
+          <Route path="/staff" element={<Navigate to="/staff/tasks" replace />} />
+          <Route path="/staff/tasks" element={<StaffTasksView />} />
+          <Route path="/staff/scan" element={<StaffScannerView />} />
+          <Route path="/staff/history" element={<StaffHistoryView />} />
+
+          {/* Fallback Catch-all Route */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
     </AuthProvider>
   );
 }
