@@ -5,8 +5,8 @@ import { StatCard } from '../../components/molecules/StatCard';
 import { Badge } from '../../components/atoms/Badge';
 import { Card } from '../../components/atoms/Card';
 import { Button } from '../../components/atoms/Button';
-import { requestsApi, billingApi, interruptionsApi } from '../../api';
-import type { ServiceRequest } from '../../types';
+import { requestsApi, billingApi, interruptionsApi, adminApi } from '../../api';
+import type { ServiceRequest, WaterInterruption } from '../../types';
 import { IconArrowRight } from '@tabler/icons-react';
 
 export function AdminDashboardView() {
@@ -16,16 +16,19 @@ export function AdminDashboardView() {
   const [unassignedCount, setUnassignedCount] = useState<number>(0);
   const [activeInterruptionCount, setActiveInterruptionCount] = useState<number>(0);
   const [unpaidBillsCount, setUnpaidBillsCount] = useState<number>(0);
+  const [pendingVerificationsCount, setPendingVerificationsCount] = useState<number>(0);
+  const [upcomingInterruptions, setUpcomingInterruptions] = useState<WaterInterruption[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       setIsLoading(true);
       try {
-        const [reqData, billData, intData] = await Promise.all([
+        const [reqData, billData, intData, pendingData] = await Promise.all([
           requestsApi.list({ per_page: 10 }),
           billingApi.list({ payment_status: 'unpaid' }),
           interruptionsApi.list(),
+          adminApi.pendingRegistrations().catch(() => ({ data: [], pagination: { total: 0 } })),
         ]);
 
         setRequests(reqData.data);
@@ -33,6 +36,8 @@ export function AdminDashboardView() {
         setUnassignedCount(reqData.data.filter((r) => !r.assigned_staff).length);
         setUnpaidBillsCount(billData.pagination.total);
         setActiveInterruptionCount(intData.pagination.total);
+        setUpcomingInterruptions(intData.data.slice(0, 3));
+        setPendingVerificationsCount(pendingData.pagination?.total || pendingData.data?.length || 0);
       } catch {
         // Fallback
       } finally {
@@ -96,6 +101,114 @@ export function AdminDashboardView() {
             value={isLoading ? '...' : activeInterruptionCount}
             subtext="Published advisories"
           />
+        </div>
+
+        {/* Wireframe A1: Middle Row - Needs Attention & Upcoming Interruptions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Needs attention card */}
+          <Card className="p-4 border border-black/15 space-y-3">
+            <div className="border-b border-black/10 pb-1.5 flex items-center justify-between">
+              <span className="font-bold text-black uppercase tracking-wider text-[10px]">
+                Needs attention
+              </span>
+              <Badge variant="black">Action Required</Badge>
+            </div>
+
+            <div className="space-y-2">
+              {/* Unassigned requests */}
+              {requests.filter((r) => !r.assigned_staff && r.status !== 'resolved' && r.status !== 'cancelled').slice(0, 2).map((req) => (
+                <div key={req.id} className="p-2 bg-[#F0F6FD] border border-black/10 rounded flex items-center justify-between">
+                  <div>
+                    <strong className="text-black font-mono">
+                      {req.reference_number || req.reference || `AT-${req.id}`}
+                    </strong>
+                    <span className="text-black/60 ml-1.5">Submitted, not yet assigned</span>
+                  </div>
+                  <Button
+                    variant="primary"
+                    className="py-0.5 px-2 text-[9px]"
+                    onClick={() => navigate('/admin/requests')}
+                  >
+                    Assign
+                  </Button>
+                </div>
+              ))}
+
+              {/* Pending account verifications */}
+              <div className="p-2 bg-[#F0F6FD] border border-black/10 rounded flex items-center justify-between">
+                <div>
+                  <strong className="text-black">Pending account verifications</strong>
+                  <span className="text-black/60 ml-1.5 font-mono">({pendingVerificationsCount})</span>
+                </div>
+                <Button
+                  variant="secondary"
+                  className="py-0.5 px-2 text-[9px]"
+                  onClick={() => navigate('/admin/verification')}
+                >
+                  Review
+                </Button>
+              </div>
+
+              {/* Imported bills awaiting publish */}
+              <div className="p-2 bg-[#F0F6FD] border border-black/10 rounded flex items-center justify-between">
+                <div>
+                  <strong className="text-black">Imported bills awaiting publish</strong>
+                  <span className="text-black/60 ml-1.5 font-mono">({unpaidBillsCount})</span>
+                </div>
+                <Button
+                  variant="secondary"
+                  className="py-0.5 px-2 text-[9px]"
+                  onClick={() => navigate('/admin/billing')}
+                >
+                  Review
+                </Button>
+              </div>
+            </div>
+          </Card>
+
+          {/* Upcoming interruptions card */}
+          <Card className="p-4 border border-black/15 space-y-3 flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="border-b border-black/10 pb-1.5 flex items-center justify-between">
+                <span className="font-bold text-black uppercase tracking-wider text-[10px]">
+                  Upcoming interruptions
+                </span>
+                <Badge variant="blue">Advisories</Badge>
+              </div>
+
+              <div className="space-y-2">
+                {upcomingInterruptions.length === 0 ? (
+                  <div className="py-4 text-center text-black/50 italic">
+                    No scheduled interruptions recorded.
+                  </div>
+                ) : (
+                  upcomingInterruptions.map((item) => (
+                    <div key={item.id} className="p-2 bg-white border border-black/15 rounded flex items-center justify-between text-[10px]">
+                      <div>
+                        <strong className="text-black block">
+                          {item.barangays?.map((b) => b.name).join(', ') || 'Sinacaban Sector'}
+                        </strong>
+                        <span className="text-black/60 text-[9px]">
+                          {item.starts_at} - {item.ends_at}
+                        </span>
+                      </div>
+                      <Badge variant="black">Scheduled</Badge>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-black/10 flex justify-end">
+              <button
+                onClick={() => navigate('/admin/interruptions')}
+                className="text-[#1E6FD9] font-bold text-[10px] hover:underline flex items-center gap-1"
+              >
+                <span>View schedule</span>
+                <IconArrowRight size={11} />
+              </button>
+            </div>
+          </Card>
         </div>
 
         {/* Live Service Requests Table */}
@@ -169,6 +282,11 @@ export function AdminDashboardView() {
             </table>
           </div>
         </Card>
+
+        {/* Footnote matching Wireframe A1 */}
+        <p className="text-[9px] text-black/50 italic pt-1">
+          Order of content: what is happening (counts), what needs attention, then recent requests. Shared shell for every Admin page: sidebar, topbar, page header, toast confirmations, empty, loading and error states.
+        </p>
       </div>
     </AdminLayout>
   );

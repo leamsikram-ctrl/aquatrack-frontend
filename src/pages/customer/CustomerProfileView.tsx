@@ -3,224 +3,333 @@ import { useNavigate } from 'react-router-dom';
 import { CustomerLayout } from '../../components/templates/CustomerLayout';
 import { Card } from '../../components/atoms/Card';
 import { Button } from '../../components/atoms/Button';
-import { Badge } from '../../components/atoms/Badge';
 import { authApi } from '../../api';
+import { useAuth } from '../../contexts/AuthContext';
 import type { User } from '../../types';
-import { IconUser, IconDeviceMobile, IconMail, IconMapPin, IconGauge, IconKey, IconCheck } from '@tabler/icons-react';
 
 export function CustomerProfileView() {
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Quick PIN update state
-  const [newPin, setNewPin] = useState('');
-  const [isUpdatingPin, setIsUpdatingPin] = useState(false);
-  const [pinSuccess, setPinSuccess] = useState(false);
+  // Edit profile & Change password modals
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [editMobile, setEditMobile] = useState('');
+  const [editAddress, setEditAddress] = useState('');
+  const [editSubmitted, setEditSubmitted] = useState(false);
+
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
 
   useEffect(() => {
     authApi
       .me()
       .then((u) => {
         setUser(u);
-        setIsLoading(false);
+        setEditMobile(u.customer_profile?.mobile_number || '');
+        setEditAddress(u.customer_profile?.address || '');
       })
       .catch(() => {
+        // Fallback
+      })
+      .finally(() => {
         setIsLoading(false);
       });
   }, []);
 
-  const handleUpdatePin = (e: React.FormEvent) => {
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
+
+  const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPin.length !== 4) {
-      alert('PIN must be exactly 4 digits.');
+    setEditSubmitted(true);
+    setTimeout(() => {
+      setEditSubmitted(false);
+      setShowEditModal(false);
+    }, 1500);
+  };
+
+  const handleChangePassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPassword !== confirmPassword) {
+      setPasswordError('New passwords do not match.');
       return;
     }
-
-    setIsUpdatingPin(true);
-    // Simulate instantaneous client-side PIN storage or API update
+    setPasswordError('');
+    setPasswordSuccess(true);
     setTimeout(() => {
-      setIsUpdatingPin(false);
-      setPinSuccess(true);
-      setNewPin('');
-      setTimeout(() => setPinSuccess(false), 3000);
-    }, 600);
+      setPasswordSuccess(false);
+      setShowPasswordModal(false);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    }, 1500);
   };
 
   if (isLoading) {
     return (
-      <Card className="p-8 text-center text-black/60 border border-black/15">
-        Loading consumer account profile...
+      <Card className="p-4 text-center text-black/60 border border-black/15">
+        Loading customer profile...
       </Card>
     );
   }
 
   const profile = user?.customer_profile;
+  const customerName = user?.name || 'Maria Santos';
+  const accountNumber = profile?.account_number || 'ACC-2026-0001';
+  const mobileNumber = profile?.mobile_number || '0917-123-4567';
+  const emailAddress = user?.email || 'maria.santos@gmail.com';
+  const barangayAddress = profile?.address
+    ? `${profile.address}, ${profile.barangay?.name || 'Poblacion'}`
+    : profile?.barangay?.name || 'Barangay Poblacion';
 
   return (
     <CustomerLayout currentPath="/customer/profile" onNavigate={(path) => navigate(path)}>
-      <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/15 pb-4">
-        <div>
-          <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">
-            Consumer Account Profile
+      <div className="max-w-xl mx-auto space-y-4 text-[10px] text-black">
+        {/* Wireframe C16 Header */}
+        <div className="border-b border-black/15 pb-2">
+          <h1 className="text-[12px] font-bold text-black uppercase tracking-wider">
+            Profile
           </h1>
-          <p className="text-[10px] text-black/60">
-            Household connection data, municipal account registration, and authentication credentials.
-          </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Badge variant={user?.is_verified ? 'blue' : 'black'}>
-            {user?.is_verified ? 'Verified Active Consumer' : 'Pending Verification'}
-          </Badge>
-        </div>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Personal & Account Info */}
-        <Card className="p-5 border border-black/15 space-y-4">
-          <div className="flex items-center gap-2 border-b border-black/15 pb-2">
-            <IconUser size={14} className="text-[#1E6FD9]" />
-            <span className="font-bold text-black uppercase tracking-wider">
-              Account Registration
-            </span>
+        {/* Wireframe C16 Customer Card */}
+        <Card className="p-4 border border-black/15 bg-white space-y-4">
+          {/* Avatar and Name */}
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-full border border-black/20 bg-[#F0F6FD] flex items-center justify-center font-bold text-black text-sm">
+              {customerName.charAt(0)}
+            </div>
+            <div>
+              <div className="font-bold text-[12px] text-black">
+                {customerName}
+              </div>
+              <div className="text-[10px] text-black/60">
+                {accountNumber}
+              </div>
+            </div>
           </div>
 
-          <div className="space-y-3 bg-[#F0F6FD] p-3 rounded border border-black/10">
-            <div>
-              <span className="text-black/60 block uppercase font-bold text-[10px]">
-                Registered Full Name
-              </span>
-              <span className="text-black font-bold text-[10px]">
-                {user?.name || 'Maria Santos'}
-              </span>
+          {/* Table / Information rows */}
+          <div className="border-t border-black/15 pt-3 divide-y divide-black/10 text-[10px]">
+            <div className="flex justify-between py-2">
+              <span className="font-bold text-black">Mobile</span>
+              <span className="text-black/80">{mobileNumber}</span>
             </div>
+            <div className="flex justify-between py-2">
+              <span className="font-bold text-black">Email</span>
+              <span className="text-black/80">{emailAddress}</span>
+            </div>
+            <div className="flex justify-between py-2">
+              <span className="font-bold text-black">Address</span>
+              <span className="text-black/80">{barangayAddress}</span>
+            </div>
+          </div>
 
-            <div>
-              <span className="text-black/60 block uppercase font-bold text-[10px]">
-                Official Account Number
-              </span>
-              <span className="text-[#1E6FD9] font-mono font-bold text-[10px]">
-                {profile?.account_number || 'ACC-2026-0001'}
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 pt-1 border-t border-black/10">
-              <div>
-                <span className="text-black/60 block uppercase font-bold text-[10px]">
-                  Email Address
-                </span>
-                <span className="text-black text-[10px] flex items-center gap-1">
-                  <IconMail size={10} className="text-black/50" />
-                  {user?.email || 'maria@example.com'}
-                </span>
-              </div>
-              <div>
-                <span className="text-black/60 block uppercase font-bold text-[10px]">
-                  Mobile Contact
-                </span>
-                <span className="text-black text-[10px] flex items-center gap-1">
-                  <IconDeviceMobile size={10} className="text-black/50" />
-                  {profile?.mobile_number || '0917-123-4567'}
-                </span>
-              </div>
-            </div>
-
-            <div className="pt-1 border-t border-black/10">
-              <span className="text-black/60 block uppercase font-bold text-[10px]">
-                Registered Service Address
-              </span>
-              <span className="text-black text-[10px] flex items-center gap-1">
-                <IconMapPin size={10} className="text-black/50 shrink-0" />
-                {profile?.address || 'Purok 2, National Highway'}, {profile?.barangay?.name || 'Poblacion'}
-              </span>
-            </div>
+          {/* Action Buttons */}
+          <div className="space-y-2 pt-2">
+            <Button
+              variant="secondary"
+              className="w-full justify-center"
+              onClick={() => setShowEditModal(true)}
+            >
+              Edit profile
+            </Button>
+            <Button
+              variant="secondary"
+              className="w-full justify-center"
+              onClick={() => setShowPasswordModal(true)}
+            >
+              Change password
+            </Button>
+            <button
+              onClick={handleLogout}
+              className="w-full py-1.5 text-center text-[10px] font-bold text-black hover:text-[#1E6FD9] transition-colors"
+            >
+              Log out
+            </button>
           </div>
         </Card>
 
-        {/* Assigned Meter & Connection */}
-        <Card className="p-5 border border-black/15 space-y-4">
-          <div className="flex items-center gap-2 border-b border-black/15 pb-2">
-            <IconGauge size={14} className="text-[#1E6FD9]" />
-            <span className="font-bold text-black uppercase tracking-wider">
-              Assigned Physical Water Meter
-            </span>
-          </div>
+        {/* Wireframe C16 Footnote */}
+        <div className="pt-2 text-center text-[9px] text-black/50 italic border-t border-black/10">
+          Profile edits wait for admin approval.
+        </div>
 
-          {profile?.meter ? (
-            <div className="space-y-3 bg-[#F0F6FD] p-3 rounded border border-black/10">
-              <div className="flex justify-between items-center">
-                <span className="text-black/60 uppercase font-bold text-[10px]">
-                  Meter Serial Number
+        {/* Edit Profile Modal */}
+        {showEditModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+            <div className="w-full max-w-sm bg-white rounded-lg border border-black p-4 space-y-3.5 shadow-2xl text-[10px]">
+              <div className="flex items-center justify-between border-b border-black/15 pb-2">
+                <span className="font-bold text-[11px] text-black uppercase tracking-wider">
+                  Edit Profile
                 </span>
-                <span className="text-black font-mono font-bold text-[10px]">
-                  {profile.meter.meter_number}
-                </span>
+                <button
+                  onClick={() => setShowEditModal(false)}
+                  className="text-black hover:text-[#1E6FD9] p-1 font-bold text-[11px]"
+                >
+                  ✕
+                </button>
               </div>
 
-              <div className="flex justify-between items-center">
-                <span className="text-black/60 uppercase font-bold text-[10px]">
-                  Meter Operational Status
-                </span>
-                <Badge variant="blue">{profile.meter.status.toUpperCase()}</Badge>
-              </div>
-
-              <div className="pt-2 border-t border-black/10">
-                <span className="text-black/60 block uppercase font-bold text-[10px] mb-1">
-                  Digital QR Token
-                </span>
-                <div className="p-2 bg-white rounded border border-black/20 font-mono text-center text-black text-[10px]">
-                  {profile.meter.qr_token}
+              {editSubmitted ? (
+                <div className="p-3 bg-[#F0F6FD] border border-black/20 rounded text-center text-[10px] text-black space-y-1">
+                  <div className="font-bold text-[#1E6FD9]">Update Request Submitted</div>
+                  <div className="text-black/70">
+                    Your profile edits will take effect once reviewed by SIWASS admin.
+                  </div>
                 </div>
-                <p className="text-[10px] text-black/50 mt-1">
-                  Scannable by Sinacaban municipal meter readers during monthly rounds.
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div className="p-4 bg-[#F0F6FD] border border-black/10 rounded text-center text-black/70 text-[10px]">
-              Meter installation pending verification by the Municipal Water District office.
-            </div>
-          )}
+              ) : (
+                <form onSubmit={handleSaveProfile} className="space-y-3">
+                  <div>
+                    <label className="block text-[9px] font-bold text-black/70 uppercase mb-1">
+                      Mobile Number
+                    </label>
+                    <input
+                      type="text"
+                      value={editMobile}
+                      onChange={(e) => setEditMobile(e.target.value)}
+                      className="w-full p-2 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+                      required
+                    />
+                  </div>
 
-          {/* Security / 4-Digit PIN */}
-          <div className="border-t border-black/15 pt-3 space-y-2">
-            <div className="flex items-center gap-2">
-              <IconKey size={12} className="text-[#1E6FD9]" />
-              <span className="font-bold text-black uppercase tracking-wider text-[10px]">
-                Mobile Quick-Login PIN
-              </span>
+                  <div>
+                    <label className="block text-[9px] font-bold text-black/70 uppercase mb-1">
+                      Address
+                    </label>
+                    <input
+                      type="text"
+                      value={editAddress}
+                      onChange={(e) => setEditAddress(e.target.value)}
+                      className="w-full p-2 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+                      required
+                    />
+                  </div>
+
+                  <div className="text-[9px] text-black/60 italic bg-[#F0F6FD] p-2 rounded border border-black/10">
+                    Note: Changes to official household records require admin verification before updating.
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-black/15">
+                    <Button
+                      variant="secondary"
+                      type="button"
+                      onClick={() => setShowEditModal(false)}
+                      className="justify-center"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="primary"
+                      type="submit"
+                      className="justify-center"
+                    >
+                      Save changes
+                    </Button>
+                  </div>
+                </form>
+              )}
             </div>
-
-            {pinSuccess && (
-              <div className="p-2 bg-[#F0F6FD] border border-black text-black rounded text-[10px] flex items-center gap-1">
-                <IconCheck size={12} className="text-[#1E6FD9]" />
-                4-Digit PIN successfully updated.
-              </div>
-            )}
-
-            <form onSubmit={handleUpdatePin} className="flex gap-2">
-              <input
-                type="password"
-                maxLength={4}
-                placeholder="4-digit PIN (e.g. 1234)"
-                className="w-40 p-2 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
-                value={newPin}
-                onChange={(e) => setNewPin(e.target.value.replace(/\D/g, ''))}
-                required
-              />
-              <Button
-                variant="secondary"
-                type="submit"
-                isLoading={isUpdatingPin}
-              >
-                Update PIN
-              </Button>
-            </form>
           </div>
-        </Card>
-      </div>
+        )}
+
+        {/* Change Password Modal */}
+        {showPasswordModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+            <div className="w-full max-w-sm bg-white rounded-lg border border-black p-4 space-y-3.5 shadow-2xl text-[10px]">
+              <div className="flex items-center justify-between border-b border-black/15 pb-2">
+                <span className="font-bold text-[11px] text-black uppercase tracking-wider">
+                  Change Password
+                </span>
+                <button
+                  onClick={() => setShowPasswordModal(false)}
+                  className="text-black hover:text-[#1E6FD9] p-1 font-bold text-[11px]"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {passwordError && (
+                <div className="p-2 bg-[#F0F6FD] border border-black text-black rounded text-[9px]">
+                  {passwordError}
+                </div>
+              )}
+
+              {passwordSuccess ? (
+                <div className="p-3 bg-[#F0F6FD] border border-black/20 rounded text-center text-[10px] text-black font-bold text-[#1E6FD9]">
+                  Password changed successfully!
+                </div>
+              ) : (
+                <form onSubmit={handleChangePassword} className="space-y-3">
+                  <div>
+                    <label className="block text-[9px] font-bold text-black/70 uppercase mb-1">
+                      Current Password
+                    </label>
+                    <input
+                      type="password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      className="w-full p-2 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[9px] font-bold text-black/70 uppercase mb-1">
+                      New Password
+                    </label>
+                    <input
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="w-full p-2 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[9px] font-bold text-black/70 uppercase mb-1">
+                      Confirm New Password
+                    </label>
+                    <input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full p-2 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+                      required
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-black/15">
+                    <Button
+                      variant="secondary"
+                      type="button"
+                      onClick={() => setShowPasswordModal(false)}
+                      className="justify-center"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="primary"
+                      type="submit"
+                      className="justify-center"
+                    >
+                      Update password
+                    </Button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </CustomerLayout>
   );

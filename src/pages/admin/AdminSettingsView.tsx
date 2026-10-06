@@ -514,6 +514,11 @@ export function AdminSettingsView() {
             </div>
           </div>
         )}
+
+        {/* Footnote matching Wireframes A13 & A14 */}
+        <p className="text-[9px] text-black/50 italic pt-2">
+          Each tab is a short form with its own save action. Admin sets the default urgency per issue type.
+        </p>
       </div>
     </AdminLayout>
   );

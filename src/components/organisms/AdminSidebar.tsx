@@ -23,29 +23,42 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 }) => {
   const sections: NavSection[] = [
     {
-      title: 'Operations',
       items: [
         { name: 'Dashboard', path: '/admin/dashboard' },
-        { name: 'Customer Verifications', path: '/admin/verification' },
-        { name: 'Service Requests Dispatch', path: '/admin/requests' },
-        { name: 'Municipal Map', path: '/admin/map' },
-        { name: 'Billing Imports', path: '/admin/billing' },
-        { name: 'Water Advisories', path: '/admin/interruptions' },
       ],
     },
     {
-      title: 'Records & Directory',
+      title: 'Operations',
       items: [
-        { name: 'All Customers', path: '/admin/customers' },
-        { name: 'Staff Directory', path: '/admin/staff' },
+        { name: 'Service requests', path: '/admin/requests' },
+        { name: 'Billing', path: '/admin/billing' },
+        { name: 'Map', path: '/admin/map' },
       ],
     },
     {
-      title: 'System & Analytics',
+      title: 'People',
       items: [
-        { name: 'Maintenance Reports', path: '/admin/reports' },
-        { name: 'Activity Log', path: '/admin/activity-log' },
-        { name: 'Settings & Issue Types', path: '/admin/settings' },
+        { name: 'Customers', path: '/admin/customers' },
+        { name: 'Staff', path: '/admin/staff' },
+      ],
+    },
+    {
+      title: 'Communication',
+      items: [
+        { name: 'Interruptions', path: '/admin/interruptions' },
+      ],
+    },
+    {
+      title: 'Records',
+      items: [
+        { name: 'Reports', path: '/admin/reports' },
+        { name: 'Activity log', path: '/admin/activity-log' },
+      ],
+    },
+    {
+      title: 'System',
+      items: [
+        { name: 'Settings', path: '/admin/settings' },
       ],
     },
   ];

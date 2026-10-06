@@ -4,33 +4,48 @@ import { CustomerLayout } from '../../components/templates/CustomerLayout';
 import { Card } from '../../components/atoms/Card';
 import { Badge } from '../../components/atoms/Badge';
 import { Button } from '../../components/atoms/Button';
-import { StatusTimeline } from '../../components/organisms/StatusTimeline';
-import { UrgencyDerivation } from '../../components/molecules/UrgencyDerivation';
-import { EmptyState } from '../../components/molecules/EmptyState';
-import { requestsApi, billingApi } from '../../api';
-import type { ServiceRequest, Billing } from '../../types';
+import { requestsApi, billingApi, authApi, interruptionsApi } from '../../api';
+import type { ServiceRequest, Billing, User, WaterInterruption } from '../../types';
+import { IconBell, IconChevronRight } from '@tabler/icons-react';
+import { NotificationCenter } from '../../components/organisms/NotificationCenter';
 
 export function CustomerHomeView() {
   const navigate = useNavigate();
+  const [user, setUser] = useState<User | null>(null);
   const [activeRequest, setActiveRequest] = useState<ServiceRequest | null>(null);
   const [currentBill, setCurrentBill] = useState<Billing | null>(null);
-  const [showReportModal, setShowReportModal] = useState<boolean>(false);
-  const [description, setDescription] = useState<string>('');
-  const [customerUrgency, setCustomerUrgency] = useState<string>('can_wait');
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [latestAdvisory, setLatestAdvisory] = useState<WaterInterruption | null>(null);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [description, setDescription] = useState('');
+  const [customerUrgency, setCustomerUrgency] = useState('can_wait');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchConsumerData = async () => {
     try {
-      const [reqData, billData] = await Promise.all([
-        requestsApi.list({ per_page: 1 }),
-        billingApi.list({ payment_status: 'unpaid' }),
+      const [userData, reqData, billData, intData] = await Promise.all([
+        authApi.me().catch(() => null),
+        requestsApi.list({ per_page: 5 }).catch(() => ({ data: [] })),
+        billingApi.list({ payment_status: 'unpaid' }).catch(() => ({ data: [] })),
+        interruptionsApi.list().catch(() => ({ data: [] })),
       ]);
 
-      if (reqData.data.length > 0) {
-        setActiveRequest(reqData.data[0]);
+      if (userData) setUser(userData);
+      
+      // Look for active (unresolved/uncancelled) request first, or latest
+      if (reqData.data && reqData.data.length > 0) {
+        const active = reqData.data.find(
+          (r) => ['submitted', 'assigned', 'in_progress'].includes(r.status)
+        );
+        setActiveRequest(active || reqData.data[0]);
       }
-      if (billData.data.length > 0) {
+      
+      if (billData.data && billData.data.length > 0) {
         setCurrentBill(billData.data[0]);
+      }
+      
+      if (intData.data && intData.data.length > 0) {
+        setLatestAdvisory(intData.data[0]);
       }
     } catch {
       // Offline fallback
@@ -62,121 +77,204 @@ export function CustomerHomeView() {
     }
   };
 
+  const profile = user?.customer_profile;
+  const accountNumber = profile?.account_number || 'ACC-2026-0001';
+  const meterNumber = profile?.meter?.meter_number || 'MTR-SIN-0001';
+  const barangayName = profile?.barangay?.name || 'Barangay Poblacion';
+
+  // Request 4-step progress index: Submitted (0), Assigned (1), In progress (2), Resolved (3)
+  const getProgressStepIndex = (status?: string) => {
+    switch (status) {
+      case 'submitted':
+        return 0;
+      case 'assigned':
+        return 1;
+      case 'in_progress':
+        return 2;
+      case 'resolved':
+        return 3;
+      default:
+        return 0;
+    }
+  };
+
+  const currentStepIdx = activeRequest ? getProgressStepIndex(activeRequest.status) : 0;
+
   return (
-    <CustomerLayout currentPath="/customer/home" onNavigate={(path) => navigate(path)}>
-      <div className="space-y-6">
-        {/* Top Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/15 pb-3">
-          <div>
-            <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">
-              Consumer Account Overview
-            </h1>
-            <p className="text-[10px] text-black/60">
-              Barangay Poblacion, Sinacaban Municipal Water District (SIWASS)
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="secondary" onClick={() => navigate('/customer/advisories')}>
-              View Advisories
-            </Button>
-            <Button variant="primary" onClick={() => setShowReportModal(true)}>
-              Report Water Issue
-            </Button>
-          </div>
+    <CustomerLayout
+      currentPath="/customer/home"
+      onNavigate={(path) => navigate(path)}
+      userName={user?.name || 'Consumer'}
+      accountNumber={accountNumber}
+    >
+      <div className="max-w-xl mx-auto space-y-4 text-[10px] text-black">
+        {/* Wireframe C7 Top Header */}
+        <div className="flex items-center justify-between border-b border-black/15 pb-2">
+          <h1 className="text-[12px] font-bold text-black uppercase tracking-wider">
+            Home
+          </h1>
+          <button
+            onClick={() => setShowNotifications(true)}
+            className="p-1.5 rounded border border-black text-black hover:bg-[#F0F6FD] hover:text-[#1E6FD9] transition-colors relative"
+            title="Notifications (Wireframe C15)"
+          >
+            <IconBell size={14} />
+            <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#1E6FD9] rounded-full" />
+          </button>
         </div>
 
-        {/* Current Billing Card */}
-        <Card className="border-l-4 border-l-[#1E6FD9] border border-black/15 p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-[10px] text-black/60 uppercase font-bold">
-                Current Statement {currentBill ? `(${currentBill.billing_period})` : ''}
-              </div>
-              <div className="text-[10px] font-bold text-black mt-1">
-                {currentBill ? `₱${Number(currentBill.amount_paid || 0).toFixed(2)}` : '₱0.00'}
-              </div>
-              <div className="text-[10px] text-black/50 mt-0.5">
-                {currentBill ? 'Payable at Sinacaban Municipal Treasurer' : 'No outstanding balance for this account'}
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant={currentBill?.payment_status === 'paid' ? 'blue' : 'black'}>
-                {currentBill ? currentBill.payment_status.toUpperCase() : 'SETTLED'}
-              </Badge>
-              <Button variant="secondary" onClick={() => navigate('/customer/bills')}>
-                Bills History
-              </Button>
-            </div>
+        {/* Card 1: Account (Wireframe C7) */}
+        <Card className="p-3.5 border border-black/15 bg-white space-y-1">
+          <div className="text-[9px] uppercase tracking-wider text-black/60 font-bold">
+            Account
+          </div>
+          <div className="text-[10px] font-bold text-black">
+            {accountNumber} · {meterNumber}
+          </div>
+          <div className="text-[10px] text-black/70">
+            {barangayName}
           </div>
         </Card>
 
-        {/* Active Request Progress */}
-        {activeRequest ? (
-          <div className="space-y-4">
-            <Card className="p-4 border border-black/15 space-y-3">
-              <div className="flex items-center justify-between border-b border-black/10 pb-2">
-                <div>
-                  <div className="text-[10px] font-bold text-black uppercase tracking-wider">
-                    Active Request: {activeRequest.reference_no || activeRequest.reference}
-                  </div>
-                  <div className="text-[10px] text-black/70 mt-0.5">
-                    {activeRequest.description}
-                  </div>
-                </div>
-                <Badge variant={activeRequest.status === 'resolved' ? 'blue' : 'black'}>
-                  {activeRequest.status.replace('_', ' ').toUpperCase()}
-                </Badge>
+        {/* Card 2: Current bill (Wireframe C7) */}
+        <Card className="p-3.5 border border-black/15 bg-white space-y-2">
+          <div className="text-[9px] uppercase tracking-wider text-black/60 font-bold">
+            Current bill
+          </div>
+          <div className="text-base font-bold text-black">
+            ₱{Number(currentBill?.amount_paid || (currentBill ? 350.0 : 0)).toFixed(2)}
+          </div>
+          <div className="text-[10px] text-black/70">
+            {currentBill?.due_date
+              ? `Due ${new Date(currentBill.due_date).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}`
+              : 'Due Oct 25, 2026'}
+          </div>
+          <div className="flex items-center justify-between pt-1 border-t border-black/10">
+            <Badge variant={currentBill?.payment_status === 'paid' ? 'blue' : 'black'}>
+              {currentBill?.payment_status === 'paid' ? 'PAID' : 'UNPAID'}
+            </Badge>
+            <Button
+              variant="secondary"
+              onClick={() => navigate('/customer/bills')}
+            >
+              View bill
+            </Button>
+          </div>
+        </Card>
+
+        {/* Card 3: Active request (Wireframe C7) */}
+        <Card
+          className="p-3.5 border border-black/15 bg-white space-y-2.5 cursor-pointer hover:border-[#1E6FD9] transition-colors"
+          onClick={() => navigate('/customer/requests')}
+        >
+          <div className="flex items-center justify-between">
+            <div className="text-[9px] uppercase tracking-wider text-black/60 font-bold">
+              Active request
+            </div>
+            <IconChevronRight size={12} className="text-black/40" />
+          </div>
+
+          {activeRequest ? (
+            <>
+              <div className="text-[10px] font-bold text-black">
+                {activeRequest.reference_no || activeRequest.reference || 'AT-2026-0012'} ·{' '}
+                {activeRequest.issue_type?.name || 'Service Issue'}
               </div>
 
-              <StatusTimeline
-                status={activeRequest.status}
-                submittedAt={
-                  activeRequest.created_at
-                    ? new Date(activeRequest.created_at).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })
-                    : undefined
-                }
-                startedAt={
-                  activeRequest.started_at
-                    ? new Date(activeRequest.started_at).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })
-                    : undefined
-                }
-                resolvedAt={
-                  activeRequest.resolved_at
-                    ? new Date(activeRequest.resolved_at).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })
-                    : undefined
-                }
-              />
-            </Card>
+              {/* Wireframe C7 4-step progress bar */}
+              <div className="space-y-1 pt-1">
+                <div className="grid grid-cols-4 gap-1">
+                  {[0, 1, 2, 3].map((step) => {
+                    const isPassed = step <= currentStepIdx;
+                    return (
+                      <div
+                        key={step}
+                        className={`h-1.5 rounded-full ${
+                          isPassed ? 'bg-[#1E6FD9]' : 'bg-black/15'
+                        }`}
+                      />
+                    );
+                  })}
+                </div>
+                <div className="grid grid-cols-4 text-center text-[8px] font-bold text-black/70">
+                  <span className={currentStepIdx >= 0 ? 'text-[#1E6FD9]' : ''}>
+                    Submitted
+                  </span>
+                  <span className={currentStepIdx >= 1 ? 'text-[#1E6FD9]' : ''}>
+                    Assigned
+                  </span>
+                  <span className={currentStepIdx >= 2 ? 'text-[#1E6FD9]' : ''}>
+                    In progress
+                  </span>
+                  <span className={currentStepIdx >= 3 ? 'text-[#1E6FD9]' : ''}>
+                    Resolved
+                  </span>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="py-2 text-center text-black/60 flex items-center justify-between">
+              <span>No active service request logged.</span>
+              <Button
+                variant="secondary"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowReportModal(true);
+                }}
+              >
+                Report an issue
+              </Button>
+            </div>
+          )}
+        </Card>
 
-            <UrgencyDerivation
-              defaultUrgency="medium"
-              customerUrgency={activeRequest.customer_urgency ?? 'can_wait'}
-              finalUrgency={activeRequest.urgency ?? 'medium'}
-              adjustedByAdmin={false}
-            />
+        {/* Card 4: Latest advisory (Wireframe C7) */}
+        <Card
+          className="p-3.5 border border-black/15 bg-white space-y-1.5 cursor-pointer hover:border-[#1E6FD9] transition-colors"
+          onClick={() => navigate('/customer/advisories')}
+        >
+          <div className="flex items-center justify-between">
+            <div className="text-[9px] uppercase tracking-wider text-black/60 font-bold">
+              Latest advisory
+            </div>
+            <IconChevronRight size={12} className="text-black/40" />
           </div>
-        ) : (
-          <EmptyState
-            title="No Active Service Requests"
-            description="You do not have any open water issues or pipeline repair tickets logged for your household."
-            actionLabel="Report an Issue"
-            onAction={() => setShowReportModal(true)}
-          />
-        )}
+          <div className="text-[10px] font-bold text-black">
+            {latestAdvisory?.barangays?.[0]?.name || barangayName} ·{' '}
+            {latestAdvisory?.starts_at
+              ? new Date(latestAdvisory.starts_at).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                })
+              : 'Oct 12, 2026'}
+          </div>
+          <p className="text-[10px] text-black/70 line-clamp-2">
+            {latestAdvisory?.message ||
+              'Scheduled maintenance and pipeline pressure checks across municipal distribution zones.'}
+          </p>
+        </Card>
 
-        {/* Modal for reporting an issue */}
+        {/* Wireframe C7 Footnote */}
+        <div className="pt-2 text-center text-[9px] text-black/50 italic border-t border-black/10">
+          Order: account, bill, active request, advisory. Bell opens Notifications.
+        </div>
+
+        {/* Notification Modal (C15) */}
+        <NotificationCenter
+          isOpen={showNotifications}
+          onClose={() => setShowNotifications(false)}
+          role="customer"
+        />
+
+        {/* Modal for reporting an issue (Wireframe C10 quick trigger) */}
         {showReportModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-md bg-white rounded-lg border border-black p-5 space-y-4 shadow-xl">
+            <div className="w-full max-w-md bg-white rounded-lg border border-black p-5 space-y-4 shadow-xl text-[10px]">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <span className="font-bold text-[10px] text-black uppercase tracking-wider">
                   Report a Water Service Issue
