@@ -109,3 +109,4 @@ export interface WaterInterruption {
   status: 'scheduled' | 'ongoing' | 'ended' | 'cancelled';
   barangays?: Barangay[];
 }
+
