@@ -132,3 +132,4 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({
     </div>
   );
 };
+

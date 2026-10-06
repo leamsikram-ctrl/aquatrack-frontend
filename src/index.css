@@ -2,79 +2,77 @@
 
 @theme {
   /* =========================================================
-     Clean Modern B2B SaaS (Linear / Raycast / Stripe Inspired)
-     Strict 2-Color Architecture + Precision Zinc Grayscale
+     Fasto SaaS Inspired Theme
+     Solid Deep Royal Purple/Indigo Sidebar + Vibrant Accent + Clean Crisp White Cards
      ========================================================= */
 
-  /* 1. Structural Ink & Text: Obsidian Zinc (#090A0F) */
-  --color-zinc-950: #090A0F;
-  --color-zinc-900: #12141A;
-  --color-zinc-800: #1E222B;
-  --color-zinc-700: #2C323E;
-  --color-zinc-600: #4B5565;
-  --color-zinc-500: #697586;
-  --color-zinc-400: #9AA4B2;
-  --color-zinc-300: #CDD5DF;
-  --color-zinc-200: #E3E8EF;
-  --color-zinc-100: #EEF2F6;
-  --color-zinc-50:  #F8FAFC;
+  /* Primary Brand: Deep Vibrant Indigo / Royal Purple (#4F46E5 or #5434d6 / #5842be) */
+  --color-brand-sidebar: #4F46E5;
+  --color-brand-sidebar-hover: #4338CA;
+  --color-brand-sidebar-active: #3730A3;
+  --color-brand-accent: #6366F1;
+  --color-brand-accent-light: #EEF2FF;
 
-  /* 2. Precision Electric Cobalt Accent (#2563EB) */
-  --color-accent: #2563EB;
-  --color-accent-hover: #1D4ED8;
-  --color-accent-light: #EFF6FF;
-  --color-accent-border: #DBEAFE;
+  /* Card Accent Lines */
+  --color-card-line-purple: #6366F1;
+  --color-card-line-amber: #F59E0B;
+  --color-card-line-indigo: #4338CA;
+  --color-card-line-emerald: #10B981;
 
-  /* Surface & Hairline Borders */
-  --color-surface-base: #F8FAFC;
-  --color-surface-card: #FFFFFF;
-  --color-surface-card-subtle: #FAFCFE;
-  --color-hairline: rgba(15, 23, 42, 0.08);
-  --color-hairline-strong: rgba(15, 23, 42, 0.14);
+  /* Canvas and Surfaces */
+  --color-canvas-bg: #F8F9FD;
+  --color-card-bg: #FFFFFF;
+  --color-card-border: #F1F4F9;
 
   /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
 }
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--color-surface-base);
-  color: #090A0F;
+  background-color: var(--color-canvas-bg);
+  color: #1E293B;
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  letter-spacing: -0.011em;
 }
 
-/* Linear-style smooth micro-interactions */
-button, input, select, textarea, a {
-  transition-property: all;
-  transition-duration: 140ms;
-  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+/* Rounded Card Shadows from Fasto */
+.fasto-card {
+  background-color: #FFFFFF;
+  border-radius: 1.25rem; /* rounded-2xl */
+  box-shadow: 0 4px 20px -2px rgba(100, 116, 139, 0.06);
+  border: 1px solid rgba(241, 245, 249, 0.8);
+  transition: all 0.2s ease;
 }
 
-/* Micro hairline border utility */
-.border-hairline {
-  border: 1px solid var(--color-hairline);
-}
-.border-hairline-strong {
-  border: 1px solid var(--color-hairline-strong);
+.fasto-card:hover {
+  box-shadow: 0 8px 25px -4px rgba(100, 116, 139, 0.1);
 }
 
-/* Precision scrollbar */
-::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+/* Fasto-style search input pill */
+.fasto-search-pill {
+  background-color: #F8FAFC;
   border-radius: 9999px;
+  border: 1px solid #EEF2F6;
+  padding: 0.5rem 1.25rem;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+
+/* Fasto-style circular action icons */
+.fasto-action-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #F8FAFC;
+  color: #64748B;
+  transition: all 0.15s ease;
+}
+
+.fasto-action-icon:hover {
+  background-color: #EEF2FF;
+  color: #4F46E5;
 }
