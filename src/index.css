@@ -2,59 +2,71 @@
 
 @theme {
   /* =========================================================
-     AquaTrack Modern SaaS Theme (Inspired by Fasto & Modern B2B)
-     Strict 2-Color Hierarchy + Clean Neutral Surfaces
+     Clean Modern B2B SaaS (Linear / Raycast / Stripe Inspired)
+     Strict 2-Color Architecture + Precision Zinc Grayscale
      ========================================================= */
 
-  /* 1. Structural Ink & Text: Clean Deep Slate (#0F172A) */
-  --color-slate-950: #020617;
-  --color-slate-900: #0F172A;
-  --color-slate-800: #1E293B;
-  --color-slate-700: #334155;
-  --color-slate-600: #475569;
-  --color-slate-500: #64748B;
-  --color-slate-400: #94A3B8;
-  --color-slate-300: #CBD5E1;
-  --color-slate-200: #E2E8F0;
-  --color-slate-100: #F1F5F9;
-  --color-slate-50:  #F8FAFC;
+  /* 1. Structural Ink & Text: Obsidian Zinc (#090A0F) */
+  --color-zinc-950: #090A0F;
+  --color-zinc-900: #12141A;
+  --color-zinc-800: #1E222B;
+  --color-zinc-700: #2C323E;
+  --color-zinc-600: #4B5565;
+  --color-zinc-500: #697586;
+  --color-zinc-400: #9AA4B2;
+  --color-zinc-300: #CDD5DF;
+  --color-zinc-200: #E3E8EF;
+  --color-zinc-100: #EEF2F6;
+  --color-zinc-50:  #F8FAFC;
 
-  /* 2. Interactive Accent: Modern Indigo / Blue (#4F46E5) */
-  --color-accent: #4F46E5;
-  --color-accent-hover: #4338CA;
-  --color-accent-light: #EEF2FF;
-  --color-accent-subtle: #E0E7FF;
+  /* 2. Precision Electric Cobalt Accent (#2563EB) */
+  --color-accent: #2563EB;
+  --color-accent-hover: #1D4ED8;
+  --color-accent-light: #EFF6FF;
+  --color-accent-border: #DBEAFE;
 
-  /* Canvas and Surfaces */
-  --color-canvas-bg: #F8FAFC;
-  --color-card-bg: #FFFFFF;
-  --color-card-border: #E2E8F0;
+  /* Surface & Hairline Borders */
+  --color-surface-base: #F8FAFC;
+  --color-surface-card: #FFFFFF;
+  --color-surface-card-subtle: #FAFCFE;
+  --color-hairline: rgba(15, 23, 42, 0.08);
+  --color-hairline-strong: rgba(15, 23, 42, 0.14);
 
   /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
 }
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--color-canvas-bg);
-  color: var(--color-slate-900);
+  background-color: var(--color-surface-base);
+  color: #090A0F;
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.011em;
 }
 
-/* Subtle transitions on interactive elements */
+/* Linear-style smooth micro-interactions */
 button, input, select, textarea, a {
   transition-property: all;
-  transition-duration: 150ms;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 140ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Micro hairline border utility */
+.border-hairline {
+  border: 1px solid var(--color-hairline);
+}
+.border-hairline-strong {
+  border: 1px solid var(--color-hairline-strong);
 }
 
 /* Precision scrollbar */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;

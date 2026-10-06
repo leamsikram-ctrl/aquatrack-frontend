@@ -1,20 +1,24 @@
 import { useState } from 'react';
-import { CleanAdminLayout } from './components/templates/CleanAdminLayout';
-import { CustomerLayout } from './components/templates/CustomerLayout';
-import { StaffLayout } from './components/templates/StaffLayout';
+import { FloatingNav } from './components/organisms/FloatingNav';
+import { StatCard } from './components/molecules/StatCard';
 import { UrgencyDerivation } from './components/molecules/UrgencyDerivation';
 import { StatusTimeline } from './components/organisms/StatusTimeline';
 import { Button } from './components/atoms/Button';
 import { Badge } from './components/atoms/Badge';
+import { Card } from './components/atoms/Card';
 import {
-  IconTool,
+  IconAlertCircle,
   IconUsers,
   IconDroplet,
   IconReceipt2,
+  IconPlus,
+  IconDownload,
   IconFilter,
-  IconArrowUpRight,
   IconDotsVertical,
-  IconCalendar,
+  IconClock,
+  IconHome,
+  IconAlertTriangle,
+  IconUser,
 } from '@tabler/icons-react';
 
 export function App() {
@@ -22,12 +26,12 @@ export function App() {
   const [currentPath, setCurrentPath] = useState('/admin/dashboard');
 
   return (
-    <div>
-      {/* Top Preview Switcher Bar */}
-      <div className="bg-slate-900 text-white px-4 py-2 flex items-center justify-between text-xs border-b border-slate-800">
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col text-[#090A0F]">
+      {/* Top Portal Switcher (Preview Mode Bar) */}
+      <div className="bg-[#090A0F] text-white px-4 py-1.5 flex items-center justify-between text-xs border-b border-zinc-800">
         <div className="flex items-center gap-2">
-          <span className="text-slate-400 font-medium">Layout View:</span>
-          <div className="inline-flex rounded-lg bg-slate-800 p-0.5 border border-slate-700">
+          <span className="font-mono text-[11px] text-zinc-400">Portal:</span>
+          <div className="inline-flex rounded-md bg-zinc-900 p-0.5 border border-zinc-800">
             {(['admin', 'customer', 'staff'] as const).map((portal) => (
               <button
                 key={portal}
@@ -37,10 +41,10 @@ export function App() {
                   if (portal === 'customer') setCurrentPath('/home');
                   if (portal === 'staff') setCurrentPath('/staff/tasks');
                 }}
-                className={`px-3 py-1 rounded-md text-xs capitalize transition-all font-medium ${
+                className={`px-2.5 py-0.5 rounded text-xs capitalize transition-colors font-medium ${
                   activePortal === portal
-                    ? 'bg-[#4F46E5] text-white shadow-xs font-semibold'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-[#2563EB] text-white font-semibold'
+                    : 'text-zinc-400 hover:text-white'
                 }`}
               >
                 {portal}
@@ -49,177 +53,147 @@ export function App() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-[11px] text-slate-400">SIWASS Utility Management</span>
+          <span className="text-[11px] text-zinc-400 font-mono">Modern SaaS Architecture</span>
         </div>
       </div>
 
-      {/* Admin Portal View */}
+      {/* Floating Top Navigation */}
+      <FloatingNav currentPath={currentPath} onNavigate={setCurrentPath} />
+
+      {/* Admin Portal Page View */}
       {activePortal === 'admin' && (
-        <CleanAdminLayout
-          currentPath={currentPath}
-          onNavigate={setCurrentPath}
-          pageTitle="Operations Dashboard"
-          pageSubtitle="Sinacaban Water District Real-Time Status"
-        >
-          {/* Subtle 4-Card Overview Row (Clean cards with subtle top accents) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Card 1: Open Requests */}
-            <div className="relative overflow-hidden rounded-xl bg-white p-5 border border-slate-200/80 shadow-2xs hover:border-slate-300 transition-all">
-              <div className="absolute top-0 left-0 right-0 h-0.75 bg-[#4F46E5]" />
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                  Open Requests
-                </span>
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50 text-[#4F46E5]">
-                  <IconTool size={16} />
-                </div>
+        <div className="flex-1 flex flex-col">
+          {/* Contextual Sub-bar */}
+          <section className="border-b border-slate-200/80 bg-white/70 backdrop-blur-xs py-2.5 px-4 sm:px-6">
+            <div className="mx-auto max-w-7xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-1.5 text-xs text-slate-500 font-mono">
+                <span>Sinacaban Water District</span>
+                <span className="text-slate-300">/</span>
+                <span>Operations</span>
+                <span className="text-slate-300">/</span>
+                <span className="font-semibold text-[#090A0F]">Live Center</span>
               </div>
-              <div className="mt-3">
-                <div className="text-2xl font-bold text-slate-900 tracking-tight">18</div>
-                <p className="mt-1 flex items-center gap-1 text-xs text-rose-600 font-medium">
-                  <span>4 unassigned</span>
-                  <span className="text-slate-400 font-normal">· needs action</span>
-                </p>
+              <div className="flex items-center gap-2">
+                <Button size="xs" variant="secondary" leftIcon={<IconDownload size={13} />}>
+                  Export CSV
+                </Button>
+                <Button size="xs" variant="primary" leftIcon={<IconPlus size={13} />} kbdShortcut="C">
+                  New Advisory
+                </Button>
               </div>
             </div>
+          </section>
 
-            {/* Card 2: Consumer Accounts */}
-            <div className="relative overflow-hidden rounded-xl bg-white p-5 border border-slate-200/80 shadow-2xs hover:border-slate-300 transition-all">
-              <div className="absolute top-0 left-0 right-0 h-0.75 bg-slate-900" />
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                  Active Consumers
-                </span>
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
-                  <IconUsers size={16} />
-                </div>
-              </div>
-              <div className="mt-3">
-                <div className="text-2xl font-bold text-slate-900 tracking-tight">1,248</div>
-                <p className="mt-1 flex items-center gap-1 text-xs text-emerald-600 font-medium">
-                  <IconArrowUpRight size={13} />
-                  <span>12 new</span>
-                  <span className="text-slate-400 font-normal">this month</span>
-                </p>
-              </div>
+          {/* Main Operational Canvas */}
+          <main className="mx-auto max-w-7xl w-full flex-1 p-4 sm:p-6 lg:p-8 space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+              <StatCard
+                label="Pending Work Orders"
+                value="18"
+                trend={{ value: "+3 past 24h" }}
+                icon={<IconAlertCircle size={16} className="text-rose-600" />}
+              />
+              <StatCard
+                label="Unassigned Queued"
+                value="06"
+                trend={{ value: "2 high priority" }}
+                icon={<IconUsers size={16} />}
+              />
+              <StatCard
+                label="Active Outages"
+                value="01"
+                subtext="Poblacion main feeder"
+                icon={<IconDroplet size={16} />}
+              />
+              <StatCard
+                label="Billed This Cycle"
+                value="₱142,500"
+                trend={{ value: "October 2026", isPositive: true }}
+                icon={<IconReceipt2 size={16} />}
+              />
             </div>
 
-            {/* Card 3: Disruptions */}
-            <div className="relative overflow-hidden rounded-xl bg-white p-5 border border-slate-200/80 shadow-2xs hover:border-slate-300 transition-all">
-              <div className="absolute top-0 left-0 right-0 h-0.75 bg-amber-500" />
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                  Active Outages
-                </span>
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
-                  <IconDroplet size={16} />
-                </div>
-              </div>
-              <div className="mt-3">
-                <div className="text-2xl font-bold text-slate-900 tracking-tight">01</div>
-                <p className="mt-1 text-xs text-slate-500">
-                  Poblacion feeder line repair
-                </p>
-              </div>
-            </div>
-
-            {/* Card 4: Billing Cycle */}
-            <div className="relative overflow-hidden rounded-xl bg-white p-5 border border-slate-200/80 shadow-2xs hover:border-slate-300 transition-all">
-              <div className="absolute top-0 left-0 right-0 h-0.75 bg-emerald-600" />
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                  Published Bills
-                </span>
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
-                  <IconReceipt2 size={16} />
-                </div>
-              </div>
-              <div className="mt-3">
-                <div className="text-2xl font-bold text-slate-900 tracking-tight">₱142,500</div>
-                <p className="mt-1 text-xs text-slate-500">
-                  Cycle: October 2026
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Clean 2-Column Operational Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left 2 Cols: Main Service Requests Table */}
-            <div className="lg:col-span-2 rounded-xl bg-white border border-slate-200/80 shadow-2xs overflow-hidden">
-              <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900">Recent Service Requests</h3>
-                  <p className="text-xs text-slate-400 mt-0.5">Real-time issues reported across Sinacaban barangays</p>
+            {/* High-Precision Dispatch Table */}
+            <Card padding="none">
+              <div className="px-5 py-3.5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/40">
+                <div className="flex items-center gap-2.5">
+                  <h3 className="text-xs font-bold text-[#090A0F] uppercase tracking-wider font-mono">
+                    Service Request Dispatch
+                  </h3>
+                  <Badge variant="neutral" mono size="xs">
+                    8 records
+                  </Badge>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button size="xs" variant="secondary" leftIcon={<IconFilter size={13} />}>
                     Filter
                   </Button>
+                  <div className="h-4 w-px bg-slate-200" />
+                  <span className="text-[11px] font-mono text-slate-400">Sort: Urgency</span>
                 </div>
               </div>
 
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50/75 text-slate-500 border-b border-slate-100 font-semibold text-[11px]">
+                  <thead className="bg-slate-50/70 text-slate-500 border-b border-slate-100 font-mono text-[11px]">
                     <tr>
-                      <th className="px-5 py-3">Reference</th>
-                      <th className="px-5 py-3">Issue Type</th>
-                      <th className="px-5 py-3">Barangay</th>
-                      <th className="px-5 py-3">Urgency</th>
-                      <th className="px-5 py-3">Status</th>
-                      <th className="px-5 py-3">Assigned Staff</th>
-                      <th className="px-5 py-3 text-right">Action</th>
+                      <th className="px-5 py-2.5 font-medium">Ref No.</th>
+                      <th className="px-5 py-2.5 font-medium">Issue Description</th>
+                      <th className="px-5 py-2.5 font-medium">Barangay</th>
+                      <th className="px-5 py-2.5 font-medium">Urgency</th>
+                      <th className="px-5 py-2.5 font-medium">Status</th>
+                      <th className="px-5 py-2.5 font-medium">Assigned Field Tech</th>
+                      <th className="px-5 py-2.5 font-medium text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 font-medium">
-                    <tr className="hover:bg-slate-50/60 transition-colors">
-                      <td className="px-5 py-3.5 font-bold text-slate-900">AT-0018</td>
-                      <td className="px-5 py-3.5 text-slate-800">Main Pipe Burst</td>
-                      <td className="px-5 py-3.5 text-slate-600">Poblacion</td>
-                      <td className="px-5 py-3.5">
-                        <Badge variant="danger" dot size="sm">High</Badge>
+                  <tbody className="divide-y divide-slate-100">
+                    <tr className="hover:bg-slate-50/80 transition-colors group cursor-pointer">
+                      <td className="px-5 py-3 font-mono font-semibold text-[#090A0F]">AT-0018</td>
+                      <td className="px-5 py-3 text-slate-800 font-medium">Main Distribution Pipe Fracture</td>
+                      <td className="px-5 py-3 text-slate-600">Poblacion</td>
+                      <td className="px-5 py-3">
+                        <Badge variant="danger" dot mono size="xs">HIGH</Badge>
                       </td>
-                      <td className="px-5 py-3.5">
-                        <Badge variant="accent" size="sm">In Progress</Badge>
+                      <td className="px-5 py-3">
+                        <Badge variant="accent" mono size="xs">IN PROGRESS</Badge>
                       </td>
-                      <td className="px-5 py-3.5 text-slate-700">R. Cruz (Tech)</td>
-                      <td className="px-5 py-3.5 text-right">
-                        <Button size="xs" variant="secondary">
-                          Details
-                        </Button>
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-slate-50/60 transition-colors">
-                      <td className="px-5 py-3.5 font-bold text-slate-900">AT-0017</td>
-                      <td className="px-5 py-3.5 text-slate-800">Low Water Pressure</td>
-                      <td className="px-5 py-3.5 text-slate-600">San Isidro</td>
-                      <td className="px-5 py-3.5">
-                        <Badge variant="warning" dot size="sm">Medium</Badge>
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <Badge variant="neutral" size="sm">Submitted</Badge>
-                      </td>
-                      <td className="px-5 py-3.5 text-slate-400 italic">Unassigned</td>
-                      <td className="px-5 py-3.5 text-right">
-                        <Button size="xs" variant="primary">
-                          Assign
-                        </Button>
+                      <td className="px-5 py-3 text-slate-700">R. Cruz (Tech-01)</td>
+                      <td className="px-5 py-3 text-right">
+                        <button className="text-slate-400 hover:text-slate-700 p-1 rounded hover:bg-slate-100">
+                          <IconDotsVertical size={14} />
+                        </button>
                       </td>
                     </tr>
-                    <tr className="hover:bg-slate-50/60 transition-colors">
-                      <td className="px-5 py-3.5 font-bold text-slate-900">AT-0016</td>
-                      <td className="px-5 py-3.5 text-slate-800">Meter Reading Discrepancy</td>
-                      <td className="px-5 py-3.5 text-slate-600">Sinabacan</td>
-                      <td className="px-5 py-3.5">
-                        <Badge variant="neutral" size="sm">Low</Badge>
+                    <tr className="hover:bg-slate-50/80 transition-colors group cursor-pointer">
+                      <td className="px-5 py-3 font-mono font-semibold text-[#090A0F]">AT-0017</td>
+                      <td className="px-5 py-3 text-slate-800 font-medium">Low Pressure / Aerated Flow</td>
+                      <td className="px-5 py-3 text-slate-600">San Isidro</td>
+                      <td className="px-5 py-3">
+                        <Badge variant="warning" dot mono size="xs">MEDIUM</Badge>
                       </td>
-                      <td className="px-5 py-3.5">
-                        <Badge variant="success" size="sm">Resolved</Badge>
+                      <td className="px-5 py-3">
+                        <Badge variant="neutral" mono size="xs">SUBMITTED</Badge>
                       </td>
-                      <td className="px-5 py-3.5 text-slate-700">M. Gomez (Tech)</td>
-                      <td className="px-5 py-3.5 text-right">
-                        <button className="text-slate-400 hover:text-slate-700 p-1">
+                      <td className="px-5 py-3 text-slate-400 italic">Unassigned</td>
+                      <td className="px-5 py-3 text-right">
+                        <button className="text-slate-400 hover:text-slate-700 p-1 rounded hover:bg-slate-100">
+                          <IconDotsVertical size={14} />
+                        </button>
+                      </td>
+                    </tr>
+                    <tr className="hover:bg-slate-50/80 transition-colors group cursor-pointer">
+                      <td className="px-5 py-3 font-mono font-semibold text-[#090A0F]">AT-0016</td>
+                      <td className="px-5 py-3 text-slate-800 font-medium">Residential Meter Dial Stalled</td>
+                      <td className="px-5 py-3 text-slate-600">Sinabacan</td>
+                      <td className="px-5 py-3">
+                        <Badge variant="neutral" mono size="xs">LOW</Badge>
+                      </td>
+                      <td className="px-5 py-3">
+                        <Badge variant="success" mono size="xs">RESOLVED</Badge>
+                      </td>
+                      <td className="px-5 py-3 text-slate-700">M. Gomez (Tech-02)</td>
+                      <td className="px-5 py-3 text-right">
+                        <button className="text-slate-400 hover:text-slate-700 p-1 rounded hover:bg-slate-100">
                           <IconDotsVertical size={14} />
                         </button>
                       </td>
@@ -227,175 +201,132 @@ export function App() {
                   </tbody>
                 </table>
               </div>
-            </div>
+            </Card>
 
-            {/* Right Col: Needs Attention & Upcoming Advisory */}
-            <div className="space-y-4">
-              {/* Needs Attention Card */}
-              <div className="rounded-xl bg-white p-5 border border-slate-200/80 shadow-2xs space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <UrgencyDerivation
+                defaultUrgency="medium"
+                customerUrgency="high"
+                finalUrgency="high"
+                adjustedByAdmin={true}
+                adjustmentReason="High pressure line affected near elementary school boundary."
+              />
+
+              <Card padding="md" className="space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                  <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wide">
-                    Needs Attention
-                  </h4>
-                  <span className="text-[11px] font-semibold text-[#4F46E5] bg-indigo-50 px-2 py-0.5 rounded-full">
-                    3 items
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-600 font-mono">
+                    Lifecycle Audit (AT-0018)
+                  </span>
+                  <span className="text-[11px] font-mono text-slate-400 flex items-center gap-1">
+                    <IconClock size={12} />
+                    Duration: 2h 45m
                   </span>
                 </div>
-
-                <div className="space-y-2.5 text-xs">
-                  <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-100">
-                    <div>
-                      <div className="font-semibold text-slate-800">AT-0017 Unassigned</div>
-                      <div className="text-[11px] text-slate-500">San Isidro · Submitted 2h ago</div>
-                    </div>
-                    <Button size="xs" variant="primary">
-                      Assign
-                    </Button>
-                  </div>
-
-                  <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-100">
-                    <div>
-                      <div className="font-semibold text-slate-800">5 Registrations Pending</div>
-                      <div className="text-[11px] text-slate-500">Awaiting meter linkage</div>
-                    </div>
-                    <Button size="xs" variant="secondary">
-                      Review
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Upcoming Advisory Card */}
-              <div className="rounded-xl bg-white p-5 border border-slate-200/80 shadow-2xs space-y-3">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 uppercase tracking-wide">
-                    <IconCalendar size={14} className="text-indigo-600" />
-                    <span>Upcoming Interruption</span>
-                  </div>
-                  <Badge variant="warning" size="xs">Scheduled</Badge>
-                </div>
-
-                <div className="text-xs space-y-1">
-                  <div className="font-semibold text-slate-800">Poblacion & San Isidro Sector</div>
-                  <p className="text-[11px] text-slate-500 leading-relaxed">
-                    Main distribution valve replacement. Estimated disruption 8:00 AM – 1:00 PM tomorrow.
-                  </p>
-                </div>
-              </div>
+                <StatusTimeline
+                  status="in_progress"
+                  submittedAt="08:30"
+                  assignedAt="09:15"
+                  startedAt="11:00"
+                />
+              </Card>
             </div>
-          </div>
-
-          {/* Domain Logic Transparency Card */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <UrgencyDerivation
-              defaultUrgency="medium"
-              customerUrgency="high"
-              finalUrgency="high"
-              adjustedByAdmin={true}
-              adjustmentReason="Reported near Sinacaban central public market."
-            />
-
-            <div className="rounded-xl bg-white p-5 border border-slate-200/80 shadow-2xs space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                <span className="text-xs font-bold uppercase tracking-wide text-slate-700">
-                  Request Progress (AT-0018)
-                </span>
-                <span className="text-xs text-[#4F46E5] font-semibold">Active Work Order</span>
-              </div>
-              <StatusTimeline
-                status="in_progress"
-                submittedAt="08:30 AM"
-                assignedAt="09:15 AM"
-                startedAt="11:00 AM"
-              />
-            </div>
-          </div>
-        </CleanAdminLayout>
+          </main>
+        </div>
       )}
 
-      {/* Customer Portal View */}
+      {/* Customer Portal Page View */}
       {activePortal === 'customer' && (
-        <CustomerLayout
-          currentPath={currentPath}
-          onNavigate={setCurrentPath}
-          userName="Maria Santos"
-          accountNumber="2026-0182"
-        >
-          <div className="space-y-6">
-            <div>
-              <h1 className="text-xl font-bold text-slate-900 tracking-tight">Consumer Dashboard</h1>
-              <p className="text-xs text-slate-500 mt-0.5">Barangay Poblacion, Sinacaban</p>
-            </div>
-
-            <div className="rounded-xl bg-white p-6 border border-slate-200/80 shadow-2xs border-l-4 border-l-[#4F46E5]">
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                    Current Statement (October 2026)
-                  </span>
-                  <div className="text-3xl font-bold text-slate-900 mt-1">₱385.00</div>
-                  <p className="text-xs text-slate-500 mt-1">Due date: October 25, 2026</p>
-                </div>
-                <Badge variant="danger" dot size="md">Unpaid</Badge>
-              </div>
-            </div>
-
-            <div className="rounded-xl bg-white p-6 border border-slate-200/80 shadow-2xs space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                    Active Request: AT-0018
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-0.5">Pipe Leak near front garden</p>
-                </div>
-                <Badge variant="accent">In Progress</Badge>
-              </div>
-
-              <StatusTimeline
-                status="in_progress"
-                submittedAt="Oct 06, 8:30 AM"
-                assignedAt="Oct 06, 9:15 AM"
-                startedAt="Oct 06, 11:00 AM"
-              />
-            </div>
+        <main className="mx-auto max-w-4xl w-full flex-1 p-4 sm:p-6 lg:p-8 space-y-5 pb-20">
+          <div>
+            <h1 className="text-lg font-bold text-[#090A0F] tracking-tight">Customer Portal</h1>
+            <p className="text-xs text-slate-500 font-mono">Account #2026-0182 · Barangay Poblacion</p>
           </div>
-        </CustomerLayout>
-      )}
 
-      {/* Staff Portal View */}
-      {activePortal === 'staff' && (
-        <StaffLayout
-          currentPath={currentPath}
-          onNavigate={setCurrentPath}
-          staffName="R. Cruz (Tech-01)"
-          assignedArea="Sinacaban Sector 1"
-        >
-          <div className="space-y-6">
+          <Card padding="md" className="border-l-2 border-l-[#2563EB]">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-xl font-bold text-slate-900 tracking-tight">Field Tasks</h1>
-                <p className="text-xs text-slate-500 mt-0.5">2 work orders requiring technician action</p>
+                <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider">
+                  Current Statement (October 2026)
+                </span>
+                <div className="text-2xl font-bold font-mono text-[#090A0F] mt-1">₱385.00</div>
+                <p className="text-xs text-slate-500 mt-0.5">Due date: Oct 25, 2026</p>
               </div>
-              <Badge variant="accent">Active Dispatch</Badge>
+              <Badge variant="danger" dot mono size="sm">UNPAID</Badge>
+            </div>
+          </Card>
+
+          <Card padding="md" className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-700">
+                  Active Ticket: AT-0018
+                </h3>
+                <p className="text-xs text-slate-500">Service Line Leakage</p>
+              </div>
+              <Badge variant="accent" mono size="xs">IN PROGRESS</Badge>
             </div>
 
-            <div className="rounded-xl bg-white p-5 border border-slate-200/80 shadow-2xs border-l-4 border-l-[#4F46E5] space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-slate-900 text-sm">AT-0018 · Main Pipe Fracture</span>
-                <Badge variant="danger" dot size="sm">High Urgency</Badge>
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Poblacion perimeter. High pressure line discharging onto municipal road.
-              </p>
-              <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                <span className="text-[11px] text-slate-400">Assigned 2 hours ago</span>
-                <Button size="xs" variant="primary">
-                  Begin Work
-                </Button>
-              </div>
+            <StatusTimeline
+              status="in_progress"
+              submittedAt="08:30"
+              assignedAt="09:15"
+              startedAt="11:00"
+            />
+          </Card>
+        </main>
+      )}
+
+      {/* Staff Portal Page View */}
+      {activePortal === 'staff' && (
+        <main className="mx-auto max-w-4xl w-full flex-1 p-4 sm:p-6 lg:p-8 space-y-5 pb-20">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-lg font-bold text-[#090A0F] tracking-tight">Assigned Field Tasks</h1>
+              <p className="text-xs text-slate-500 font-mono">Technician R. Cruz · Sinacaban Sector 1</p>
             </div>
+            <Badge variant="accent" mono size="xs">ACTIVE DISPATCH</Badge>
           </div>
-        </StaffLayout>
+
+          <Card padding="md" className="space-y-3 border-l-2 border-l-[#2563EB]">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-mono font-bold text-[#090A0F]">AT-0018 · Main Pipe Fracture</span>
+              <Badge variant="danger" dot mono size="xs">HIGH</Badge>
+            </div>
+
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Poblacion perimeter. High pressure line discharging onto municipal road.
+            </p>
+
+            <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+              <span className="text-[11px] font-mono text-slate-400">Assigned: 09:15 AM</span>
+              <Button size="xs" variant="primary">
+                Begin Inspection
+              </Button>
+            </div>
+          </Card>
+        </main>
+      )}
+
+      {/* Mobile Sticky Bar for Customer/Staff */}
+      {activePortal !== 'admin' && (
+        <nav className="fixed bottom-0 left-0 right-0 z-30 h-14 border-t border-slate-200 bg-white/95 backdrop-blur-md px-4 flex items-center justify-around md:hidden">
+          <button className="flex flex-col items-center text-xs text-[#2563EB] font-medium">
+            <IconHome size={18} />
+            <span className="text-[10px] mt-0.5">Home</span>
+          </button>
+          <button className="flex flex-col items-center text-xs text-slate-400">
+            <IconReceipt2 size={18} />
+            <span className="text-[10px] mt-0.5">Bills</span>
+          </button>
+          <button className="flex flex-col items-center text-xs text-slate-400">
+            <IconAlertTriangle size={18} />
+            <span className="text-[10px] mt-0.5">Requests</span>
+          </button>
+          <button className="flex flex-col items-center text-xs text-slate-400">
+            <IconUser size={18} />
+            <span className="text-[10px] mt-0.5">Profile</span>
+          </button>
+        </nav>
       )}
     </div>
   );
