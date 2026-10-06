@@ -1,60 +1,72 @@
 @import "tailwindcss";
 
 @theme {
-  /* Clean SaaS 2-Color System */
-  /* 1. Deep Obsidian / Navy (#0B192C) - Structural, Text, Borders, Solid Actions */
-  --color-primary: #0B192C;
-  --color-primary-hover: #1E2E42;
-  --color-primary-light: #F0F4F8;
+  /* =========================================================
+     Clean Modern B2B SaaS (Linear / Raycast / Stripe Inspired)
+     Strict 2-Color Architecture + Precision Zinc Grayscale
+     ========================================================= */
 
-  /* 2. Precision Azure (#1E6FD9) - Interactive focus rings, active indicators, highlights */
-  --color-accent: #1E6FD9;
-  --color-accent-hover: #1557AB;
-  --color-accent-tint: #EBF3FC;
+  /* 1. Structural Ink & Text: Obsidian Zinc (#090A0F) */
+  --color-zinc-950: #090A0F;
+  --color-zinc-900: #12141A;
+  --color-zinc-800: #1E222B;
+  --color-zinc-700: #2C323E;
+  --color-zinc-600: #4B5565;
+  --color-zinc-500: #697586;
+  --color-zinc-400: #9AA4B2;
+  --color-zinc-300: #CDD5DF;
+  --color-zinc-200: #E3E8EF;
+  --color-zinc-100: #EEF2F6;
+  --color-zinc-50:  #F8FAFC;
 
-  /* Surface Neutrals */
-  --color-surface-bg: #F8FAFC;
+  /* 2. Precision Electric Cobalt Accent (#2563EB) */
+  --color-accent: #2563EB;
+  --color-accent-hover: #1D4ED8;
+  --color-accent-light: #EFF6FF;
+  --color-accent-border: #DBEAFE;
+
+  /* Surface & Hairline Borders */
+  --color-surface-base: #F8FAFC;
   --color-surface-card: #FFFFFF;
-  --color-surface-border: #E2E8F0;
-  --color-surface-border-subtle: #F1F5F9;
+  --color-surface-card-subtle: #FAFCFE;
+  --color-hairline: rgba(15, 23, 42, 0.08);
+  --color-hairline-strong: rgba(15, 23, 42, 0.14);
 
-  /* Text Hierarchy */
-  --color-text-main: #0F172A;
-  --color-text-muted: #64748B;
-  --color-text-subtle: #94A3B8;
-
-  /* Status Tokens (Refined & Minimalist) */
-  --color-status-success: #166534;
-  --color-status-success-bg: #F0FDF4;
-  --color-status-warning: #854D0E;
-  --color-status-warning-bg: #FEFCE8;
-  --color-status-danger: #991B1B;
-  --color-status-danger-bg: #FEF2F2;
-
+  /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
 }
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--color-surface-bg);
-  color: var(--color-text-main);
+  background-color: var(--color-surface-base);
+  color: #090A0F;
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.011em;
 }
 
-/* Subtle, smooth transitions on interactive controls */
+/* Linear-style smooth micro-interactions */
 button, input, select, textarea, a {
-  transition-property: color, background-color, border-color, box-shadow, opacity;
-  transition-duration: 150ms;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: all;
+  transition-duration: 140ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Micro hairline border utility */
+.border-hairline {
+  border: 1px solid var(--color-hairline);
+}
+.border-hairline-strong {
+  border: 1px solid var(--color-hairline-strong);
 }
 
 /* Precision scrollbar */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;

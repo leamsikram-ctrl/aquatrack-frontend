@@ -75,3 +75,4 @@ export const CustomerLayout: React.FC<CustomerLayoutProps> = ({
     </div>
   );
 };
+

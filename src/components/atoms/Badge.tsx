@@ -5,46 +5,50 @@ export type BadgeVariant = 'neutral' | 'accent' | 'success' | 'warning' | 'dange
 export interface BadgeProps {
   children: React.ReactNode;
   variant?: BadgeVariant;
-  size?: 'sm' | 'md';
+  size?: 'xs' | 'sm' | 'md';
   dot?: boolean;
+  mono?: boolean;
   className?: string;
 }
 
 export const Badge: React.FC<BadgeProps> = ({
   children,
   variant = 'neutral',
-  size = 'md',
+  size = 'sm',
   dot = false,
+  mono = false,
   className = '',
 }) => {
   const sizeStyles = {
-    sm: 'text-[11px] px-2 py-0.5 gap-1',
-    md: 'text-xs px-2.5 py-0.5 gap-1.5',
+    xs: 'text-[10px] px-1.5 py-0.5 gap-1',
+    sm: 'text-[11px] px-2 py-0.5 gap-1.5',
+    md: 'text-xs px-2.5 py-1 gap-1.5',
   }[size];
 
   const variantStyles = {
-    neutral: 'bg-slate-100 text-slate-700 border-slate-200/60',
-    accent: 'bg-[#EBF3FC] text-[#1E6FD9] border-[#1E6FD9]/20',
-    success: 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
-    warning: 'bg-amber-50 text-amber-800 border-amber-200/60',
-    danger: 'bg-rose-50 text-rose-700 border-rose-200/60',
+    neutral: 'bg-slate-100/80 text-slate-700 border-slate-200/80',
+    accent: 'bg-[#EFF6FF] text-[#2563EB] border-[#DBEAFE]',
+    success: 'bg-emerald-50/80 text-emerald-800 border-emerald-200/60',
+    warning: 'bg-amber-50/80 text-amber-900 border-amber-200/60',
+    danger: 'bg-rose-50/80 text-rose-800 border-rose-200/60',
   }[variant];
 
   const dotColors = {
     neutral: 'bg-slate-400',
-    accent: 'bg-[#1E6FD9]',
-    success: 'bg-emerald-500',
-    warning: 'bg-amber-500',
-    danger: 'bg-rose-500',
+    accent: 'bg-[#2563EB]',
+    success: 'bg-emerald-600',
+    warning: 'bg-amber-600',
+    danger: 'bg-rose-600',
   }[variant];
 
   return (
     <span
-      className={`inline-flex items-center font-medium rounded-full border tracking-tight select-none ${sizeStyles} ${variantStyles} ${className}`}
+      className={`inline-flex items-center font-medium rounded-md border select-none leading-none ${
+        mono ? 'font-mono' : ''
+      } ${sizeStyles} ${variantStyles} ${className}`}
     >
       {dot && <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotColors}`} />}
       <span>{children}</span>
     </span>
   );
 };
-
