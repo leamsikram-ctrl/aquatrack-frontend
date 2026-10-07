@@ -20,7 +20,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-white flex flex-col text-black text-sm">
+    <div className="min-h-screen bg-white flex flex-col text-black text-[10px]">
       <Topbar
         title={title}
         subtitle={subtitle}

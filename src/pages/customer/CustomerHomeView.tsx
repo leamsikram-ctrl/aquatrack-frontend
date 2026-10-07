@@ -106,33 +106,33 @@ export function CustomerHomeView() {
       <div className="max-w-xl mx-auto space-y-4">
         {/* Header */}
         <div className="pb-1">
-          <h1 className="text-base font-bold text-black uppercase tracking-wider">
+          <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">
             Home
           </h1>
         </div>
 
         {/* Card 1: Account */}
         <Card className="p-4 border border-black/15 bg-white space-y-1">
-          <div className="text-xs uppercase tracking-wider text-black/50 font-bold">
+          <div className="text-[10px] uppercase tracking-wider text-black/50 font-bold">
             Account
           </div>
-          <div className="text-sm font-bold text-black">
+          <div className="text-[10px] font-bold text-black">
             {accountNumber} · {meterNumber}
           </div>
-          <div className="text-xs text-black/70">
+          <div className="text-[10px] text-black/70 font-normal">
             {barangayName}
           </div>
         </Card>
 
         {/* Card 2: Current bill */}
         <Card className="p-4 border border-black/15 bg-white space-y-3">
-          <div className="text-xs uppercase tracking-wider text-black/50 font-bold">
+          <div className="text-[10px] uppercase tracking-wider text-black/50 font-bold">
             Current bill
           </div>
-          <div className="text-2xl font-bold text-black">
+          <div className="text-[10px] font-bold text-black">
             ₱{Number(currentBill?.amount_paid || (currentBill ? 350.0 : 0)).toFixed(2)}
           </div>
-          <div className="text-xs text-black/60">
+          <div className="text-[10px] text-black/60 font-normal">
             {currentBill?.due_date
               ? `Due ${new Date(currentBill.due_date).toLocaleDateString('en-US', {
                   month: 'short',
@@ -160,7 +160,7 @@ export function CustomerHomeView() {
           onClick={() => navigate('/customer/requests')}
         >
           <div className="flex items-center justify-between">
-            <div className="text-xs uppercase tracking-wider text-black/50 font-bold">
+            <div className="text-[10px] uppercase tracking-wider text-black/50 font-bold">
               Active request
             </div>
             <IconChevronRight size={16} className="text-black/40" />
@@ -168,7 +168,7 @@ export function CustomerHomeView() {
 
           {activeRequest ? (
             <>
-              <div className="text-sm font-bold text-black">
+              <div className="text-[10px] font-bold text-black">
                 {activeRequest.reference_no || activeRequest.reference || 'AT-2026-0012'} ·{' '}
                 {activeRequest.issue_type?.name || 'Service Issue'}
               </div>
@@ -205,7 +205,7 @@ export function CustomerHomeView() {
               </div>
             </>
           ) : (
-            <div className="py-2 text-center text-black/60 flex items-center justify-between text-xs">
+            <div className="py-2 text-center text-black/60 flex items-center justify-between text-[10px] font-normal">
               <span>No active service request logged.</span>
               <Button
                 variant="secondary"
@@ -226,12 +226,12 @@ export function CustomerHomeView() {
           onClick={() => navigate('/customer/advisories')}
         >
           <div className="flex items-center justify-between">
-            <div className="text-xs uppercase tracking-wider text-black/50 font-bold">
+            <div className="text-[10px] uppercase tracking-wider text-black/50 font-bold">
               Latest advisory
             </div>
             <IconChevronRight size={16} className="text-black/40" />
           </div>
-          <div className="text-sm font-bold text-black">
+          <div className="text-[10px] font-bold text-black">
             {latestAdvisory?.barangays?.[0]?.name || barangayName} ·{' '}
             {latestAdvisory?.starts_at
               ? new Date(latestAdvisory.starts_at).toLocaleDateString('en-US', {
@@ -241,7 +241,7 @@ export function CustomerHomeView() {
                 })
               : 'Oct 12, 2026'}
           </div>
-          <p className="text-xs text-black/70 line-clamp-2">
+          <p className="text-[10px] text-black/70 line-clamp-2 font-normal">
             {latestAdvisory?.message ||
               'Scheduled maintenance and pipeline pressure checks across municipal distribution zones.'}
           </p>
@@ -250,9 +250,9 @@ export function CustomerHomeView() {
         {/* Report Issue Modal */}
         {showReportModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-md bg-white rounded-lg border border-black p-5 space-y-4 shadow-xl">
+            <div className="w-full max-w-md bg-white rounded-lg border border-black p-5 space-y-4 shadow-xl text-[10px]">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
-                <span className="font-bold text-sm text-black uppercase tracking-wider">
+                <span className="font-bold text-[10px] text-black uppercase tracking-wider">
                   Report a Water Service Issue
                 </span>
                 <button
@@ -265,24 +265,24 @@ export function CustomerHomeView() {
 
               <form onSubmit={handleReportSubmit} className="space-y-3 text-left">
                 <div>
-                  <label className="block text-xs font-bold text-black uppercase mb-1">
+                  <label className="block text-[10px] font-bold text-black uppercase mb-1">
                     Description of the issue
                   </label>
                   <textarea
                     placeholder="Describe the problem..."
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="w-full p-2.5 text-xs bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9] h-24"
+                    className="w-full p-2.5 text-[10px] font-normal bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9] h-24"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-black uppercase mb-1">
+                  <label className="block text-[10px] font-bold text-black uppercase mb-1">
                     Urgency for your household
                   </label>
                   <select
-                    className="w-full p-2 text-xs text-black bg-white border border-black rounded outline-none focus:border-[#1E6FD9]"
+                    className="w-full p-2 text-[10px] font-normal text-black bg-white border border-black rounded outline-none focus:border-[#1E6FD9]"
                     value={customerUrgency}
                     onChange={(e) => setCustomerUrgency(e.target.value)}
                   >

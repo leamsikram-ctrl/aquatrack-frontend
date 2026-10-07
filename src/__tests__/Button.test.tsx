@@ -51,3 +51,4 @@ describe('Button Component', () => {
     expect(screen.getByTestId('right-icon')).toBeInTheDocument();
   });
 });
+

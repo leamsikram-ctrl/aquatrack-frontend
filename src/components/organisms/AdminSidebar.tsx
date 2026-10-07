@@ -84,7 +84,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
         {sections.map((section, idx) => (
           <div key={idx} className="space-y-1">
             {section.title && (
-              <div className="px-2 text-[11px] font-bold text-black/50 border-b border-black/10 pb-1 mb-1 uppercase tracking-wider">
+              <div className="px-2 text-[10px] font-bold text-black/50 border-b border-black/10 pb-1 mb-1 uppercase tracking-wider">
                 {section.title}
               </div>
             )}
@@ -97,10 +97,10 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                   <button
                     key={item.path}
                     onClick={() => onNavigate?.(item.path)}
-                    className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded text-[12px] font-medium transition-colors text-left
+                    className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded text-[10px] font-bold transition-colors text-left
                       ${
                         isActive
-                          ? 'bg-[#1E6FD9] text-white font-bold'
+                          ? 'bg-[#1E6FD9] text-white'
                           : 'text-black hover:bg-[#F0F6FD] hover:text-[#1E6FD9]'
                       }
                     `}

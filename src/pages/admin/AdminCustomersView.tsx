@@ -281,9 +281,9 @@ export function AdminCustomersView() {
                   </div>
                   <div className="col-span-2">
                     <span className="text-black/60 block">Digital QR Token:</span>
-                    <code className="text-black bg-white px-1.5 py-0.5 border border-black/20 rounded font-mono">
+                    <span className="text-black bg-white px-1.5 py-0.5 border border-black/20 rounded font-normal text-[10px]">
                       {selectedCustomer.customer_profile.meter.qr_token}
-                    </code>
+                    </span>
                   </div>
                 </div>
               ) : (

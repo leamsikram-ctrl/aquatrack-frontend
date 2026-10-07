@@ -92,10 +92,10 @@ export function StaffScannerView() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/15 pb-4">
         <div>
-          <h1 className="text-base font-bold text-black uppercase tracking-wider">
+          <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">
             {activeMode === 'placeholder' ? 'Scan meter' : 'Meter Scanner & Inspection'}
           </h1>
-          <p className="text-xs text-black/60">
+          <p className="text-[10px] text-black/60 font-normal">
             {activeMode === 'placeholder'
               ? 'Meter scanning is managed via the mobile app.'
               : 'Scan meter QR codes or enter meter serial numbers for instant lookup.'}
@@ -106,20 +106,20 @@ export function StaffScannerView() {
           <div className="flex border border-black/20 rounded p-0.5 bg-[#F0F6FD]">
             <button
               onClick={() => setActiveMode('placeholder')}
-              className={`px-3 py-1 text-xs rounded transition-colors ${
+              className={`px-3 py-1 text-[10px] rounded transition-colors ${
                 activeMode === 'placeholder'
                   ? 'bg-[#1E6FD9] text-white font-bold'
-                  : 'text-black hover:text-[#1E6FD9]'
+                  : 'text-black hover:text-[#1E6FD9] font-normal'
               }`}
             >
               Scan meter
             </button>
             <button
               onClick={() => setActiveMode('simulator')}
-              className={`px-3 py-1 text-xs rounded transition-colors ${
+              className={`px-3 py-1 text-[10px] rounded transition-colors ${
                 activeMode === 'simulator'
                   ? 'bg-[#1E6FD9] text-white font-bold'
-                  : 'text-black hover:text-[#1E6FD9]'
+                  : 'text-black hover:text-[#1E6FD9] font-normal'
               }`}
             >
               Interactive Simulator
@@ -189,7 +189,7 @@ export function StaffScannerView() {
               <input
                 type="text"
                 placeholder="e.g. MTR-TOKEN-0001"
-                className="flex-1 p-2 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9] font-mono"
+                className="flex-1 p-2 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9] font-normal"
                 value={tokenInput}
                 onChange={(e) => setTokenInput(e.target.value)}
                 required
@@ -208,7 +208,7 @@ export function StaffScannerView() {
                 Manual Meter Number Lookup
               </span>
             </div>
-            <p className="text-[10px] text-black/70">
+            <p className="text-[10px] text-black/70 font-normal">
               Enter the stamped serial number printed on the meter casing:
             </p>
 
@@ -216,7 +216,7 @@ export function StaffScannerView() {
               <input
                 type="text"
                 placeholder="e.g. MTR-SIN-0001"
-                className="flex-1 p-2 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9] font-mono"
+                className="flex-1 p-2 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9] font-normal"
                 value={meterInput}
                 onChange={(e) => setMeterInput(e.target.value)}
                 required
@@ -238,7 +238,7 @@ export function StaffScannerView() {
                     setMeterInput(sn);
                     metersApi.lookupByNumber(sn).then(setMeterData).catch(() => {});
                   }}
-                  className="px-2 py-0.5 bg-white border border-black rounded text-[10px] font-mono hover:bg-[#1E6FD9] hover:text-white"
+                  className="px-2 py-0.5 bg-white border border-black rounded text-[10px] font-bold hover:bg-[#1E6FD9] hover:text-white"
                 >
                   {sn}
                 </button>
@@ -284,15 +284,15 @@ export function StaffScannerView() {
               <div className="space-y-2 bg-[#F0F6FD] p-3 rounded border border-black/10 text-[10px]">
                 <div className="flex justify-between">
                   <span className="text-black/60 uppercase font-bold">Serial Number:</span>
-                  <strong className="text-black font-mono">{meterData.meter_number}</strong>
+                  <strong className="text-black font-bold">{meterData.meter_number}</strong>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-black/60 uppercase font-bold">QR Token:</span>
-                  <span className="text-black font-mono">{meterData.qr_token}</span>
+                  <span className="text-black font-normal">{meterData.qr_token}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-black/60 uppercase font-bold">Barangay Zone:</span>
-                  <span className="text-black">{meterData.barangay || 'Poblacion'}</span>
+                  <span className="text-black font-normal">{meterData.barangay || 'Poblacion'}</span>
                 </div>
               </div>
 
@@ -303,13 +303,13 @@ export function StaffScannerView() {
                   Connected Household
                 </div>
                 {meterData.customer ? (
-                  <div className="space-y-1 text-black">
+                  <div className="space-y-1 text-black font-normal">
                     <div>
-                      <strong>Consumer:</strong> {meterData.customer.name}
+                      <strong className="font-bold">Consumer:</strong> {meterData.customer.name}
                     </div>
                     <div>
-                      <strong>Account:</strong>{' '}
-                      <span className="text-[#1E6FD9] font-mono font-bold">
+                      <strong className="font-bold">Account:</strong>{' '}
+                      <span className="text-[#1E6FD9] font-bold">
                         {meterData.customer.account_number}
                       </span>
                     </div>

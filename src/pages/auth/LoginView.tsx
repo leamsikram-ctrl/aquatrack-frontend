@@ -170,7 +170,7 @@ export function LoginView() {
                       <input
                         type="tel"
                         placeholder="0917 123 4567"
-                        className="w-full pl-7 pr-3 py-2 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9] font-mono"
+                        className="w-full pl-7 pr-3 py-2 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9] font-normal"
                         value={forgotMobile}
                         onChange={(e) => setForgotMobile(e.target.value)}
                         required
@@ -218,7 +218,7 @@ export function LoginView() {
                         type="text"
                         placeholder="123456"
                         maxLength={6}
-                        className="w-full pl-7 pr-3 py-2 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9] font-mono tracking-widest font-bold"
+                        className="w-full pl-7 pr-3 py-2 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9] tracking-widest font-bold"
                         value={resetCode}
                         onChange={(e) => setResetCode(e.target.value)}
                         required

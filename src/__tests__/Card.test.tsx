@@ -18,3 +18,4 @@ describe('Card Component', () => {
     expect(container.firstChild).toHaveClass('border-[#1E6FD9]');
   });
 });
+

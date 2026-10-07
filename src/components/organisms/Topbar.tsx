@@ -47,13 +47,13 @@ export const Topbar: React.FC<TopbarProps> = ({
   return (
     <>
       <header
-        className={`h-14 border-b border-black/15 bg-white px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 select-none text-xs ${className}`}
+        className={`h-14 border-b border-black/15 bg-white px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 select-none text-[10px] ${className}`}
       >
         <div className="flex items-center gap-3">
           {onToggleMobileMenu && (
             <button
               onClick={onToggleMobileMenu}
-              className="flex h-8 px-2.5 items-center justify-center rounded border border-black text-black hover:bg-[#F0F6FD] md:hidden text-xs font-bold"
+              className="flex h-8 px-2.5 items-center justify-center rounded border border-black text-black hover:bg-[#F0F6FD] md:hidden text-[10px] font-bold"
               aria-label="Toggle menu"
             >
               {isMobileMenuOpen ? '✕' : '☰'}
@@ -62,17 +62,17 @@ export const Topbar: React.FC<TopbarProps> = ({
 
           <div className="flex items-center gap-2">
             <AquaTrackLogo size={24} variant="mark" />
-            <span className="font-bold text-xs uppercase tracking-wider text-black">
+            <span className="font-bold text-[10px] uppercase tracking-wider text-black">
               AquaTrack
             </span>
             {title && (
               <div className="flex items-center gap-1.5 text-black">
                 <span className="text-black/30">/</span>
-                <span className="font-bold text-xs">{title}</span>
+                <span className="font-bold text-[10px]">{title}</span>
               </div>
             )}
             {subtitle && (
-              <span className="text-black/50 text-xs hidden sm:inline">
+              <span className="text-black/50 text-[10px] font-normal hidden sm:inline">
                 ({subtitle})
               </span>
             )}
@@ -81,8 +81,8 @@ export const Topbar: React.FC<TopbarProps> = ({
 
         <div className="flex items-center gap-3">
           <div className="text-right">
-            <div className="font-bold text-black text-xs">{displayName}</div>
-            <div className="text-black/50 text-[11px]">{displayRole}</div>
+            <div className="font-bold text-black text-[10px]">{displayName}</div>
+            <div className="text-black/60 text-[10px] font-normal">{displayRole}</div>
           </div>
 
           {/* Bell Icon */}
@@ -98,7 +98,7 @@ export const Topbar: React.FC<TopbarProps> = ({
           <button
             onClick={handleLogout}
             title="Sign Out"
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded border border-black text-black hover:bg-[#F0F6FD] hover:text-[#1E6FD9] text-xs font-bold transition-colors"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded border border-black text-black hover:bg-[#F0F6FD] hover:text-[#1E6FD9] text-[10px] font-bold transition-colors"
           >
             <IconLogout size={14} />
             <span className="hidden sm:inline">Sign Out</span>

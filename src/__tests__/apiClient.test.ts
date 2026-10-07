@@ -27,3 +27,4 @@ describe('API Client Configuration', () => {
     expect(localStorage.getItem('aquatrack_token')).toBeNull();
   });
 });
+

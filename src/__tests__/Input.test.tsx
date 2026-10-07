@@ -29,3 +29,4 @@ describe('Input Component', () => {
     expect(screen.getByTestId('search-icon')).toBeInTheDocument();
   });
 });
+

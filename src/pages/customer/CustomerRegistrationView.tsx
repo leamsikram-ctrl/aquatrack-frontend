@@ -6,6 +6,7 @@ import { Input } from '../../components/atoms/Input';
 import { Badge } from '../../components/atoms/Badge';
 import { authApi, referenceApi } from '../../api';
 import type { Barangay } from '../../types';
+import { LocationPickerMap } from '../../components/organisms/LocationPickerMap';
 import { IconCheck, IconMapPin, IconShieldLock } from '@tabler/icons-react';
 
 interface Props {
@@ -268,24 +269,20 @@ export function CustomerRegistrationView({ onBackToPortal }: Props) {
               />
             </div>
 
-            {/* Approximate Geolocation Pin Preview */}
-            <div className="p-3 bg-[#F0F6FD] border border-black/10 rounded-lg space-y-2">
+            {/* Interactive Municipal Geolocation Pin Picker */}
+            <div className="p-3.5 bg-[#F0F6FD] border border-black/10 rounded-lg space-y-2">
               <div className="flex items-center gap-2 font-bold text-black">
                 <IconMapPin size={16} className="text-[#1E6FD9]" />
-                <span>Sinacaban Service Coordinates (GPS Pin)</span>
+                <span>Household Water Service Location Pin</span>
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                <Input
-                  label="Latitude"
-                  value={latitude}
-                  onChange={(e) => setLatitude(e.target.value)}
-                />
-                <Input
-                  label="Longitude"
-                  value={longitude}
-                  onChange={(e) => setLongitude(e.target.value)}
-                />
-              </div>
+              <LocationPickerMap
+                latitude={latitude || 8.2835}
+                longitude={longitude || 123.834}
+                onChange={(lat, lng) => {
+                  setLatitude(lat);
+                  setLongitude(lng);
+                }}
+              />
             </div>
 
             {/* Legal Consent Checkboxes */}

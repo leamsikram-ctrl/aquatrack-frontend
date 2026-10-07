@@ -228,9 +228,9 @@ export function AdminRequestsView() {
               <button
                 key={st}
                 onClick={() => setStatusFilter(st)}
-                className={`px-2.5 py-0.5 rounded text-[10px] capitalize font-medium transition-colors border border-black ${
+                className={`px-2.5 py-0.5 rounded text-[10px] capitalize font-bold transition-colors border border-black ${
                   statusFilter === st
-                    ? 'bg-[#1E6FD9] text-white font-bold'
+                    ? 'bg-[#1E6FD9] text-white'
                     : 'bg-white text-black hover:bg-[#F0F6FD]'
                 }`}
               >
@@ -279,16 +279,16 @@ export function AdminRequestsView() {
                       onClick={() => handleOpenDrawer(r)}
                       className="hover:bg-[#F0F6FD]/60 cursor-pointer transition-colors"
                     >
-                      <td className="px-4 py-2.5 font-bold font-mono text-[#1E6FD9]">
+                      <td className="px-4 py-2.5 font-bold text-[#1E6FD9]">
                         {r.reference_no || r.reference}
                       </td>
-                      <td className="px-4 py-2.5 font-medium text-black">
+                      <td className="px-4 py-2.5 font-normal text-black">
                         {r.customer?.full_name ?? 'Resident'}
                       </td>
-                      <td className="px-4 py-2.5 text-black max-w-xs truncate">
+                      <td className="px-4 py-2.5 text-black max-w-xs truncate font-normal">
                         {r.description}
                       </td>
-                      <td className="px-4 py-2.5 text-black">
+                      <td className="px-4 py-2.5 text-black font-normal">
                         {r.customer?.barangay ?? 'Sinacaban'}
                       </td>
                       <td className="px-4 py-2.5">
@@ -319,9 +319,9 @@ export function AdminRequestsView() {
                       </td>
                       <td className="px-4 py-2.5 text-black">
                         {r.assigned_staff?.name ? (
-                          <span className="font-medium text-black">{r.assigned_staff.name}</span>
+                          <span className="font-bold text-black">{r.assigned_staff.name}</span>
                         ) : (
-                          <span className="text-black/40 italic">Unassigned</span>
+                          <span className="text-black/40 italic font-normal">Unassigned</span>
                         )}
                       </td>
                       <td className="px-4 py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
@@ -400,7 +400,7 @@ export function AdminRequestsView() {
                   </div>
                   <div>
                     <strong>Account No:</strong>{' '}
-                    <span className="font-mono text-[#1E6FD9]">
+                    <span className="font-bold text-[#1E6FD9]">
                       {drawerReq.customer?.account_number ?? 'ACC-2026-0001'}
                     </span>
                   </div>

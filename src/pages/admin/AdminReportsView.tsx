@@ -172,7 +172,7 @@ export function AdminReportsView() {
                   type="date"
                   value={fromDate}
                   onChange={(e) => setFromDate(e.target.value)}
-                  className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-mono"
+                  className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-normal"
                   required
                 />
               </div>
@@ -186,7 +186,7 @@ export function AdminReportsView() {
                   type="date"
                   value={toDate}
                   onChange={(e) => setToDate(e.target.value)}
-                  className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-mono"
+                  className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-normal"
                   required
                 />
               </div>

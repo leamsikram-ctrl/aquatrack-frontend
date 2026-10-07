@@ -23,9 +23,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    // Uniform font-size (14px / text-sm), clean borders, 3-color palette (Blue, White, Black)
+    // Uniform font-size (10px), clean borders, 3-color palette (Blue, White, Black)
     const baseStyles =
-      'inline-flex items-center justify-center text-sm font-medium px-4 py-2 rounded-md transition-colors cursor-pointer select-none border disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1E6FD9]';
+      'inline-flex items-center justify-center text-[10px] font-bold px-4 py-2 rounded-md transition-colors cursor-pointer select-none border disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1E6FD9]';
 
     const variantStyles = {
       primary:

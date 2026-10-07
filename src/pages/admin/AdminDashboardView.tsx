@@ -119,10 +119,10 @@ export function AdminDashboardView() {
               {requests.filter((r) => !r.assigned_staff && r.status !== 'resolved' && r.status !== 'cancelled').slice(0, 2).map((req) => (
                 <div key={req.id} className="p-2 bg-[#F0F6FD] border border-black/10 rounded flex items-center justify-between">
                   <div>
-                    <strong className="text-black font-mono">
+                    <strong className="text-black font-bold">
                       {req.reference_number || req.reference || `AT-${req.id}`}
                     </strong>
-                    <span className="text-black/60 ml-1.5">Submitted, not yet assigned</span>
+                    <span className="text-black/60 ml-1.5 font-normal">Submitted, not yet assigned</span>
                   </div>
                   <Button
                     variant="primary"
@@ -137,8 +137,8 @@ export function AdminDashboardView() {
               {/* Pending account verifications */}
               <div className="p-2 bg-[#F0F6FD] border border-black/10 rounded flex items-center justify-between">
                 <div>
-                  <strong className="text-black">Pending account verifications</strong>
-                  <span className="text-black/60 ml-1.5 font-mono">({pendingVerificationsCount})</span>
+                  <strong className="text-black font-bold">Pending account verifications</strong>
+                  <span className="text-black/60 ml-1.5 font-bold">({pendingVerificationsCount})</span>
                 </div>
                 <Button
                   variant="secondary"
@@ -152,8 +152,8 @@ export function AdminDashboardView() {
               {/* Imported bills awaiting publish */}
               <div className="p-2 bg-[#F0F6FD] border border-black/10 rounded flex items-center justify-between">
                 <div>
-                  <strong className="text-black">Imported bills awaiting publish</strong>
-                  <span className="text-black/60 ml-1.5 font-mono">({unpaidBillsCount})</span>
+                  <strong className="text-black font-bold">Imported bills awaiting publish</strong>
+                  <span className="text-black/60 ml-1.5 font-bold">({unpaidBillsCount})</span>
                 </div>
                 <Button
                   variant="secondary"
@@ -268,9 +268,9 @@ export function AdminDashboardView() {
                           {req.status ? req.status.replace('_', ' ').toUpperCase() : 'SUBMITTED'}
                         </Badge>
                       </td>
-                      <td className="px-4 py-2.5 text-black font-medium">
+                      <td className="px-4 py-2.5 text-black font-normal">
                         {req.assigned_staff ? (
-                          req.assigned_staff.name
+                          <span className="font-bold">{req.assigned_staff.name}</span>
                         ) : (
                           <span className="text-black/40 italic">Unassigned</span>
                         )}

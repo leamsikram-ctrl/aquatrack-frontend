@@ -21,3 +21,4 @@ describe('Badge Component', () => {
     expect(container.firstChild).toHaveClass('bg-white');
   });
 });
+

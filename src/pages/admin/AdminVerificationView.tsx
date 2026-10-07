@@ -154,10 +154,10 @@ export function AdminVerificationView() {
 
                   <div>
                     <span className="font-bold text-black block">Barangay & Address:</span>
-                    <span className="text-black/80 font-medium">
+                    <span className="text-black font-bold">
                       {profile?.barangay?.name ?? 'Sinacaban Barangay'}
                     </span>
-                    <span className="text-black/60 block">{profile?.address}</span>
+                    <span className="text-black/60 block font-normal">{profile?.address}</span>
                   </div>
 
                   <div>

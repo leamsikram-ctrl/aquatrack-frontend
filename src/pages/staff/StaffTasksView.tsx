@@ -8,6 +8,7 @@ import { EmptyState } from '../../components/molecules/EmptyState';
 import { InterruptionCalendar } from '../../components/organisms/InterruptionCalendar';
 import { requestsApi, interruptionsApi } from '../../api';
 import type { ServiceRequest, WaterInterruption, Urgency } from '../../types';
+import { MunicipalMap, type MapMarker } from '../../components/organisms/MunicipalMap';
 import {
   IconMapPin,
   IconCalendar,
@@ -120,6 +121,28 @@ export function StaffTasksView() {
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
   }, [tasks, activeTab, statusFilter, sortUrgency]);
+
+  const staffMapMarkers = useMemo<MapMarker[]>(() => {
+    return filteredTasks.map((task, idx) => {
+      const lat = task.latitude ? Number(task.latitude) : 8.2835 + ((idx % 5) - 2) * 0.003;
+      const lng = task.longitude ? Number(task.longitude) : 123.8340 + (((idx * 2) % 5) - 2) * 0.003;
+      const refNo = task.reference_no || task.reference || `AT-${task.id}`;
+
+      return {
+        id: task.id,
+        lat,
+        lng,
+        title: refNo,
+        subtitle: `${task.description} · ${task.customer?.barangay || 'Poblacion'}`,
+        label: refNo,
+        urgency: task.urgency,
+        status: task.status,
+        onClick: () => {
+          setSelectedTask(task);
+        },
+      };
+    });
+  }, [filteredTasks]);
 
   return (
     <StaffLayout currentPath="/staff/tasks" onNavigate={(path) => navigate(path)}>
@@ -248,7 +271,7 @@ export function StaffTasksView() {
                 >
                   {/* Top row: Reference & Urgency pill */}
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-black text-[10px] uppercase tracking-wider font-mono">
+                    <span className="font-bold text-black text-[10px] uppercase tracking-wider">
                       {refNo}
                     </span>
                     <Badge variant={task.urgency === 'high' ? 'black' : 'blue'}>
@@ -334,7 +357,7 @@ export function StaffTasksView() {
                   <div>
                     <strong>{selectedTask.customer?.full_name || selectedTask.customer_profile?.first_name || 'Consumer Household'}</strong>
                     <span className="text-black/50 mx-1.5">·</span>
-                    <span className="font-mono text-black/70">
+                    <span className="font-normal text-black/70">
                       {selectedTask.customer?.account_number || selectedTask.customer_profile?.account_number || 'ACC-SIN-0000'}
                     </span>
                   </div>
@@ -484,65 +507,64 @@ export function StaffTasksView() {
                 <Badge variant="blue">Assigned only</Badge>
               </div>
 
-              {/* Map Preview Area */}
-              <div className="border border-black/20 rounded p-4 bg-[#F0F6FD] space-y-3 relative overflow-hidden h-64 flex flex-col justify-between">
-                <div className="flex justify-between items-center z-10">
+              {/* Map Area */}
+              <div className="border border-black/20 rounded overflow-hidden space-y-2 bg-[#F0F6FD]">
+                <div className="flex justify-between items-center p-2 bg-white border-b border-black/10">
                   <span className="font-bold text-black uppercase text-[10px]">
-                    Sinacaban Municipal Sector Pins
+                    Sinacaban Field Work Orders
                   </span>
-                  <span className="text-[9px] text-black/60 bg-white px-2 py-0.5 border border-black/20 rounded">
+                  <span className="text-[9px] text-black/70 bg-[#F0F6FD] px-2 py-0.5 border border-black/15 rounded font-bold">
                     {filteredTasks.length} Assigned Pin(s)
                   </span>
                 </div>
 
-                {/* Simulated Geographic Pins */}
-                <div className="relative w-full h-36 border border-black/15 rounded bg-white overflow-hidden p-2">
-                  <div className="absolute inset-0 bg-[radial-gradient(#1E6FD9_1px,transparent_1px)] [background-size:16px_16px] opacity-20" />
-                  {filteredTasks.slice(0, 4).map((task, idx) => {
-                    const topPos = 20 + idx * 22;
-                    const leftPos = 25 + idx * 20;
-                    return (
-                      <button
-                        key={task.id}
-                        onClick={() => setSelectedTask(task)}
-                        style={{ top: `${topPos}%`, left: `${leftPos}%` }}
-                        className="absolute p-1 bg-[#1E6FD9] text-white rounded-full border border-black shadow hover:scale-110 transition-transform flex items-center gap-1 text-[8px] font-mono px-1.5"
-                      >
-                        <IconMapPin size={10} />
-                        <span>{task.reference_no || task.reference || `AT-${task.id}`}</span>
-                      </button>
-                    );
-                  })}
+                <div className="h-64 sm:h-72 w-full relative">
+                  <MunicipalMap
+                    center={[8.2835, 123.8340]}
+                    zoom={14}
+                    markers={staffMapMarkers}
+                    className="h-full w-full"
+                  />
                 </div>
 
                 {/* S5 Bottom Card: AT-0000 | Barangay | Open task */}
-                {filteredTasks[0] ? (
-                  <div className="p-2 bg-white border border-black/20 rounded flex items-center justify-between z-10">
-                    <div>
-                      <strong className="text-black font-mono">
-                        {filteredTasks[0].reference_no || filteredTasks[0].reference || `AT-${filteredTasks[0].id}`}
-                      </strong>
-                      <span className="text-black/50 mx-1.5">·</span>
-                      <span className="text-black/70">
-                        {filteredTasks[0].customer?.barangay || 'Poblacion'}
-                      </span>
+                {(() => {
+                  const activeCardTask = selectedTask || filteredTasks[0];
+                  if (!activeCardTask) {
+                    return (
+                      <div className="p-2.5 bg-white border-t border-black/20 text-center text-black/60 text-[10px]">
+                        No active tasks currently mapped in this sector.
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="p-2.5 bg-white border-t border-black/20 flex items-center justify-between">
+                      <div>
+                        <strong className="text-black font-bold text-[10px]">
+                          {activeCardTask.reference_no || activeCardTask.reference || `AT-${activeCardTask.id}`}
+                        </strong>
+                        <span className="text-black/50 mx-1.5">·</span>
+                        <span className="text-black/70 text-[10px]">
+                          {activeCardTask.customer?.barangay || 'Poblacion'}
+                        </span>
+                        <div className="text-[9px] text-black/60 truncate max-w-xs">
+                          {activeCardTask.description}
+                        </div>
+                      </div>
+                      <Button
+                        variant="primary"
+                        className="py-1 px-2.5 text-[9px] shrink-0"
+                        onClick={() => {
+                          setShowMapModal(false);
+                          setSelectedTask(activeCardTask);
+                        }}
+                      >
+                        Open task
+                      </Button>
                     </div>
-                    <Button
-                      variant="primary"
-                      className="py-1 px-2 text-[9px]"
-                      onClick={() => {
-                        setShowMapModal(false);
-                        setSelectedTask(filteredTasks[0]);
-                      }}
-                    >
-                      Open task
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="p-2 bg-white border border-black/20 rounded text-center text-black/60">
-                    No active tasks currently mapped in this sector.
-                  </div>
-                )}
+                  );
+                })()}
               </div>
 
               <div className="flex justify-end pt-1">

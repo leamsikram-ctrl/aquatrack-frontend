@@ -203,7 +203,7 @@ export function AdminSettingsView() {
                 </label>
                 <input
                   type="text"
-                  className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-mono focus:border-[#1E6FD9]"
+                  className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-normal focus:border-[#1E6FD9]"
                   value={contactNumber}
                   onChange={(e) => setContactNumber(e.target.value)}
                   required
@@ -333,7 +333,7 @@ export function AdminSettingsView() {
                 </label>
                 <input
                   type="text"
-                  className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-mono"
+                  className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-normal"
                   value={smsSenderId}
                   onChange={(e) => setSmsSenderId(e.target.value)}
                 />

@@ -154,7 +154,7 @@ export function AdminBillingImportView() {
             />
             <label
               htmlFor="csvFileInput"
-              className="px-4 py-2 bg-white text-black border border-black/20 rounded-lg cursor-pointer hover:border-black font-medium text-[10px]"
+              className="px-4 py-2 bg-white text-black border border-black/20 rounded-lg cursor-pointer hover:border-black font-bold text-[10px]"
             >
               Select CSV File
             </label>
@@ -184,20 +184,20 @@ export function AdminBillingImportView() {
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px]">
               <div className="p-2 bg-[#F0F6FD] rounded border border-black/10">
-                <span className="text-black/60 block">Total Processed:</span>
-                <span className="font-bold text-black text-[12px]">{importSummary.total_rows}</span>
+                <span className="text-black/60 block font-normal">Total Processed:</span>
+                <span className="font-bold text-black text-[10px]">{importSummary.total_rows}</span>
               </div>
               <div className="p-2 bg-[#F0F6FD] rounded border border-black/10">
-                <span className="text-black/60 block">Newly Created:</span>
-                <span className="font-bold text-black text-[12px]">{importSummary.created}</span>
+                <span className="text-black/60 block font-normal">Newly Created:</span>
+                <span className="font-bold text-black text-[10px]">{importSummary.created}</span>
               </div>
               <div className="p-2 bg-[#F0F6FD] rounded border border-black/10">
-                <span className="text-black/60 block">Updated:</span>
-                <span className="font-bold text-black text-[12px]">{importSummary.updated}</span>
+                <span className="text-black/60 block font-normal">Updated:</span>
+                <span className="font-bold text-black text-[10px]">{importSummary.updated}</span>
               </div>
               <div className="p-2 bg-[#F0F6FD] rounded border border-black/10">
-                <span className="text-black/60 block">Rejected (Locked):</span>
-                <span className="font-bold text-black text-[12px]">{importSummary.rejected}</span>
+                <span className="text-black/60 block font-normal">Rejected (Locked):</span>
+                <span className="font-bold text-black text-[10px]">{importSummary.rejected}</span>
               </div>
             </div>
 
@@ -207,7 +207,7 @@ export function AdminBillingImportView() {
                   <IconAlertCircle size={14} className="text-black" />
                   <span>Row Error & Publish Lock Logs:</span>
                 </div>
-                <div className="max-h-24 overflow-y-auto space-y-1 text-black/80 font-mono text-[9px]">
+                <div className="max-h-24 overflow-y-auto space-y-1 text-black/80 font-normal text-[10px]">
                   {importSummary.errors.map((err, i) => (
                     <div key={i}>• {err}</div>
                   ))}
@@ -230,7 +230,7 @@ export function AdminBillingImportView() {
         </div>
 
         {isLoading ? (
-          <div className="p-8 text-center text-black/60">
+          <div className="p-8 text-center text-black/60 font-normal">
             Loading billing records...
           </div>
         ) : billings.length === 0 ? (
@@ -260,7 +260,7 @@ export function AdminBillingImportView() {
                     <td className="px-4 py-2 font-bold text-[#1E6FD9]">
                       {b.customer_profile?.account_number ?? `ACC-UID-${b.customer_profile_id}`}
                     </td>
-                    <td className="px-4 py-2 text-black font-medium">
+                    <td className="px-4 py-2 text-black font-normal">
                       {b.customer_profile ? `${b.customer_profile.first_name} ${b.customer_profile.last_name}` : 'Unknown'}
                     </td>
                     <td className="px-4 py-2 text-black">{b.billing_period}</td>

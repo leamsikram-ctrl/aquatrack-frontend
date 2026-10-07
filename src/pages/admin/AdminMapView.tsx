@@ -6,6 +6,7 @@ import { Badge } from '../../components/atoms/Badge';
 import { Button } from '../../components/atoms/Button';
 import { requestsApi, referenceApi, adminApi } from '../../api';
 import type { ServiceRequest, Barangay, User } from '../../types';
+import { MunicipalMap, type MapMarker, type MapHotspot } from '../../components/organisms/MunicipalMap';
 import { IconMapPin, IconUsers, IconAlertTriangle, IconFlame, IconCheck } from '@tabler/icons-react';
 
 export function AdminMapView() {
@@ -101,6 +102,97 @@ export function AdminMapView() {
       return true;
     });
   }, [customers, selectedBarangay]);
+
+  const mapMarkers = useMemo<MapMarker[]>(() => {
+    const list: MapMarker[] = [];
+
+    if (showRequests) {
+      filteredRequests.forEach((req, idx) => {
+        const lat = req.latitude ? Number(req.latitude) : 8.2835 + ((idx % 7) - 3) * 0.0035;
+        const lng = req.longitude ? Number(req.longitude) : 123.8340 + (((idx * 2) % 7) - 3) * 0.0035;
+
+        list.push({
+          id: `req-${req.id}`,
+          lat,
+          lng,
+          title: req.reference_no || req.reference || `AT-${req.id}`,
+          subtitle: `${req.description} · ${req.customer?.barangay || 'Poblacion'}`,
+          label: req.reference_no || req.reference || `AT-${req.id}`,
+          urgency: req.urgency,
+          status: req.status,
+          onClick: () => {
+            setSelectedItem({
+              type: 'request',
+              id: req.id,
+              reference: req.reference_no || req.reference || `AT-${req.id}`,
+              name: req.description,
+              barangay: req.customer?.barangay || 'Poblacion',
+              status: req.status,
+              urgency: req.urgency,
+              details: req.customer?.full_name || 'Consumer Residence',
+            });
+          },
+        });
+      });
+    }
+
+    if (showCustomers) {
+      filteredCustomers.forEach((cust, idx) => {
+        const lat = cust.customer_profile?.latitude
+          ? Number(cust.customer_profile.latitude)
+          : 8.2835 + (((idx * 3) % 9) - 4) * 0.003;
+        const lng = cust.customer_profile?.longitude
+          ? Number(cust.customer_profile.longitude)
+          : 123.8340 + (((idx * 4) % 9) - 4) * 0.003;
+
+        list.push({
+          id: `cust-${cust.id}`,
+          lat,
+          lng,
+          title: cust.name || 'Consumer Account',
+          subtitle: `${cust.customer_profile?.account_number || 'Pending'} · ${cust.customer_profile?.barangay?.name || 'Poblacion'}`,
+          label: cust.customer_profile?.account_number || `ACC-${cust.id}`,
+          color: '#000000',
+          status: cust.is_verified ? 'Active' : 'Pending',
+          onClick: () => {
+            setSelectedItem({
+              type: 'customer',
+              id: cust.id,
+              reference: cust.customer_profile?.account_number || `ACC-${cust.id}`,
+              name: cust.name || 'Verified Consumer',
+              barangay: cust.customer_profile?.barangay?.name || 'Poblacion',
+              status: cust.is_verified ? 'Active' : 'Pending',
+              details: cust.customer_profile?.address || 'Household Connection',
+            });
+          },
+        });
+      });
+    }
+
+    return list;
+  }, [showRequests, showCustomers, filteredRequests, filteredCustomers]);
+
+  const mapHotspots = useMemo<MapHotspot[]>(() => {
+    if (!showHotspots) return [];
+    return [
+      {
+        id: 'hs-1',
+        lat: 8.2842,
+        lng: 123.8351,
+        radius: 280,
+        label: 'Sector 1: High Pressure Main Junction',
+        color: '#1E6FD9',
+      },
+      {
+        id: 'hs-2',
+        lat: 8.2755,
+        lng: 123.8295,
+        radius: 350,
+        label: 'Sector 2: Cagayanan Low-Pressure Risk Area',
+        color: '#EA580C',
+      },
+    ];
+  }, [showHotspots]);
 
   const handleAssignSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -231,158 +323,90 @@ export function AdminMapView() {
         </div>
 
         {/* Wireframe A6 Map Canvas & Hotspot Layer */}
-        <Card className="p-0 border border-black/15 overflow-hidden relative">
-          <div className="h-96 w-full bg-[#F0F6FD] relative flex flex-col justify-between p-4 overflow-hidden select-none">
-            {/* Top Coordinate Badge */}
-            <div className="flex justify-between items-center z-10">
-              <div className="bg-white/90 backdrop-blur px-2 py-1 border border-black/20 rounded text-[9px] font-mono text-black">
-                Sinacaban, Misamis Occidental · 8.2833° N, 123.8333° E
-              </div>
-              {showHotspots && (
-                <div className="bg-black text-white px-2 py-1 rounded text-[9px] font-bold flex items-center gap-1 shadow">
-                  <IconFlame size={12} className="text-[#1E6FD9]" />
-                  <span>Pipe Failure Hotspots Active (Sector 1 High Pressure Zone)</span>
-                </div>
-              )}
+        <Card className="p-0 border border-black/15 overflow-hidden relative shadow-sm">
+          {/* Top Status Bar over Map */}
+          <div className="flex justify-between items-center px-3 py-2 bg-white/95 border-b border-black/10 z-10">
+            <div className="text-[10px] font-bold text-black flex items-center gap-1.5">
+              <IconMapPin size={13} className="text-[#1E6FD9]" />
+              <span>Sinacaban Municipal GIS · Misamis Occidental (8.2835° N, 123.8340° E)</span>
             </div>
-
-            {/* Simulated Geometric Map Canvas with Pins */}
-            <div className="absolute inset-0 bg-[radial-gradient(#1E6FD9_1.5px,transparent_1.5px)] [background-size:24px_24px] opacity-25" />
-
-            {isLoading && (
-              <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-30 font-bold text-[10px] text-black">
-                Loading Sinacaban municipal GIS data...
-              </div>
-            )}
-
-            {/* Hotspot Cluster Rings (when enabled) */}
             {showHotspots && (
-              <>
-                <div className="absolute top-[35%] left-[45%] w-32 h-32 rounded-full border-2 border-[#1E6FD9] bg-[#1E6FD9]/10 animate-pulse pointer-events-none" />
-                <div className="absolute top-[30%] left-[65%] w-24 h-24 rounded-full border-2 border-black bg-black/5 pointer-events-none" />
-              </>
-            )}
-
-            {/* Request Pins */}
-            {showRequests &&
-              filteredRequests.map((req, idx) => {
-                const topPos = 25 + ((idx * 17) % 55);
-                const leftPos = 20 + ((idx * 23) % 65);
-                const isSelected = selectedItem?.type === 'request' && selectedItem.id === req.id;
-
-                return (
-                  <button
-                    key={`req-${req.id}`}
-                    onClick={() =>
-                      setSelectedItem({
-                        type: 'request',
-                        id: req.id,
-                        reference: req.reference_no || req.reference || `AT-${req.id}`,
-                        name: req.description,
-                        barangay: req.customer?.barangay || 'Poblacion',
-                        status: req.status,
-                        urgency: req.urgency,
-                        details: req.customer?.full_name || 'Consumer Residence',
-                      })
-                    }
-                    style={{ top: `${topPos}%`, left: `${leftPos}%` }}
-                    className={`absolute p-1 rounded-full border transition-transform flex items-center gap-1 font-mono text-[8px] z-20 shadow ${
-                      isSelected
-                        ? 'bg-black text-white border-[#1E6FD9] scale-125 ring-2 ring-[#1E6FD9]'
-                        : 'bg-[#1E6FD9] text-white border-black hover:scale-110'
-                    }`}
-                    title={`${req.reference_no || req.reference}: ${req.description}`}
-                  >
-                    <IconAlertTriangle size={10} />
-                    <span>{req.reference_no || req.reference || `AT-${req.id}`}</span>
-                  </button>
-                );
-              })}
-
-            {/* Customer Household Pins */}
-            {showCustomers &&
-              filteredCustomers.map((cust, idx) => {
-                const topPos = 18 + ((idx * 19) % 60);
-                const leftPos = 15 + ((idx * 27) % 70);
-                const isSelected = selectedItem?.type === 'customer' && selectedItem.id === cust.id;
-
-                return (
-                  <button
-                    key={`cust-${cust.id}`}
-                    onClick={() =>
-                      setSelectedItem({
-                        type: 'customer',
-                        id: cust.id,
-                        reference: cust.customer_profile?.account_number || `ACC-${cust.id}`,
-                        name: cust.name || 'Verified Consumer',
-                        barangay: cust.customer_profile?.barangay?.name || 'Poblacion',
-                        status: cust.is_verified ? 'Active' : 'Pending',
-                        details: cust.customer_profile?.address || 'Household Connection',
-                      })
-                    }
-                    style={{ top: `${topPos}%`, left: `${leftPos}%` }}
-                    className={`absolute p-1 rounded-full border transition-transform flex items-center gap-1 text-[8px] z-10 ${
-                      isSelected
-                        ? 'bg-black text-white border-white scale-125'
-                        : 'bg-white text-black border-black/30 hover:scale-110'
-                    }`}
-                    title={cust.name || 'Household Consumer'}
-                  >
-                    <IconMapPin size={9} className="text-[#1E6FD9]" />
-                    <span>{cust.name ? cust.name.split(' ')[0] : 'Consumer'}</span>
-                  </button>
-                );
-              })}
-
-            {/* Wireframe A6 Bottom Card: AT-0000 | Barangay | Assigned | [Assign staff] */}
-            {selectedItem && (
-              <div className="z-30 bg-white border border-black/20 rounded p-3 shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="space-y-0.5">
-                  <div className="flex items-center gap-2">
-                    <strong className="font-mono text-black text-[10px]">
-                      {selectedItem.reference}
-                    </strong>
-                    <span className="text-black/50">·</span>
-                    <span className="text-black font-medium">{selectedItem.barangay}</span>
-                    <span className="text-black/50">·</span>
-                    <Badge variant={selectedItem.status === 'assigned' ? 'blue' : 'black'}>
-                      {(selectedItem.status || 'ACTIVE').toUpperCase()}
-                    </Badge>
-                  </div>
-                  <div className="text-[10px] text-black/70">
-                    {selectedItem.name} — <span className="italic">{selectedItem.details}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 shrink-0">
-                  {selectedItem.type === 'request' && (
-                    <>
-                      <Button
-                        variant="secondary"
-                        onClick={() => setShowAssignModal(true)}
-                      >
-                        Assign staff
-                      </Button>
-                      <Button
-                        variant="primary"
-                        onClick={() => navigate('/admin/requests')}
-                      >
-                        View in dispatch queue
-                      </Button>
-                    </>
-                  )}
-                  {selectedItem.type === 'customer' && (
-                    <Button
-                      variant="primary"
-                      onClick={() => navigate('/admin/customers')}
-                    >
-                      View customer record
-                    </Button>
-                  )}
-                </div>
+              <div className="bg-black text-white px-2 py-0.5 rounded text-[9px] font-bold flex items-center gap-1">
+                <IconFlame size={12} className="text-[#1E6FD9]" />
+                <span>Pipe Failure Pressure Sectors Active</span>
               </div>
             )}
           </div>
+
+          {isLoading ? (
+            <div className="h-96 w-full bg-[#F0F6FD] flex items-center justify-center font-bold text-[10px] text-black">
+              Loading Sinacaban municipal GIS data...
+            </div>
+          ) : (
+            <div className="h-[420px] w-full relative">
+              <MunicipalMap
+                center={[8.2835, 123.8340]}
+                zoom={14}
+                markers={mapMarkers}
+                hotspots={mapHotspots}
+                className="h-full w-full"
+              />
+            </div>
+          )}
+
+          {/* Wireframe A6 Bottom Card: Selected Pin Inspector */}
+          {selectedItem && (
+            <div className="bg-white border-t border-black/20 p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2">
+                  <strong className="font-bold text-black text-[11px]">
+                    {selectedItem.reference}
+                  </strong>
+                  <span className="text-black/50">·</span>
+                  <span className="text-black font-bold">{selectedItem.barangay}</span>
+                  <span className="text-black/50">·</span>
+                  <Badge variant={selectedItem.status === 'assigned' ? 'blue' : 'black'}>
+                    {(selectedItem.status || 'ACTIVE').toUpperCase()}
+                  </Badge>
+                  {selectedItem.urgency && (
+                    <Badge variant={selectedItem.urgency === 'high' ? 'outline' : 'blue'}>
+                      {selectedItem.urgency.toUpperCase()} URGENCY
+                    </Badge>
+                  )}
+                </div>
+                <div className="text-[10px] text-black/70">
+                  {selectedItem.name} — <span className="italic">{selectedItem.details}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                {selectedItem.type === 'request' && (
+                  <>
+                    <Button
+                      variant="secondary"
+                      onClick={() => setShowAssignModal(true)}
+                    >
+                      Assign staff
+                    </Button>
+                    <Button
+                      variant="primary"
+                      onClick={() => navigate('/admin/requests')}
+                    >
+                      View in dispatch queue
+                    </Button>
+                  </>
+                )}
+                {selectedItem.type === 'customer' && (
+                  <Button
+                    variant="primary"
+                    onClick={() => navigate('/admin/customers')}
+                  >
+                    View customer record
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
         </Card>
 
         {/* Quick Assign Modal (Wireframe A4 format) */}

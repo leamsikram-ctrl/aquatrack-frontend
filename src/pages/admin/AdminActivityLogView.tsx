@@ -177,16 +177,16 @@ export function AdminActivityLogView() {
                 ) : (
                   filteredLogs.map((log) => (
                     <tr key={log.id} className="hover:bg-[#F0F6FD]/40 transition-colors">
-                      <td className="px-4 py-3 font-mono text-black/70">
+                      <td className="px-4 py-3 font-normal text-black/70">
                         {log.time}
                       </td>
                       <td className="px-4 py-3">
-                        <strong className="text-black block">{log.user}</strong>
+                        <strong className="text-black block font-bold">{log.user}</strong>
                         <span className="text-[9px] text-[#1E6FD9] font-bold uppercase">
                           {log.role}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-black font-medium leading-relaxed">
+                      <td className="px-4 py-3 text-black font-normal leading-relaxed">
                         {log.action}
                       </td>
                     </tr>
@@ -222,7 +222,7 @@ export function AdminActivityLogView() {
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-mono"
+                    className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-normal"
                   />
                 </div>
 
@@ -234,7 +234,7 @@ export function AdminActivityLogView() {
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-mono"
+                    className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-normal"
                   />
                 </div>
               </div>

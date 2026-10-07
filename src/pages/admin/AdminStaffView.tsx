@@ -204,8 +204,8 @@ export function AdminStaffView() {
                         onClick={() => setSelectedStaff(staff)}
                       >
                         <td className="px-4 py-3">
-                          <strong className="text-black block">{name}</strong>
-                          <span className="text-[9px] text-black/60 font-mono">
+                          <strong className="text-black block font-bold">{name}</strong>
+                          <span className="text-[9px] text-black/60 font-normal">
                             {staff.mobile_number}
                           </span>
                         </td>
@@ -253,7 +253,7 @@ export function AdminStaffView() {
                   <span className="font-bold text-black uppercase tracking-wider text-[10px]">
                     Technician Profile: {selectedStaff.name || 'Staff Member'}
                   </span>
-                  <div className="text-[9px] text-black/60 font-mono">
+                  <div className="text-[9px] text-black/60 font-normal">
                     ID #{selectedStaff.id} · Field Operations Unit
                   </div>
                 </div>
@@ -269,17 +269,17 @@ export function AdminStaffView() {
               <div className="p-3 bg-[#F0F6FD] border border-black/15 rounded space-y-2 text-[10px]">
                 <div className="flex justify-between">
                   <span className="text-black/60 font-bold uppercase">Assigned Area:</span>
-                  <strong className="text-black">
+                  <strong className="text-black font-bold">
                     {selectedStaff.staff_profile?.assigned_barangay?.name || 'All Sinacaban Sectors'}
                   </strong>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-black/60 font-bold uppercase">Contact Number:</span>
-                  <span className="text-black font-mono">{selectedStaff.mobile_number}</span>
+                  <span className="text-black font-normal">{selectedStaff.mobile_number}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-black/60 font-bold uppercase">Official Email:</span>
-                  <span className="text-black font-mono">{selectedStaff.email}</span>
+                  <span className="text-black font-normal">{selectedStaff.email}</span>
                 </div>
               </div>
 
@@ -302,10 +302,10 @@ export function AdminStaffView() {
                           className="p-2.5 bg-white border border-black/15 rounded flex items-center justify-between text-[10px]"
                         >
                           <div>
-                            <strong className="text-black font-mono">
+                            <strong className="text-black font-bold">
                               {task.reference_no || task.reference || `AT-${task.id}`}
                             </strong>
-                            <div className="text-black/70">{task.description}</div>
+                            <div className="text-black/70 font-normal">{task.description}</div>
                           </div>
                           <Badge variant={task.status === 'in_progress' ? 'blue' : 'black'}>
                             {task.status.toUpperCase()}
@@ -373,7 +373,7 @@ export function AdminStaffView() {
                     <input
                       type="tel"
                       placeholder="0917 123 4567"
-                      className="w-full pl-7 pr-3 py-2 bg-white text-black border border-black rounded text-[10px] outline-none font-mono focus:border-[#1E6FD9]"
+                      className="w-full pl-7 pr-3 py-2 bg-white text-black border border-black rounded text-[10px] outline-none font-normal focus:border-[#1E6FD9]"
                       value={newMobile}
                       onChange={(e) => setNewMobile(e.target.value)}
                       required

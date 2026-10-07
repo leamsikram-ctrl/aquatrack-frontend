@@ -171,7 +171,7 @@ export function StaffHistoryView() {
                 <span className="text-black/60 uppercase font-bold block">
                   Technician Resolution Notes:
                 </span>
-                <p className="text-black bg-white p-2.5 rounded border border-black/15 mt-1 font-medium">
+                <p className="text-black bg-white p-2.5 rounded border border-black/15 mt-1 font-normal">
                   {selectedTask.resolution_remarks || 'Pipeline replaced with heavy-duty PVC junction and tested for standard water pressure.'}
                 </p>
               </div>

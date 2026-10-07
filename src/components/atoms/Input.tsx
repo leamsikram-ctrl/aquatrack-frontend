@@ -15,7 +15,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="w-full space-y-1 text-left">
         {label && (
-          <label htmlFor={inputId} className="block text-sm font-medium text-black">
+          <label htmlFor={inputId} className="block text-[10px] font-bold text-black uppercase tracking-wider">
             {label}
             {props.required && <span className="text-[#1E6FD9] ml-1">*</span>}
           </label>
@@ -32,12 +32,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             disabled={disabled}
-            className={`w-full h-10 px-3 text-sm text-black bg-white border rounded-md transition-colors placeholder:text-black/40 outline-none
+            className={`w-full h-9 px-3 text-[10px] font-normal text-black bg-white border rounded-md transition-colors placeholder:text-black/40 outline-none
               ${leftIcon ? 'pl-9' : ''}
               ${
                 error
-                  ? 'border-black ring-2 ring-black'
-                  : 'border-black hover:border-[#1E6FD9] focus:border-[#1E6FD9] focus:ring-1 focus:ring-[#1E6FD9]'
+                  ? 'border-black ring-1 ring-black'
+                  : 'border-black/30 hover:border-[#1E6FD9] focus:border-[#1E6FD9] focus:ring-1 focus:ring-[#1E6FD9]'
               }
               disabled:opacity-50 disabled:cursor-not-allowed
               ${className}
@@ -47,11 +47,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         </div>
 
         {error ? (
-          <p className="text-sm font-medium text-black">
+          <p className="text-[10px] font-bold text-black">
             [!] {error}
           </p>
         ) : helperText ? (
-          <p className="text-sm text-black/70">
+          <p className="text-[10px] font-normal text-black/70">
             {helperText}
           </p>
         ) : null}

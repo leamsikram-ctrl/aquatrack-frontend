@@ -23,3 +23,4 @@ describe('AquaTrackLogo Component', () => {
     expect(screen.queryByText(/Sinacaban Water Works/i)).not.toBeInTheDocument();
   });
 });
+

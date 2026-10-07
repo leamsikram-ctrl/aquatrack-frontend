@@ -138,7 +138,7 @@ export function CustomerRequestsView() {
       <div className="max-w-xl mx-auto space-y-4">
         {/* Header */}
         <div className="pb-1">
-          <h1 className="text-base font-bold text-black uppercase tracking-wider">
+          <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">
             My requests
           </h1>
         </div>
@@ -146,7 +146,7 @@ export function CustomerRequestsView() {
         {/* Button: Report an issue */}
         <Button
           variant="primary"
-          className="w-full justify-center py-2.5 text-sm"
+          className="w-full justify-center py-2.5 text-[10px]"
           onClick={() => setShowCreateModal(true)}
         >
           Report an issue
@@ -154,7 +154,7 @@ export function CustomerRequestsView() {
 
         {/* Requests List */}
         {isLoading ? (
-          <Card className="p-4 border border-black/15 text-center text-black/60 text-xs">
+          <Card className="p-4 border border-black/15 text-center text-black/60 text-[10px] font-normal">
             Loading service requests...
           </Card>
         ) : requests.length === 0 ? (
@@ -186,7 +186,7 @@ export function CustomerRequestsView() {
                   className="p-4 border border-black/15 bg-white space-y-2.5 cursor-pointer hover:border-[#1E6FD9] transition-colors"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-black text-sm">
+                    <span className="font-bold text-black text-[10px]">
                       {refNo}
                     </span>
                     <Badge
@@ -206,7 +206,7 @@ export function CustomerRequestsView() {
                     </Badge>
                   </div>
 
-                  <div className="text-xs text-black/60">
+                  <div className="text-[10px] text-black/60 font-normal">
                     {req.issue_type?.name || 'Water Service'} · {formattedDate}
                   </div>
 
@@ -238,7 +238,7 @@ export function CustomerRequestsView() {
                       </div>
                     </div>
                   ) : (
-                    <div className="text-xs text-black/50 italic">
+                    <div className="text-[10px] text-black/50 font-normal italic">
                       Request was cancelled.
                     </div>
                   )}
@@ -253,30 +253,30 @@ export function CustomerRequestsView() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
             <div className="w-full max-w-sm bg-white rounded-lg border border-black p-5 space-y-4 shadow-2xl">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
-                <span className="font-bold text-sm text-black uppercase tracking-wider">
+                <span className="font-bold text-[10px] text-black uppercase tracking-wider">
                   Report an issue
                 </span>
                 <button
                   onClick={() => setShowCreateModal(false)}
-                  className="text-black hover:text-[#1E6FD9] p-1 font-bold text-sm"
+                  className="text-black hover:text-[#1E6FD9] p-1 font-bold text-[10px]"
                 >
                   ✕
                 </button>
               </div>
 
               {createError && (
-                <div className="p-2 bg-[#F0F6FD] border border-black text-black rounded text-xs">
+                <div className="p-2 bg-[#F0F6FD] border border-black text-black rounded text-[10px] font-normal">
                   {createError}
                 </div>
               )}
 
               <form onSubmit={handleCreateRequest} className="space-y-3">
                 <div>
-                  <label className="block text-xs font-bold text-black/70 uppercase mb-1">
+                  <label className="block text-[10px] font-bold text-black/70 uppercase mb-1">
                     Issue type
                   </label>
                   <select
-                    className="w-full p-2 text-xs bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+                    className="w-full p-2 text-[10px] font-normal bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
                     value={issueTypeId}
                     onChange={(e) => setIssueTypeId(Number(e.target.value))}
                   >
@@ -289,7 +289,7 @@ export function CustomerRequestsView() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-black/70 uppercase mb-1.5">
+                  <label className="block text-[10px] font-bold text-black/70 uppercase mb-1.5">
                     Urgency level
                   </label>
                   <div className="space-y-1.5">
@@ -307,14 +307,14 @@ export function CustomerRequestsView() {
                           onChange={(e) => setCustomerUrgency(e.target.value)}
                           className="accent-[#1E6FD9]"
                         />
-                        <span className="text-xs text-black">{opt.label}</span>
+                        <span className="text-[10px] text-black font-normal">{opt.label}</span>
                       </label>
                     ))}
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-black/70 uppercase mb-1">
+                  <label className="block text-[10px] font-bold text-black/70 uppercase mb-1">
                     Description
                   </label>
                   <textarea
@@ -322,24 +322,24 @@ export function CustomerRequestsView() {
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     rows={3}
-                    className="w-full p-2 text-xs bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+                    className="w-full p-2 text-[10px] font-normal bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
                     required
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-black/70 uppercase">
+                  <label className="block text-[10px] font-bold text-black/70 uppercase">
                     Location
                   </label>
                   <button
                     type="button"
                     onClick={() => setHasLocationPin(true)}
-                    className="w-full py-2 px-2 border border-black rounded text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-[#F0F6FD]"
+                    className="w-full py-2 px-2 border border-black rounded text-[10px] font-bold flex items-center justify-center gap-1.5 hover:bg-[#F0F6FD]"
                   >
                     <IconCrosshair size={14} className="text-[#1E6FD9]" />
                     {hasLocationPin ? 'GPS pin recorded' : 'Use my location'}
                   </button>
-                  <div className="h-14 border border-dashed border-black/40 rounded flex items-center justify-center text-black/50 text-xs bg-[#F0F6FD]">
+                  <div className="h-14 border border-dashed border-black/40 rounded flex items-center justify-center text-black/50 text-[10px] font-normal bg-[#F0F6FD]">
                     {hasLocationPin
                       ? '📍 Lat 8.2981, Lng 123.8374 (Poblacion)'
                       : 'Map pin will use your device location'}
@@ -350,7 +350,7 @@ export function CustomerRequestsView() {
                   <button
                     type="button"
                     onClick={() => setPhotoAdded(!photoAdded)}
-                    className={`w-full py-2 px-2 border border-black rounded text-xs font-bold flex items-center justify-center gap-1.5 transition-colors ${
+                    className={`w-full py-2 px-2 border border-black rounded text-[10px] font-bold flex items-center justify-center gap-1.5 transition-colors ${
                       photoAdded ? 'bg-[#1E6FD9] text-white' : 'hover:bg-[#F0F6FD] text-black'
                     }`}
                   >
@@ -389,10 +389,10 @@ export function CustomerRequestsView() {
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <button
                   onClick={() => setSelectedReq(null)}
-                  className="font-bold text-sm text-black hover:text-[#1E6FD9] flex items-center gap-1"
+                  className="font-bold text-[10px] text-black hover:text-[#1E6FD9] flex items-center gap-1"
                 >
                   ←{' '}
-                  <span className="font-mono">
+                  <span className="font-bold">
                     {selectedReq.reference_no || selectedReq.reference || `AT-2026-${selectedReq.id}`}
                   </span>
                 </button>
@@ -413,12 +413,12 @@ export function CustomerRequestsView() {
 
               {/* 4-stage Vertical Timeline */}
               <div className="space-y-3 py-1">
-                <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center justify-between text-[10px]">
                   <div className="flex items-center gap-2">
                     <IconCircleCheck size={16} className="text-[#1E6FD9]" />
                     <span className="font-bold text-black">Submitted</span>
                   </div>
-                  <span className="text-black/50">
+                  <span className="text-black/50 font-normal">
                     {selectedReq.created_at
                       ? new Date(selectedReq.created_at).toLocaleDateString('en-US', {
                           month: 'short',
@@ -428,7 +428,7 @@ export function CustomerRequestsView() {
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center justify-between text-[10px]">
                   <div className="flex items-center gap-2">
                     {['assigned', 'in_progress', 'resolved'].includes(selectedReq.status) ? (
                       <IconCircleCheck size={16} className="text-[#1E6FD9]" />
@@ -445,7 +445,7 @@ export function CustomerRequestsView() {
                       Assigned
                     </span>
                   </div>
-                  <span className="text-black/50">
+                  <span className="text-black/50 font-normal">
                     {['assigned', 'in_progress', 'resolved'].includes(selectedReq.status)
                       ? selectedReq.updated_at
                         ? new Date(selectedReq.updated_at).toLocaleDateString('en-US', {
@@ -457,7 +457,7 @@ export function CustomerRequestsView() {
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center justify-between text-[10px]">
                   <div className="flex items-center gap-2">
                     {selectedReq.status === 'in_progress' ? (
                       <IconTool size={16} className="text-[#1E6FD9]" />
@@ -476,14 +476,14 @@ export function CustomerRequestsView() {
                       In progress
                     </span>
                   </div>
-                  <span className="text-black/50">
+                  <span className="text-black/50 font-normal">
                     {selectedReq.status === 'in_progress' || selectedReq.status === 'resolved'
                       ? 'Active'
                       : 'Pending'}
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center justify-between text-[10px]">
                   <div className="flex items-center gap-2">
                     {selectedReq.status === 'resolved' ? (
                       <IconCheck size={16} className="text-[#1E6FD9]" />
@@ -498,7 +498,7 @@ export function CustomerRequestsView() {
                       Resolved
                     </span>
                   </div>
-                  <span className="text-black/50">
+                  <span className="text-black/50 font-normal">
                     {selectedReq.status === 'resolved' ? 'Completed' : 'Pending'}
                   </span>
                 </div>
@@ -506,13 +506,13 @@ export function CustomerRequestsView() {
 
               {/* Details Card */}
               <Card className="p-3.5 border border-black/15 bg-[#F0F6FD] space-y-1">
-                <div className="text-xs uppercase tracking-wider font-bold text-black/50">
+                <div className="text-[10px] uppercase tracking-wider font-bold text-black/50">
                   Details
                 </div>
-                <div className="text-xs font-bold text-black">
+                <div className="text-[10px] font-bold text-black">
                   {selectedReq.issue_type?.name || 'Water Service'} · Barangay Poblacion
                 </div>
-                <div className="text-xs text-black/70">
+                <div className="text-[10px] text-black/70 font-normal">
                   {selectedReq.description}
                 </div>
               </Card>
@@ -522,13 +522,13 @@ export function CustomerRequestsView() {
                 <div className="pt-2">
                   <button
                     onClick={() => setShowCancelModal(true)}
-                    className="w-full py-2 border border-black text-black hover:bg-[#F0F6FD] hover:text-[#1E6FD9] rounded font-bold text-xs transition-colors"
+                    className="w-full py-2 border border-black text-black hover:bg-[#F0F6FD] hover:text-[#1E6FD9] rounded font-bold text-[10px] transition-colors"
                   >
                     Cancel request
                   </button>
                 </div>
               ) : selectedReq.status === 'in_progress' ? (
-                <div className="p-2.5 border border-black/20 rounded bg-white text-xs text-black/80 text-center">
+                <div className="p-2.5 border border-black/20 rounded bg-white text-[10px] font-normal text-black/80 text-center">
                   This repair has already started. Contact SIWASS if anything has changed.
                 </div>
               ) : (
@@ -551,16 +551,16 @@ export function CustomerRequestsView() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
             <div className="w-full max-w-xs bg-white rounded-lg border border-black p-5 space-y-3.5 shadow-2xl">
               <div className="text-left space-y-1">
-                <h3 className="font-bold text-sm text-black">
+                <h3 className="font-bold text-[10px] text-black">
                   Cancel {selectedReq.reference_no || selectedReq.reference || `AT-2026-${selectedReq.id}`}?
                 </h3>
-                <p className="text-xs text-black/70 leading-relaxed">
+                <p className="text-[10px] text-black/70 font-normal leading-relaxed">
                   The assigned technician will be notified and the request will be closed.
                 </p>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-black/70 uppercase mb-1">
+                <label className="block text-[10px] font-bold text-black/70 uppercase mb-1">
                   Reason (optional)
                 </label>
                 <input
@@ -568,7 +568,7 @@ export function CustomerRequestsView() {
                   placeholder="Tell us why..."
                   value={cancelReason}
                   onChange={(e) => setCancelReason(e.target.value)}
-                  className="w-full p-2 text-xs bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+                  className="w-full p-2 text-[10px] font-normal bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
                 />
               </div>
 

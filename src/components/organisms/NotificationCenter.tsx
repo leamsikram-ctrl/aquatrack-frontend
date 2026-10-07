@@ -170,7 +170,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-end bg-black/40 p-2 sm:p-4 animate-fade-in">
-      <div className="w-full max-w-sm bg-white rounded-lg border border-black shadow-2xl overflow-hidden flex flex-col text-xs text-black">
+      <div className="w-full max-w-sm bg-white rounded-lg border border-black shadow-2xl overflow-hidden flex flex-col text-[10px] text-black">
         {/* Header */}
         <div className="flex items-center justify-between px-3.5 py-3 border-b border-black/15 bg-[#F0F6FD]">
           <div className="flex items-center gap-1.5">
@@ -179,7 +179,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
               className="p-1 hover:text-[#1E6FD9] text-black font-bold flex items-center gap-1"
               title="Close notifications"
             >
-              ← <span className="uppercase tracking-wider text-xs">Notifications</span>
+              ← <span className="uppercase tracking-wider text-[10px]">Notifications</span>
             </button>
             {unreadCount > 0 && (
               <span className="px-1.5 py-0.5 bg-[#1E6FD9] text-white rounded font-bold text-[10px]">
@@ -190,7 +190,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={markAllRead}
-              className="text-[#1E6FD9] hover:underline font-bold text-xs flex items-center gap-1"
+              className="text-[#1E6FD9] hover:underline font-bold text-[10px] flex items-center gap-1"
             >
               <IconCheck size={13} />
               Mark all read
@@ -209,8 +209,8 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
           {notifications.length === 0 ? (
             <div className="p-8 text-center text-black/60">
               <IconBell size={28} className="mx-auto mb-2 text-black/30" />
-              <div className="font-bold text-sm">No notifications</div>
-              <div className="text-xs text-black/50 mt-1">
+              <div className="font-bold text-[10px] uppercase tracking-wider">No notifications</div>
+              <div className="text-[10px] font-normal text-black/50 mt-1">
                 You are all caught up.
               </div>
             </div>
@@ -227,13 +227,13 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                   <div className="mt-0.5">{renderIcon(n.type)}</div>
                   <div className="space-y-1 flex-1">
                     <p
-                      className={`text-xs leading-snug ${
-                        n.read ? 'text-black/80' : 'text-black font-bold'
+                      className={`text-[10px] leading-snug ${
+                        n.read ? 'text-black/80 font-normal' : 'text-black font-bold'
                       }`}
                     >
                       {n.message}
                     </p>
-                    <div className="text-[11px] text-black/50 flex items-center gap-2">
+                    <div className="text-[10px] font-normal text-black/50 flex items-center gap-2">
                       <span>{n.time}</span>
                       {!n.read && (
                         <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#1E6FD9]" />
