@@ -169,28 +169,28 @@ export function StaffTasksView() {
 
   return (
     <StaffLayout currentPath="/staff/tasks" onNavigate={(path) => navigate(path)}>
-      <div className="space-y-4 text-[10px] text-black">
-        {/* Wireframe S2 Header */}
+      <div className="space-y-4 text-black">
+        {/* Header */}
         <div className="flex items-center justify-between border-b border-black/15 pb-3">
           <div>
-            <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">
+            <h1 className="text-base font-bold text-black uppercase tracking-wider">
               My tasks
             </h1>
-            <p className="text-[10px] text-black/60">
-              Work orders and field repairs assigned in Sinacaban
+            <p className="text-xs text-black/60">
+              Work orders and field repairs in Sinacaban
             </p>
           </div>
 
-          {/* S2 Top-Right Action Icons: Bell, Map, Calendar */}
+          {/* Top-Right Action Icons: Bell, Map, Calendar */}
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => setShowNotificationsModal(true)}
               className="relative p-1.5 bg-[#F0F6FD] hover:bg-[#1E6FD9] hover:text-white text-black border border-black/20 rounded transition-colors"
-              title="Notifications (Wireframe S7)"
+              title="Notifications"
             >
-              <IconBell size={14} />
+              <IconBell size={16} />
               {unreadNotifsCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-[#1E6FD9] text-white text-[8px] font-bold rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#1E6FD9] text-white text-[9px] font-bold rounded-full flex items-center justify-center">
                   {unreadNotifsCount}
                 </span>
               )}
@@ -199,17 +199,17 @@ export function StaffTasksView() {
             <button
               onClick={() => setShowMapModal(true)}
               className="p-1.5 bg-[#F0F6FD] hover:bg-[#1E6FD9] hover:text-white text-black border border-black/20 rounded transition-colors"
-              title="Assigned Area Map (Wireframe S5)"
+              title="Assigned Area Map"
             >
-              <IconMapPin size={14} />
+              <IconMapPin size={16} />
             </button>
 
             <button
               onClick={() => setShowCalendarModal(true)}
               className="p-1.5 bg-[#F0F6FD] hover:bg-[#1E6FD9] hover:text-white text-black border border-black/20 rounded transition-colors"
-              title="Interruptions Calendar (Wireframe S6)"
+              title="Interruptions Calendar"
             >
-              <IconCalendar size={14} />
+              <IconCalendar size={16} />
             </button>
           </div>
         </div>
@@ -732,11 +732,7 @@ export function StaffTasksView() {
                 )}
               </div>
 
-              <div className="p-2 bg-[#F0F6FD] border border-black/10 rounded text-[9px] text-black/60 italic">
-                A cancelled task moves automatically from Active to History.
-              </div>
-
-              <div className="flex justify-end pt-1">
+              <div className="flex justify-end pt-2 border-t border-black/10">
                 <Button variant="ghost" onClick={() => setShowNotificationsModal(false)}>
                   Close
                 </Button>

@@ -197,11 +197,6 @@ export function AdminActivityLogView() {
           </div>
         </Card>
 
-        {/* Footnote matching Wireframe A12 */}
-        <p className="text-[9px] text-black/50 italic">
-          Read-only list. Matches View Activity Log.
-        </p>
-
         {/* Date Range Modal */}
         {showDateRangeModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">

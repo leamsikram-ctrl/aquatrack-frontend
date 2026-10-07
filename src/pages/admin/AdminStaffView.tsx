@@ -241,11 +241,6 @@ export function AdminStaffView() {
           </div>
         </Card>
 
-        {/* Footnote matching Wireframe A9 */}
-        <p className="text-[9px] text-black/50 italic">
-          Row opens a staff page: profile, current tasks, and field resolution history.
-        </p>
-
         {/* ------------------------------------------------------------- */}
         {/* Staff Detail Drawer / Modal */}
         {/* ------------------------------------------------------------- */}

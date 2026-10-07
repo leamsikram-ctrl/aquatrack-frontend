@@ -92,13 +92,13 @@ export function StaffScannerView() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/15 pb-4">
         <div>
-          <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">
-            {activeMode === 'placeholder' ? 'Scan meter' : 'Field Meter Scanner & Inspection'}
+          <h1 className="text-base font-bold text-black uppercase tracking-wider">
+            {activeMode === 'placeholder' ? 'Scan meter' : 'Meter Scanner & Inspection'}
           </h1>
-          <p className="text-[10px] text-black/60">
+          <p className="text-xs text-black/60">
             {activeMode === 'placeholder'
-              ? 'Web staff portal meter scanning placeholder (Wireframe S4).'
-              : 'Scan physical meter QR codes or enter meter serial numbers for instant on-site lookup and reading verification.'}
+              ? 'Meter scanning is managed via the mobile app.'
+              : 'Scan meter QR codes or enter meter serial numbers for instant lookup.'}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -106,17 +106,17 @@ export function StaffScannerView() {
           <div className="flex border border-black/20 rounded p-0.5 bg-[#F0F6FD]">
             <button
               onClick={() => setActiveMode('placeholder')}
-              className={`px-2.5 py-1 text-[10px] rounded transition-colors ${
+              className={`px-3 py-1 text-xs rounded transition-colors ${
                 activeMode === 'placeholder'
                   ? 'bg-[#1E6FD9] text-white font-bold'
                   : 'text-black hover:text-[#1E6FD9]'
               }`}
             >
-              Wireframe S4: Scan meter
+              Scan meter
             </button>
             <button
               onClick={() => setActiveMode('simulator')}
-              className={`px-2.5 py-1 text-[10px] rounded transition-colors ${
+              className={`px-3 py-1 text-xs rounded transition-colors ${
                 activeMode === 'simulator'
                   ? 'bg-[#1E6FD9] text-white font-bold'
                   : 'text-black hover:text-[#1E6FD9]'

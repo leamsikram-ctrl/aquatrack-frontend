@@ -455,11 +455,6 @@ export function AdminMapView() {
             </div>
           </div>
         )}
-
-        {/* Footnote matching Wireframe A6 */}
-        <p className="text-[9px] text-black/50 italic">
-          Customer locations come from registration. Marker opens a request summary with Assign staff. Hotspots is a layer toggle.
-        </p>
       </div>
     </AdminLayout>
   );

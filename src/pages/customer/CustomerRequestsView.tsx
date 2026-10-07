@@ -22,7 +22,7 @@ export function CustomerRequestsView() {
   const [issueTypes, setIssueTypes] = useState<IssueType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Wireframe C10: Report an issue Modal
+  // Report issue Modal
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [issueTypeId, setIssueTypeId] = useState<number>(1);
   const [customerUrgency, setCustomerUrgency] = useState<string>('needs_attention_soon');
@@ -32,10 +32,10 @@ export function CustomerRequestsView() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
 
-  // Wireframe C11 / C12: Request details drawer / modal
+  // Request details Modal
   const [selectedReq, setSelectedReq] = useState<ServiceRequest | null>(null);
 
-  // Wireframe C13: Cancel Confirmation Modal
+  // Cancel Confirmation Modal
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
   const [isCancelling, setIsCancelling] = useState(false);
@@ -135,26 +135,26 @@ export function CustomerRequestsView() {
 
   return (
     <CustomerLayout currentPath="/customer/requests" onNavigate={(path) => navigate(path)}>
-      <div className="max-w-xl mx-auto space-y-4 text-[10px] text-black">
-        {/* Wireframe C9 Header */}
-        <div className="border-b border-black/15 pb-2">
-          <h1 className="text-[12px] font-bold text-black uppercase tracking-wider">
+      <div className="max-w-xl mx-auto space-y-4">
+        {/* Header */}
+        <div className="pb-1">
+          <h1 className="text-base font-bold text-black uppercase tracking-wider">
             My requests
           </h1>
         </div>
 
-        {/* Wireframe C9 Button at top: [ Report an issue ] */}
+        {/* Button: Report an issue */}
         <Button
           variant="primary"
-          className="w-full justify-center py-2"
+          className="w-full justify-center py-2.5 text-sm"
           onClick={() => setShowCreateModal(true)}
         >
           Report an issue
         </Button>
 
-        {/* Wireframe C9 Requests Cards List */}
+        {/* Requests List */}
         {isLoading ? (
-          <Card className="p-4 border border-black/15 text-center text-black/60">
+          <Card className="p-4 border border-black/15 text-center text-black/60 text-xs">
             Loading service requests...
           </Card>
         ) : requests.length === 0 ? (
@@ -183,11 +183,10 @@ export function CustomerRequestsView() {
                 <Card
                   key={req.id}
                   onClick={() => setSelectedReq(req)}
-                  className="p-3.5 border border-black/15 bg-white space-y-2.5 cursor-pointer hover:border-[#1E6FD9] transition-colors"
+                  className="p-4 border border-black/15 bg-white space-y-2.5 cursor-pointer hover:border-[#1E6FD9] transition-colors"
                 >
-                  {/* Top row: Reference · Badge */}
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-black text-[10px]">
+                    <span className="font-bold text-black text-sm">
                       {refNo}
                     </span>
                     <Badge
@@ -207,25 +206,23 @@ export function CustomerRequestsView() {
                     </Badge>
                   </div>
 
-                  {/* Second row: Issue type · Date */}
-                  <div className="text-[10px] text-black/70">
+                  <div className="text-xs text-black/60">
                     {req.issue_type?.name || 'Water Service'} · {formattedDate}
                   </div>
 
-                  {/* Wireframe C9: 4-step progress bar on each card */}
                   {req.status !== 'cancelled' ? (
-                    <div className="space-y-1 pt-1">
-                      <div className="grid grid-cols-4 gap-1">
+                    <div className="space-y-1.5 pt-1">
+                      <div className="grid grid-cols-4 gap-1.5">
                         {[0, 1, 2, 3].map((step) => (
                           <div
                             key={step}
-                            className={`h-1.5 rounded-full ${
+                            className={`h-2 rounded-full ${
                               step <= stepIdx ? 'bg-[#1E6FD9]' : 'bg-black/15'
                             }`}
                           />
                         ))}
                       </div>
-                      <div className="grid grid-cols-4 text-center text-[8px] font-bold text-black/70">
+                      <div className="grid grid-cols-4 text-center text-[10px] font-bold text-black/70">
                         <span className={stepIdx >= 0 ? 'text-[#1E6FD9]' : ''}>
                           Submitted
                         </span>
@@ -241,7 +238,7 @@ export function CustomerRequestsView() {
                       </div>
                     </div>
                   ) : (
-                    <div className="text-[9px] text-black/60 italic">
+                    <div className="text-xs text-black/50 italic">
                       Request was cancelled.
                     </div>
                   )}
@@ -251,41 +248,35 @@ export function CustomerRequestsView() {
           </div>
         )}
 
-        {/* Wireframe C9 Footnote */}
-        <div className="pt-2 text-center text-[9px] text-black/50 italic border-t border-black/10">
-          Four-step bar on each card. Card tap opens request details.
-        </div>
-
-        {/* Wireframe C10: Report an issue Modal */}
+        {/* Report an issue Modal */}
         {showCreateModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-sm bg-white rounded-lg border border-black p-4 space-y-3.5 shadow-2xl text-[10px]">
+            <div className="w-full max-w-sm bg-white rounded-lg border border-black p-5 space-y-4 shadow-2xl">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
-                <span className="font-bold text-[11px] text-black uppercase tracking-wider">
+                <span className="font-bold text-sm text-black uppercase tracking-wider">
                   Report an issue
                 </span>
                 <button
                   onClick={() => setShowCreateModal(false)}
-                  className="text-black hover:text-[#1E6FD9] p-1 font-bold text-[11px]"
+                  className="text-black hover:text-[#1E6FD9] p-1 font-bold text-sm"
                 >
                   ✕
                 </button>
               </div>
 
               {createError && (
-                <div className="p-2 bg-[#F0F6FD] border border-black text-black rounded text-[9px]">
+                <div className="p-2 bg-[#F0F6FD] border border-black text-black rounded text-xs">
                   {createError}
                 </div>
               )}
 
               <form onSubmit={handleCreateRequest} className="space-y-3">
-                {/* Issue type */}
                 <div>
-                  <label className="block text-[9px] font-bold text-black/70 uppercase mb-1">
+                  <label className="block text-xs font-bold text-black/70 uppercase mb-1">
                     Issue type
                   </label>
                   <select
-                    className="w-full p-2 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+                    className="w-full p-2 text-xs bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
                     value={issueTypeId}
                     onChange={(e) => setIssueTypeId(Number(e.target.value))}
                   >
@@ -297,16 +288,15 @@ export function CustomerRequestsView() {
                   </select>
                 </div>
 
-                {/* How urgent is it for you? (Radio buttons) */}
                 <div>
-                  <label className="block text-[9px] font-bold text-black/70 uppercase mb-1.5">
-                    How urgent is it for you?
+                  <label className="block text-xs font-bold text-black/70 uppercase mb-1.5">
+                    Urgency level
                   </label>
-                  <div className="space-y-1.5 pl-0.5">
+                  <div className="space-y-1.5">
                     {[
                       { value: 'can_wait', label: 'Can wait' },
                       { value: 'needs_attention_soon', label: 'Needs attention soon' },
-                      { value: 'urgent', label: 'Urgent, affecting my household now' },
+                      { value: 'urgent', label: 'Urgent, affecting household now' },
                     ].map((opt) => (
                       <label key={opt.value} className="flex items-center gap-2 cursor-pointer">
                         <input
@@ -317,62 +307,58 @@ export function CustomerRequestsView() {
                           onChange={(e) => setCustomerUrgency(e.target.value)}
                           className="accent-[#1E6FD9]"
                         />
-                        <span className="text-[10px] text-black">{opt.label}</span>
+                        <span className="text-xs text-black">{opt.label}</span>
                       </label>
                     ))}
                   </div>
                 </div>
 
-                {/* Description */}
                 <div>
-                  <label className="block text-[9px] font-bold text-black/70 uppercase mb-1">
+                  <label className="block text-xs font-bold text-black/70 uppercase mb-1">
                     Description
                   </label>
                   <textarea
-                    placeholder="Describe the problem"
+                    placeholder="Describe the problem..."
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     rows={3}
-                    className="w-full p-2 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+                    className="w-full p-2 text-xs bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
                     required
                   />
                 </div>
 
-                {/* Location */}
                 <div className="space-y-1.5">
-                  <label className="block text-[9px] font-bold text-black/70 uppercase">
+                  <label className="block text-xs font-bold text-black/70 uppercase">
                     Location
                   </label>
                   <button
                     type="button"
                     onClick={() => setHasLocationPin(true)}
-                    className="w-full py-1.5 px-2 border border-black rounded text-[10px] font-bold flex items-center justify-center gap-1.5 hover:bg-[#F0F6FD]"
+                    className="w-full py-2 px-2 border border-black rounded text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-[#F0F6FD]"
                   >
-                    <IconCrosshair size={12} className="text-[#1E6FD9]" />
-                    {hasLocationPin ? 'GPS coordinates captured' : 'Use my location'}
+                    <IconCrosshair size={14} className="text-[#1E6FD9]" />
+                    {hasLocationPin ? 'GPS pin recorded' : 'Use my location'}
                   </button>
-                  <div className="h-16 border border-dashed border-black rounded flex items-center justify-center text-black/50 text-[9px] bg-[#F0F6FD]">
+                  <div className="h-14 border border-dashed border-black/40 rounded flex items-center justify-center text-black/50 text-xs bg-[#F0F6FD]">
                     {hasLocationPin
-                      ? '📍 Lat 8.2981, Lng 123.8374 (Barangay Poblacion)'
-                      : 'Map with draggable pin'}
+                      ? '📍 Lat 8.2981, Lng 123.8374 (Poblacion)'
+                      : 'Map pin will use your device location'}
                   </div>
                 </div>
 
-                {/* Add Photo Button */}
                 <div>
                   <button
                     type="button"
                     onClick={() => setPhotoAdded(!photoAdded)}
-                    className={`w-full py-1.5 px-2 border border-black rounded text-[10px] font-bold flex items-center justify-center gap-1.5 transition-colors ${
+                    className={`w-full py-2 px-2 border border-black rounded text-xs font-bold flex items-center justify-center gap-1.5 transition-colors ${
                       photoAdded ? 'bg-[#1E6FD9] text-white' : 'hover:bg-[#F0F6FD] text-black'
                     }`}
                   >
-                    <IconCamera size={12} />
+                    <IconCamera size={14} />
                     {photoAdded ? '📷 Evidence Photo Attached' : 'Add photo'}
                   </button>
                 </div>
 
-                {/* Action buttons */}
                 <div className="grid grid-cols-2 gap-2 pt-2 border-t border-black/15">
                   <Button
                     variant="secondary"
@@ -392,24 +378,18 @@ export function CustomerRequestsView() {
                   </Button>
                 </div>
               </form>
-
-              {/* Wireframe C10 Footnote */}
-              <div className="pt-1 text-center text-[8px] text-black/50 italic border-t border-black/10">
-                Customer chooses issue type and their own urgency. Final urgency follows the capped rule.
-              </div>
             </div>
           </div>
         )}
 
-        {/* Wireframe C11 / C12: Request details Modal */}
+        {/* Request details Modal */}
         {selectedReq && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-sm bg-white rounded-lg border border-black p-4 space-y-3.5 shadow-2xl text-[10px]">
-              {/* Header: ← AT-0000 · Status Badge */}
+            <div className="w-full max-w-sm bg-white rounded-lg border border-black p-5 space-y-4 shadow-2xl">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <button
                   onClick={() => setSelectedReq(null)}
-                  className="font-bold text-[11px] text-black hover:text-[#1E6FD9] flex items-center gap-1"
+                  className="font-bold text-sm text-black hover:text-[#1E6FD9] flex items-center gap-1"
                 >
                   ←{' '}
                   <span className="font-mono">
@@ -432,14 +412,13 @@ export function CustomerRequestsView() {
               </div>
 
               {/* 4-stage Vertical Timeline */}
-              <div className="space-y-2.5 py-1 px-1">
-                {/* Step 1: Submitted */}
-                <div className="flex items-center justify-between">
+              <div className="space-y-3 py-1">
+                <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
-                    <IconCircleCheck size={14} className="text-[#1E6FD9]" />
+                    <IconCircleCheck size={16} className="text-[#1E6FD9]" />
                     <span className="font-bold text-black">Submitted</span>
                   </div>
-                  <span className="text-black/60 text-[9px]">
+                  <span className="text-black/50">
                     {selectedReq.created_at
                       ? new Date(selectedReq.created_at).toLocaleDateString('en-US', {
                           month: 'short',
@@ -449,25 +428,24 @@ export function CustomerRequestsView() {
                   </span>
                 </div>
 
-                {/* Step 2: Assigned */}
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
                     {['assigned', 'in_progress', 'resolved'].includes(selectedReq.status) ? (
-                      <IconCircleCheck size={14} className="text-[#1E6FD9]" />
+                      <IconCircleCheck size={16} className="text-[#1E6FD9]" />
                     ) : (
-                      <IconClock size={14} className="text-black/30" />
+                      <IconClock size={16} className="text-black/30" />
                     )}
                     <span
                       className={`font-bold ${
                         ['assigned', 'in_progress', 'resolved'].includes(selectedReq.status)
                           ? 'text-black'
-                          : 'text-black/50'
+                          : 'text-black/40'
                       }`}
                     >
                       Assigned
                     </span>
                   </div>
-                  <span className="text-black/60 text-[9px]">
+                  <span className="text-black/50">
                     {['assigned', 'in_progress', 'resolved'].includes(selectedReq.status)
                       ? selectedReq.updated_at
                         ? new Date(selectedReq.updated_at).toLocaleDateString('en-US', {
@@ -479,94 +457,82 @@ export function CustomerRequestsView() {
                   </span>
                 </div>
 
-                {/* Step 3: In progress */}
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
                     {selectedReq.status === 'in_progress' ? (
-                      <IconTool size={14} className="text-[#1E6FD9]" />
+                      <IconTool size={16} className="text-[#1E6FD9]" />
                     ) : selectedReq.status === 'resolved' ? (
-                      <IconCircleCheck size={14} className="text-[#1E6FD9]" />
+                      <IconCircleCheck size={16} className="text-[#1E6FD9]" />
                     ) : (
-                      <IconClock size={14} className="text-black/30" />
+                      <IconClock size={16} className="text-black/30" />
                     )}
                     <span
                       className={`font-bold ${
                         ['in_progress', 'resolved'].includes(selectedReq.status)
                           ? 'text-black'
-                          : 'text-black/50'
+                          : 'text-black/40'
                       }`}
                     >
                       In progress
                     </span>
                   </div>
-                  <span className="text-black/60 text-[9px]">
+                  <span className="text-black/50">
                     {selectedReq.status === 'in_progress' || selectedReq.status === 'resolved'
                       ? 'Active'
                       : 'Pending'}
                   </span>
                 </div>
 
-                {/* Step 4: Resolved */}
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
                     {selectedReq.status === 'resolved' ? (
-                      <IconCheck size={14} className="text-[#1E6FD9]" />
+                      <IconCheck size={16} className="text-[#1E6FD9]" />
                     ) : (
-                      <IconClock size={14} className="text-black/30" />
+                      <IconClock size={16} className="text-black/30" />
                     )}
                     <span
                       className={`font-bold ${
-                        selectedReq.status === 'resolved' ? 'text-black' : 'text-black/50'
+                        selectedReq.status === 'resolved' ? 'text-black' : 'text-black/40'
                       }`}
                     >
                       Resolved
                     </span>
                   </div>
-                  <span className="text-black/60 text-[9px]">
+                  <span className="text-black/50">
                     {selectedReq.status === 'resolved' ? 'Completed' : 'Pending'}
                   </span>
                 </div>
               </div>
 
               {/* Details Card */}
-              <Card className="p-3 border border-black/15 bg-[#F0F6FD] space-y-1">
-                <div className="text-[9px] uppercase tracking-wider font-bold text-black/60">
+              <Card className="p-3.5 border border-black/15 bg-[#F0F6FD] space-y-1">
+                <div className="text-xs uppercase tracking-wider font-bold text-black/50">
                   Details
                 </div>
-                <div className="text-[10px] font-bold text-black">
-                  {selectedReq.issue_type?.name || 'Water Service Issue'} · Barangay Poblacion
+                <div className="text-xs font-bold text-black">
+                  {selectedReq.issue_type?.name || 'Water Service'} · Barangay Poblacion
                 </div>
-                <div className="text-[9px] text-black/70">
+                <div className="text-xs text-black/70">
                   {selectedReq.description}
                 </div>
               </Card>
 
-              {/* Action / Warning Area */}
+              {/* Action Buttons */}
               {canCancel(selectedReq.status) ? (
-                // Wireframe C11: [ Cancel request ] button active
                 <div className="pt-2">
                   <button
                     onClick={() => setShowCancelModal(true)}
-                    className="w-full py-2 border border-black text-black hover:bg-[#F0F6FD] hover:text-[#1E6FD9] rounded font-bold text-[10px] transition-colors"
+                    className="w-full py-2 border border-black text-black hover:bg-[#F0F6FD] hover:text-[#1E6FD9] rounded font-bold text-xs transition-colors"
                   >
                     Cancel request
                   </button>
-                  <div className="text-center text-[8px] text-black/50 italic mt-1.5">
-                    Cancel is available while Submitted or Assigned.
-                  </div>
                 </div>
               ) : selectedReq.status === 'in_progress' ? (
-                // Wireframe C12: Notice when in progress
-                <div className="pt-1 text-center space-y-1">
-                  <div className="p-2 border border-black/20 rounded bg-white text-[9px] text-black/80 font-medium">
-                    This repair has already started. Contact SIWASS if anything has changed.
-                  </div>
-                  <div className="text-[8px] text-black/50 italic">
-                    Cancel is locked once work has started.
-                  </div>
+                <div className="p-2.5 border border-black/20 rounded bg-white text-xs text-black/80 text-center">
+                  This repair has already started. Contact SIWASS if anything has changed.
                 </div>
               ) : (
-                <div className="pt-2 text-right">
+                <div className="pt-2">
                   <Button
                     variant="secondary"
                     className="w-full justify-center"
@@ -580,29 +546,29 @@ export function CustomerRequestsView() {
           </div>
         )}
 
-        {/* Wireframe C13: Cancel Confirmation Modal */}
+        {/* Cancel Confirmation Modal */}
         {showCancelModal && selectedReq && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-xs bg-white rounded-lg border border-black p-4 space-y-3 shadow-2xl text-[10px]">
+            <div className="w-full max-w-xs bg-white rounded-lg border border-black p-5 space-y-3.5 shadow-2xl">
               <div className="text-left space-y-1">
-                <h3 className="font-bold text-[11px] text-black">
+                <h3 className="font-bold text-sm text-black">
                   Cancel {selectedReq.reference_no || selectedReq.reference || `AT-2026-${selectedReq.id}`}?
                 </h3>
-                <p className="text-[9px] text-black/70 leading-relaxed">
+                <p className="text-xs text-black/70 leading-relaxed">
                   The assigned technician will be notified and the request will be closed.
                 </p>
               </div>
 
               <div>
-                <label className="block text-[9px] font-bold text-black/70 uppercase mb-1">
+                <label className="block text-xs font-bold text-black/70 uppercase mb-1">
                   Reason (optional)
                 </label>
                 <input
                   type="text"
-                  placeholder="Tell us why"
+                  placeholder="Tell us why..."
                   value={cancelReason}
                   onChange={(e) => setCancelReason(e.target.value)}
-                  className="w-full p-2 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+                  className="w-full p-2 text-xs bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
                 />
               </div>
 
@@ -620,12 +586,8 @@ export function CustomerRequestsView() {
                   isLoading={isCancelling}
                   className="justify-center"
                 >
-                  Cancel request
+                  Confirm Cancel
                 </Button>
-              </div>
-
-              <div className="text-center text-[8px] text-black/50 italic pt-1 border-t border-black/10">
-                States what will happen. Reason is optional.
               </div>
             </div>
           </div>

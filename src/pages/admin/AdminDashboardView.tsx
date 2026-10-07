@@ -282,11 +282,6 @@ export function AdminDashboardView() {
             </table>
           </div>
         </Card>
-
-        {/* Footnote matching Wireframe A1 */}
-        <p className="text-[9px] text-black/50 italic pt-1">
-          Order of content: what is happening (counts), what needs attention, then recent requests. Shared shell for every Admin page: sidebar, topbar, page header, toast confirmations, empty, loading and error states.
-        </p>
       </div>
     </AdminLayout>
   );

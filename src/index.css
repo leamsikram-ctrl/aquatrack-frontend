@@ -13,14 +13,14 @@
   --color-brand-white: #FFFFFF;
   --color-brand-black: #000000;
 
-  /* Uniform Single Font: Inter */
+  /* Single Clean Font: Inter */
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 :root {
   font-family: var(--font-sans);
-  font-size: 10px; /* Uniform 10px base font size */
-  line-height: 1.4;
+  font-size: 13px; /* Clean, legible base font size */
+  line-height: 1.5;
   color: #000000;
   background-color: #FFFFFF;
 }
@@ -31,14 +31,13 @@ body {
   color: #000000;
   background-color: #FFFFFF;
   font-family: var(--font-sans);
-  font-size: 10px;
+  font-size: 13px;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Ensure all form controls, headers, buttons share the exact same uniform 10px font */
-*, button, input, select, textarea, h1, h2, h3, h4, h5, h6, p, span, th, td, label, a {
+/* Ensure clean font inheritance across all interactive controls */
+button, input, select, textarea {
   font-family: var(--font-sans);
-  font-size: 10px !important;
 }
 
 /* Subtle scrollbar using only black/white/blue tones */

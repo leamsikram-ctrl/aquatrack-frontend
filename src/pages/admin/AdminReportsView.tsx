@@ -272,11 +272,6 @@ export function AdminReportsView() {
             </div>
           </form>
         </Card>
-
-        {/* Footnote matching Wireframe A11 */}
-        <p className="text-[9px] text-black/50 italic">
-          Matches Generate Maintenance Reports on the Admin use case diagram.
-        </p>
       </div>
     </AdminLayout>
   );

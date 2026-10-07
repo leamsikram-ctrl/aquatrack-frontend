@@ -36,19 +36,19 @@ export function CustomerBillsView() {
 
   return (
     <CustomerLayout currentPath="/customer/bills" onNavigate={(path) => navigate(path)}>
-      <div className="max-w-xl mx-auto space-y-4 text-[10px] text-black">
-        {/* Wireframe C8 Header */}
-        <div className="border-b border-black/15 pb-2">
-          <h1 className="text-[12px] font-bold text-black uppercase tracking-wider">
+      <div className="max-w-xl mx-auto space-y-4">
+        {/* Header */}
+        <div className="pb-1">
+          <h1 className="text-base font-bold text-black uppercase tracking-wider">
             Bills
           </h1>
         </div>
 
-        {/* Wireframe C8 Top Card: Current bill */}
+        {/* Top Card: Current bill */}
         {currentUnpaidBill ? (
           <Card className="p-4 border border-black/15 bg-white space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-[9px] uppercase font-bold text-black/60 tracking-wider">
+              <span className="text-xs uppercase font-bold text-black/50 tracking-wider">
                 Current bill
               </span>
               <Badge variant={currentUnpaidBill.payment_status === 'paid' ? 'blue' : 'black'}>
@@ -56,11 +56,11 @@ export function CustomerBillsView() {
               </Badge>
             </div>
 
-            <div className="text-xl font-bold text-black">
+            <div className="text-2xl font-bold text-black">
               ₱{Number(currentUnpaidBill.amount_paid || 350.0).toFixed(2)}
             </div>
 
-            <div className="text-[10px] text-black/70">
+            <div className="text-xs text-black/60">
               {currentUnpaidBill.billing_period || 'September 2026'} ·{' '}
               {currentUnpaidBill.due_date
                 ? `Due ${new Date(currentUnpaidBill.due_date).toLocaleDateString('en-US', {
@@ -76,24 +76,24 @@ export function CustomerBillsView() {
               className="w-full justify-center"
               onClick={() => setSelectedBill(currentUnpaidBill)}
             >
-              <IconReceipt size={12} className="inline mr-1" />
+              <IconReceipt size={14} className="inline mr-1.5" />
               View statement
             </Button>
           </Card>
         ) : (
-          <Card className="p-4 border border-black/15 text-center text-black/60">
+          <Card className="p-4 border border-black/15 text-center text-black/60 text-xs">
             No active outstanding billing statement.
           </Card>
         )}
 
-        {/* Wireframe C8 Section: Billing history */}
+        {/* Section: Billing history */}
         <div className="space-y-2 pt-2">
-          <div className="text-[9px] uppercase tracking-wider font-bold text-black/60">
+          <div className="text-xs uppercase tracking-wider font-bold text-black/50">
             Billing history
           </div>
 
           {isLoading ? (
-            <Card className="p-4 border border-black/15 text-center text-black/60">
+            <Card className="p-4 border border-black/15 text-center text-black/60 text-xs">
               Loading billing history...
             </Card>
           ) : billingHistory.length === 0 ? (
@@ -111,19 +111,19 @@ export function CustomerBillsView() {
                   <div
                     key={bill.id}
                     onClick={() => setSelectedBill(bill)}
-                    className="p-3 flex items-center justify-between hover:bg-[#F0F6FD] cursor-pointer transition-colors"
+                    className="p-3.5 flex items-center justify-between hover:bg-[#F0F6FD] cursor-pointer transition-colors"
                   >
                     <div>
-                      <div className="font-bold text-black text-[10px]">
+                      <div className="font-bold text-black text-xs">
                         {bill.billing_period}
                       </div>
-                      <div className="text-[9px] text-black/50">
+                      <div className="text-[11px] text-black/40 font-mono">
                         BILL-{bill.id.toString().padStart(5, '0')}
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <span className="font-bold text-black text-[10px]">
+                      <span className="font-bold text-black text-xs">
                         ₱{Number(bill.amount_paid || 0).toFixed(2)}
                       </span>
                       <Badge variant={isPaid ? 'blue' : 'black'}>
@@ -137,26 +137,20 @@ export function CustomerBillsView() {
           )}
         </div>
 
-        {/* Wireframe C8 Footnotes */}
-        <div className="space-y-1 pt-3 border-t border-black/10 text-center text-[9px] text-black/50 italic">
-          <div>Read-only. Status reflects published records.</div>
-          <div>Read-only. No consumption chart, per the manuscript scope.</div>
-        </div>
-
         {/* Statement Receipt Modal */}
         {selectedBill && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-md bg-white rounded-lg border border-black p-5 space-y-4 shadow-xl text-[10px]">
+            <div className="w-full max-w-md bg-white rounded-lg border border-black p-5 space-y-4 shadow-xl">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <div className="flex items-center gap-2">
-                  <IconReceipt size={14} className="text-[#1E6FD9]" />
-                  <span className="font-bold text-black uppercase tracking-wider">
+                  <IconReceipt size={16} className="text-[#1E6FD9]" />
+                  <span className="font-bold text-sm text-black uppercase tracking-wider">
                     Statement of Account
                   </span>
                 </div>
                 <button
                   onClick={() => setSelectedBill(null)}
-                  className="text-black hover:text-[#1E6FD9] p-1 font-bold"
+                  className="text-black hover:text-[#1E6FD9] p-1 font-bold text-sm"
                 >
                   ✕
                 </button>
@@ -164,16 +158,16 @@ export function CustomerBillsView() {
 
               <div className="border border-black p-4 rounded space-y-3 bg-[#F0F6FD]">
                 <div className="text-center border-b border-black/15 pb-2">
-                  <div className="font-bold text-black uppercase tracking-wider">
+                  <div className="font-bold text-black uppercase tracking-wider text-xs">
                     Municipality of Sinacaban
                   </div>
-                  <div className="text-black/60">Sinacaban Water Works System (SIWASS)</div>
-                  <div className="font-mono text-[#1E6FD9] mt-1 font-bold">
+                  <div className="text-black/60 text-xs">Sinacaban Water Works System (SIWASS)</div>
+                  <div className="font-mono text-[#1E6FD9] mt-1 font-bold text-xs">
                     BILL-{selectedBill.id.toString().padStart(5, '0')}
                   </div>
                 </div>
 
-                <div className="space-y-1.5 text-[10px]">
+                <div className="space-y-2 text-xs">
                   <div className="flex justify-between">
                     <span className="text-black/60">Billing Period:</span>
                     <strong className="text-black">{selectedBill.billing_period}</strong>
@@ -197,16 +191,12 @@ export function CustomerBillsView() {
                     </Badge>
                   </div>
                   <div className="flex justify-between items-baseline border-t border-black/15 pt-2">
-                    <span className="font-bold text-black uppercase">Total Amount Due:</span>
-                    <span className="font-bold text-black text-sm text-[#1E6FD9]">
+                    <span className="font-bold text-black uppercase">Total Due:</span>
+                    <span className="font-bold text-base text-[#1E6FD9]">
                       ₱{Number(selectedBill.amount_paid || 0).toFixed(2)}
                     </span>
                   </div>
                 </div>
-              </div>
-
-              <div className="text-[9px] text-black/60 italic text-center">
-                Payments can be settled in person at the Sinacaban Municipal Treasurer Office during office hours.
               </div>
 
               <div className="flex justify-end gap-2 pt-2 border-t border-black/15">
@@ -214,8 +204,8 @@ export function CustomerBillsView() {
                   variant="secondary"
                   onClick={() => window.print()}
                 >
-                  <IconPrinter size={12} className="inline mr-1" />
-                  Print Statement
+                  <IconPrinter size={14} className="inline mr-1" />
+                  Print
                 </Button>
                 <Button
                   variant="primary"

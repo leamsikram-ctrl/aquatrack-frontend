@@ -1,6 +1,13 @@
 import React from 'react';
 import { Topbar } from '../organisms/Topbar';
 import { BottomNav } from '../organisms/BottomNav';
+import {
+  IconHome,
+  IconReceipt,
+  IconTool,
+  IconVolume,
+  IconUser,
+} from '@tabler/icons-react';
 
 export interface CustomerLayoutProps {
   children: React.ReactNode;
@@ -17,11 +24,19 @@ export const CustomerLayout: React.FC<CustomerLayoutProps> = ({
   userName = 'Maria Santos',
   accountNumber = 'ACC-2026-0001',
 }) => {
+  const navItems = [
+    { name: 'Dashboard', path: '/customer/home', icon: IconHome },
+    { name: 'My Bills', path: '/customer/bills', icon: IconReceipt },
+    { name: 'Requests', path: '/customer/requests', icon: IconTool },
+    { name: 'Advisories', path: '/customer/advisories', icon: IconVolume },
+    { name: 'Profile', path: '/customer/profile', icon: IconUser },
+  ];
+
   return (
-    <div className="min-h-screen bg-white flex flex-col text-black text-[10px] pb-14 md:pb-4">
+    <div className="min-h-screen bg-white flex flex-col text-black pb-16 md:pb-4 text-[13px]">
       <Topbar
-        title="Consumer Portal"
-        subtitle={`Account: ${accountNumber}`}
+        title="Consumer"
+        subtitle={accountNumber}
         userName={userName}
         userRole="Consumer"
       />
@@ -29,29 +44,26 @@ export const CustomerLayout: React.FC<CustomerLayoutProps> = ({
       <div className="flex flex-1 max-w-5xl w-full mx-auto">
         {/* Desktop Sidebar (>= 768px) */}
         <aside className="hidden md:flex w-52 shrink-0 flex-col border-r border-black/15 bg-white p-3">
-          <div className="mb-3 px-2 text-[10px] font-bold text-black border-b border-black/10 pb-1 uppercase tracking-wider">
-            Consumer Services
+          <div className="mb-2 px-2 text-[11px] font-bold text-black/50 border-b border-black/10 pb-1 uppercase tracking-wider">
+            Consumer Menu
           </div>
           <nav className="space-y-1">
-            {[
-              { name: 'Dashboard Overview', path: '/customer/home' },
-              { name: 'My Water Bills', path: '/customer/bills' },
-              { name: 'Service Requests', path: '/customer/requests' },
-              { name: 'Interruption Advisories', path: '/customer/advisories' },
-              { name: 'Account Profile & Meter', path: '/customer/profile' },
-            ].map((item) => {
+            {navItems.map((item) => {
               const isActive = currentPath === item.path;
+              const IconComponent = item.icon;
+
               return (
                 <button
                   key={item.path}
                   onClick={() => onNavigate?.(item.path)}
-                  className={`w-full text-left px-2.5 py-1.5 rounded text-[10px] font-medium transition-colors ${
+                  className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded text-[12px] font-medium transition-colors text-left ${
                     isActive
                       ? 'bg-[#1E6FD9] text-white font-bold'
                       : 'text-black hover:bg-[#F0F6FD] hover:text-[#1E6FD9]'
                   }`}
                 >
-                  {item.name}
+                  <IconComponent size={16} className={isActive ? 'text-white' : 'text-black/70'} />
+                  <span>{item.name}</span>
                 </button>
               );
             })}
