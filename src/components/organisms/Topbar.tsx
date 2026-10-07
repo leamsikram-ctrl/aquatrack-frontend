@@ -3,6 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { IconLogout, IconBell } from '@tabler/icons-react';
 import { NotificationCenter } from './NotificationCenter';
+import { AquaTrackLogo } from '../atoms/AquaTrackLogo';
 
 export interface TopbarProps {
   title?: string;
@@ -59,10 +60,11 @@ export const Topbar: React.FC<TopbarProps> = ({
             </button>
           )}
 
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-7 px-2.5 items-center justify-center rounded bg-[#1E6FD9] text-white font-bold text-xs uppercase tracking-wider">
+          <div className="flex items-center gap-2">
+            <AquaTrackLogo size={24} variant="mark" />
+            <span className="font-bold text-xs uppercase tracking-wider text-black">
               AquaTrack
-            </div>
+            </span>
             {title && (
               <div className="flex items-center gap-1.5 text-black">
                 <span className="text-black/30">/</span>

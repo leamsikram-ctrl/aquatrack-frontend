@@ -3,7 +3,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { Card } from '../../components/atoms/Card';
 import { Button } from '../../components/atoms/Button';
-import { IconDroplet, IconAlertCircle, IconLock, IconMail, IconArrowLeft, IconPhone, IconCheck, IconKey } from '@tabler/icons-react';
+import { AquaTrackLogo } from '../../components/atoms/AquaTrackLogo';
+import { IconAlertCircle, IconLock, IconMail, IconArrowLeft, IconPhone, IconCheck, IconKey } from '@tabler/icons-react';
 
 export function LoginView() {
   const { login } = useAuth();
@@ -108,15 +109,13 @@ export function LoginView() {
     <div className="min-h-screen bg-white flex flex-col justify-between p-4 sm:p-6 text-black text-[10px]">
       {/* Top Banner */}
       <header className="flex items-center justify-between border-b border-black/15 pb-3">
-        <div className="flex items-center gap-2">
-          <div className="flex h-6 px-2 items-center justify-center rounded bg-[#1E6FD9] text-white font-bold text-[10px] uppercase tracking-wider">
-            AquaTrack
-          </div>
-          <span className="font-bold text-black uppercase tracking-wider">
+        <Link to="/" className="flex items-center gap-2 hover:opacity-90">
+          <AquaTrackLogo size={24} variant="mark" />
+          <span className="font-bold text-black uppercase tracking-wider text-[10px]">
             Sinacaban Water District (SIWASS)
           </span>
-        </div>
-        <div className="text-black/60 hidden sm:block">
+        </Link>
+        <div className="text-black/60 hidden sm:block text-[10px]">
           Official Municipal Public Utility Gateway
         </div>
       </header>
@@ -275,9 +274,9 @@ export function LoginView() {
           ) : (
             /* Wireframe C4: Standard Sign In */
             <>
-              <div className="text-center space-y-1">
-                <div className="w-10 h-10 rounded-full bg-[#F0F6FD] border border-black/20 flex items-center justify-center mx-auto text-[#1E6FD9]">
-                  <IconDroplet size={20} />
+              <div className="text-center space-y-2">
+                <div className="flex items-center justify-center mx-auto mb-1">
+                  <AquaTrackLogo size={42} variant="mark" />
                 </div>
                 <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">
                   Institutional Account Sign In

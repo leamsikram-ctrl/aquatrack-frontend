@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Card } from '../../components/atoms/Card';
 import { Button } from '../../components/atoms/Button';
 import { Badge } from '../../components/atoms/Badge';
+import { AquaTrackLogo } from '../../components/atoms/AquaTrackLogo';
 import { referenceApi } from '../../api';
 import type { Barangay } from '../../types';
 import {
@@ -119,9 +120,7 @@ export function LandingView() {
         <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14 h-16 flex items-center justify-between gap-6">
           {/* Logo & Municipal Identity */}
           <Link to="/" className="flex items-center gap-3 text-black hover:opacity-90">
-            <div className="h-8 px-3 flex items-center justify-center rounded-lg bg-[#1E6FD9] text-white font-bold tracking-wider uppercase text-[10px]">
-              AquaTrack
-            </div>
+            <AquaTrackLogo size={34} variant="mark" />
             <div className="flex flex-col leading-tight">
               <span className="font-bold uppercase tracking-wider text-black text-[10px]">
                 Sinacaban Water Works System
@@ -729,9 +728,7 @@ export function LandingView() {
         <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14 space-y-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-black/10 pb-6">
             <div className="flex items-center gap-2.5">
-              <div className="h-6 px-2 flex items-center justify-center rounded bg-[#1E6FD9] text-white font-bold tracking-wider uppercase text-[10px]">
-                AquaTrack
-              </div>
+              <AquaTrackLogo size={24} variant="mark" />
               <span className="font-bold uppercase tracking-wider text-black">
                 Sinacaban Water Works System (SIWASS)
               </span>
