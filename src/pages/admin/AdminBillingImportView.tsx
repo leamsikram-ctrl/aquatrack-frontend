@@ -102,10 +102,10 @@ export function AdminBillingImportView() {
       {/* View Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/10 pb-4">
         <div>
-          <h1 className="text-[10px] font-bold uppercase tracking-wider text-black">
+          <h1 className="text-[14px] font-bold uppercase tracking-wider text-black">
             Monthly Billing Batch CSV Import & Publishing
           </h1>
-          <p className="text-[10px] text-black/60">
+          <p className="text-[14px] text-black/60">
             Upload billing statements by account number with automated lock enforcement
           </p>
         </div>
@@ -139,7 +139,7 @@ export function AdminBillingImportView() {
             <span className="font-bold text-black block">
               {selectedFile ? selectedFile.name : 'Choose or drop a billing CSV file'}
             </span>
-            <span className="text-[10px] text-black/60 block">
+            <span className="text-[14px] text-black/60 block">
               Headers required: <code>account_number, billing_period, amount_due, due_date</code>
             </span>
           </div>
@@ -154,7 +154,7 @@ export function AdminBillingImportView() {
             />
             <label
               htmlFor="csvFileInput"
-              className="px-4 py-2 bg-white text-black border border-black/20 rounded-lg cursor-pointer hover:border-black font-bold text-[10px]"
+              className="px-4 py-2 bg-white text-black border border-black/20 rounded-lg cursor-pointer hover:border-black font-bold text-[14px]"
             >
               Select CSV File
             </label>
@@ -182,22 +182,22 @@ export function AdminBillingImportView() {
               <Badge variant="blue">COMPLETE</Badge>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px]">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[14px]">
               <div className="p-2 bg-[#F0F6FD] rounded border border-black/10">
                 <span className="text-black/60 block font-normal">Total Processed:</span>
-                <span className="font-bold text-black text-[10px]">{importSummary.total_rows}</span>
+                <span className="font-bold text-black text-[14px]">{importSummary.total_rows}</span>
               </div>
               <div className="p-2 bg-[#F0F6FD] rounded border border-black/10">
                 <span className="text-black/60 block font-normal">Newly Created:</span>
-                <span className="font-bold text-black text-[10px]">{importSummary.created}</span>
+                <span className="font-bold text-black text-[14px]">{importSummary.created}</span>
               </div>
               <div className="p-2 bg-[#F0F6FD] rounded border border-black/10">
                 <span className="text-black/60 block font-normal">Updated:</span>
-                <span className="font-bold text-black text-[10px]">{importSummary.updated}</span>
+                <span className="font-bold text-black text-[14px]">{importSummary.updated}</span>
               </div>
               <div className="p-2 bg-[#F0F6FD] rounded border border-black/10">
                 <span className="text-black/60 block font-normal">Rejected (Locked):</span>
-                <span className="font-bold text-black text-[10px]">{importSummary.rejected}</span>
+                <span className="font-bold text-black text-[14px]">{importSummary.rejected}</span>
               </div>
             </div>
 
@@ -207,7 +207,7 @@ export function AdminBillingImportView() {
                   <IconAlertCircle size={14} className="text-black" />
                   <span>Row Error & Publish Lock Logs:</span>
                 </div>
-                <div className="max-h-24 overflow-y-auto space-y-1 text-black/80 font-normal text-[10px]">
+                <div className="max-h-24 overflow-y-auto space-y-1 text-black/80 font-normal text-[14px]">
                   {importSummary.errors.map((err, i) => (
                     <div key={i}>• {err}</div>
                   ))}
@@ -221,7 +221,7 @@ export function AdminBillingImportView() {
       {/* Existing Billing Records Table */}
       <Card className="overflow-hidden border border-black/20">
         <div className="px-5 py-3 border-b border-black/10 flex items-center justify-between">
-          <span className="font-bold text-black uppercase tracking-wider text-[10px]">
+          <span className="font-bold text-black uppercase tracking-wider text-[14px]">
             Billing Statements Archive ({billings.length} records)
           </span>
           <Button variant="ghost" onClick={fetchBillings}>
@@ -242,7 +242,7 @@ export function AdminBillingImportView() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-[10px]">
+            <table className="w-full text-left text-[14px]">
               <thead className="bg-[#F0F6FD] border-b border-black/10 uppercase tracking-wider">
                 <tr>
                   <th className="px-4 py-2.5 font-bold text-black">Account #</th>

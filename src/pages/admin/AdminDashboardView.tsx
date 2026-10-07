@@ -59,10 +59,10 @@ export function AdminDashboardView() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/15 pb-3">
           <div>
-            <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">
+            <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
               Administrator Operations Overview
             </h1>
-            <p className="text-[10px] text-black/60">
+            <p className="text-[14px] text-black/60">
               Real-time operations, service requests, and utility statistics for Sinacaban (SIWASS).
             </p>
           </div>
@@ -108,7 +108,7 @@ export function AdminDashboardView() {
           {/* Needs attention card */}
           <Card className="p-4 border border-black/15 space-y-3">
             <div className="border-b border-black/10 pb-1.5 flex items-center justify-between">
-              <span className="font-bold text-black uppercase tracking-wider text-[10px]">
+              <span className="font-bold text-black uppercase tracking-wider text-[14px]">
                 Needs attention
               </span>
               <Badge variant="black">Action Required</Badge>
@@ -170,7 +170,7 @@ export function AdminDashboardView() {
           <Card className="p-4 border border-black/15 space-y-3 flex flex-col justify-between">
             <div className="space-y-3">
               <div className="border-b border-black/10 pb-1.5 flex items-center justify-between">
-                <span className="font-bold text-black uppercase tracking-wider text-[10px]">
+                <span className="font-bold text-black uppercase tracking-wider text-[14px]">
                   Upcoming interruptions
                 </span>
                 <Badge variant="blue">Advisories</Badge>
@@ -183,7 +183,7 @@ export function AdminDashboardView() {
                   </div>
                 ) : (
                   upcomingInterruptions.map((item) => (
-                    <div key={item.id} className="p-2 bg-white border border-black/15 rounded flex items-center justify-between text-[10px]">
+                    <div key={item.id} className="p-2 bg-white border border-black/15 rounded flex items-center justify-between text-[14px]">
                       <div>
                         <strong className="text-black block">
                           {item.barangays?.map((b) => b.name).join(', ') || 'Sinacaban Sector'}
@@ -202,7 +202,7 @@ export function AdminDashboardView() {
             <div className="pt-2 border-t border-black/10 flex justify-end">
               <button
                 onClick={() => navigate('/admin/interruptions')}
-                className="text-[#1E6FD9] font-bold text-[10px] hover:underline flex items-center gap-1"
+                className="text-[#1E6FD9] font-bold text-[14px] hover:underline flex items-center gap-1"
               >
                 <span>View schedule</span>
                 <IconArrowRight size={11} />
@@ -215,16 +215,16 @@ export function AdminDashboardView() {
         <Card className="p-0 overflow-hidden border border-black/15">
           <div className="px-4 py-2.5 border-b border-black/15 flex items-center justify-between bg-[#F0F6FD]">
             <div>
-              <div className="text-[10px] font-bold text-black uppercase tracking-wider">
+              <div className="text-[14px] font-bold text-black uppercase tracking-wider">
                 Recent Service Requests Feed
               </div>
-              <div className="text-[10px] text-black/60">Live feed from consumer submissions</div>
+              <div className="text-[14px] text-black/60">Live feed from consumer submissions</div>
             </div>
             <div className="flex items-center gap-2">
               <Badge variant="blue">{requests.length} Listed</Badge>
               <button
                 onClick={() => navigate('/admin/requests')}
-                className="text-[10px] font-bold text-[#1E6FD9] hover:underline flex items-center gap-0.5"
+                className="text-[14px] font-bold text-[#1E6FD9] hover:underline flex items-center gap-0.5"
               >
                 View Full Dispatcher <IconArrowRight size={10} />
               </button>
@@ -232,7 +232,7 @@ export function AdminDashboardView() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-[10px]">
+            <table className="w-full text-left text-[14px]">
               <thead className="bg-[#FFFFFF] text-black border-b border-black/15">
                 <tr>
                   <th className="px-4 py-2 font-bold uppercase">Reference</th>

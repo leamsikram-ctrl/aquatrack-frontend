@@ -97,14 +97,14 @@ export function AdminActivityLogView() {
 
   return (
     <AdminLayout currentPath="/admin/activity-log" onNavigate={(path) => navigate(path)}>
-      <div className="space-y-4 text-[10px] text-black">
+      <div className="space-y-4 text-[14px] text-black">
         {/* Wireframe A12 Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/15 pb-3">
           <div>
-            <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">
+            <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
               Activity Log
             </h1>
-            <p className="text-[10px] text-black/60">
+            <p className="text-[14px] text-black/60">
               Immutable institutional audit trail of dispatch orders, urgency overrides, and staff resolutions.
             </p>
           </div>
@@ -121,7 +121,7 @@ export function AdminActivityLogView() {
             <input
               type="text"
               placeholder="Search user, action, or request reference..."
-              className="w-full pl-8 pr-3 py-2 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+              className="w-full pl-8 pr-3 py-2 text-[14px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -132,7 +132,7 @@ export function AdminActivityLogView() {
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="p-2 bg-white border border-black rounded text-[10px] outline-none font-sans"
+              className="p-2 bg-white border border-black rounded text-[14px] outline-none font-sans"
             >
               <option value="all">Category ∨ (All)</option>
               <option value="assignment">Assignments</option>
@@ -156,7 +156,7 @@ export function AdminActivityLogView() {
         {/* Wireframe A12 Table: Time, User, Action */}
         <Card className="p-0 border border-black/15 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-[10px]">
+            <table className="w-full text-left text-[14px]">
               <thead className="bg-[#F0F6FD] text-black border-b border-black/15">
                 <tr>
                   <th className="px-4 py-2.5 font-bold uppercase tracking-wider w-40">Time</th>
@@ -202,12 +202,12 @@ export function AdminActivityLogView() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
             <div className="w-full max-w-sm bg-white rounded border border-black p-5 space-y-4 shadow-xl">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
-                <span className="font-bold text-black uppercase tracking-wider text-[10px]">
+                <span className="font-bold text-black uppercase tracking-wider text-[14px]">
                   Filter Activity Date Range
                 </span>
                 <button
                   onClick={() => setShowDateRangeModal(false)}
-                  className="text-black hover:text-[#1E6FD9] p-1 font-bold text-[10px]"
+                  className="text-black hover:text-[#1E6FD9] p-1 font-bold text-[14px]"
                 >
                   ✕
                 </button>
@@ -215,26 +215,26 @@ export function AdminActivityLogView() {
 
               <div className="space-y-3">
                 <div>
-                  <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
                     Start Date
                   </label>
                   <input
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-normal"
+                    className="w-full p-2 bg-white text-black border border-black rounded text-[14px] outline-none font-normal"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
                     End Date
                   </label>
                   <input
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-normal"
+                    className="w-full p-2 bg-white text-black border border-black rounded text-[14px] outline-none font-normal"
                   />
                 </div>
               </div>

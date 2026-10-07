@@ -12,7 +12,7 @@ export function AdminSettingsView() {
   const [activeTab, setActiveTab] = useState<'profile' | 'issue_types' | 'sms' | 'security'>('profile');
 
   // Wireframe A13: Utility Profile Form State
-  const [utilityName, setUtilityName] = useState('Sinacaban Water Works System (SIWASS)');
+  const [utilityName, setUtilityName] = useState('Sinacaban Water Supply System (SIWASS)');
   const [utilityAddress, setUtilityAddress] = useState('Municipal Hall, Poblacion, Sinacaban, Misamis Occidental');
   const [contactNumber, setContactNumber] = useState('0917 555 0199');
   const [profileSaved, setProfileSaved] = useState(false);
@@ -87,13 +87,13 @@ export function AdminSettingsView() {
 
   return (
     <AdminLayout currentPath="/admin/settings" onNavigate={(path) => navigate(path)}>
-      <div className="space-y-4 text-[10px] text-black">
+      <div className="space-y-4 text-[14px] text-black">
         {/* Header */}
         <div className="border-b border-black/15 pb-3">
-          <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">
+          <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
             System Settings & Configuration
           </h1>
-          <p className="text-[10px] text-black/60">
+          <p className="text-[14px] text-black/60">
             Institutional utility parameters, priority matrix rules, and communication templates.
           </p>
         </div>
@@ -102,7 +102,7 @@ export function AdminSettingsView() {
         <div className="flex border border-black/20 rounded p-0.5 bg-[#F0F6FD] max-w-2xl overflow-x-auto">
           <button
             onClick={() => setActiveTab('profile')}
-            className={`px-3 py-1.5 text-[10px] rounded transition-colors whitespace-nowrap flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 text-[14px] rounded transition-colors whitespace-nowrap flex items-center gap-1.5 ${
               activeTab === 'profile'
                 ? 'bg-[#1E6FD9] text-white font-bold'
                 : 'text-black hover:text-[#1E6FD9]'
@@ -114,7 +114,7 @@ export function AdminSettingsView() {
 
           <button
             onClick={() => setActiveTab('issue_types')}
-            className={`px-3 py-1.5 text-[10px] rounded transition-colors whitespace-nowrap flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 text-[14px] rounded transition-colors whitespace-nowrap flex items-center gap-1.5 ${
               activeTab === 'issue_types'
                 ? 'bg-[#1E6FD9] text-white font-bold'
                 : 'text-black hover:text-[#1E6FD9]'
@@ -126,7 +126,7 @@ export function AdminSettingsView() {
 
           <button
             onClick={() => setActiveTab('sms')}
-            className={`px-3 py-1.5 text-[10px] rounded transition-colors whitespace-nowrap flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 text-[14px] rounded transition-colors whitespace-nowrap flex items-center gap-1.5 ${
               activeTab === 'sms'
                 ? 'bg-[#1E6FD9] text-white font-bold'
                 : 'text-black hover:text-[#1E6FD9]'
@@ -138,7 +138,7 @@ export function AdminSettingsView() {
 
           <button
             onClick={() => setActiveTab('security')}
-            className={`px-3 py-1.5 text-[10px] rounded transition-colors whitespace-nowrap flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 text-[14px] rounded transition-colors whitespace-nowrap flex items-center gap-1.5 ${
               activeTab === 'security'
                 ? 'bg-[#1E6FD9] text-white font-bold'
                 : 'text-black hover:text-[#1E6FD9]'
@@ -155,16 +155,16 @@ export function AdminSettingsView() {
         {activeTab === 'profile' && (
           <Card className="p-5 border border-black/15 shadow-sm space-y-4 max-w-xl">
             <div className="border-b border-black/10 pb-2">
-              <h2 className="text-[10px] font-bold text-black uppercase tracking-wider">
+              <h2 className="text-[14px] font-bold text-black uppercase tracking-wider">
                 Utility Profile
               </h2>
-              <p className="text-[10px] text-black/60">
+              <p className="text-[14px] text-black/60">
                 Municipal identity appearing on consumer billing statements and public advisories.
               </p>
             </div>
 
             {profileSaved && (
-              <div className="p-2.5 bg-[#F0F6FD] border border-black rounded text-[10px] text-black flex items-center gap-2">
+              <div className="p-2.5 bg-[#F0F6FD] border border-black rounded text-[14px] text-black flex items-center gap-2">
                 <IconCheck size={14} className="text-[#1E6FD9] shrink-0" />
                 <span>Utility profile settings successfully saved!</span>
               </div>
@@ -172,12 +172,12 @@ export function AdminSettingsView() {
 
             <form onSubmit={handleSaveProfile} className="space-y-3">
               <div>
-                <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                <label className="block text-[14px] font-bold text-black uppercase mb-1">
                   Utility name
                 </label>
                 <input
                   type="text"
-                  className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none focus:border-[#1E6FD9]"
+                  className="w-full p-2 bg-white text-black border border-black rounded text-[14px] outline-none focus:border-[#1E6FD9]"
                   value={utilityName}
                   onChange={(e) => setUtilityName(e.target.value)}
                   required
@@ -185,12 +185,12 @@ export function AdminSettingsView() {
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                <label className="block text-[14px] font-bold text-black uppercase mb-1">
                   Address
                 </label>
                 <input
                   type="text"
-                  className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none focus:border-[#1E6FD9]"
+                  className="w-full p-2 bg-white text-black border border-black rounded text-[14px] outline-none focus:border-[#1E6FD9]"
                   value={utilityAddress}
                   onChange={(e) => setUtilityAddress(e.target.value)}
                   required
@@ -198,12 +198,12 @@ export function AdminSettingsView() {
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                <label className="block text-[14px] font-bold text-black uppercase mb-1">
                   Contact number
                 </label>
                 <input
                   type="text"
-                  className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-normal focus:border-[#1E6FD9]"
+                  className="w-full p-2 bg-white text-black border border-black rounded text-[14px] outline-none font-normal focus:border-[#1E6FD9]"
                   value={contactNumber}
                   onChange={(e) => setContactNumber(e.target.value)}
                   required
@@ -227,10 +227,10 @@ export function AdminSettingsView() {
             <Card className="p-5 border border-black/15 shadow-sm space-y-4">
               <div className="flex items-center justify-between border-b border-black/10 pb-2">
                 <div>
-                  <h2 className="text-[10px] font-bold text-black uppercase tracking-wider">
+                  <h2 className="text-[14px] font-bold text-black uppercase tracking-wider">
                     Configured Issue Categories & Priority Weights
                   </h2>
-                  <p className="text-[10px] text-black/60">
+                  <p className="text-[14px] text-black/60">
                     Defines the base urgency for incoming customer reports prior to priority engine evaluation.
                   </p>
                 </div>
@@ -245,7 +245,7 @@ export function AdminSettingsView() {
               </div>
 
               {issuesSaved && (
-                <div className="p-2.5 bg-[#F0F6FD] border border-black rounded text-[10px] text-black flex items-center gap-2">
+                <div className="p-2.5 bg-[#F0F6FD] border border-black rounded text-[14px] text-black flex items-center gap-2">
                   <IconCheck size={14} className="text-[#1E6FD9] shrink-0" />
                   <span>Issue type priority rules successfully updated!</span>
                 </div>
@@ -253,7 +253,7 @@ export function AdminSettingsView() {
 
               {/* Wireframe A14 Table: Issue type | Default urgency */}
               <div className="border border-black/15 rounded overflow-hidden">
-                <table className="w-full text-left text-[10px]">
+                <table className="w-full text-left text-[14px]">
                   <thead className="bg-[#F0F6FD] text-black border-b border-black/15">
                     <tr>
                       <th className="px-4 py-2.5 font-bold uppercase tracking-wider">Issue type</th>
@@ -270,7 +270,7 @@ export function AdminSettingsView() {
                           <select
                             value={it.default_urgency}
                             onChange={(e) => handleUrgencyChange(it.id, e.target.value as Urgency)}
-                            className="p-1 text-[10px] bg-white border border-black/20 rounded font-bold uppercase outline-none"
+                            className="p-1 text-[14px] bg-white border border-black/20 rounded font-bold uppercase outline-none"
                           >
                             <option value="high">HIGH</option>
                             <option value="medium">MEDIUM</option>
@@ -311,16 +311,16 @@ export function AdminSettingsView() {
         {activeTab === 'sms' && (
           <Card className="p-5 border border-black/15 shadow-sm space-y-4 max-w-xl">
             <div className="border-b border-black/10 pb-2">
-              <h2 className="text-[10px] font-bold text-black uppercase tracking-wider">
+              <h2 className="text-[14px] font-bold text-black uppercase tracking-wider">
                 SMS Gateway & Dispatch Triggers
               </h2>
-              <p className="text-[10px] text-black/60">
+              <p className="text-[14px] text-black/60">
                 Configures the municipal SMS broadcasting gateway for customer alerts.
               </p>
             </div>
 
             {smsSaved && (
-              <div className="p-2.5 bg-[#F0F6FD] border border-black rounded text-[10px] text-black flex items-center gap-2">
+              <div className="p-2.5 bg-[#F0F6FD] border border-black rounded text-[14px] text-black flex items-center gap-2">
                 <IconCheck size={14} className="text-[#1E6FD9] shrink-0" />
                 <span>SMS notification triggers saved!</span>
               </div>
@@ -328,12 +328,12 @@ export function AdminSettingsView() {
 
             <div className="space-y-3">
               <div>
-                <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                <label className="block text-[14px] font-bold text-black uppercase mb-1">
                   SMS Sender ID
                 </label>
                 <input
                   type="text"
-                  className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-normal"
+                  className="w-full p-2 bg-white text-black border border-black rounded text-[14px] outline-none font-normal"
                   value={smsSenderId}
                   onChange={(e) => setSmsSenderId(e.target.value)}
                 />
@@ -381,16 +381,16 @@ export function AdminSettingsView() {
         {activeTab === 'security' && (
           <Card className="p-5 border border-black/15 shadow-sm space-y-4 max-w-xl">
             <div className="border-b border-black/10 pb-2">
-              <h2 className="text-[10px] font-bold text-black uppercase tracking-wider">
+              <h2 className="text-[14px] font-bold text-black uppercase tracking-wider">
                 Institutional Security & Access
               </h2>
-              <p className="text-[10px] text-black/60">
+              <p className="text-[14px] text-black/60">
                 Administrative session settings and credentials.
               </p>
             </div>
 
             {securitySaved && (
-              <div className="p-2.5 bg-[#F0F6FD] border border-black rounded text-[10px] text-black flex items-center gap-2">
+              <div className="p-2.5 bg-[#F0F6FD] border border-black rounded text-[14px] text-black flex items-center gap-2">
                 <IconCheck size={14} className="text-[#1E6FD9] shrink-0" />
                 <span>Security configuration saved!</span>
               </div>
@@ -398,38 +398,38 @@ export function AdminSettingsView() {
 
             <div className="space-y-3">
               <div>
-                <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                <label className="block text-[14px] font-bold text-black uppercase mb-1">
                   Master Admin Email
                 </label>
                 <input
                   type="email"
-                  className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none"
+                  className="w-full p-2 bg-white text-black border border-black rounded text-[14px] outline-none"
                   value={adminEmail}
                   onChange={(e) => setAdminEmail(e.target.value)}
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                <label className="block text-[14px] font-bold text-black uppercase mb-1">
                   Current Password
                 </label>
                 <input
                   type="password"
                   placeholder="••••••••"
-                  className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none"
+                  className="w-full p-2 bg-white text-black border border-black rounded text-[14px] outline-none"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                <label className="block text-[14px] font-bold text-black uppercase mb-1">
                   New Master Password
                 </label>
                 <input
                   type="password"
                   placeholder="••••••••"
-                  className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none"
+                  className="w-full p-2 bg-white text-black border border-black rounded text-[14px] outline-none"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                 />
@@ -457,12 +457,12 @@ export function AdminSettingsView() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
             <div className="w-full max-w-sm bg-white rounded border border-black p-5 space-y-4 shadow-xl">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
-                <span className="font-bold text-black uppercase tracking-wider text-[10px]">
+                <span className="font-bold text-black uppercase tracking-wider text-[14px]">
                   Add Issue Category
                 </span>
                 <button
                   onClick={() => setShowAddIssueModal(false)}
-                  className="text-black hover:text-[#1E6FD9] p-1 font-bold text-[10px]"
+                  className="text-black hover:text-[#1E6FD9] p-1 font-bold text-[14px]"
                 >
                   ✕
                 </button>
@@ -470,13 +470,13 @@ export function AdminSettingsView() {
 
               <form onSubmit={handleAddIssueType} className="space-y-3">
                 <div>
-                  <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
                     Issue Category Name
                   </label>
                   <input
                     type="text"
                     placeholder="e.g. Pump Station Pressure Surge"
-                    className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none focus:border-[#1E6FD9]"
+                    className="w-full p-2 bg-white text-black border border-black rounded text-[14px] outline-none focus:border-[#1E6FD9]"
                     value={newIssueName}
                     onChange={(e) => setNewIssueName(e.target.value)}
                     required
@@ -484,11 +484,11 @@ export function AdminSettingsView() {
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
                     Default Urgency
                   </label>
                   <select
-                    className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none uppercase font-bold"
+                    className="w-full p-2 bg-white text-black border border-black rounded text-[14px] outline-none uppercase font-bold"
                     value={newIssueUrgency}
                     onChange={(e) => setNewIssueUrgency(e.target.value as Urgency)}
                   >

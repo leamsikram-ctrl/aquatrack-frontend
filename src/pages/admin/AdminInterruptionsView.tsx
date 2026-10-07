@@ -103,10 +103,10 @@ export function AdminInterruptionsView() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/15 pb-4">
         <div>
-          <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">
+          <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
             Water Service Interruption Advisories
           </h1>
-          <p className="text-[10px] text-black/60">
+          <p className="text-[14px] text-black/60">
             Publish and manage emergency maintenance notices, pipeline repairs, and low pressure schedules.
           </p>
         </div>
@@ -121,21 +121,21 @@ export function AdminInterruptionsView() {
       {/* Advisory Count Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card className="p-4 border border-black/15">
-          <div className="text-[10px] text-black/60 uppercase font-bold">Total Advisories</div>
-          <div className="text-[10px] font-bold text-black mt-1">{interruptions.length}</div>
-          <div className="text-[10px] text-black/50 mt-0.5">Recorded in municipal registry</div>
+          <div className="text-[14px] text-black/60 uppercase font-bold">Total Advisories</div>
+          <div className="text-[14px] font-bold text-black mt-1">{interruptions.length}</div>
+          <div className="text-[14px] text-black/50 mt-0.5">Recorded in municipal registry</div>
         </Card>
         <Card className="p-4 border border-black/15">
-          <div className="text-[10px] text-black/60 uppercase font-bold">Published & Live</div>
-          <div className="text-[10px] font-bold text-[#1E6FD9] mt-1">
+          <div className="text-[14px] text-black/60 uppercase font-bold">Published & Live</div>
+          <div className="text-[14px] font-bold text-[#1E6FD9] mt-1">
             {interruptions.filter((i) => i.is_published).length}
           </div>
-          <div className="text-[10px] text-black/50 mt-0.5">Broadcasted to consumer portal</div>
+          <div className="text-[14px] text-black/50 mt-0.5">Broadcasted to consumer portal</div>
         </Card>
         <Card className="p-4 border border-black/15">
-          <div className="text-[10px] text-black/60 uppercase font-bold">Active Barangays</div>
-          <div className="text-[10px] font-bold text-black mt-1">{barangays.length}</div>
-          <div className="text-[10px] text-black/50 mt-0.5">Sinacaban coverage zones</div>
+          <div className="text-[14px] text-black/60 uppercase font-bold">Active Barangays</div>
+          <div className="text-[14px] font-bold text-black mt-1">{barangays.length}</div>
+          <div className="text-[14px] text-black/50 mt-0.5">Sinacaban coverage zones</div>
         </Card>
       </div>
 
@@ -196,7 +196,7 @@ export function AdminInterruptionsView() {
                         {advisory.barangays.map((b) => (
                           <span
                             key={b.id}
-                            className="inline-block bg-white border border-black/20 text-black px-1.5 py-0.5 rounded text-[10px]"
+                            className="inline-block bg-white border border-black/20 text-black px-1.5 py-0.5 rounded text-[14px]"
                           >
                             {b.name}
                           </span>
@@ -233,18 +233,18 @@ export function AdminInterruptionsView() {
             </div>
 
             {createError && (
-              <div className="p-2.5 bg-[#F0F6FD] border border-black text-black rounded text-[10px]">
+              <div className="p-2.5 bg-[#F0F6FD] border border-black text-black rounded text-[14px]">
                 {createError}
               </div>
             )}
 
             <form onSubmit={handleCreateAdvisory} className="space-y-3">
               <div>
-                <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                <label className="block text-[14px] font-bold text-black uppercase mb-1">
                   Advisory Notice / Message
                 </label>
                 <textarea
-                  className="w-full p-2.5 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9] h-24"
+                  className="w-full p-2.5 text-[14px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9] h-24"
                   placeholder="e.g. Emergency pipeline repair along National Highway. Low water pressure or temporary cutoff expected."
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
@@ -254,24 +254,24 @@ export function AdminInterruptionsView() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
                     Interruption Start Time
                   </label>
                   <input
                     type="datetime-local"
-                    className="w-full p-2 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+                    className="w-full p-2 text-[14px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
                     value={startsAt}
                     onChange={(e) => setStartsAt(e.target.value)}
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
                     Expected Restoration Time
                   </label>
                   <input
                     type="datetime-local"
-                    className="w-full p-2 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+                    className="w-full p-2 text-[14px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
                     value={endsAt}
                     onChange={(e) => setEndsAt(e.target.value)}
                     required
@@ -281,13 +281,13 @@ export function AdminInterruptionsView() {
 
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="text-[10px] font-bold text-black uppercase">
+                  <label className="text-[14px] font-bold text-black uppercase">
                     Select Affected Barangays ({selectedBarangayIds.length} Selected)
                   </label>
                   <button
                     type="button"
                     onClick={handleSelectAllBarangays}
-                    className="text-[10px] text-[#1E6FD9] underline font-bold"
+                    className="text-[14px] text-[#1E6FD9] underline font-bold"
                   >
                     {selectedBarangayIds.length === barangays.length ? 'Deselect All' : 'Select All'}
                   </button>
@@ -298,7 +298,7 @@ export function AdminInterruptionsView() {
                     return (
                       <label
                         key={b.id}
-                        className={`flex items-center gap-1.5 p-1.5 rounded cursor-pointer border text-[10px] ${
+                        className={`flex items-center gap-1.5 p-1.5 rounded cursor-pointer border text-[14px] ${
                           isChecked
                             ? 'bg-[#1E6FD9] text-white border-black font-bold'
                             : 'bg-white text-black border-black/20 hover:border-black'

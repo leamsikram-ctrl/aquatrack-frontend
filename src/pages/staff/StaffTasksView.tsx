@@ -150,10 +150,10 @@ export function StaffTasksView() {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-black/15 pb-3">
           <div>
-            <h1 className="text-base font-bold text-black uppercase tracking-wider">
+            <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
               My tasks
             </h1>
-            <p className="text-xs text-black/60">
+            <p className="text-[14px] text-black/60 font-normal">
               Work orders and field repairs in Sinacaban
             </p>
           </div>
@@ -187,7 +187,7 @@ export function StaffTasksView() {
                 setActiveTab('active');
                 setStatusFilter('all');
               }}
-              className={`px-3 py-1 text-[10px] rounded transition-colors ${
+              className={`px-3 py-1 text-[14px] rounded transition-colors ${
                 activeTab === 'active'
                   ? 'bg-[#1E6FD9] text-white font-bold'
                   : 'text-black hover:text-[#1E6FD9]'
@@ -200,7 +200,7 @@ export function StaffTasksView() {
                 setActiveTab('history');
                 setStatusFilter('all');
               }}
-              className={`px-3 py-1 text-[10px] rounded transition-colors ${
+              className={`px-3 py-1 text-[14px] rounded transition-colors ${
                 activeTab === 'history'
                   ? 'bg-[#1E6FD9] text-white font-bold'
                   : 'text-black hover:text-[#1E6FD9]'
@@ -215,7 +215,7 @@ export function StaffTasksView() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-2 py-1 bg-white border border-black/20 rounded text-[10px] outline-none font-sans"
+              className="px-2 py-1 bg-white border border-black/20 rounded text-[14px] outline-none font-sans"
             >
               <option value="all">Status ∨ (All)</option>
               {activeTab === 'active' ? (
@@ -234,7 +234,7 @@ export function StaffTasksView() {
             <select
               value={sortUrgency}
               onChange={(e) => setSortUrgency(e.target.value as 'high_first' | 'newest')}
-              className="px-2 py-1 bg-white border border-black/20 rounded text-[10px] outline-none font-sans"
+              className="px-2 py-1 bg-white border border-black/20 rounded text-[14px] outline-none font-sans"
             >
               <option value="high_first">Sort: Urgency ∨</option>
               <option value="newest">Sort: Newest First</option>
@@ -271,7 +271,7 @@ export function StaffTasksView() {
                 >
                   {/* Top row: Reference & Urgency pill */}
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-black text-[10px] uppercase tracking-wider">
+                    <span className="font-bold text-black text-[14px] uppercase tracking-wider">
                       {refNo}
                     </span>
                     <Badge variant={task.urgency === 'high' ? 'black' : 'blue'}>
@@ -280,7 +280,7 @@ export function StaffTasksView() {
                   </div>
 
                   {/* Subtitle: Issue type · Barangay */}
-                  <div className="text-[10px] text-black">
+                  <div className="text-[14px] text-black">
                     <span className="font-bold">{issueName}</span>
                     <span className="text-black/50 mx-1.5">·</span>
                     <span className="text-black/70">{barangayName}</span>
@@ -300,7 +300,7 @@ export function StaffTasksView() {
                             handleStartTask(task.id);
                           }}
                           disabled={isStarting}
-                          className="px-3 py-1 bg-[#1E6FD9] text-white border border-[#1E6FD9] rounded font-bold text-[10px] hover:bg-black transition-colors"
+                          className="px-3 py-1 bg-[#1E6FD9] text-white border border-[#1E6FD9] rounded font-bold text-[14px] hover:bg-black transition-colors"
                         >
                           Get started
                         </button>
@@ -312,7 +312,7 @@ export function StaffTasksView() {
                             e.stopPropagation();
                             setSelectedTask(task);
                           }}
-                          className="px-3 py-1 bg-white text-[#1E6FD9] border border-[#1E6FD9] rounded font-bold text-[10px] hover:bg-[#F0F6FD] transition-colors"
+                          className="px-3 py-1 bg-white text-[#1E6FD9] border border-[#1E6FD9] rounded font-bold text-[14px] hover:bg-[#F0F6FD] transition-colors"
                         >
                           Resolve details
                         </button>
@@ -335,7 +335,7 @@ export function StaffTasksView() {
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <button
                   onClick={() => setSelectedTask(null)}
-                  className="p-1 hover:bg-[#F0F6FD] rounded text-black flex items-center gap-1 font-bold text-[10px]"
+                  className="p-1 hover:bg-[#F0F6FD] rounded text-black flex items-center gap-1 font-bold text-[14px]"
                 >
                   <IconArrowLeft size={14} />
                   <span>
@@ -348,7 +348,7 @@ export function StaffTasksView() {
               </div>
 
               {/* Card 1: Customer */}
-              <div className="p-3 bg-[#F0F6FD] border border-black/15 rounded space-y-1.5 text-[10px]">
+              <div className="p-3 bg-[#F0F6FD] border border-black/15 rounded space-y-1.5 text-[14px]">
                 <div className="flex items-center gap-1.5 font-bold text-black uppercase">
                   <IconUser size={12} className="text-[#1E6FD9]" />
                   <span>Customer Details</span>
@@ -372,7 +372,7 @@ export function StaffTasksView() {
               </div>
 
               {/* Card 2: Issue and urgency */}
-              <div className="p-3 bg-white border border-black/15 rounded space-y-1.5 text-[10px]">
+              <div className="p-3 bg-white border border-black/15 rounded space-y-1.5 text-[14px]">
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-black uppercase">Issue and Urgency</span>
                   <Badge variant={selectedTask.urgency === 'high' ? 'black' : 'blue'}>
@@ -390,7 +390,7 @@ export function StaffTasksView() {
               </div>
 
               {/* Card 3: Customer photo */}
-              <div className="p-3 bg-white border border-black/15 rounded space-y-2 text-[10px]">
+              <div className="p-3 bg-white border border-black/15 rounded space-y-2 text-[14px]">
                 <span className="font-bold text-black uppercase block">Customer Photo</span>
                 <div className="h-28 border border-dashed border-black/30 rounded flex flex-col items-center justify-center text-black/50 bg-[#F0F6FD]/40 space-y-1">
                   <IconPhoto size={24} className="text-black/40" />
@@ -402,7 +402,7 @@ export function StaffTasksView() {
               {selectedTask.status === 'assigned' && (
                 <div className="p-3 bg-[#F0F6FD] border border-black/15 rounded space-y-2">
                   <span className="font-bold text-black uppercase block">Task Ready to Begin</span>
-                  <p className="text-black/70 text-[10px]">
+                  <p className="text-black/70 text-[14px]">
                     This task is assigned to your shift. Click Get Started when you arrive on site.
                   </p>
                   <Button
@@ -422,13 +422,13 @@ export function StaffTasksView() {
                     Mark as resolved
                   </span>
                   <div>
-                    <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                    <label className="block text-[14px] font-bold text-black uppercase mb-1">
                       Resolution Remarks (Required)
                     </label>
                     <textarea
                       rows={3}
                       placeholder="e.g. Replaced 1-inch pipe fitting and tested household line pressure..."
-                      className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none focus:border-[#1E6FD9]"
+                      className="w-full p-2 bg-white text-black border border-black rounded text-[14px] outline-none focus:border-[#1E6FD9]"
                       value={remarks}
                       onChange={(e) => setRemarks(e.target.value)}
                     />
@@ -438,7 +438,7 @@ export function StaffTasksView() {
                     <button
                       type="button"
                       onClick={() => setEvidencePhotoAttached(!evidencePhotoAttached)}
-                      className={`px-3 py-1.5 border rounded text-[10px] font-bold flex items-center gap-1.5 transition-colors ${
+                      className={`px-3 py-1.5 border rounded text-[14px] font-bold flex items-center gap-1.5 transition-colors ${
                         evidencePhotoAttached
                           ? 'bg-[#1E6FD9] text-white border-[#1E6FD9]'
                           : 'bg-white text-black border-black/30 hover:bg-[#F0F6FD]'
@@ -499,7 +499,7 @@ export function StaffTasksView() {
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <button
                   onClick={() => setShowMapModal(false)}
-                  className="p-1 hover:bg-[#F0F6FD] rounded text-black flex items-center gap-1 font-bold text-[10px]"
+                  className="p-1 hover:bg-[#F0F6FD] rounded text-black flex items-center gap-1 font-bold text-[14px]"
                 >
                   <IconArrowLeft size={14} />
                   <span>Map</span>
@@ -510,7 +510,7 @@ export function StaffTasksView() {
               {/* Map Area */}
               <div className="border border-black/20 rounded overflow-hidden space-y-2 bg-[#F0F6FD]">
                 <div className="flex justify-between items-center p-2 bg-white border-b border-black/10">
-                  <span className="font-bold text-black uppercase text-[10px]">
+                  <span className="font-bold text-black uppercase text-[14px]">
                     Sinacaban Field Work Orders
                   </span>
                   <span className="text-[9px] text-black/70 bg-[#F0F6FD] px-2 py-0.5 border border-black/15 rounded font-bold">
@@ -532,7 +532,7 @@ export function StaffTasksView() {
                   const activeCardTask = selectedTask || filteredTasks[0];
                   if (!activeCardTask) {
                     return (
-                      <div className="p-2.5 bg-white border-t border-black/20 text-center text-black/60 text-[10px]">
+                      <div className="p-2.5 bg-white border-t border-black/20 text-center text-black/60 text-[14px]">
                         No active tasks currently mapped in this sector.
                       </div>
                     );
@@ -541,11 +541,11 @@ export function StaffTasksView() {
                   return (
                     <div className="p-2.5 bg-white border-t border-black/20 flex items-center justify-between">
                       <div>
-                        <strong className="text-black font-bold text-[10px]">
+                        <strong className="text-black font-bold text-[14px]">
                           {activeCardTask.reference_no || activeCardTask.reference || `AT-${activeCardTask.id}`}
                         </strong>
                         <span className="text-black/50 mx-1.5">·</span>
-                        <span className="text-black/70 text-[10px]">
+                        <span className="text-black/70 text-[14px]">
                           {activeCardTask.customer?.barangay || 'Poblacion'}
                         </span>
                         <div className="text-[9px] text-black/60 truncate max-w-xs">
@@ -586,7 +586,7 @@ export function StaffTasksView() {
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <button
                   onClick={() => setShowCalendarModal(false)}
-                  className="p-1 hover:bg-[#F0F6FD] rounded text-black flex items-center gap-1 font-bold text-[10px]"
+                  className="p-1 hover:bg-[#F0F6FD] rounded text-black flex items-center gap-1 font-bold text-[14px]"
                 >
                   <IconArrowLeft size={14} />
                   <span>Interruptions</span>

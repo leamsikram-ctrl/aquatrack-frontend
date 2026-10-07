@@ -36,10 +36,10 @@ export function CustomerBillsView() {
 
   return (
     <CustomerLayout currentPath="/customer/bills" onNavigate={(path) => navigate(path)}>
-      <div className="max-w-xl mx-auto space-y-4">
+      <div className="space-y-4">
         {/* Header */}
         <div className="pb-1">
-          <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">
+          <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
             Bills
           </h1>
         </div>
@@ -48,7 +48,7 @@ export function CustomerBillsView() {
         {currentUnpaidBill ? (
           <Card className="p-4 border border-black/15 bg-white space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] uppercase font-bold text-black/50 tracking-wider">
+              <span className="text-[14px] uppercase font-bold text-black/50 tracking-wider">
                 Current bill
               </span>
               <Badge variant={currentUnpaidBill.payment_status === 'paid' ? 'blue' : 'black'}>
@@ -56,11 +56,11 @@ export function CustomerBillsView() {
               </Badge>
             </div>
 
-            <div className="text-[10px] font-bold text-black">
+            <div className="text-[14px] font-bold text-black">
               ₱{Number(currentUnpaidBill.amount_paid || 350.0).toFixed(2)}
             </div>
 
-            <div className="text-[10px] text-black/60 font-normal">
+            <div className="text-[14px] text-black/60 font-normal">
               {currentUnpaidBill.billing_period || 'September 2026'} ·{' '}
               {currentUnpaidBill.due_date
                 ? `Due ${new Date(currentUnpaidBill.due_date).toLocaleDateString('en-US', {
@@ -81,19 +81,19 @@ export function CustomerBillsView() {
             </Button>
           </Card>
         ) : (
-          <Card className="p-4 border border-black/15 text-center text-black/60 text-[10px] font-normal">
+          <Card className="p-4 border border-black/15 text-center text-black/60 text-[14px] font-normal">
             No active outstanding billing statement.
           </Card>
         )}
 
         {/* Section: Billing history */}
         <div className="space-y-2 pt-2">
-          <div className="text-[10px] uppercase tracking-wider font-bold text-black/50">
+          <div className="text-[14px] uppercase tracking-wider font-bold text-black/50">
             Billing history
           </div>
 
           {isLoading ? (
-            <Card className="p-4 border border-black/15 text-center text-black/60 text-[10px] font-normal">
+            <Card className="p-4 border border-black/15 text-center text-black/60 text-[14px] font-normal">
               Loading billing history...
             </Card>
           ) : billingHistory.length === 0 ? (
@@ -114,16 +114,16 @@ export function CustomerBillsView() {
                     className="p-3.5 flex items-center justify-between hover:bg-[#F0F6FD] cursor-pointer transition-colors"
                   >
                     <div>
-                      <div className="font-bold text-black text-[10px]">
+                      <div className="font-bold text-black text-[14px]">
                         {bill.billing_period}
                       </div>
-                      <div className="text-[10px] text-black/40 font-normal">
+                      <div className="text-[14px] text-black/40 font-normal">
                         BILL-{bill.id.toString().padStart(5, '0')}
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <span className="font-bold text-black text-[10px]">
+                      <span className="font-bold text-black text-[14px]">
                         ₱{Number(bill.amount_paid || 0).toFixed(2)}
                       </span>
                       <Badge variant={isPaid ? 'blue' : 'black'}>
@@ -140,17 +140,17 @@ export function CustomerBillsView() {
         {/* Statement Receipt Modal */}
         {selectedBill && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-md bg-white rounded-lg border border-black p-5 space-y-4 shadow-xl text-[10px]">
+            <div className="w-full max-w-md bg-white rounded-lg border border-black p-5 space-y-4 shadow-xl text-[14px]">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <div className="flex items-center gap-2">
                   <IconReceipt size={16} className="text-[#1E6FD9]" />
-                  <span className="font-bold text-[10px] text-black uppercase tracking-wider">
+                  <span className="font-bold text-[14px] text-black uppercase tracking-wider">
                     Statement of Account
                   </span>
                 </div>
                 <button
                   onClick={() => setSelectedBill(null)}
-                  className="text-black hover:text-[#1E6FD9] p-1 font-bold text-[10px]"
+                  className="text-black hover:text-[#1E6FD9] p-1 font-bold text-[14px]"
                 >
                   ✕
                 </button>
@@ -158,16 +158,16 @@ export function CustomerBillsView() {
 
               <div className="border border-black p-4 rounded space-y-3 bg-[#F0F6FD]">
                 <div className="text-center border-b border-black/15 pb-2">
-                  <div className="font-bold text-black uppercase tracking-wider text-[10px]">
+                  <div className="font-bold text-black uppercase tracking-wider text-[14px]">
                     Municipality of Sinacaban
                   </div>
-                  <div className="text-black/60 text-[10px] font-normal">Sinacaban Water Works System (SIWASS)</div>
-                  <div className="text-[#1E6FD9] mt-1 font-bold text-[10px]">
+                  <div className="text-black/60 text-[14px] font-normal">Sinacaban Water Supply System (SIWASS)</div>
+                  <div className="text-[#1E6FD9] mt-1 font-bold text-[14px]">
                     BILL-{selectedBill.id.toString().padStart(5, '0')}
                   </div>
                 </div>
 
-                <div className="space-y-2 text-[10px]">
+                <div className="space-y-2 text-[14px]">
                   <div className="flex justify-between">
                     <span className="text-black/60 font-normal">Billing Period:</span>
                     <strong className="text-black font-bold">{selectedBill.billing_period}</strong>
@@ -192,7 +192,7 @@ export function CustomerBillsView() {
                   </div>
                   <div className="flex justify-between items-baseline border-t border-black/15 pt-2">
                     <span className="font-bold text-black uppercase">Total Due:</span>
-                    <span className="font-bold text-[10px] text-[#1E6FD9]">
+                    <span className="font-bold text-[14px] text-[#1E6FD9]">
                       ₱{Number(selectedBill.amount_paid || 0).toFixed(2)}
                     </span>
                   </div>

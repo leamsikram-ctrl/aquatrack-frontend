@@ -37,10 +37,10 @@ export function StaffHistoryView() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/15 pb-4">
         <div>
-          <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">
+          <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
             Completed Field Operations & Resolution Log
           </h1>
-          <p className="text-[10px] text-black/60">
+          <p className="text-[14px] text-black/60">
             Archive of resolved service requests, maintenance jobs, and field repairs conducted in Sinacaban.
           </p>
         </div>
@@ -52,26 +52,26 @@ export function StaffHistoryView() {
       {/* Summary KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card className="p-4 border-l-4 border-l-[#1E6FD9] border border-black/15">
-          <div className="text-[10px] text-black/60 uppercase font-bold">Total Resolved</div>
-          <div className="text-[10px] font-bold text-[#1E6FD9] mt-1">{completedTasks.length}</div>
-          <div className="text-[10px] text-black/50 mt-0.5">Verified on-site repairs</div>
+          <div className="text-[14px] text-black/60 uppercase font-bold">Total Resolved</div>
+          <div className="text-[14px] font-bold text-[#1E6FD9] mt-1">{completedTasks.length}</div>
+          <div className="text-[14px] text-black/50 mt-0.5">Verified on-site repairs</div>
         </Card>
         <Card className="p-4 border border-black/15">
-          <div className="text-[10px] text-black/60 uppercase font-bold">Standard Resolution Time</div>
-          <div className="text-[10px] font-bold text-black mt-1">&lt; 4 Hours</div>
-          <div className="text-[10px] text-black/50 mt-0.5">Average response SLA</div>
+          <div className="text-[14px] text-black/60 uppercase font-bold">Standard Resolution Time</div>
+          <div className="text-[14px] font-bold text-black mt-1">&lt; 4 Hours</div>
+          <div className="text-[14px] text-black/50 mt-0.5">Average response SLA</div>
         </Card>
         <Card className="p-4 border border-black/15">
-          <div className="text-[10px] text-black/60 uppercase font-bold">Customer Satisfaction</div>
-          <div className="text-[10px] font-bold text-black mt-1">100% Verified</div>
-          <div className="text-[10px] text-black/50 mt-0.5">No unresolved callbacks</div>
+          <div className="text-[14px] text-black/60 uppercase font-bold">Customer Satisfaction</div>
+          <div className="text-[14px] font-bold text-black mt-1">100% Verified</div>
+          <div className="text-[14px] text-black/50 mt-0.5">No unresolved callbacks</div>
         </Card>
       </div>
 
       {/* Tasks Table */}
       <Card className="p-0 overflow-hidden border border-black/15">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-[10px]">
+          <table className="w-full text-left text-[14px]">
             <thead className="bg-[#F0F6FD] text-black border-b border-black/15">
               <tr>
                 <th className="px-4 py-2.5 font-bold uppercase">Reference</th>
@@ -140,7 +140,7 @@ export function StaffHistoryView() {
             <div className="flex items-center justify-between border-b border-black/15 pb-2">
               <div className="flex items-center gap-2">
                 <IconCheck size={14} className="text-[#1E6FD9]" />
-                <span className="font-bold text-black uppercase tracking-wider text-[10px]">
+                <span className="font-bold text-black uppercase tracking-wider text-[14px]">
                   Resolution Report ({selectedTask.reference_no || selectedTask.reference})
                 </span>
               </div>
@@ -152,7 +152,7 @@ export function StaffHistoryView() {
               </button>
             </div>
 
-            <div className="space-y-3 bg-[#F0F6FD] p-3 rounded border border-black/10 text-[10px]">
+            <div className="space-y-3 bg-[#F0F6FD] p-3 rounded border border-black/10 text-[14px]">
               <div>
                 <span className="text-black/60 uppercase font-bold block">Original Problem:</span>
                 <p className="text-black bg-white p-2 rounded border border-black/15 mt-1">

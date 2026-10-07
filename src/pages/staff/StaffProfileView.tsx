@@ -81,39 +81,39 @@ export function StaffProfileView() {
 
   return (
     <StaffLayout currentPath="/staff/profile" onNavigate={(path) => navigate(path)}>
-      <div className="max-w-md mx-auto space-y-4">
+      <div className="space-y-4 max-w-xl">
         {/* Header */}
         <div className="pb-1">
-          <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">
+          <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
             Profile
           </h1>
         </div>
 
         {/* Card */}
-        <Card className="p-5 border border-black/15 shadow-sm space-y-4 bg-white text-[10px]">
+        <Card className="p-5 border border-black/15 shadow-sm space-y-4 bg-white text-[14px]">
           {isLoading ? (
-            <div className="py-8 text-center text-black/50 text-[10px] font-normal">
+            <div className="py-8 text-center text-black/50 text-[14px] font-normal">
               Loading staff credentials...
             </div>
           ) : (
             <>
               {/* Avatar + Name + Assigned Area */}
               <div className="flex items-center gap-3 border-b border-black/15 pb-4">
-                <div className="w-10 h-10 rounded-full bg-[#F0F6FD] border border-black/20 flex items-center justify-center text-[#1E6FD9] shrink-0 font-bold text-[10px]">
+                <div className="w-10 h-10 rounded-full bg-[#F0F6FD] border border-black/20 flex items-center justify-center text-[#1E6FD9] shrink-0 font-bold text-[14px]">
                   <IconUser size={20} />
                 </div>
                 <div>
-                  <h2 className="text-[10px] font-bold text-black uppercase tracking-wider">
+                  <h2 className="text-[14px] font-bold text-black uppercase tracking-wider">
                     {staffName}
                   </h2>
-                  <p className="text-[10px] text-black/60 font-normal">
+                  <p className="text-[14px] text-black/60 font-normal">
                     {assignedArea}
                   </p>
                 </div>
               </div>
 
               {/* Data rows */}
-              <div className="space-y-3 py-1 text-[10px]">
+              <div className="space-y-3 py-1 text-[14px]">
                 <div className="flex justify-between items-center border-b border-black/10 pb-2.5">
                   <span className="font-bold text-black">
                     Mobile
@@ -137,7 +137,7 @@ export function StaffProfileView() {
               <div className="pt-2 space-y-2">
                 <Button
                   variant="secondary"
-                  className="w-full justify-center py-2 text-[10px]"
+                  className="w-full justify-center py-2 text-[14px]"
                   onClick={() => setShowPasswordModal(true)}
                 >
                   Change password
@@ -146,7 +146,7 @@ export function StaffProfileView() {
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="w-full py-2 bg-white text-black hover:bg-[#F0F6FD] border border-black rounded text-[10px] font-bold uppercase transition-colors"
+                  className="w-full py-2 bg-white text-black hover:bg-[#F0F6FD] border border-black rounded text-[14px] font-bold uppercase transition-colors"
                 >
                   Log out
                 </button>
@@ -162,66 +162,66 @@ export function StaffProfileView() {
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <div className="flex items-center gap-2">
                   <IconLock size={16} className="text-[#1E6FD9]" />
-                  <span className="font-bold text-[10px] text-black uppercase tracking-wider">
+                  <span className="font-bold text-[14px] text-black uppercase tracking-wider">
                     Change Password
                   </span>
                 </div>
                 <button
                   onClick={() => setShowPasswordModal(false)}
-                  className="text-black hover:text-[#1E6FD9] p-1 font-bold text-[10px]"
+                  className="text-black hover:text-[#1E6FD9] p-1 font-bold text-[14px]"
                 >
                   ✕
                 </button>
               </div>
 
               {passwordSuccess && (
-                <div className="p-2.5 bg-[#F0F6FD] border border-black rounded text-[10px] text-black flex items-center gap-2">
+                <div className="p-2.5 bg-[#F0F6FD] border border-black rounded text-[14px] text-black flex items-center gap-2">
                   <IconCheck size={16} className="text-[#1E6FD9] shrink-0" />
                   <span>{passwordSuccess}</span>
                 </div>
               )}
 
               {passwordError && (
-                <div className="p-2.5 bg-red-50 border border-black text-[10px] text-black font-normal">
+                <div className="p-2.5 bg-red-50 border border-black text-[14px] text-black font-normal">
                   {passwordError}
                 </div>
               )}
 
               <form onSubmit={handleChangePassword} className="space-y-3">
                 <div>
-                  <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
                     Current Password
                   </label>
                   <input
                     type="password"
                     required
-                    className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-normal"
+                    className="w-full p-2 bg-white text-black border border-black rounded text-[14px] outline-none font-normal"
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
                     New Password
                   </label>
                   <input
                     type="password"
                     required
-                    className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-normal"
+                    className="w-full p-2 bg-white text-black border border-black rounded text-[14px] outline-none font-normal"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
                     Confirm New Password
                   </label>
                   <input
                     type="password"
                     required
-                    className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-normal"
+                    className="w-full p-2 bg-white text-black border border-black rounded text-[14px] outline-none font-normal"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                   />

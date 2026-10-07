@@ -144,9 +144,9 @@ export function MunicipalMap({
             }}
           >
             <Popup>
-              <div className="text-[11px] p-1 font-sans">
+              <div className="text-[14px] p-1 font-sans">
                 <strong className="block text-black font-bold">{h.label}</strong>
-                <span className="text-black/60">Radius: {h.radius}m · Municipal Sector</span>
+                <span className="text-black/60 font-normal">Radius: {h.radius}m · Municipal Sector</span>
               </div>
             </Popup>
           </Circle>
@@ -169,11 +169,11 @@ export function MunicipalMap({
               }}
             >
               <Popup>
-                <div className="text-[11px] p-1 font-sans space-y-1">
+                <div className="text-[14px] p-1 font-sans space-y-1">
                   <div className="font-bold text-black">{m.title}</div>
-                  {m.subtitle && <div className="text-black/70 text-[10px]">{m.subtitle}</div>}
+                  {m.subtitle && <div className="text-black/70 text-[14px] font-normal">{m.subtitle}</div>}
                   {m.status && (
-                    <div className="inline-block px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#F0F6FD] text-[#1E6FD9] border border-[#1E6FD9]/30">
+                    <div className="inline-block px-1.5 py-0.5 rounded text-[14px] font-bold bg-[#F0F6FD] text-[#1E6FD9] border border-[#1E6FD9]/30">
                       {m.status.toUpperCase()}
                     </div>
                   )}
@@ -199,9 +199,9 @@ export function MunicipalMap({
             }}
           >
             <Popup>
-              <div className="text-[11px] font-sans p-1">
-                <strong className="text-[#1E6FD9] block">Your Location Pin</strong>
-                <span className="text-black/80 font-mono text-[10px]">
+              <div className="text-[14px] font-sans p-1">
+                <strong className="text-[#1E6FD9] block font-bold">Your Location Pin</strong>
+                <span className="text-black/80 font-normal text-[14px]">
                   {selectedCoords[0].toFixed(5)}, {selectedCoords[1].toFixed(5)}
                 </span>
               </div>

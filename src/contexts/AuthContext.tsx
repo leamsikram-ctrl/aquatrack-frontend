@@ -9,6 +9,7 @@ interface AuthContextType {
   login: (credentials: { login: string; password: string }) => Promise<void>;
   logout: () => Promise<void>;
   setUser: (user: User | null) => void;
+  setSession: (token: string, user: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -44,6 +45,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(data.user);
   };
 
+  const setSession = (newToken: string, newUser: User) => {
+    localStorage.setItem('aquatrack_token', newToken);
+    setToken(newToken);
+    setUser(newUser);
+  };
+
   const logout = async () => {
     try {
       await authApi.logout();
@@ -57,7 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, logout, setUser }}>
+    <AuthContext.Provider value={{ user, token, isLoading, login, logout, setUser, setSession }}>
       {children}
     </AuthContext.Provider>
   );

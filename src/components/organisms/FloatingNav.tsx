@@ -45,9 +45,9 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({
             <IconDroplet size={15} />
           </div>
           <div className="flex items-center gap-2">
-            <span className="font-bold text-[10px] tracking-wider uppercase text-black">AquaTrack</span>
+            <span className="font-bold text-[14px] tracking-wider uppercase text-black">AquaTrack</span>
             <span className="text-black/30">/</span>
-            <span className="text-[10px] font-bold text-black/60 bg-[#F0F6FD] px-1.5 py-0.5 rounded border border-black/10">
+            <span className="text-[14px] font-bold text-black/60 bg-[#F0F6FD] px-1.5 py-0.5 rounded border border-black/10">
               SIWASS
             </span>
           </div>
@@ -63,7 +63,7 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({
               <button
                 key={item.path}
                 onClick={() => onNavigate?.(item.path)}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-[10px] font-bold transition-all
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-[14px] font-bold transition-all
                   ${
                     isActive
                       ? 'bg-white text-black shadow-xs'
@@ -82,12 +82,12 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({
         <div className="flex items-center gap-2">
           {/* Quick Command Palette Button */}
           <button
-            className="hidden sm:flex items-center gap-2 h-7 px-2.5 rounded border border-black/15 bg-white text-[10px] font-normal text-black/60 hover:bg-[#F0F6FD] transition-colors"
+            className="hidden sm:flex items-center gap-2 h-7 px-2.5 rounded border border-black/15 bg-white text-[14px] font-normal text-black/60 hover:bg-[#F0F6FD] transition-colors"
             onClick={() => alert('Command palette (Ctrl+K)')}
           >
             <IconSearch size={13} className="text-black/50" />
-            <span className="text-[10px] font-normal">Quick search...</span>
-            <kbd className="flex items-center gap-0.5 rounded bg-white px-1 py-0.5 text-[10px] font-bold text-black/60 border border-black/15">
+            <span className="text-[14px] font-normal">Quick search...</span>
+            <kbd className="flex items-center gap-0.5 rounded bg-white px-1 py-0.5 text-[14px] font-bold text-black/60 border border-black/15">
               <IconCommand size={10} /> K
             </kbd>
           </button>
@@ -104,10 +104,10 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({
 
           {/* User Profile Pill */}
           <div className="flex items-center gap-2 pl-1 cursor-pointer">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-black text-[10px] font-bold text-white">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-black text-[14px] font-bold text-white">
               AD
             </div>
-            <span className="hidden lg:inline text-[10px] font-bold text-black">Admin</span>
+            <span className="hidden lg:inline text-[14px] font-bold text-black">Admin</span>
           </div>
         </div>
       </div>
@@ -120,7 +120,7 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({
             <button
               key={item.path}
               onClick={() => onNavigate?.(item.path)}
-              className={`whitespace-nowrap px-2.5 py-1 rounded text-[10px] font-bold ${
+              className={`whitespace-nowrap px-2.5 py-1 rounded text-[14px] font-bold ${
                 isActive ? 'bg-[#1E6FD9] text-white' : 'text-black/70 hover:bg-[#F0F6FD]'
               }`}
             >

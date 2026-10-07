@@ -106,16 +106,17 @@ export function LoginView() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col justify-between p-4 sm:p-6 text-black text-[10px]">
-      {/* Top Banner */}
-      <header className="flex items-center justify-between border-b border-black/15 pb-3">
+    <div className="min-h-screen bg-white flex flex-col justify-between text-black text-[14px]">
+      <div className="max-w-[1440px] w-full mx-auto px-6 sm:px-10 lg:px-14 py-6 flex flex-col justify-between flex-1">
+        {/* Top Banner */}
+        <header className="flex items-center justify-between border-b border-black/15 pb-4">
         <Link to="/" className="flex items-center gap-2 hover:opacity-90">
           <AquaTrackLogo size={24} variant="mark" />
-          <span className="font-bold text-black uppercase tracking-wider text-[10px]">
+          <span className="font-bold text-black uppercase tracking-wider text-[14px]">
             Sinacaban Water District (SIWASS)
           </span>
         </Link>
-        <div className="text-black/60 hidden sm:block text-[10px]">
+        <div className="text-black/60 hidden sm:block text-[14px]">
           Official Municipal Public Utility Gateway
         </div>
       </header>
@@ -135,7 +136,7 @@ export function LoginView() {
                     setForgotError(null);
                     setForgotSuccess(null);
                   }}
-                  className="p-1 hover:bg-[#F0F6FD] rounded text-black flex items-center gap-1 font-bold text-[10px]"
+                  className="p-1 hover:bg-[#F0F6FD] rounded text-black flex items-center gap-1 font-bold text-[14px]"
                 >
                   <IconArrowLeft size={14} />
                   <span>Forgot password</span>
@@ -143,14 +144,14 @@ export function LoginView() {
               </div>
 
               {forgotSuccess && (
-                <div className="p-2.5 bg-[#F0F6FD] border border-black rounded text-[10px] text-black flex items-center gap-2">
+                <div className="p-2.5 bg-[#F0F6FD] border border-black rounded text-[14px] text-black flex items-center gap-2">
                   <IconCheck size={14} className="text-[#1E6FD9] shrink-0" />
                   <span>{forgotSuccess}</span>
                 </div>
               )}
 
               {forgotError && (
-                <div className="p-2.5 bg-[#F0F6FD] border border-black rounded text-[10px] text-black flex items-center gap-2">
+                <div className="p-2.5 bg-[#F0F6FD] border border-black rounded text-[14px] text-black flex items-center gap-2">
                   <IconAlertCircle size={14} className="text-[#1E6FD9] shrink-0" />
                   <span>{forgotError}</span>
                 </div>
@@ -158,19 +159,19 @@ export function LoginView() {
 
               {!resetSent ? (
                 <form onSubmit={handleSendResetCode} className="space-y-3">
-                  <p className="text-[10px] text-black leading-relaxed">
+                  <p className="text-[14px] text-black leading-relaxed">
                     Enter the mobile number on your account. A reset code will be sent by SMS.
                   </p>
 
                   <div>
-                    <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                    <label className="block text-[14px] font-bold text-black uppercase mb-1">
                       Mobile number
                     </label>
                     <div className="relative">
                       <input
                         type="tel"
                         placeholder="0917 123 4567"
-                        className="w-full pl-7 pr-3 py-2 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9] font-normal"
+                        className="w-full pl-7 pr-3 py-2 text-[14px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9] font-normal"
                         value={forgotMobile}
                         onChange={(e) => setForgotMobile(e.target.value)}
                         required
@@ -188,7 +189,7 @@ export function LoginView() {
                     Send reset code
                   </Button>
 
-                  <p className="text-[10px] text-black/60 italic text-center pt-1">
+                  <p className="text-[14px] text-black/60 italic text-center pt-1">
                     Next: enter the code, then set a new password.
                   </p>
 
@@ -204,13 +205,13 @@ export function LoginView() {
                 </form>
               ) : (
                 <form onSubmit={handleConfirmReset} className="space-y-3">
-                  <div className="p-2 bg-[#F0F6FD] border border-black/15 rounded text-[10px]">
+                  <div className="p-2 bg-[#F0F6FD] border border-black/15 rounded text-[14px]">
                     <span className="font-bold text-black block mb-0.5">SMS Reset Dispatched:</span>
                     <span>A 6-digit verification code has been sent to <strong>{forgotMobile}</strong>.</span>
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                    <label className="block text-[14px] font-bold text-black uppercase mb-1">
                       6-Digit SMS Code
                     </label>
                     <div className="relative">
@@ -218,7 +219,7 @@ export function LoginView() {
                         type="text"
                         placeholder="123456"
                         maxLength={6}
-                        className="w-full pl-7 pr-3 py-2 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9] tracking-widest font-bold"
+                        className="w-full pl-7 pr-3 py-2 text-[14px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9] tracking-widest font-bold"
                         value={resetCode}
                         onChange={(e) => setResetCode(e.target.value)}
                         required
@@ -228,14 +229,14 @@ export function LoginView() {
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                    <label className="block text-[14px] font-bold text-black uppercase mb-1">
                       New Password
                     </label>
                     <div className="relative">
                       <input
                         type="password"
                         placeholder="••••••••"
-                        className="w-full pl-7 pr-3 py-2 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+                        className="w-full pl-7 pr-3 py-2 text-[14px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         required
@@ -245,14 +246,14 @@ export function LoginView() {
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                    <label className="block text-[14px] font-bold text-black uppercase mb-1">
                       Confirm New Password
                     </label>
                     <div className="relative">
                       <input
                         type="password"
                         placeholder="••••••••"
-                        className="w-full pl-7 pr-3 py-2 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+                        className="w-full pl-7 pr-3 py-2 text-[14px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         required
@@ -278,16 +279,16 @@ export function LoginView() {
                 <div className="flex items-center justify-center mx-auto mb-1">
                   <AquaTrackLogo size={42} variant="mark" />
                 </div>
-                <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">
+                <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
                   Institutional Account Sign In
                 </h1>
-                <p className="text-[10px] text-black/60">
+                <p className="text-[14px] text-black/60">
                   Access your administrative, field technician, or consumer portal.
                 </p>
               </div>
 
               {errorMessage && (
-                <div className="p-2.5 bg-[#F0F6FD] border border-black rounded text-[10px] text-black flex items-center gap-2">
+                <div className="p-2.5 bg-[#F0F6FD] border border-black rounded text-[14px] text-black flex items-center gap-2">
                   <IconAlertCircle size={14} className="text-[#1E6FD9] shrink-0" />
                   <span>{errorMessage}</span>
                 </div>
@@ -295,14 +296,14 @@ export function LoginView() {
 
               <form onSubmit={handleSubmit} className="space-y-3">
                 <div>
-                  <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
                     Email or Account Number
                   </label>
                   <div className="relative">
                     <input
                       type="text"
                       placeholder="admin@siwass.gov or account number"
-                      className="w-full pl-7 pr-3 py-2 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+                      className="w-full pl-7 pr-3 py-2 text-[14px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
                       value={loginInput}
                       onChange={(e) => setLoginInput(e.target.value)}
                       required
@@ -312,14 +313,14 @@ export function LoginView() {
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
                     Password
                   </label>
                   <div className="relative">
                     <input
                       type="password"
                       placeholder="••••••••"
-                      className="w-full pl-7 pr-3 py-2 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+                      className="w-full pl-7 pr-3 py-2 text-[14px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
@@ -335,7 +336,7 @@ export function LoginView() {
                         setForgotError(null);
                         setForgotSuccess(null);
                       }}
-                      className="text-[10px] text-[#1E6FD9] hover:underline"
+                      className="text-[14px] text-[#1E6FD9] hover:underline"
                     >
                       Forgot password
                     </button>
@@ -354,28 +355,28 @@ export function LoginView() {
 
               {/* Quick Demo Pre-fills */}
               <div className="border-t border-black/15 pt-3 space-y-1.5">
-                <span className="text-[10px] font-bold text-black uppercase block text-center">
+                <span className="text-[14px] font-bold text-black uppercase block text-center">
                   Quick Live Demonstrations:
                 </span>
                 <div className="grid grid-cols-3 gap-1">
                   <button
                     type="button"
                     onClick={() => handleQuickDemoSelect('admin')}
-                    className="py-1 px-1 bg-[#F0F6FD] hover:bg-[#1E6FD9] hover:text-white text-black border border-black rounded text-[10px] font-bold transition-colors"
+                    className="py-1 px-1 bg-[#F0F6FD] hover:bg-[#1E6FD9] hover:text-white text-black border border-black rounded text-[14px] font-bold transition-colors"
                   >
                     Admin
                   </button>
                   <button
                     type="button"
                     onClick={() => handleQuickDemoSelect('staff')}
-                    className="py-1 px-1 bg-[#F0F6FD] hover:bg-[#1E6FD9] hover:text-white text-black border border-black rounded text-[10px] font-bold transition-colors"
+                    className="py-1 px-1 bg-[#F0F6FD] hover:bg-[#1E6FD9] hover:text-white text-black border border-black rounded text-[14px] font-bold transition-colors"
                   >
                     Staff
                   </button>
                   <button
                     type="button"
                     onClick={() => handleQuickDemoSelect('customer')}
-                    className="py-1 px-1 bg-[#F0F6FD] hover:bg-[#1E6FD9] hover:text-white text-black border border-black rounded text-[10px] font-bold transition-colors"
+                    className="py-1 px-1 bg-[#F0F6FD] hover:bg-[#1E6FD9] hover:text-white text-black border border-black rounded text-[14px] font-bold transition-colors"
                   >
                     Customer
                   </button>
@@ -397,10 +398,11 @@ export function LoginView() {
         </Card>
       </div>
 
-      {/* Footer */}
-      <footer className="border-t border-black/15 pt-3 text-center text-black/50 text-[10px]">
-        Sinacaban Water Works System (SIWASS) · Municipality of Sinacaban, Misamis Occidental
-      </footer>
+        {/* Footer */}
+        <footer className="border-t border-black/15 pt-4 text-center text-black/50 text-[14px]">
+          Sinacaban Water Supply System (SIWASS) · Municipality of Sinacaban, Misamis Occidental
+        </footer>
+      </div>
     </div>
   );
 }

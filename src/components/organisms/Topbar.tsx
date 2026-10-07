@@ -47,62 +47,64 @@ export const Topbar: React.FC<TopbarProps> = ({
   return (
     <>
       <header
-        className={`h-14 border-b border-black/15 bg-white px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 select-none text-[10px] ${className}`}
+        className={`h-14 border-b border-black/15 bg-white sticky top-0 z-30 select-none text-[14px] ${className}`}
       >
-        <div className="flex items-center gap-3">
-          {onToggleMobileMenu && (
-            <button
-              onClick={onToggleMobileMenu}
-              className="flex h-8 px-2.5 items-center justify-center rounded border border-black text-black hover:bg-[#F0F6FD] md:hidden text-[10px] font-bold"
-              aria-label="Toggle menu"
-            >
-              {isMobileMenuOpen ? '✕' : '☰'}
-            </button>
-          )}
-
-          <div className="flex items-center gap-2">
-            <AquaTrackLogo size={24} variant="mark" />
-            <span className="font-bold text-[10px] uppercase tracking-wider text-black">
-              AquaTrack
-            </span>
-            {title && (
-              <div className="flex items-center gap-1.5 text-black">
-                <span className="text-black/30">/</span>
-                <span className="font-bold text-[10px]">{title}</span>
-              </div>
+        <div className="max-w-[1440px] w-full mx-auto px-6 sm:px-10 lg:px-14 flex items-center justify-between h-full">
+          <div className="flex items-center gap-3">
+            {onToggleMobileMenu && (
+              <button
+                onClick={onToggleMobileMenu}
+                className="flex h-8 px-2.5 items-center justify-center rounded border border-black text-black hover:bg-[#F0F6FD] md:hidden text-[14px] font-bold"
+                aria-label="Toggle menu"
+              >
+                {isMobileMenuOpen ? '✕' : '☰'}
+              </button>
             )}
-            {subtitle && (
-              <span className="text-black/50 text-[10px] font-normal hidden sm:inline">
-                ({subtitle})
+
+            <div className="flex items-center gap-2">
+              <AquaTrackLogo size={24} variant="mark" />
+              <span className="font-bold text-[14px] uppercase tracking-wider text-black">
+                AquaTrack
               </span>
-            )}
+              {title && (
+                <div className="flex items-center gap-1.5 text-black">
+                  <span className="text-black/30">/</span>
+                  <span className="font-bold text-[14px]">{title}</span>
+                </div>
+              )}
+              {subtitle && (
+                <span className="text-black/50 text-[14px] font-normal hidden sm:inline">
+                  ({subtitle})
+                </span>
+              )}
+            </div>
           </div>
-        </div>
 
-        <div className="flex items-center gap-3">
-          <div className="text-right">
-            <div className="font-bold text-black text-[10px]">{displayName}</div>
-            <div className="text-black/60 text-[10px] font-normal">{displayRole}</div>
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <div className="font-bold text-black text-[14px]">{displayName}</div>
+              <div className="text-black/60 text-[14px] font-normal">{displayRole}</div>
+            </div>
+
+            {/* Bell Icon */}
+            <button
+              onClick={() => setShowNotifications(true)}
+              title="Notifications"
+              className="relative p-2 rounded border border-black text-black hover:bg-[#F0F6FD] hover:text-[#1E6FD9] transition-colors"
+            >
+              <IconBell size={16} />
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#1E6FD9] rounded-full border border-white" />
+            </button>
+
+            <button
+              onClick={handleLogout}
+              title="Sign Out"
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded border border-black text-black hover:bg-[#F0F6FD] hover:text-[#1E6FD9] text-[14px] font-bold transition-colors"
+            >
+              <IconLogout size={14} />
+              <span className="hidden sm:inline">Sign Out</span>
+            </button>
           </div>
-
-          {/* Bell Icon */}
-          <button
-            onClick={() => setShowNotifications(true)}
-            title="Notifications"
-            className="relative p-2 rounded border border-black text-black hover:bg-[#F0F6FD] hover:text-[#1E6FD9] transition-colors"
-          >
-            <IconBell size={16} />
-            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#1E6FD9] rounded-full border border-white" />
-          </button>
-
-          <button
-            onClick={handleLogout}
-            title="Sign Out"
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded border border-black text-black hover:bg-[#F0F6FD] hover:text-[#1E6FD9] text-[10px] font-bold transition-colors"
-          >
-            <IconLogout size={14} />
-            <span className="hidden sm:inline">Sign Out</span>
-          </button>
         </div>
       </header>
 

@@ -36,7 +36,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
   };
 
   return (
-    <div className="w-full text-[10px]">
+    <div className="w-full text-[14px]">
       <div className="grid grid-cols-4 gap-2">
         {steps.map((step, idx) => {
           const state = getStepState(step.key);
@@ -54,7 +54,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
                   }`}
                 />
                 <div
-                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[10px] font-bold ${
+                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[14px] font-bold ${
                     state === 'completed'
                       ? 'border-[#1E6FD9] bg-[#1E6FD9] text-white'
                       : state === 'current'
@@ -77,7 +77,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
 
               <div className="mt-2 text-center w-full">
                 <div
-                  className={`text-[10px] ${
+                  className={`text-[14px] ${
                     state === 'current'
                       ? 'font-bold text-[#1E6FD9]'
                       : state === 'completed'
@@ -88,7 +88,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
                   {step.label}
                 </div>
                 {step.timestamp && (
-                  <div className="text-[10px] font-normal text-black/70 mt-0.5">{step.timestamp}</div>
+                  <div className="text-[14px] font-normal text-black/70 mt-0.5">{step.timestamp}</div>
                 )}
               </div>
             </div>

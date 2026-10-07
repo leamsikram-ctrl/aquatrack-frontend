@@ -108,10 +108,10 @@ export function AdminVerificationView() {
       {/* View Header */}
       <div className="flex items-center justify-between border-b border-black/10 pb-4">
         <div>
-          <h1 className="text-[10px] font-bold uppercase tracking-wider text-black">
+          <h1 className="text-[14px] font-bold uppercase tracking-wider text-black">
             Customer Account Verification Queue
           </h1>
-          <p className="text-[10px] text-black/60">
+          <p className="text-[14px] text-black/60">
             Review self-registered applicants, link physical water meters, and authorize municipal service
           </p>
         </div>
@@ -145,7 +145,7 @@ export function AdminVerificationView() {
                   <Badge variant="outline">PENDING REVIEW</Badge>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-[10px]">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-[14px]">
                   <div>
                     <span className="font-bold text-black block">Contact Info:</span>
                     <span className="text-black/80">{user.mobile_number}</span>
@@ -207,7 +207,7 @@ export function AdminVerificationView() {
                 <h3 className="font-bold text-black uppercase tracking-wider">
                   Link Unassigned Meter & Verify Account
                 </h3>
-                <p className="text-[10px] text-black/60">
+                <p className="text-[14px] text-black/60">
                   Applicant:{' '}
                   <strong>
                     {selectedUserForVerify.customer_profile?.first_name}{' '}
@@ -231,13 +231,13 @@ export function AdminVerificationView() {
             ) : availableMeters.length === 0 ? (
               <div className="p-4 bg-white border border-black/20 rounded-lg space-y-2">
                 <span className="font-bold text-black block">No Unassigned Meters Found</span>
-                <p className="text-[10px] text-black/70">
+                <p className="text-[14px] text-black/70">
                   There are currently no meters in inventory with status <code>unassigned</code> for this barangay. Please add a new meter in the inventory before verifying this customer.
                 </p>
               </div>
             ) : (
               <div className="space-y-3">
-                <label className="block font-bold text-black uppercase tracking-wider text-[10px]">
+                <label className="block font-bold text-black uppercase tracking-wider text-[14px]">
                   Select Pre-Loaded Sinacaban Water Meter:
                 </label>
                 <div className="max-h-60 overflow-y-auto space-y-2 border border-black/10 rounded-lg p-2">
@@ -260,7 +260,7 @@ export function AdminVerificationView() {
                               {m.status.toUpperCase()}
                             </Badge>
                           </div>
-                          <div className={`text-[10px] ${isSelected ? 'text-white/80' : 'text-black/60'}`}>
+                          <div className={`text-[14px] ${isSelected ? 'text-white/80' : 'text-black/60'}`}>
                             Token: {m.qr_token.substring(0, 16)}...
                           </div>
                         </div>
@@ -270,7 +270,7 @@ export function AdminVerificationView() {
                   })}
                 </div>
 
-                <div className="p-3 bg-[#F0F6FD] border border-black/10 rounded-lg text-[10px] text-black/80 space-y-1">
+                <div className="p-3 bg-[#F0F6FD] border border-black/10 rounded-lg text-[14px] text-black/80 space-y-1">
                   <span className="font-bold text-black block">Automated Verification Actions:</span>
                   <ul className="list-disc pl-4 space-y-0.5">
                     <li>Generates permanent <strong>ACC-YYYY-####</strong> account number</li>
@@ -319,11 +319,11 @@ export function AdminVerificationView() {
             </div>
 
             <div className="space-y-2">
-              <label className="block font-bold text-black text-[10px]">
+              <label className="block font-bold text-black text-[14px]">
                 Reason for Rejection (Required):
               </label>
               <textarea
-                className="w-full p-2.5 text-[10px] text-black bg-white border border-black/20 rounded-lg outline-none focus:border-black"
+                className="w-full p-2.5 text-[14px] text-black bg-white border border-black/20 rounded-lg outline-none focus:border-black"
                 rows={3}
                 placeholder="e.g. Incomplete address verification or duplicate registration..."
                 value={declineRemarks}

@@ -96,19 +96,18 @@ export function LandingView() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-black font-sans text-[10px] flex flex-col selection:bg-[#F0F6FD] selection:text-[#1E6FD9]">
+    <div className="min-h-screen bg-white text-black font-sans text-[14px] flex flex-col selection:bg-[#F0F6FD] selection:text-[#1E6FD9]">
       {/* Top Session Ribbon (If Logged In) */}
       {user && (
         <div className="bg-[#1E6FD9] text-white px-6 sm:px-10 lg:px-14 py-2.5 flex items-center justify-between border-b border-black/10">
           <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
             <span className="font-bold">
               Active Session: {user.name || (user.customer_profile ? `${user.customer_profile.first_name} ${user.customer_profile.last_name}` : user.email || user.mobile_number)} ({user.role.toUpperCase()})
             </span>
           </div>
           <button
             onClick={() => navigate(getDashboardPath())}
-            className="font-bold underline uppercase tracking-wider hover:text-white/80 cursor-pointer text-[10px]"
+            className="font-bold underline uppercase tracking-wider hover:text-white/80 cursor-pointer text-[14px]"
           >
             Enter {user.role === 'admin' ? 'Admin' : user.role === 'staff' ? 'Staff' : 'Customer'} Dashboard →
           </button>
@@ -122,11 +121,11 @@ export function LandingView() {
           <Link to="/" className="flex items-center gap-3 text-black hover:opacity-90">
             <AquaTrackLogo size={34} variant="mark" />
             <div className="flex flex-col leading-tight">
-              <span className="font-bold uppercase tracking-wider text-black text-[10px]">
-                Sinacaban Water Works System
+              <span className="font-bold uppercase tracking-wider text-black text-[14px]">
+                Sinacaban Water Supply System
               </span>
-              <span className="text-black/60 font-normal text-[10px]">
-                SIWASS · Municipality of Sinacaban
+              <span className="text-black/60 font-normal text-[14px]">
+                SIWASS — Municipality of Sinacaban
               </span>
             </div>
           </Link>
@@ -153,12 +152,12 @@ export function LandingView() {
           {/* Action CTAs */}
           <div className="flex items-center gap-3">
             <Link to="/login">
-              <Button variant="secondary" className="h-9 px-4 text-[10px] font-bold">
+              <Button variant="secondary" className="h-9 px-4 text-[14px] font-bold">
                 Sign In
               </Button>
             </Link>
             <Link to="/register">
-              <Button variant="primary" className="h-9 px-4 text-[10px] font-bold">
+              <Button variant="primary" className="h-9 px-4 text-[14px] font-bold">
                 Register Household
               </Button>
             </Link>
@@ -171,18 +170,17 @@ export function LandingView() {
         <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14">
           <div className="max-w-4xl mx-auto text-center space-y-6">
             {/* Pill Tag */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#1E6FD9] bg-[#F0F6FD] text-[#1E6FD9] font-bold uppercase tracking-wider text-[10px]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#1E6FD9]" />
-              Official Municipal Public Utility Gateway · SIWASS
+            <div className="inline-flex items-center px-3.5 py-1.5 rounded-full border border-[#1E6FD9]/30 bg-[#F0F6FD] text-[#1E6FD9] font-bold uppercase tracking-wider text-xs">
+              Official Municipal Public Utility Gateway — SIWASS
             </div>
 
             {/* Main Centered Civic Headline */}
-            <h1 className="text-black font-bold uppercase tracking-tight text-[10px] leading-relaxed max-w-3xl mx-auto">
-              Sinacaban Municipal Water Works Management System
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold uppercase tracking-tight text-black leading-[1.08] max-w-4xl mx-auto">
+              Sinacaban Water Supply System
             </h1>
 
             {/* Single Concise Mission Description */}
-            <p className="text-black/70 font-normal leading-relaxed max-w-2xl mx-auto text-[10px]">
+            <p className="text-sm sm:text-base lg:text-lg text-black/70 font-normal leading-relaxed max-w-2xl mx-auto">
               Unified digital platform powering household water connections, rapid maintenance dispatch, and transparent billing across all 19 barangays.
             </p>
 
@@ -191,8 +189,8 @@ export function LandingView() {
               <Link to="/register">
                 <Button
                   variant="primary"
-                  className="h-11 px-6 text-[10px] font-bold rounded-lg shadow-xs"
-                  rightIcon={<IconArrowRight size={14} />}
+                  className="h-12 px-7 text-xs sm:text-sm font-bold rounded-lg shadow-xs"
+                  rightIcon={<IconArrowRight size={16} />}
                 >
                   Register Water Connection
                 </Button>
@@ -200,7 +198,7 @@ export function LandingView() {
               <Link to="/login">
                 <Button
                   variant="secondary"
-                  className="h-11 px-6 text-[10px] font-bold rounded-lg"
+                  className="h-12 px-7 text-xs sm:text-sm font-bold rounded-lg"
                 >
                   Institutional Sign In
                 </Button>
@@ -213,64 +211,64 @@ export function LandingView() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               {/* Metric 1 */}
               <Card className="p-5 sm:p-6 border-black/15 hover:border-[#1E6FD9] transition-all bg-white rounded-xl space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-black/60 font-bold uppercase tracking-wider text-[10px]">
-                    Municipal Reach
-                  </span>
-                  <span className="w-2 h-2 rounded-full bg-[#1E6FD9]" />
+                <span className="text-black/60 font-bold uppercase tracking-wider text-[14px] block">
+                  Municipal Reach
+                </span>
+                <div className="text-2xl sm:text-3xl font-bold text-black tracking-tight">
+                  19
                 </div>
-                <div className="text-black font-bold uppercase tracking-wider text-[10px]">
-                  19 Barangays Covered
+                <div className="text-black font-bold uppercase tracking-wider text-xs">
+                  Barangays Covered
                 </div>
-                <p className="text-black/70 font-normal leading-relaxed text-[10px]">
+                <p className="text-black/70 font-normal leading-relaxed text-xs">
                   Full distribution network servicing Poblacion and all surrounding rural zones.
                 </p>
               </Card>
 
               {/* Metric 2 */}
               <Card className="p-5 sm:p-6 border-black/15 hover:border-[#1E6FD9] transition-all bg-white rounded-xl space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-black/60 font-bold uppercase tracking-wider text-[10px]">
-                    Meter Management
-                  </span>
-                  <span className="w-2 h-2 rounded-full bg-[#1E6FD9]" />
+                <span className="text-black/60 font-bold uppercase tracking-wider text-[14px] block">
+                  Meter Management
+                </span>
+                <div className="text-2xl sm:text-3xl font-bold text-black tracking-tight">
+                  100%
                 </div>
-                <div className="text-black font-bold uppercase tracking-wider text-[10px]">
+                <div className="text-black font-bold uppercase tracking-wider text-xs">
                   Verified SIWASS Meters
                 </div>
-                <p className="text-black/70 font-normal leading-relaxed text-[10px]">
+                <p className="text-black/70 font-normal leading-relaxed text-xs">
                   Physical QR token-encoded municipal meter registry with official verification.
                 </p>
               </Card>
 
               {/* Metric 3 */}
               <Card className="p-5 sm:p-6 border-black/15 hover:border-[#1E6FD9] transition-all bg-white rounded-xl space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-black/60 font-bold uppercase tracking-wider text-[10px]">
-                    Field Maintenance
-                  </span>
-                  <span className="w-2 h-2 rounded-full bg-[#1E6FD9]" />
+                <span className="text-black/60 font-bold uppercase tracking-wider text-[14px] block">
+                  Field Maintenance
+                </span>
+                <div className="text-2xl sm:text-3xl font-bold text-black tracking-tight">
+                  24/7
                 </div>
-                <div className="text-black font-bold uppercase tracking-wider text-[10px]">
+                <div className="text-black font-bold uppercase tracking-wider text-xs">
                   Rapid Field Dispatch
                 </div>
-                <p className="text-black/70 font-normal leading-relaxed text-[10px]">
+                <p className="text-black/70 font-normal leading-relaxed text-xs">
                   Automated incident queue for burst pipes, low pressure, and urgent repairs.
                 </p>
               </Card>
 
               {/* Metric 4 */}
               <Card className="p-5 sm:p-6 border-black/15 hover:border-[#1E6FD9] transition-all bg-white rounded-xl space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-black/60 font-bold uppercase tracking-wider text-[10px]">
-                    Public Transparency
-                  </span>
-                  <span className="w-2 h-2 rounded-full bg-[#1E6FD9]" />
+                <span className="text-black/60 font-bold uppercase tracking-wider text-[14px] block">
+                  Public Transparency
+                </span>
+                <div className="text-2xl sm:text-3xl font-bold text-black tracking-tight">
+                  Live
                 </div>
-                <div className="text-black font-bold uppercase tracking-wider text-[10px]">
+                <div className="text-black font-bold uppercase tracking-wider text-xs">
                   Published Billing Ledger
                 </div>
-                <p className="text-black/70 font-normal leading-relaxed text-[10px]">
+                <p className="text-black/70 font-normal leading-relaxed text-xs">
                   Audited monthly statements with official municipal payment accountability.
                 </p>
               </Card>
@@ -283,119 +281,119 @@ export function LandingView() {
       <section id="services" className="py-20 sm:py-24 lg:py-28 border-b border-black/15 bg-white">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14 space-y-10">
           <div className="text-center max-w-2xl mx-auto space-y-2">
-            <span className="font-bold text-[#1E6FD9] uppercase tracking-wider block">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold uppercase tracking-tight text-black">
               Services
-            </span>
-            <h2 className="text-black font-bold uppercase tracking-wider text-[10px]">
-              Municipal Water Management
             </h2>
+            <p className="text-base sm:text-lg text-black/70 font-normal leading-relaxed">
+              Municipal Water Management & Citizen Public Utility Services
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {/* Service 1 */}
             <Card className="p-6 border-black/15 hover:border-[#1E6FD9] transition-all space-y-3 rounded-xl">
-              <div className="w-8 h-8 rounded-lg bg-[#1E6FD9] text-white flex items-center justify-center font-bold">
+              <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">
                 <IconUserCheck size={18} />
               </div>
-              <h3 className="font-bold text-black uppercase tracking-wider">
+              <h3 className="font-bold text-black uppercase tracking-wider text-base">
                 Household Registration
               </h3>
-              <p className="text-black/70 font-normal leading-relaxed">
+              <p className="text-black/70 font-normal leading-relaxed text-xs sm:text-sm">
                 2-step online self-registration with household pin location and SMS verification.
               </p>
               <div className="pt-2 border-t border-black/10">
-                <Link to="/register" className="font-bold text-[#1E6FD9] hover:underline flex items-center gap-1">
-                  Apply Online <IconArrowRight size={11} />
+                <Link to="/register" className="font-bold text-[#1E6FD9] hover:underline flex items-center gap-1 text-xs">
+                  Apply Online <IconArrowRight size={13} />
                 </Link>
               </div>
             </Card>
 
             {/* Service 2 */}
             <Card className="p-6 border-black/15 hover:border-[#1E6FD9] transition-all space-y-3 rounded-xl">
-              <div className="w-8 h-8 rounded-lg bg-[#1E6FD9] text-white flex items-center justify-center font-bold">
+              <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">
                 <IconTools size={18} />
               </div>
-              <h3 className="font-bold text-black uppercase tracking-wider">
+              <h3 className="font-bold text-black uppercase tracking-wider text-base">
                 Leak & Issue Dispatch
               </h3>
-              <p className="text-black/70 font-normal leading-relaxed">
+              <p className="text-black/70 font-normal leading-relaxed text-xs sm:text-sm">
                 Direct fault reporting for pipe bursts and pressure drops with automated technician dispatch.
               </p>
               <div className="pt-2 border-t border-black/10">
-                <Link to="/login" className="font-bold text-[#1E6FD9] hover:underline flex items-center gap-1">
-                  Report in Portal <IconArrowRight size={11} />
+                <Link to="/login" className="font-bold text-[#1E6FD9] hover:underline flex items-center gap-1 text-xs">
+                  Report in Portal <IconArrowRight size={13} />
                 </Link>
               </div>
             </Card>
 
             {/* Service 3 */}
             <Card className="p-6 border-black/15 hover:border-[#1E6FD9] transition-all space-y-3 rounded-xl">
-              <div className="w-8 h-8 rounded-lg bg-[#1E6FD9] text-white flex items-center justify-center font-bold">
+              <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">
                 <IconAlertTriangle size={18} />
               </div>
-              <h3 className="font-bold text-black uppercase tracking-wider">
+              <h3 className="font-bold text-black uppercase tracking-wider text-base">
                 Interruption Bulletins
               </h3>
-              <p className="text-black/70 font-normal leading-relaxed">
+              <p className="text-black/70 font-normal leading-relaxed text-xs sm:text-sm">
                 Live broadcasts of scheduled maintenance and emergency repair notices per barangay.
               </p>
               <div className="pt-2 border-t border-black/10">
-                <a href="#advisories" className="font-bold text-[#1E6FD9] hover:underline flex items-center gap-1">
-                  View Advisories <IconArrowRight size={11} />
+                <a href="#advisories" className="font-bold text-[#1E6FD9] hover:underline flex items-center gap-1 text-xs">
+                  View Advisories <IconArrowRight size={13} />
                 </a>
               </div>
             </Card>
 
             {/* Service 4 */}
             <Card className="p-6 border-black/15 hover:border-[#1E6FD9] transition-all space-y-3 rounded-xl">
-              <div className="w-8 h-8 rounded-lg bg-[#1E6FD9] text-white flex items-center justify-center font-bold">
+              <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">
                 <IconFileInvoice size={18} />
               </div>
-              <h3 className="font-bold text-black uppercase tracking-wider">
+              <h3 className="font-bold text-black uppercase tracking-wider text-base">
                 Monthly Water Bills
               </h3>
-              <p className="text-black/70 font-normal leading-relaxed">
+              <p className="text-black/70 font-normal leading-relaxed text-xs sm:text-sm">
                 Audited monthly billing statements with ledger records and printable official statements.
               </p>
               <div className="pt-2 border-t border-black/10">
-                <Link to="/login" className="font-bold text-[#1E6FD9] hover:underline flex items-center gap-1">
-                  View Billing <IconArrowRight size={11} />
+                <Link to="/login" className="font-bold text-[#1E6FD9] hover:underline flex items-center gap-1 text-xs">
+                  View Billing <IconArrowRight size={13} />
                 </Link>
               </div>
             </Card>
 
             {/* Service 5 */}
             <Card className="p-6 border-black/15 hover:border-[#1E6FD9] transition-all space-y-3 rounded-xl">
-              <div className="w-8 h-8 rounded-lg bg-[#1E6FD9] text-white flex items-center justify-center font-bold">
+              <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">
                 <IconQrcode size={18} />
               </div>
-              <h3 className="font-bold text-black uppercase tracking-wider">
+              <h3 className="font-bold text-black uppercase tracking-wider text-base">
                 Field Inspection
               </h3>
-              <p className="text-black/70 font-normal leading-relaxed">
+              <p className="text-black/70 font-normal leading-relaxed text-xs sm:text-sm">
                 On-site meter inspection with physical QR tags and mobile offline synchronization.
               </p>
               <div className="pt-2 border-t border-black/10">
-                <Link to="/login" className="font-bold text-[#1E6FD9] hover:underline flex items-center gap-1">
-                  Staff Access <IconArrowRight size={11} />
+                <Link to="/login" className="font-bold text-[#1E6FD9] hover:underline flex items-center gap-1 text-xs">
+                  Staff Access <IconArrowRight size={13} />
                 </Link>
               </div>
             </Card>
 
             {/* Service 6 */}
             <Card className="p-6 border-black/15 hover:border-[#1E6FD9] transition-all space-y-3 rounded-xl">
-              <div className="w-8 h-8 rounded-lg bg-[#1E6FD9] text-white flex items-center justify-center font-bold">
+              <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">
                 <IconBuilding size={18} />
               </div>
-              <h3 className="font-bold text-black uppercase tracking-wider">
+              <h3 className="font-bold text-black uppercase tracking-wider text-base">
                 Municipal Operations
               </h3>
-              <p className="text-black/70 font-normal leading-relaxed">
+              <p className="text-black/70 font-normal leading-relaxed text-xs sm:text-sm">
                 Admin control for applicant verification, crew assignment, and batch billing imports.
               </p>
               <div className="pt-2 border-t border-black/10">
-                <Link to="/login" className="font-bold text-[#1E6FD9] hover:underline flex items-center gap-1">
-                  Admin Access <IconArrowRight size={11} />
+                <Link to="/login" className="font-bold text-[#1E6FD9] hover:underline flex items-center gap-1 text-xs">
+                  Admin Access <IconArrowRight size={13} />
                 </Link>
               </div>
             </Card>
@@ -407,17 +405,17 @@ export function LandingView() {
       <section id="advisories" className="py-20 sm:py-24 lg:py-28 border-b border-black/15 bg-white">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14 space-y-10">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-            <div className="space-y-1">
-              <span className="font-bold text-[#1E6FD9] uppercase tracking-wider block">
+            <div className="space-y-2">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold uppercase tracking-tight text-black">
                 Advisories
-              </span>
-              <h2 className="text-black font-bold uppercase tracking-wider text-[10px]">
-                Water Service Notices
               </h2>
+              <p className="text-base sm:text-lg text-black/70 font-normal leading-relaxed">
+                Water Service Notices & Maintenance Bulletins
+              </p>
             </div>
 
             <Link to="/login">
-              <Button variant="secondary" className="h-8 px-3 text-[10px] font-bold">
+              <Button variant="secondary" className="h-9 px-4 text-xs font-bold">
                 Sign In to Full Calendar
               </Button>
             </Link>
@@ -431,21 +429,21 @@ export function LandingView() {
               >
                 <div className="flex items-center justify-between border-b border-black/10 pb-2.5">
                   <div className="flex items-center gap-2">
-                    <IconAlertTriangle size={15} className="text-[#1E6FD9]" />
-                    <span className="font-bold uppercase tracking-wider text-black">
+                    <IconAlertTriangle size={15} className="text-black" />
+                    <span className="font-bold uppercase tracking-wider text-black text-xs">
                       {advisory.type}
                     </span>
                   </div>
-                  <Badge variant="blue" className="text-[10px]">
+                  <Badge variant="blue" className="text-[14px]">
                     SIWASS
                   </Badge>
                 </div>
 
-                <h3 className="font-bold text-black uppercase tracking-wider">
+                <h3 className="font-bold text-black uppercase tracking-wider text-base">
                   {advisory.title}
                 </h3>
 
-                <div className="space-y-1 text-black/70">
+                <div className="space-y-1 text-black/70 text-xs sm:text-sm">
                   <div className="flex items-center gap-2">
                     <IconClock size={13} className="text-black/50" />
                     <span className="font-bold text-black">Time:</span> {advisory.timeWindow}
@@ -464,22 +462,22 @@ export function LandingView() {
       {/* Barangay Coverage Section */}
       <section id="coverage" className="py-20 sm:py-24 lg:py-28 border-b border-black/15 bg-white">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14 space-y-8">
-          <div className="text-center max-w-xl mx-auto space-y-2">
-            <span className="font-bold text-[#1E6FD9] uppercase tracking-wider block">
-              Coverage
-            </span>
-            <h2 className="text-black font-bold uppercase tracking-wider text-[10px]">
-              19 Municipal Barangays
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold uppercase tracking-tight text-black">
+              Barangay Coverage
             </h2>
+            <p className="text-base sm:text-lg text-black/70 font-normal leading-relaxed">
+              Serving All 19 Municipal Barangays Across Sinacaban
+            </p>
           </div>
 
           {/* Filter Pills */}
           <div className="flex items-center justify-center gap-2 flex-wrap">
             <button
               onClick={() => setSelectedBarangay('All')}
-              className={`px-3 py-1 rounded-full border text-[10px] font-bold cursor-pointer transition-colors ${
+              className={`px-3.5 py-1.5 rounded-full border text-xs font-bold cursor-pointer transition-colors ${
                 selectedBarangay === 'All'
-                  ? 'bg-black text-white border-black'
+                  ? 'bg-[#1E6FD9] text-white border-[#1E6FD9]'
                   : 'bg-white text-black border-black/20 hover:border-black'
               }`}
             >
@@ -487,7 +485,7 @@ export function LandingView() {
             </button>
             <button
               onClick={() => setSelectedBarangay('Poblacion')}
-              className={`px-3 py-1 rounded-full border text-[10px] font-bold cursor-pointer transition-colors ${
+              className={`px-3.5 py-1.5 rounded-full border text-xs font-bold cursor-pointer transition-colors ${
                 selectedBarangay === 'Poblacion'
                   ? 'bg-[#1E6FD9] text-white border-[#1E6FD9]'
                   : 'bg-white text-black border-black/20 hover:border-black'
@@ -505,12 +503,11 @@ export function LandingView() {
               .map((bName) => (
                 <div
                   key={bName}
-                  className="p-3.5 border border-black/15 rounded-xl bg-white hover:border-[#1E6FD9] transition-all flex items-center justify-between"
+                  className="p-3.5 border border-black/15 rounded-xl bg-white hover:border-[#1E6FD9] transition-all flex items-center justify-center text-center"
                 >
-                  <span className="font-bold text-black uppercase tracking-wider">
+                  <span className="font-bold text-black uppercase tracking-wider text-xs">
                     {bName}
                   </span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#1E6FD9]" />
                 </div>
               ))}
           </div>
@@ -520,13 +517,13 @@ export function LandingView() {
       {/* Gateway Portals Selector */}
       <section id="gateways" className="py-20 sm:py-24 lg:py-28 border-b border-black/15 bg-white">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14 space-y-10">
-          <div className="text-center max-w-xl mx-auto space-y-2">
-            <span className="font-bold text-[#1E6FD9] uppercase tracking-wider block">
-              Gateways
-            </span>
-            <h2 className="text-black font-bold uppercase tracking-wider text-[10px]">
-              Access Portals
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold uppercase tracking-tight text-black">
+              Portals & Gateways
             </h2>
+            <p className="text-base sm:text-lg text-black/70 font-normal leading-relaxed">
+              Dedicated Access Portals for Consumers, Field Crews, and Administration
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
@@ -534,26 +531,26 @@ export function LandingView() {
             <Card className="p-6 sm:p-7 border-black/20 hover:border-[#1E6FD9] transition-all flex flex-col justify-between space-y-5 bg-white rounded-xl">
               <div className="space-y-3.5">
                 <div className="flex items-center justify-between">
-                  <div className="w-8 h-8 rounded-lg bg-[#1E6FD9] text-white flex items-center justify-center font-bold">
+                  <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">
                     <IconUser size={18} />
                   </div>
-                  <Badge variant="blue" className="text-[10px]">
+                  <Badge variant="blue" className="text-[14px]">
                     Consumer
                   </Badge>
                 </div>
-                <h3 className="font-bold text-black uppercase tracking-wider">
+                <h3 className="font-bold text-black uppercase tracking-wider text-base sm:text-lg">
                   Household Consumers
                 </h3>
-                <p className="text-black/70 font-normal leading-relaxed">
+                <p className="text-black/70 font-normal leading-relaxed text-xs sm:text-sm">
                   Review monthly bills, submit repair requests, and track status updates.
                 </p>
-                <div className="space-y-1 pt-1 text-black/80 font-normal">
-                  <div className="flex items-center gap-1.5">
-                    <IconCheck size={12} className="text-[#1E6FD9]" />
+                <div className="space-y-1.5 pt-1 text-black/80 font-normal text-xs sm:text-sm">
+                  <div className="flex items-center gap-2">
+                    <IconCheck size={14} className="text-black/60" />
                     <span>View Published Monthly Bills</span>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <IconCheck size={12} className="text-[#1E6FD9]" />
+                  <div className="flex items-center gap-2">
+                    <IconCheck size={14} className="text-black/60" />
                     <span>Report Service Line Faults</span>
                   </div>
                 </div>
@@ -561,12 +558,12 @@ export function LandingView() {
 
               <div className="space-y-2 pt-4 border-t border-black/10">
                 <Link to="/login" className="block">
-                  <Button variant="primary" className="w-full h-8 text-[10px] font-bold">
+                  <Button variant="primary" className="w-full h-9 text-xs font-bold">
                     Consumer Sign In
                   </Button>
                 </Link>
                 <Link to="/register" className="block">
-                  <Button variant="secondary" className="w-full h-8 text-[10px] font-bold">
+                  <Button variant="secondary" className="w-full h-9 text-xs font-bold">
                     Register Connection
                   </Button>
                 </Link>
@@ -580,23 +577,23 @@ export function LandingView() {
                   <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">
                     <IconTools size={18} />
                   </div>
-                  <Badge variant="black" className="text-[10px]">
+                  <Badge variant="black" className="text-[14px]">
                     Field
                   </Badge>
                 </div>
-                <h3 className="font-bold text-black uppercase tracking-wider">
+                <h3 className="font-bold text-black uppercase tracking-wider text-base sm:text-lg">
                   Field Technicians
                 </h3>
-                <p className="text-black/70 font-normal leading-relaxed">
+                <p className="text-black/70 font-normal leading-relaxed text-xs sm:text-sm">
                   Inspect assigned maintenance tickets, scan meter QR codes, and log resolutions.
                 </p>
-                <div className="space-y-1 pt-1 text-black/80 font-normal">
-                  <div className="flex items-center gap-1.5">
-                    <IconCheck size={12} className="text-[#1E6FD9]" />
+                <div className="space-y-1.5 pt-1 text-black/80 font-normal text-xs sm:text-sm">
+                  <div className="flex items-center gap-2">
+                    <IconCheck size={14} className="text-black/60" />
                     <span>View Assigned Work Orders</span>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <IconCheck size={12} className="text-[#1E6FD9]" />
+                  <div className="flex items-center gap-2">
+                    <IconCheck size={14} className="text-black/60" />
                     <span>Scan Meter QR Casing Tags</span>
                   </div>
                 </div>
@@ -604,7 +601,7 @@ export function LandingView() {
 
               <div className="pt-4 border-t border-black/10">
                 <Link to="/login" className="block">
-                  <Button variant="secondary" className="w-full h-8 text-[10px] font-bold">
+                  <Button variant="secondary" className="w-full h-9 text-xs font-bold">
                     Technician Sign In
                   </Button>
                 </Link>
@@ -615,26 +612,26 @@ export function LandingView() {
             <Card className="p-6 sm:p-7 border-black/20 hover:border-[#1E6FD9] transition-all flex flex-col justify-between space-y-5 bg-white rounded-xl">
               <div className="space-y-3.5">
                 <div className="flex items-center justify-between">
-                  <div className="w-8 h-8 rounded-lg bg-[#1E6FD9] text-white flex items-center justify-center font-bold">
+                  <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">
                     <IconBuilding size={18} />
                   </div>
-                  <Badge variant="blue" className="text-[10px]">
+                  <Badge variant="blue" className="text-[14px]">
                     Admin
                   </Badge>
                 </div>
-                <h3 className="font-bold text-black uppercase tracking-wider">
+                <h3 className="font-bold text-black uppercase tracking-wider text-base sm:text-lg">
                   System Administrators
                 </h3>
-                <p className="text-black/70 font-normal leading-relaxed">
+                <p className="text-black/70 font-normal leading-relaxed text-xs sm:text-sm">
                   Verify applicants, dispatch crews, broadcast advisories, and import monthly billing.
                 </p>
-                <div className="space-y-1 pt-1 text-black/80 font-normal">
-                  <div className="flex items-center gap-1.5">
-                    <IconCheck size={12} className="text-[#1E6FD9]" />
+                <div className="space-y-1.5 pt-1 text-black/80 font-normal text-xs sm:text-sm">
+                  <div className="flex items-center gap-2">
+                    <IconCheck size={14} className="text-black/60" />
                     <span>Review Verification Queue</span>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <IconCheck size={12} className="text-[#1E6FD9]" />
+                  <div className="flex items-center gap-2">
+                    <IconCheck size={14} className="text-black/60" />
                     <span>Batch CSV Billing Imports</span>
                   </div>
                 </div>
@@ -642,7 +639,7 @@ export function LandingView() {
 
               <div className="pt-4 border-t border-black/10">
                 <Link to="/login" className="block">
-                  <Button variant="secondary" className="w-full h-8 text-[10px] font-bold">
+                  <Button variant="secondary" className="w-full h-9 text-xs font-bold">
                     Administrator Sign In
                   </Button>
                 </Link>
@@ -657,36 +654,36 @@ export function LandingView() {
         <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
             <div className="lg:col-span-5 space-y-3.5">
-              <span className="font-bold text-[#1E6FD9] uppercase tracking-wider block">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold uppercase tracking-tight text-black">
                 Office Information
-              </span>
-              <h2 className="text-black font-bold uppercase tracking-wider text-[10px]">
-                Sinacaban Water Works Office
               </h2>
-              <p className="text-black/70 font-normal leading-relaxed">
+              <p className="text-base sm:text-lg text-black/70 font-normal leading-relaxed">
+                Sinacaban Water Supply System Municipal Office
+              </p>
+              <p className="text-black/70 font-normal leading-relaxed text-xs sm:text-sm">
                 Operating under municipal mandate to manage public utility water services for the Municipality of Sinacaban.
               </p>
 
-              <div className="space-y-2.5 pt-2 text-black/80">
+              <div className="space-y-2.5 pt-2 text-black/80 text-xs sm:text-sm">
                 <div className="flex items-start gap-2.5">
-                  <IconMapPin size={15} className="text-[#1E6FD9] shrink-0 mt-0.5" />
+                  <IconMapPin size={16} className="text-black/60 shrink-0 mt-0.5" />
                   <div>
                     <span className="font-bold text-black block">Location</span>
                     <span>Ground Floor, Sinacaban Municipal Hall, Misamis Occidental</span>
                   </div>
                 </div>
                 <div className="flex items-start gap-2.5">
-                  <IconClock size={15} className="text-[#1E6FD9] shrink-0 mt-0.5" />
+                  <IconClock size={16} className="text-black/60 shrink-0 mt-0.5" />
                   <div>
                     <span className="font-bold text-black block">Operating Hours</span>
-                    <span>Monday to Friday · 8:00 AM – 5:00 PM</span>
+                    <span>Monday to Friday — 8:00 AM – 5:00 PM</span>
                   </div>
                 </div>
                 <div className="flex items-start gap-2.5">
-                  <IconPhone size={15} className="text-[#1E6FD9] shrink-0 mt-0.5" />
+                  <IconPhone size={16} className="text-black/60 shrink-0 mt-0.5" />
                   <div>
                     <span className="font-bold text-black block">Hotline & SMS</span>
-                    <span>Landline: (088) 521-1200 · SMS: +63 917 123 4567</span>
+                    <span>Landline: (088) 521-1200 / SMS: +63 917 123 4567</span>
                   </div>
                 </div>
               </div>
@@ -694,25 +691,25 @@ export function LandingView() {
 
             <div className="lg:col-span-7">
               <Card className="p-6 sm:p-7 border-black/20 shadow-xs bg-white space-y-4 rounded-xl">
-                <h3 className="font-bold text-black uppercase tracking-wider border-b border-black/10 pb-2.5">
+                <h3 className="font-bold text-black uppercase tracking-wider border-b border-black/10 pb-2.5 text-base">
                   Quick Citizen Questions
                 </h3>
 
                 <div className="space-y-3">
                   <div className="border border-black/10 rounded-lg p-3.5">
-                    <h4 className="font-bold text-black uppercase tracking-wider">
+                    <h4 className="font-bold text-black uppercase tracking-wider text-xs sm:text-sm">
                       How long does connection verification take?
                     </h4>
-                    <p className="text-black/70 font-normal mt-1 leading-relaxed">
+                    <p className="text-black/70 font-normal mt-1 leading-relaxed text-xs sm:text-sm">
                       Verification and meter linking takes 1–2 business days. An automated SMS notification is sent upon approval.
                     </p>
                   </div>
 
                   <div className="border border-black/10 rounded-lg p-3.5">
-                    <h4 className="font-bold text-black uppercase tracking-wider">
+                    <h4 className="font-bold text-black uppercase tracking-wider text-xs sm:text-sm">
                       Where can water payments be made?
                     </h4>
-                    <p className="text-black/70 font-normal mt-1 leading-relaxed">
+                    <p className="text-black/70 font-normal mt-1 leading-relaxed text-xs sm:text-sm">
                       Payments are received at the Sinacaban Municipal Treasury Office (Ground Floor, Municipal Hall).
                     </p>
                   </div>
@@ -729,35 +726,31 @@ export function LandingView() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-black/10 pb-6">
             <div className="flex items-center gap-2.5">
               <AquaTrackLogo size={24} variant="mark" />
-              <span className="font-bold uppercase tracking-wider text-black">
-                Sinacaban Water Works System (SIWASS)
+              <span className="font-bold uppercase tracking-wider text-black text-xs sm:text-sm">
+                Sinacaban Water Supply System (SIWASS)
               </span>
             </div>
 
-            <div className="flex items-center gap-5 text-black/70 font-bold flex-wrap">
-              <Link to="/login" className="hover:text-[#1E6FD9]">
+            <div className="flex items-center gap-6 text-black/70 font-bold flex-wrap text-xs sm:text-sm">
+              <Link to="/login" className="hover:text-[#1E6FD9] transition-colors">
                 Sign In
               </Link>
-              <span>·</span>
-              <Link to="/register" className="hover:text-[#1E6FD9]">
+              <Link to="/register" className="hover:text-[#1E6FD9] transition-colors">
                 Register
               </Link>
-              <span>·</span>
-              <a href="#services" className="hover:text-[#1E6FD9]">
+              <a href="#services" className="hover:text-[#1E6FD9] transition-colors">
                 Services
               </a>
-              <span>·</span>
-              <a href="#advisories" className="hover:text-[#1E6FD9]">
+              <a href="#advisories" className="hover:text-[#1E6FD9] transition-colors">
                 Advisories
               </a>
-              <span>·</span>
-              <a href="#contact" className="hover:text-[#1E6FD9]">
+              <a href="#contact" className="hover:text-[#1E6FD9] transition-colors">
                 Office
               </a>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-black/60 font-normal text-[10px]">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-black/60 font-normal text-[14px]">
             <div>
               © 2026 Municipality of Sinacaban, Misamis Occidental. Republic of the Philippines.
             </div>

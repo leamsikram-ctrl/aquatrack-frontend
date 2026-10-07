@@ -20,11 +20,11 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 }) => {
   return (
     <div
-      className={`flex flex-col items-center justify-center p-8 text-center rounded-lg border border-black/20 bg-white text-[10px] ${className}`}
+      className={`flex flex-col items-center justify-center p-8 text-center rounded-lg border border-black/20 bg-white text-[14px] ${className}`}
     >
       {icon && <div className="text-[#1E6FD9] mb-2">{icon}</div>}
-      <div className="font-bold text-black text-[10px] uppercase tracking-wider">{title}</div>
-      <div className="mt-1 max-w-sm text-[10px] font-normal text-black/70">{description}</div>
+      <div className="font-bold text-black text-[14px] uppercase tracking-wider">{title}</div>
+      <div className="mt-1 max-w-sm text-[14px] font-normal text-black/70">{description}</div>
       {actionLabel && onAction && (
         <div className="mt-4">
           <Button variant="secondary" onClick={onAction}>

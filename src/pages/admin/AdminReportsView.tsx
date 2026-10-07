@@ -112,14 +112,14 @@ export function AdminReportsView() {
 
   return (
     <AdminLayout currentPath="/admin/reports" onNavigate={(path) => navigate(path)}>
-      <div className="space-y-4 text-[10px] text-black">
+      <div className="space-y-4 text-[14px] text-black">
         {/* Wireframe A11 Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/15 pb-3">
           <div>
-            <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">
+            <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
               Maintenance Reports
             </h1>
-            <p className="text-[10px] text-black/60">
+            <p className="text-[14px] text-black/60">
               Compile statutory municipal utility analytics, response times, and failure reports.
             </p>
           </div>
@@ -137,7 +137,7 @@ export function AdminReportsView() {
         {/* Wireframe A11 Form */}
         <Card className="p-5 border border-black/15 shadow-sm space-y-4">
           {reportGenerated && (
-            <div className="p-2.5 bg-[#F0F6FD] border border-black rounded text-[10px] text-black flex items-center gap-2">
+            <div className="p-2.5 bg-[#F0F6FD] border border-black rounded text-[14px] text-black flex items-center gap-2">
               <IconCheck size={14} className="text-[#1E6FD9] shrink-0" />
               <span>Report successfully compiled from municipal ledger records!</span>
             </div>
@@ -146,13 +146,13 @@ export function AdminReportsView() {
           <form onSubmit={handleGenerateReport} className="space-y-3">
             {/* Report Type */}
             <div>
-              <label className="block text-[10px] font-bold text-black uppercase mb-1">
+              <label className="block text-[14px] font-bold text-black uppercase mb-1">
                 Report type
               </label>
               <select
                 value={reportType}
                 onChange={(e) => setReportType(e.target.value)}
-                className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-sans"
+                className="w-full p-2 bg-white text-black border border-black rounded text-[14px] outline-none font-sans"
               >
                 <option value="maintenance">Maintenance report (Repairs & SLA)</option>
                 <option value="service_requests">Service requests summary & dispatch backlog</option>
@@ -164,7 +164,7 @@ export function AdminReportsView() {
             {/* Date Range: From & To */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-[10px] font-bold text-black uppercase mb-1 flex items-center gap-1">
+                <label className="block text-[14px] font-bold text-black uppercase mb-1 flex items-center gap-1">
                   <IconCalendar size={12} className="text-[#1E6FD9]" />
                   <span>From</span>
                 </label>
@@ -172,13 +172,13 @@ export function AdminReportsView() {
                   type="date"
                   value={fromDate}
                   onChange={(e) => setFromDate(e.target.value)}
-                  className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-normal"
+                  className="w-full p-2 bg-white text-black border border-black rounded text-[14px] outline-none font-normal"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-black uppercase mb-1 flex items-center gap-1">
+                <label className="block text-[14px] font-bold text-black uppercase mb-1 flex items-center gap-1">
                   <IconCalendar size={12} className="text-[#1E6FD9]" />
                   <span>To</span>
                 </label>
@@ -186,7 +186,7 @@ export function AdminReportsView() {
                   type="date"
                   value={toDate}
                   onChange={(e) => setToDate(e.target.value)}
-                  className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-normal"
+                  className="w-full p-2 bg-white text-black border border-black rounded text-[14px] outline-none font-normal"
                   required
                 />
               </div>
@@ -194,14 +194,14 @@ export function AdminReportsView() {
 
             {/* Barangay Filter */}
             <div>
-              <label className="block text-[10px] font-bold text-black uppercase mb-1 flex items-center gap-1">
+              <label className="block text-[14px] font-bold text-black uppercase mb-1 flex items-center gap-1">
                 <IconFilter size={12} className="text-[#1E6FD9]" />
                 <span>Barangay</span>
               </label>
               <select
                 value={selectedBarangay}
                 onChange={(e) => setSelectedBarangay(e.target.value)}
-                className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-sans"
+                className="w-full p-2 bg-white text-black border border-black rounded text-[14px] outline-none font-sans"
               >
                 <option value="all">All barangays (Sinacaban Municipal Wide)</option>
                 {barangays.map((b) => (
@@ -215,7 +215,7 @@ export function AdminReportsView() {
             {/* Wireframe A11 Preview Box: counts by status, issue type, barangay */}
             <div className="border border-dashed border-black/30 rounded p-4 bg-[#F0F6FD] space-y-3">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-black uppercase tracking-wider text-[10px]">
+                <span className="font-bold text-black uppercase tracking-wider text-[14px]">
                   Preview: counts by status, issue type, barangay
                 </span>
                 <Badge variant="blue">{filteredData.length} Matching Records</Badge>
@@ -224,25 +224,25 @@ export function AdminReportsView() {
               {isLoading ? (
                 <div className="py-4 text-center text-black/50">Computing municipal dataset...</div>
               ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px]">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[14px]">
                   <div className="bg-white p-2 border border-black/15 rounded">
-                    <span className="text-black/60 uppercase block text-[9px]">Resolved Repairs</span>
-                    <strong className="text-[#1E6FD9] text-[12px]">{countsByStatus.resolved}</strong>
+                    <span className="text-black/60 uppercase block text-[14px] font-bold">Resolved Repairs</span>
+                    <strong className="text-[#1E6FD9] text-[14px] font-bold">{countsByStatus.resolved}</strong>
                   </div>
 
                   <div className="bg-white p-2 border border-black/15 rounded">
-                    <span className="text-black/60 uppercase block text-[9px]">In Progress Jobs</span>
-                    <strong className="text-black text-[12px]">{countsByStatus.in_progress}</strong>
+                    <span className="text-black/60 uppercase block text-[14px] font-bold">In Progress Jobs</span>
+                    <strong className="text-black text-[14px] font-bold">{countsByStatus.in_progress}</strong>
                   </div>
 
                   <div className="bg-white p-2 border border-black/15 rounded">
-                    <span className="text-black/60 uppercase block text-[9px]">High Priority</span>
-                    <strong className="text-black text-[12px]">{countsByUrgency.high}</strong>
+                    <span className="text-black/60 uppercase block text-[14px] font-bold">High Priority</span>
+                    <strong className="text-black text-[14px] font-bold">{countsByUrgency.high}</strong>
                   </div>
 
                   <div className="bg-white p-2 border border-black/15 rounded">
-                    <span className="text-black/60 uppercase block text-[9px]">Total Advisories</span>
-                    <strong className="text-black text-[12px]">{interruptions.length}</strong>
+                    <span className="text-black/60 uppercase block text-[14px] font-bold">Total Advisories</span>
+                    <strong className="text-black text-[14px] font-bold">{interruptions.length}</strong>
                   </div>
                 </div>
               )}

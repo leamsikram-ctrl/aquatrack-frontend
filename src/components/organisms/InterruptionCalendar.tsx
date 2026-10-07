@@ -58,10 +58,10 @@ export const InterruptionCalendar: React.FC<InterruptionCalendarProps> = ({
   };
 
   return (
-    <div className={`space-y-3 text-[10px] text-black ${className}`}>
+    <div className={`space-y-3 text-[14px] text-black ${className}`}>
       {/* Month Navigation Header */}
       <div className="flex items-center justify-between border-b border-black/15 pb-2">
-        <span className="font-bold uppercase tracking-wider text-[10px]">
+        <span className="font-bold uppercase tracking-wider text-[14px]">
           {monthNames[month]} {year}
         </span>
         <div className="flex items-center gap-1">

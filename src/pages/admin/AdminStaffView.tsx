@@ -127,14 +127,14 @@ export function AdminStaffView() {
 
   return (
     <AdminLayout currentPath="/admin/staff" onNavigate={(path) => navigate(path)}>
-      <div className="space-y-4 text-[10px] text-black">
+      <div className="space-y-4 text-[14px] text-black">
         {/* Wireframe A9 Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/15 pb-3">
           <div>
-            <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">
+            <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
               Staff Directory
             </h1>
-            <p className="text-[10px] text-black/60">
+            <p className="text-[14px] text-black/60">
               Field technician duty assignments, coverage sectors, and open maintenance tasks.
             </p>
           </div>
@@ -153,7 +153,7 @@ export function AdminStaffView() {
           <input
             type="text"
             placeholder="Search staff name, mobile, or assigned sector..."
-            className="w-full pl-8 pr-3 py-2 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+            className="w-full pl-8 pr-3 py-2 text-[14px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -163,7 +163,7 @@ export function AdminStaffView() {
         {/* Wireframe A9 Table */}
         <Card className="p-0 border border-black/15 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-[10px]">
+            <table className="w-full text-left text-[14px]">
               <thead className="bg-[#F0F6FD] text-black border-b border-black/15">
                 <tr>
                   <th className="px-4 py-2.5 font-bold uppercase tracking-wider">Name</th>
@@ -250,7 +250,7 @@ export function AdminStaffView() {
               {/* Header */}
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <div>
-                  <span className="font-bold text-black uppercase tracking-wider text-[10px]">
+                  <span className="font-bold text-black uppercase tracking-wider text-[14px]">
                     Technician Profile: {selectedStaff.name || 'Staff Member'}
                   </span>
                   <div className="text-[9px] text-black/60 font-normal">
@@ -259,14 +259,14 @@ export function AdminStaffView() {
                 </div>
                 <button
                   onClick={() => setSelectedStaff(null)}
-                  className="text-black hover:text-[#1E6FD9] p-1 font-bold text-[10px]"
+                  className="text-black hover:text-[#1E6FD9] p-1 font-bold text-[14px]"
                 >
                   <IconX size={14} />
                 </button>
               </div>
 
               {/* Profile Card */}
-              <div className="p-3 bg-[#F0F6FD] border border-black/15 rounded space-y-2 text-[10px]">
+              <div className="p-3 bg-[#F0F6FD] border border-black/15 rounded space-y-2 text-[14px]">
                 <div className="flex justify-between">
                   <span className="text-black/60 font-bold uppercase">Assigned Area:</span>
                   <strong className="text-black font-bold">
@@ -299,7 +299,7 @@ export function AdminStaffView() {
                       .map((task) => (
                         <div
                           key={task.id}
-                          className="p-2.5 bg-white border border-black/15 rounded flex items-center justify-between text-[10px]"
+                          className="p-2.5 bg-white border border-black/15 rounded flex items-center justify-between text-[14px]"
                         >
                           <div>
                             <strong className="text-black font-bold">
@@ -332,19 +332,19 @@ export function AdminStaffView() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
             <div className="w-full max-w-sm bg-white rounded border border-black p-5 space-y-4 shadow-xl">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
-                <span className="font-bold text-black uppercase tracking-wider text-[10px]">
+                <span className="font-bold text-black uppercase tracking-wider text-[14px]">
                   Add Field Technician
                 </span>
                 <button
                   onClick={() => setShowAddModal(false)}
-                  className="text-black hover:text-[#1E6FD9] p-1 font-bold text-[10px]"
+                  className="text-black hover:text-[#1E6FD9] p-1 font-bold text-[14px]"
                 >
                   <IconX size={14} />
                 </button>
               </div>
 
               {addSuccess && (
-                <div className="p-2.5 bg-[#F0F6FD] border border-black rounded text-[10px] text-black flex items-center gap-2">
+                <div className="p-2.5 bg-[#F0F6FD] border border-black rounded text-[14px] text-black flex items-center gap-2">
                   <IconCheck size={14} className="text-[#1E6FD9] shrink-0" />
                   <span>{addSuccess}</span>
                 </div>
@@ -352,13 +352,13 @@ export function AdminStaffView() {
 
               <form onSubmit={handleAddStaffSubmit} className="space-y-3">
                 <div>
-                  <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
                     Full Name
                   </label>
                   <input
                     type="text"
                     placeholder="e.g. Pedro Cruz"
-                    className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none focus:border-[#1E6FD9]"
+                    className="w-full p-2 bg-white text-black border border-black rounded text-[14px] outline-none focus:border-[#1E6FD9]"
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
                     required
@@ -366,14 +366,14 @@ export function AdminStaffView() {
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
                     Mobile Number
                   </label>
                   <div className="relative">
                     <input
                       type="tel"
                       placeholder="0917 123 4567"
-                      className="w-full pl-7 pr-3 py-2 bg-white text-black border border-black rounded text-[10px] outline-none font-normal focus:border-[#1E6FD9]"
+                      className="w-full pl-7 pr-3 py-2 bg-white text-black border border-black rounded text-[14px] outline-none font-normal focus:border-[#1E6FD9]"
                       value={newMobile}
                       onChange={(e) => setNewMobile(e.target.value)}
                       required
@@ -383,24 +383,24 @@ export function AdminStaffView() {
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
                     Institutional Email (Optional)
                   </label>
                   <input
                     type="email"
                     placeholder="pedro@siwass.gov"
-                    className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none focus:border-[#1E6FD9]"
+                    className="w-full p-2 bg-white text-black border border-black rounded text-[14px] outline-none focus:border-[#1E6FD9]"
                     value={newEmail}
                     onChange={(e) => setNewEmail(e.target.value)}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
                     Assigned Coverage Barangay
                   </label>
                   <select
-                    className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none font-sans"
+                    className="w-full p-2 bg-white text-black border border-black rounded text-[14px] outline-none font-sans"
                     value={newBarangayId}
                     onChange={(e) => setNewBarangayId(Number(e.target.value) || '')}
                   >

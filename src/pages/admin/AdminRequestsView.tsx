@@ -154,14 +154,14 @@ export function AdminRequestsView() {
       currentPath="/admin/requests"
       onNavigate={(path) => navigate(path)}
     >
-      <div className="space-y-4 text-[10px]">
+      <div className="space-y-4 text-[14px]">
         {/* Wireframe A2 Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/15 pb-3">
           <div>
-            <h1 className="text-[10px] font-bold uppercase tracking-wider text-black">
+            <h1 className="text-[14px] font-bold uppercase tracking-wider text-black">
               Service Requests Manager
             </h1>
-            <p className="text-[10px] text-black/60">
+            <p className="text-[14px] text-black/60">
               Active dispatches, technician assignments, and maintenance logs for Sinacaban (SIWASS)
             </p>
           </div>
@@ -182,7 +182,7 @@ export function AdminRequestsView() {
                   setActiveTab('active');
                   setStatusFilter('all');
                 }}
-                className={`px-3 py-1 rounded text-[10px] font-bold transition-colors ${
+                className={`px-3 py-1 rounded text-[14px] font-bold transition-colors ${
                   activeTab === 'active'
                     ? 'bg-[#1E6FD9] text-white'
                     : 'text-black hover:bg-[#F0F6FD]'
@@ -195,7 +195,7 @@ export function AdminRequestsView() {
                   setActiveTab('history');
                   setStatusFilter('all');
                 }}
-                className={`px-3 py-1 rounded text-[10px] font-bold transition-colors ${
+                className={`px-3 py-1 rounded text-[14px] font-bold transition-colors ${
                   activeTab === 'history'
                     ? 'bg-[#1E6FD9] text-white'
                     : 'text-black hover:bg-[#F0F6FD]'
@@ -212,7 +212,7 @@ export function AdminRequestsView() {
                 placeholder="Search reference or barangay..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-7 pr-3 py-1 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+                className="w-full pl-7 pr-3 py-1 text-[14px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
               />
               <IconSearch size={12} className="absolute left-2.5 top-2 text-black/50" />
             </div>
@@ -220,7 +220,7 @@ export function AdminRequestsView() {
 
           {/* Filter Pills based on active tab */}
           <div className="flex flex-wrap items-center gap-1.5 pt-1">
-            <span className="font-bold text-black uppercase text-[10px] mr-1">Filter:</span>
+            <span className="font-bold text-black uppercase text-[14px] mr-1">Filter:</span>
             {(activeTab === 'active'
               ? ['all', 'submitted', 'assigned', 'in_progress']
               : ['all', 'resolved', 'cancelled']
@@ -228,7 +228,7 @@ export function AdminRequestsView() {
               <button
                 key={st}
                 onClick={() => setStatusFilter(st)}
-                className={`px-2.5 py-0.5 rounded text-[10px] capitalize font-bold transition-colors border border-black ${
+                className={`px-2.5 py-0.5 rounded text-[14px] capitalize font-bold transition-colors border border-black ${
                   statusFilter === st
                     ? 'bg-[#1E6FD9] text-white'
                     : 'bg-white text-black hover:bg-[#F0F6FD]'
@@ -243,7 +243,7 @@ export function AdminRequestsView() {
         {/* Table of Requests */}
         <Card className="overflow-hidden border border-black/15 p-0">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-[10px]">
+            <table className="w-full text-left text-[14px]">
               <thead className="bg-[#F0F6FD] border-b border-black/15 uppercase tracking-wider text-black">
                 <tr>
                   <th className="px-4 py-2.5 font-bold">Reference</th>
@@ -359,11 +359,11 @@ export function AdminRequestsView() {
           <div className="fixed inset-0 z-50 overflow-hidden bg-black/40 flex justify-end">
             <div className="flex-1" onClick={() => setDrawerReq(null)} />
 
-            <div className="w-full max-w-md bg-white border-l-2 border-black flex flex-col h-full shadow-2xl p-5 space-y-4 overflow-y-auto text-[10px]">
+            <div className="w-full max-w-md bg-white border-l-2 border-black flex flex-col h-full shadow-2xl p-5 space-y-4 overflow-y-auto text-[14px]">
               {/* Drawer Top Header */}
               <div className="flex items-center justify-between border-b border-black/15 pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-black uppercase tracking-wider text-[10px]">
+                  <span className="font-bold text-black uppercase tracking-wider text-[14px]">
                     {drawerReq.reference_no || drawerReq.reference}
                   </span>
                   <Badge variant="blue">
@@ -451,7 +451,7 @@ export function AdminRequestsView() {
 
                 <div className="flex gap-2">
                   <select
-                    className="p-1.5 bg-white text-black border border-black rounded text-[10px] outline-none focus:border-[#1E6FD9]"
+                    className="p-1.5 bg-white text-black border border-black rounded text-[14px] outline-none focus:border-[#1E6FD9]"
                     value={adjustedUrgency}
                     onChange={(e) => setAdjustedUrgency(e.target.value as Urgency)}
                   >
@@ -463,7 +463,7 @@ export function AdminRequestsView() {
                   <input
                     type="text"
                     placeholder="Reason for change (optional)"
-                    className="flex-1 p-1.5 bg-white text-black border border-black rounded text-[10px] outline-none focus:border-[#1E6FD9]"
+                    className="flex-1 p-1.5 bg-white text-black border border-black rounded text-[14px] outline-none focus:border-[#1E6FD9]"
                     value={urgencyReason}
                     onChange={(e) => setUrgencyReason(e.target.value)}
                   />
@@ -538,11 +538,11 @@ export function AdminRequestsView() {
         {/* Wireframe A4: Assign Staff Modal */}
         {assigningReq && (
           <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-            <div className="bg-white border-2 border-black rounded-lg max-w-md w-full p-5 space-y-4 shadow-xl text-[10px]">
+            <div className="bg-white border-2 border-black rounded-lg max-w-md w-full p-5 space-y-4 shadow-xl text-[14px]">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <div className="flex items-center gap-2">
                   <IconUserPlus size={14} className="text-[#1E6FD9]" />
-                  <h3 className="font-bold text-black uppercase tracking-wider text-[10px]">
+                  <h3 className="font-bold text-black uppercase tracking-wider text-[14px]">
                     Assign Staff
                   </h3>
                 </div>
@@ -575,7 +575,7 @@ export function AdminRequestsView() {
                     </div>
                   ) : (
                     <select
-                      className="w-full p-2 bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9] text-[10px]"
+                      className="w-full p-2 bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9] text-[14px]"
                       value={selectedStaffId || ''}
                       onChange={(e) => setSelectedStaffId(Number(e.target.value))}
                     >
@@ -593,7 +593,7 @@ export function AdminRequestsView() {
                     Assignment Notes
                   </label>
                   <textarea
-                    className="w-full p-2 bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9] text-[10px]"
+                    className="w-full p-2 bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9] text-[14px]"
                     rows={3}
                     placeholder="Instructions for the technician..."
                     value={assignmentNotes}

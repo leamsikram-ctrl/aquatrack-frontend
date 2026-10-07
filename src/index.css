@@ -19,7 +19,7 @@
 
 :root {
   font-family: var(--font-sans);
-  font-size: 10px; /* Uniform 10px typography system */
+  font-size: 14px; /* Uniform 14px typography system */
   line-height: 1.5;
   color: #000000;
   background-color: #FFFFFF;
@@ -31,7 +31,7 @@ body {
   color: #000000;
   background-color: #FFFFFF;
   font-family: var(--font-sans);
-  font-size: 10px;
+  font-size: 14px;
   -webkit-font-smoothing: antialiased;
 }
 

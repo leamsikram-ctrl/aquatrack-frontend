@@ -218,14 +218,14 @@ export function AdminMapView() {
 
   return (
     <AdminLayout currentPath="/admin/map" onNavigate={(path) => navigate(path)}>
-      <div className="space-y-4 text-[10px] text-black">
+      <div className="space-y-4 text-[14px] text-black">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-black/15 pb-3">
           <div>
-            <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">
+            <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
               Municipal Map
             </h1>
-            <p className="text-[10px] text-black/60">
+            <p className="text-[14px] text-black/60">
               Sinacaban GIS service map, customer pins, work order coordinates, and failure hotspots.
             </p>
           </div>
@@ -245,7 +245,7 @@ export function AdminMapView() {
             </span>
             <button
               onClick={() => setShowCustomers(!showCustomers)}
-              className={`px-2.5 py-1 rounded text-[10px] font-bold flex items-center gap-1 border transition-colors ${
+              className={`px-2.5 py-1 rounded text-[14px] font-bold flex items-center gap-1 border transition-colors ${
                 showCustomers
                   ? 'bg-[#1E6FD9] text-white border-[#1E6FD9]'
                   : 'bg-white text-black border-black/20 hover:bg-[#F0F6FD]'
@@ -257,7 +257,7 @@ export function AdminMapView() {
 
             <button
               onClick={() => setShowRequests(!showRequests)}
-              className={`px-2.5 py-1 rounded text-[10px] font-bold flex items-center gap-1 border transition-colors ${
+              className={`px-2.5 py-1 rounded text-[14px] font-bold flex items-center gap-1 border transition-colors ${
                 showRequests
                   ? 'bg-[#1E6FD9] text-white border-[#1E6FD9]'
                   : 'bg-white text-black border-black/20 hover:bg-[#F0F6FD]'
@@ -269,7 +269,7 @@ export function AdminMapView() {
 
             <button
               onClick={() => setShowHotspots(!showHotspots)}
-              className={`px-2.5 py-1 rounded text-[10px] font-bold flex items-center gap-1 border transition-colors ${
+              className={`px-2.5 py-1 rounded text-[14px] font-bold flex items-center gap-1 border transition-colors ${
                 showHotspots
                   ? 'bg-black text-white border-black'
                   : 'bg-white text-black border-black/20 hover:bg-[#F0F6FD]'
@@ -285,7 +285,7 @@ export function AdminMapView() {
             <select
               value={selectedBarangay}
               onChange={(e) => setSelectedBarangay(e.target.value)}
-              className="px-2 py-1 bg-white border border-black/20 rounded text-[10px] outline-none font-sans"
+              className="px-2 py-1 bg-white border border-black/20 rounded text-[14px] outline-none font-sans"
             >
               <option value="all">Barangay ∨ (All)</option>
               {barangays.map((b) => (
@@ -298,7 +298,7 @@ export function AdminMapView() {
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="px-2 py-1 bg-white border border-black/20 rounded text-[10px] outline-none font-sans"
+              className="px-2 py-1 bg-white border border-black/20 rounded text-[14px] outline-none font-sans"
             >
               <option value="all">Status ∨ (All)</option>
               <option value="submitted">Submitted</option>
@@ -310,7 +310,7 @@ export function AdminMapView() {
             <select
               value={selectedStaff}
               onChange={(e) => setSelectedStaff(e.target.value)}
-              className="px-2 py-1 bg-white border border-black/20 rounded text-[10px] outline-none font-sans"
+              className="px-2 py-1 bg-white border border-black/20 rounded text-[14px] outline-none font-sans"
             >
               <option value="all">Staff ∨ (All)</option>
               {staffList.map((s) => (
@@ -326,7 +326,7 @@ export function AdminMapView() {
         <Card className="p-0 border border-black/15 overflow-hidden relative shadow-sm">
           {/* Top Status Bar over Map */}
           <div className="flex justify-between items-center px-3 py-2 bg-white/95 border-b border-black/10 z-10">
-            <div className="text-[10px] font-bold text-black flex items-center gap-1.5">
+            <div className="text-[14px] font-bold text-black flex items-center gap-1.5">
               <IconMapPin size={13} className="text-[#1E6FD9]" />
               <span>Sinacaban Municipal GIS · Misamis Occidental (8.2835° N, 123.8340° E)</span>
             </div>
@@ -339,7 +339,7 @@ export function AdminMapView() {
           </div>
 
           {isLoading ? (
-            <div className="h-96 w-full bg-[#F0F6FD] flex items-center justify-center font-bold text-[10px] text-black">
+            <div className="h-96 w-full bg-[#F0F6FD] flex items-center justify-center font-bold text-[14px] text-black">
               Loading Sinacaban municipal GIS data...
             </div>
           ) : (
@@ -359,7 +359,7 @@ export function AdminMapView() {
             <div className="bg-white border-t border-black/20 p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="space-y-0.5">
                 <div className="flex items-center gap-2">
-                  <strong className="font-bold text-black text-[11px]">
+                  <strong className="font-bold text-black text-[14px]">
                     {selectedItem.reference}
                   </strong>
                   <span className="text-black/50">·</span>
@@ -374,7 +374,7 @@ export function AdminMapView() {
                     </Badge>
                   )}
                 </div>
-                <div className="text-[10px] text-black/70">
+                <div className="text-[14px] text-black/70">
                   {selectedItem.name} — <span className="italic">{selectedItem.details}</span>
                 </div>
               </div>
@@ -414,12 +414,12 @@ export function AdminMapView() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
             <div className="w-full max-w-sm bg-white rounded border border-black p-5 space-y-4 shadow-xl">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
-                <span className="font-bold text-black uppercase tracking-wider text-[10px]">
+                <span className="font-bold text-black uppercase tracking-wider text-[14px]">
                   Assign Staff to {selectedItem.reference}
                 </span>
                 <button
                   onClick={() => setShowAssignModal(false)}
-                  className="text-black hover:text-[#1E6FD9] p-1 font-bold text-[10px]"
+                  className="text-black hover:text-[#1E6FD9] p-1 font-bold text-[14px]"
                 >
                   ✕
                 </button>
@@ -427,11 +427,11 @@ export function AdminMapView() {
 
               <form onSubmit={handleAssignSubmit} className="space-y-3">
                 <div>
-                  <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
                     Field Technician
                   </label>
                   <select
-                    className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none"
+                    className="w-full p-2 bg-white text-black border border-black rounded text-[14px] outline-none"
                     value={assignStaffId}
                     onChange={(e) => setAssignStaffId(Number(e.target.value) || '')}
                     required
@@ -446,13 +446,13 @@ export function AdminMapView() {
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-black uppercase mb-1">
+                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
                     Assignment Instructions / Notes
                   </label>
                   <textarea
                     rows={2}
                     placeholder="e.g. Bring 1-inch pipe clamps and check main valve."
-                    className="w-full p-2 bg-white text-black border border-black rounded text-[10px] outline-none"
+                    className="w-full p-2 bg-white text-black border border-black rounded text-[14px] outline-none"
                     value={assignNotes}
                     onChange={(e) => setAssignNotes(e.target.value)}
                   />

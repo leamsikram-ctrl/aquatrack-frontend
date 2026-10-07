@@ -59,10 +59,10 @@ export function AdminCustomersView() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/15 pb-4">
         <div>
-          <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">
+          <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
             Consumer Account Directory
           </h1>
-          <p className="text-[10px] text-black/60">
+          <p className="text-[14px] text-black/60">
             Registered Sinacaban water consumers, linked physical meters, and account credentials.
           </p>
         </div>
@@ -74,12 +74,12 @@ export function AdminCustomersView() {
       {/* Filter and Search Bar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-bold text-black uppercase">Status:</span>
+          <span className="text-[14px] font-bold text-black uppercase">Status:</span>
           {(['all', 'verified', 'unverified'] as const).map((filter) => (
             <button
               key={filter}
               onClick={() => setStatusFilter(filter)}
-              className={`px-3 py-1 rounded text-[10px] font-bold capitalize transition-colors border border-black ${
+              className={`px-3 py-1 rounded text-[14px] font-bold capitalize transition-colors border border-black ${
                 statusFilter === filter
                   ? 'bg-[#1E6FD9] text-white'
                   : 'bg-white text-black hover:bg-[#F0F6FD]'
@@ -93,7 +93,7 @@ export function AdminCustomersView() {
         <div className="relative flex-1 sm:max-w-xs">
           <input
             type="text"
-            className="w-full pl-7 pr-3 py-1.5 text-[10px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+            className="w-full pl-7 pr-3 py-1.5 text-[14px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
             placeholder="Search name, account, meter, email..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -105,7 +105,7 @@ export function AdminCustomersView() {
       {/* Customers Table */}
       <Card className="p-0 overflow-hidden border border-black/15">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-[10px]">
+          <table className="w-full text-left text-[14px]">
             <thead className="bg-[#F0F6FD] text-black border-b border-black/15">
               <tr>
                 <th className="px-4 py-2.5 font-bold uppercase">Account No.</th>
@@ -207,10 +207,10 @@ export function AdminCustomersView() {
             <div className="space-y-3 bg-[#F0F6FD] p-3 rounded border border-black/10">
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <span className="text-[10px] text-black/60 uppercase font-bold block">
+                  <span className="text-[14px] text-black/60 uppercase font-bold block">
                     Full Name
                   </span>
-                  <span className="text-[10px] font-bold text-black">
+                  <span className="text-[14px] font-bold text-black">
                     {selectedCustomer.name ||
                       (selectedCustomer.customer_profile
                         ? `${selectedCustomer.customer_profile.first_name} ${selectedCustomer.customer_profile.last_name}`
@@ -218,10 +218,10 @@ export function AdminCustomersView() {
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-black/60 uppercase font-bold block">
+                  <span className="text-[14px] text-black/60 uppercase font-bold block">
                     Account Reference
                   </span>
-                  <span className="text-[10px] font-bold text-[#1E6FD9]">
+                  <span className="text-[14px] font-bold text-[#1E6FD9]">
                     {selectedCustomer.customer_profile?.account_number || 'AWAITING-VERIFICATION'}
                   </span>
                 </div>
@@ -229,19 +229,19 @@ export function AdminCustomersView() {
 
               <div className="grid grid-cols-2 gap-2 border-t border-black/10 pt-2">
                 <div>
-                  <span className="text-[10px] text-black/60 uppercase font-bold block">
+                  <span className="text-[14px] text-black/60 uppercase font-bold block">
                     Email Address
                   </span>
-                  <span className="text-[10px] text-black flex items-center gap-1">
+                  <span className="text-[14px] text-black flex items-center gap-1">
                     <IconMail size={10} className="text-black/50" />
                     {selectedCustomer.email || 'N/A'}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-black/60 uppercase font-bold block">
+                  <span className="text-[14px] text-black/60 uppercase font-bold block">
                     Mobile Phone
                   </span>
-                  <span className="text-[10px] text-black flex items-center gap-1">
+                  <span className="text-[14px] text-black flex items-center gap-1">
                     <IconPhone size={10} className="text-black/50" />
                     {selectedCustomer.mobile_number || selectedCustomer.customer_profile?.mobile_number || 'N/A'}
                   </span>
@@ -249,10 +249,10 @@ export function AdminCustomersView() {
               </div>
 
               <div className="border-t border-black/10 pt-2">
-                <span className="text-[10px] text-black/60 uppercase font-bold block">
+                <span className="text-[14px] text-black/60 uppercase font-bold block">
                   Installation Address
                 </span>
-                <span className="text-[10px] text-black flex items-center gap-1">
+                <span className="text-[14px] text-black flex items-center gap-1">
                   <IconMapPin size={10} className="text-black/50 shrink-0" />
                   {selectedCustomer.customer_profile?.address || 'N/A'},{' '}
                   {selectedCustomer.customer_profile?.barangay?.name || 'Sinacaban'}
@@ -262,11 +262,11 @@ export function AdminCustomersView() {
 
             {/* Meter Connection Info */}
             <div className="border border-black/15 p-3 rounded space-y-2">
-              <span className="text-[10px] font-bold text-black uppercase tracking-wider block">
+              <span className="text-[14px] font-bold text-black uppercase tracking-wider block">
                 Physical Meter Connection
               </span>
               {selectedCustomer.customer_profile?.meter ? (
-                <div className="grid grid-cols-2 gap-2 text-[10px]">
+                <div className="grid grid-cols-2 gap-2 text-[14px]">
                   <div>
                     <span className="text-black/60 block">Meter Number:</span>
                     <strong className="text-black">
@@ -281,13 +281,13 @@ export function AdminCustomersView() {
                   </div>
                   <div className="col-span-2">
                     <span className="text-black/60 block">Digital QR Token:</span>
-                    <span className="text-black bg-white px-1.5 py-0.5 border border-black/20 rounded font-normal text-[10px]">
+                    <span className="text-black bg-white px-1.5 py-0.5 border border-black/20 rounded font-normal text-[14px]">
                       {selectedCustomer.customer_profile.meter.qr_token}
                     </span>
                   </div>
                 </div>
               ) : (
-                <div className="text-[10px] text-black/60 italic p-2 bg-[#F0F6FD] rounded">
+                <div className="text-[14px] text-black/60 italic p-2 bg-[#F0F6FD] rounded">
                   No physical water meter has been assigned to this account yet. Approve this user in the Customer Verifications queue to assign an active meter.
                 </div>
               )}

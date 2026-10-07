@@ -58,8 +58,8 @@ export function LocationPickerMap({
   return (
     <div className={`space-y-2 ${className}`}>
       {/* Helper header & quick actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[10px]">
-        <div className="flex items-center gap-1.5 text-black font-semibold">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[14px]">
+        <div className="flex items-center gap-1.5 text-black font-bold">
           <IconMapPin size={14} className="text-[#1E6FD9]" />
           <span>Click on the map or drag the pin to position your water service line:</span>
         </div>
@@ -106,9 +106,9 @@ export function LocationPickerMap({
       </div>
 
       {/* Coordinate Readout */}
-      <div className="flex items-center justify-between px-3 py-1.5 bg-[#F0F6FD] border border-black/10 rounded text-[10px]">
-        <span className="text-black/70">Selected Coordinates:</span>
-        <span className="font-mono font-bold text-black">
+      <div className="flex items-center justify-between px-3 py-1.5 bg-[#F0F6FD] border border-black/10 rounded text-[14px]">
+        <span className="text-black/70 font-normal">Selected Coordinates:</span>
+        <span className="font-bold text-black">
           {currentLat.toFixed(6)}° N, {currentLng.toFixed(6)}° E
         </span>
       </div>

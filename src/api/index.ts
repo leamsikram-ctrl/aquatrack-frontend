@@ -1,6 +1,19 @@
 import { apiClient } from './client';
 import type { ServiceRequest, Billing, WaterInterruption, User, Barangay, Meter, IssueType } from '../types';
 
+export interface OfficeAccountDetails {
+  account_number: string;
+  meter_number: string;
+  first_name: string;
+  last_name: string;
+  full_name: string;
+  barangay_id: number;
+  barangay_name: string;
+  address: string;
+  latitude: number | null;
+  longitude: number | null;
+}
+
 export const authApi = {
   login: async (credentials: { login: string; password: string; device_name?: string }) => {
     const res = await apiClient.post<{ token: string; user: User }>('/auth/login', credentials);
@@ -9,6 +22,42 @@ export const authApi = {
 
   register: async (payload: Record<string, unknown>) => {
     const res = await apiClient.post<{ message: string; status: string; user: User }>('/auth/register', payload);
+    return res.data;
+  },
+
+  lookupAccount: async (payload: { account_number: string; meter_number: string }) => {
+    const res = await apiClient.post<{ message: string; account: OfficeAccountDetails }>('/auth/register/lookup', payload);
+    return res.data;
+  },
+
+  sendRegistrationOtp: async (payload: {
+    account_number: string;
+    meter_number: string;
+    mobile_number: string;
+    email?: string | null;
+  }) => {
+    const res = await apiClient.post<{ message: string; expires_in_seconds: number; debug_otp?: string | null }>(
+      '/auth/register/send-otp',
+      payload
+    );
+    return res.data;
+  },
+
+  verifyRegistrationOtp: async (payload: {
+    account_number: string;
+    meter_number: string;
+    otp: string;
+    email?: string | null;
+    password: string;
+    password_confirmation: string;
+    latitude?: number | null;
+    longitude?: number | null;
+    consent_terms: boolean;
+    consent_privacy: boolean;
+    terms_version: string;
+    privacy_version: string;
+  }) => {
+    const res = await apiClient.post<{ message: string; token: string; user: User }>('/auth/register/verify-otp', payload);
     return res.data;
   },
 

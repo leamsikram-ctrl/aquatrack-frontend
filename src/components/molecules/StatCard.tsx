@@ -17,7 +17,7 @@ export const StatCard: React.FC<StatCardProps> = ({
   return (
     <Card className="flex flex-col justify-between">
       <div className="flex items-center justify-between">
-        <span className="text-[10px] font-bold text-black uppercase tracking-wider">
+        <span className="text-[14px] font-bold text-black uppercase tracking-wider">
           {label}
         </span>
         {icon && (
@@ -28,11 +28,11 @@ export const StatCard: React.FC<StatCardProps> = ({
       </div>
 
       <div className="mt-4">
-        <div className="text-[10px] font-bold text-black border-l-2 border-[#1E6FD9] pl-2">
+        <div className="text-[14px] font-bold text-black border-l-2 border-[#1E6FD9] pl-2">
           {value}
         </div>
         {subtext && (
-          <div className="mt-1 text-[10px] font-normal text-black/70">
+          <div className="mt-1 text-[14px] font-normal text-black/70">
             {subtext}
           </div>
         )}

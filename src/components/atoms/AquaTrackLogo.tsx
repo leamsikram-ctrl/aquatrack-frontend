@@ -81,12 +81,12 @@ export const AquaTrackLogo: React.FC<AquaTrackLogoProps> = ({
     <div className={`inline-flex items-center gap-3 select-none ${className}`}>
       {Mark}
       <div className="flex flex-col leading-tight">
-        <span className="font-bold uppercase tracking-wider text-black text-[10px]">
+        <span className="font-bold uppercase tracking-wider text-black text-[14px]">
           AquaTrack
         </span>
         {showSubtitle && (
-          <span className="text-black/60 font-normal text-[10px]">
-            Sinacaban Water Works System (SIWASS)
+          <span className="text-black/60 font-normal text-[14px]">
+            Sinacaban Water Supply System (SIWASS)
           </span>
         )}
       </div>

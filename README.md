@@ -1,6 +1,6 @@
 # AquaTrack Frontend Web Application
 
-The modern web portal for **AquaTrack** (Sinacaban Water Works System - SIWASS), built with **React 19**, **Vite**, **TypeScript**, and **Tailwind CSS v4**.
+The modern web portal for **AquaTrack** (Sinacaban Water Supply System - SIWASS), built with **React 19**, **Vite**, **TypeScript**, and **Tailwind CSS v4**.
 
 It provides three dedicated, independent user portals:
 1. **Admin Portal (`/admin/*`)**: Operations dashboard, technician dispatch, verifications queue, billing CSV imports, advisories, and customer directory.

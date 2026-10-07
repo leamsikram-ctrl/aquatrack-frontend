@@ -41,16 +41,16 @@ export function CustomerAdvisoriesView() {
 
   return (
     <CustomerLayout currentPath="/customer/advisories" onNavigate={(path) => navigate(path)}>
-      <div className="max-w-xl mx-auto space-y-4">
+      <div className="space-y-4">
         {/* Header with Switcher [ Calendar ] [ List ] */}
         <div className="flex items-center justify-between pb-1">
-          <h1 className="text-[10px] font-bold text-black uppercase tracking-wider">
+          <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
             Advisories
           </h1>
           <div className="flex border border-black/20 rounded p-0.5 bg-[#F0F6FD]">
             <button
               onClick={() => setViewMode('calendar')}
-              className={`px-3 py-1 rounded text-[10px] transition-colors ${
+              className={`px-3 py-1 rounded text-[14px] transition-colors ${
                 viewMode === 'calendar'
                   ? 'bg-[#1E6FD9] text-white font-bold'
                   : 'text-black hover:text-[#1E6FD9] font-normal'
@@ -60,7 +60,7 @@ export function CustomerAdvisoriesView() {
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`px-3 py-1 rounded text-[10px] transition-colors ${
+              className={`px-3 py-1 rounded text-[14px] transition-colors ${
                 viewMode === 'list'
                   ? 'bg-[#1E6FD9] text-white font-bold'
                   : 'text-black hover:text-[#1E6FD9] font-normal'
@@ -84,7 +84,7 @@ export function CustomerAdvisoriesView() {
             {/* Selected Day Advisory Card */}
             <Card className="p-4 border border-black/15 bg-white space-y-2">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-black text-[10px]">
+                <span className="font-bold text-black text-[14px]">
                   {selectedDayAdvisories.length > 0 && selectedDayAdvisories[0].barangays?.[0]?.name
                     ? selectedDayAdvisories[0].barangays.map((b) => b.name).join(', ')
                     : 'Barangay Poblacion'}
@@ -92,7 +92,7 @@ export function CustomerAdvisoriesView() {
                 <Badge variant="blue">Selected day</Badge>
               </div>
 
-              <div className="text-[10px] text-black/60 font-normal">
+              <div className="text-[14px] text-black/60 font-normal">
                 {selectedDayAdvisories.length > 0 && selectedDayAdvisories[0].starts_at ? (
                   <>
                     {new Date(selectedDayAdvisories[0].starts_at).toLocaleTimeString([], {
@@ -112,7 +112,7 @@ export function CustomerAdvisoriesView() {
                 )}
               </div>
 
-              <p className="text-[10px] text-black font-normal leading-relaxed">
+              <p className="text-[14px] text-black font-normal leading-relaxed">
                 {selectedDayAdvisories.length > 0
                   ? selectedDayAdvisories[0].message
                   : `Scheduled routine valve maintenance and mainline pipe inspection on ${selectedDate.toLocaleDateString(
@@ -128,7 +128,7 @@ export function CustomerAdvisoriesView() {
         {viewMode === 'list' && (
           <div className="space-y-3">
             {isLoading ? (
-              <Card className="p-4 border border-black/15 text-center text-black/60 text-[10px] font-normal">
+              <Card className="p-4 border border-black/15 text-center text-black/60 text-[14px] font-normal">
                 Loading advisories...
               </Card>
             ) : advisories.length === 0 ? (
@@ -147,7 +147,7 @@ export function CustomerAdvisoriesView() {
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-1.5">
                       <IconAlertTriangle size={15} className="text-[#1E6FD9] shrink-0" />
-                      <span className="font-bold text-black uppercase tracking-wider text-[10px]">
+                      <span className="font-bold text-black uppercase tracking-wider text-[14px]">
                         Advisory #{advisory.id}
                       </span>
                     </div>
@@ -156,11 +156,11 @@ export function CustomerAdvisoriesView() {
                     </Badge>
                   </div>
 
-                  <p className="text-black text-[10px] font-normal leading-relaxed bg-[#F0F6FD] p-2.5 rounded border border-black/10">
+                  <p className="text-black text-[14px] font-normal leading-relaxed bg-[#F0F6FD] p-2.5 rounded border border-black/10">
                     {advisory.message}
                   </p>
 
-                  <div className="space-y-1 text-black/70 text-[10px] font-normal">
+                  <div className="space-y-1 text-black/70 text-[14px] font-normal">
                     <div className="flex items-center gap-1.5">
                       <IconCalendarTime size={13} className="text-black/50" />
                       <span>

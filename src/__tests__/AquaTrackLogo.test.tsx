@@ -14,13 +14,13 @@ describe('AquaTrackLogo Component', () => {
   it('renders full variant with brand text', () => {
     render(<AquaTrackLogo variant="full" />);
     expect(screen.getByText('AquaTrack')).toBeInTheDocument();
-    expect(screen.getByText(/Sinacaban Water Works/i)).toBeInTheDocument();
+    expect(screen.getByText(/Sinacaban Water Supply/i)).toBeInTheDocument();
   });
 
   it('hides subtitle when showSubtitle is false', () => {
     render(<AquaTrackLogo variant="full" showSubtitle={false} />);
     expect(screen.getByText('AquaTrack')).toBeInTheDocument();
-    expect(screen.queryByText(/Sinacaban Water Works/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Sinacaban Water Supply/i)).not.toBeInTheDocument();
   });
 });
 
