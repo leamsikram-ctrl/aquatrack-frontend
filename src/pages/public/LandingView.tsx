@@ -167,106 +167,113 @@ export function LandingView() {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative border-b border-black/15 bg-white py-16 sm:py-24 lg:py-28">
+      {/* Hero Section: Centered Civic Headline & Expansive 4-Metric Strip */}
+      <section className="relative border-b border-black/15 bg-white py-20 sm:py-28 lg:py-32">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-            {/* Left Column */}
-            <div className="lg:col-span-7 space-y-5">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#1E6FD9] bg-[#F0F6FD] text-[#1E6FD9] font-bold uppercase tracking-wider">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#1E6FD9]" />
-                Municipal Water Utility Portal
-              </div>
-
-              <h1 className="text-black font-bold tracking-tight text-[10px] uppercase leading-relaxed">
-                Sinacaban Municipal Water Works Management System
-              </h1>
-
-              <p className="text-black/70 font-normal leading-relaxed max-w-2xl text-[10px]">
-                Official digital platform of SIWASS for household connections, maintenance dispatch, and transparent billing.
-              </p>
-
-              <div className="flex flex-wrap items-center gap-3 pt-1">
-                <Link to="/register">
-                  <Button
-                    variant="primary"
-                    className="h-10 px-5 text-[10px] font-bold"
-                    rightIcon={<IconArrowRight size={14} />}
-                  >
-                    Register Connection
-                  </Button>
-                </Link>
-                <Link to="/login">
-                  <Button variant="secondary" className="h-10 px-5 text-[10px] font-bold">
-                    Portal Sign In
-                  </Button>
-                </Link>
-              </div>
-
-              {/* Status Points Strip */}
-              <div className="pt-5 border-t border-black/10 flex flex-wrap items-center gap-6 text-black/60">
-                <div className="flex items-center gap-2">
-                  <IconCheck size={14} className="text-[#1E6FD9]" />
-                  <span>19 Barangays Covered</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <IconCheck size={14} className="text-[#1E6FD9]" />
-                  <span>Verified Water Meters</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <IconCheck size={14} className="text-[#1E6FD9]" />
-                  <span>Rapid Field Dispatch</span>
-                </div>
-              </div>
+          <div className="max-w-4xl mx-auto text-center space-y-6">
+            {/* Pill Tag */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#1E6FD9] bg-[#F0F6FD] text-[#1E6FD9] font-bold uppercase tracking-wider text-[10px]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#1E6FD9]" />
+              Official Municipal Public Utility Gateway · SIWASS
             </div>
 
-            {/* Right Column: Live Status Box */}
-            <div className="lg:col-span-5">
-              <Card className="border-black/20 p-6 sm:p-7 space-y-4 shadow-xs bg-white rounded-xl">
-                <div className="flex items-center justify-between border-b border-black/10 pb-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-[#1E6FD9]" />
-                    <span className="font-bold uppercase tracking-wider text-black">
-                      SIWASS Utility Status
-                    </span>
-                  </div>
-                  <Badge variant="blue" className="text-[10px]">
-                    Active
-                  </Badge>
-                </div>
+            {/* Main Centered Civic Headline */}
+            <h1 className="text-black font-bold uppercase tracking-tight text-[10px] leading-relaxed max-w-3xl mx-auto">
+              Sinacaban Municipal Water Works Management System
+            </h1>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="border border-black/10 rounded-lg p-3 bg-white">
-                    <span className="text-black/60 block font-bold">Network Reach</span>
-                    <span className="font-bold text-black text-[10px] block mt-0.5">19 Barangays</span>
-                  </div>
-                  <div className="border border-black/10 rounded-lg p-3 bg-white">
-                    <span className="text-black/60 block font-bold">Field Response</span>
-                    <span className="font-bold text-black text-[10px] block mt-0.5">Standby 24/7</span>
-                  </div>
-                  <div className="border border-black/10 rounded-lg p-3 bg-white">
-                    <span className="text-black/60 block font-bold">Meter Assets</span>
-                    <span className="font-bold text-black text-[10px] block mt-0.5">QR Tagged</span>
-                  </div>
-                  <div className="border border-black/10 rounded-lg p-3 bg-white">
-                    <span className="text-black/60 block font-bold">Billing Records</span>
-                    <span className="font-bold text-black text-[10px] block mt-0.5">Audited CSV</span>
-                  </div>
-                </div>
+            {/* Single Concise Mission Description */}
+            <p className="text-black/70 font-normal leading-relaxed max-w-2xl mx-auto text-[10px]">
+              Unified digital platform powering household water connections, rapid maintenance dispatch, and transparent billing across all 19 barangays.
+            </p>
 
-                {/* Active Advisory Notice */}
-                <div className="border border-[#1E6FD9] bg-[#F0F6FD] rounded-lg p-3.5 text-black space-y-1.5">
-                  <div className="flex items-center justify-between font-bold text-[#1E6FD9]">
-                    <span className="flex items-center gap-1.5">
-                      <IconAlertTriangle size={13} />
-                      Current Advisory
-                    </span>
-                    <span className="uppercase">Notice</span>
-                  </div>
-                  <p className="text-black/80 font-normal leading-relaxed">
-                    Mainline pressure balancing scheduled for Poblacion, San Antonio, and San Isidro this Saturday.
-                  </p>
+            {/* Prominent Action CTAs */}
+            <div className="flex flex-wrap items-center justify-center gap-3.5 pt-2">
+              <Link to="/register">
+                <Button
+                  variant="primary"
+                  className="h-11 px-6 text-[10px] font-bold rounded-lg shadow-xs"
+                  rightIcon={<IconArrowRight size={14} />}
+                >
+                  Register Water Connection
+                </Button>
+              </Link>
+              <Link to="/login">
+                <Button
+                  variant="secondary"
+                  className="h-11 px-6 text-[10px] font-bold rounded-lg"
+                >
+                  Institutional Sign In
+                </Button>
+              </Link>
+            </div>
+          </div>
+
+          {/* Expansive 4-Metric Strip */}
+          <div className="mt-14 sm:mt-20 pt-10 sm:pt-14 border-t border-black/10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              {/* Metric 1 */}
+              <Card className="p-5 sm:p-6 border-black/15 hover:border-[#1E6FD9] transition-all bg-white rounded-xl space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-black/60 font-bold uppercase tracking-wider text-[10px]">
+                    Municipal Reach
+                  </span>
+                  <span className="w-2 h-2 rounded-full bg-[#1E6FD9]" />
                 </div>
+                <div className="text-black font-bold uppercase tracking-wider text-[10px]">
+                  19 Barangays Covered
+                </div>
+                <p className="text-black/70 font-normal leading-relaxed text-[10px]">
+                  Full distribution network servicing Poblacion and all surrounding rural zones.
+                </p>
+              </Card>
+
+              {/* Metric 2 */}
+              <Card className="p-5 sm:p-6 border-black/15 hover:border-[#1E6FD9] transition-all bg-white rounded-xl space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-black/60 font-bold uppercase tracking-wider text-[10px]">
+                    Meter Management
+                  </span>
+                  <span className="w-2 h-2 rounded-full bg-[#1E6FD9]" />
+                </div>
+                <div className="text-black font-bold uppercase tracking-wider text-[10px]">
+                  Verified SIWASS Meters
+                </div>
+                <p className="text-black/70 font-normal leading-relaxed text-[10px]">
+                  Physical QR token-encoded municipal meter registry with official verification.
+                </p>
+              </Card>
+
+              {/* Metric 3 */}
+              <Card className="p-5 sm:p-6 border-black/15 hover:border-[#1E6FD9] transition-all bg-white rounded-xl space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-black/60 font-bold uppercase tracking-wider text-[10px]">
+                    Field Maintenance
+                  </span>
+                  <span className="w-2 h-2 rounded-full bg-[#1E6FD9]" />
+                </div>
+                <div className="text-black font-bold uppercase tracking-wider text-[10px]">
+                  Rapid Field Dispatch
+                </div>
+                <p className="text-black/70 font-normal leading-relaxed text-[10px]">
+                  Automated incident queue for burst pipes, low pressure, and urgent repairs.
+                </p>
+              </Card>
+
+              {/* Metric 4 */}
+              <Card className="p-5 sm:p-6 border-black/15 hover:border-[#1E6FD9] transition-all bg-white rounded-xl space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-black/60 font-bold uppercase tracking-wider text-[10px]">
+                    Public Transparency
+                  </span>
+                  <span className="w-2 h-2 rounded-full bg-[#1E6FD9]" />
+                </div>
+                <div className="text-black font-bold uppercase tracking-wider text-[10px]">
+                  Published Billing Ledger
+                </div>
+                <p className="text-black/70 font-normal leading-relaxed text-[10px]">
+                  Audited monthly statements with official municipal payment accountability.
+                </p>
               </Card>
             </div>
           </div>
