@@ -162,7 +162,7 @@ export function AdminRequestsView() {
               Service Requests Manager
             </h1>
             <p className="text-[14px] text-black/60">
-              Active dispatches, technician assignments, and maintenance logs for Sinacaban (SIWASS)
+              Active dispatches, technician assignments, and maintenance logs for Sinacaban (AquaTrack)
             </p>
           </div>
 

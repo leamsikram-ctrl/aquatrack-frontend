@@ -63,7 +63,7 @@ export function AdminDashboardView() {
               Administrator Operations Overview
             </h1>
             <p className="text-[14px] text-black/60">
-              Real-time operations, service requests, and utility statistics for Sinacaban (SIWASS).
+              Real-time operations, service requests, and utility statistics for Sinacaban (AquaTrack).
             </p>
           </div>
           <div className="flex items-center gap-2">

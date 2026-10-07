@@ -161,7 +161,7 @@ export function CustomerBillsView() {
                   <div className="font-bold text-black uppercase tracking-wider text-[14px]">
                     Municipality of Sinacaban
                   </div>
-                  <div className="text-black/60 text-[14px] font-normal">Sinacaban Water Supply System (SIWASS)</div>
+                  <div className="text-black/60 text-[14px] font-normal">Sinacaban Water Supply System</div>
                   <div className="text-[#1E6FD9] mt-1 font-bold text-[14px]">
                     BILL-{selectedBill.id.toString().padStart(5, '0')}
                   </div>

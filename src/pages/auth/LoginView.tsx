@@ -113,7 +113,7 @@ export function LoginView() {
         <Link to="/" className="flex items-center gap-2 hover:opacity-90">
           <AquaTrackLogo size={24} variant="mark" />
           <span className="font-bold text-black uppercase tracking-wider text-[14px]">
-            Sinacaban Water District (SIWASS)
+            AquaTrack
           </span>
         </Link>
         <div className="text-black/60 hidden sm:block text-[14px]">
@@ -400,7 +400,7 @@ export function LoginView() {
 
         {/* Footer */}
         <footer className="border-t border-black/15 pt-4 text-center text-black/50 text-[14px]">
-          Sinacaban Water Supply System (SIWASS) · Municipality of Sinacaban, Misamis Occidental
+          AquaTrack — Sinacaban Water Supply System · Municipality of Sinacaban, Misamis Occidental
         </footer>
       </div>
     </div>

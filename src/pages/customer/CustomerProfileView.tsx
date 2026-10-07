@@ -178,7 +178,7 @@ export function CustomerProfileView() {
                 <div className="p-3 bg-[#F0F6FD] border border-black/20 rounded text-center text-[14px] text-black space-y-1">
                   <div className="font-bold text-[#1E6FD9]">Update Request Submitted</div>
                   <div className="text-black/70 font-normal">
-                    Your profile edits will take effect once reviewed by SIWASS admin.
+                    Your profile edits will take effect once reviewed by AquaTrack admin.
                   </div>
                 </div>
               ) : (

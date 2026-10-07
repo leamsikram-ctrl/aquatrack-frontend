@@ -17,5 +17,10 @@ describe('Card Component', () => {
     const { container } = render(<Card active>Active Card</Card>);
     expect(container.firstChild).toHaveClass('border-[#1E6FD9]');
   });
+
+  it('applies hard shadow style', () => {
+    const { container } = render(<Card>Shadow Card</Card>);
+    expect(container.firstChild).toHaveClass('shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)]');
+  });
 });
 

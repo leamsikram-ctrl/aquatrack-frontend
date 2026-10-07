@@ -130,7 +130,7 @@ export function AdminBillingImportView() {
       <Card className="p-6 border border-black/20 space-y-4">
         <div className="flex items-center gap-2 font-bold text-black border-b border-black/10 pb-2">
           <IconFileSpreadsheet size={16} className="text-[#1E6FD9]" />
-          <span>Upload SIWASS Billing CSV Batch</span>
+          <span>Upload AquaTrack Billing CSV Batch</span>
         </div>
 
         <div className="border-2 border-dashed border-black/20 rounded-xl p-6 text-center space-y-3 bg-[#F0F6FD]/30 hover:bg-[#F0F6FD]/60 transition-colors">
@@ -237,7 +237,7 @@ export function AdminBillingImportView() {
           <div className="p-8">
             <EmptyState
               title="No Billing Records In System"
-              description="Upload your first SIWASS billing CSV file above to populate accounts and amounts due."
+              description="Upload your first AquaTrack billing CSV file above to populate accounts and amounts due."
             />
           </div>
         ) : (

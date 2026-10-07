@@ -12,7 +12,7 @@ export function AdminSettingsView() {
   const [activeTab, setActiveTab] = useState<'profile' | 'issue_types' | 'sms' | 'security'>('profile');
 
   // Wireframe A13: Utility Profile Form State
-  const [utilityName, setUtilityName] = useState('Sinacaban Water Supply System (SIWASS)');
+  const [utilityName, setUtilityName] = useState('Sinacaban Water Supply System');
   const [utilityAddress, setUtilityAddress] = useState('Municipal Hall, Poblacion, Sinacaban, Misamis Occidental');
   const [contactNumber, setContactNumber] = useState('0917 555 0199');
   const [profileSaved, setProfileSaved] = useState(false);
@@ -33,7 +33,7 @@ export function AdminSettingsView() {
   const [newIssueUrgency, setNewIssueUrgency] = useState<Urgency>('medium');
 
   // SMS & Notifications Tab
-  const [smsSenderId, setSmsSenderId] = useState('SIWASS');
+  const [smsSenderId, setSmsSenderId] = useState('AquaTrack');
   const [notifyOnAssign, setNotifyOnAssign] = useState(true);
   const [notifyOnAdvisory, setNotifyOnAdvisory] = useState(true);
   const [smsSaved, setSmsSaved] = useState(false);

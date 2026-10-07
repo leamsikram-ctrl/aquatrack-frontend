@@ -52,3 +52,25 @@ button, input, select, textarea {
   background: #000000;
   border-radius: 0px;
 }
+
+/* Print styling for physical utility meter tags */
+@media print {
+  body {
+    background: #FFFFFF !important;
+  }
+  body * {
+    visibility: hidden;
+  }
+  #siwass-meter-tag-print-area,
+  #siwass-meter-tag-print-area * {
+    visibility: visible;
+  }
+  #siwass-meter-tag-print-area {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 320px;
+    box-shadow: none !important;
+  }
+}

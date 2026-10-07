@@ -48,7 +48,7 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({
             <span className="font-bold text-[14px] tracking-wider uppercase text-black">AquaTrack</span>
             <span className="text-black/30">/</span>
             <span className="text-[14px] font-bold text-black/60 bg-[#F0F6FD] px-1.5 py-0.5 rounded border border-black/10">
-              SIWASS
+              Sinacaban
             </span>
           </div>
         </div>

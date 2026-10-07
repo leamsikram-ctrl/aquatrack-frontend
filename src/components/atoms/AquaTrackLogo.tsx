@@ -86,7 +86,7 @@ export const AquaTrackLogo: React.FC<AquaTrackLogoProps> = ({
         </span>
         {showSubtitle && (
           <span className="text-black/60 font-normal text-[14px]">
-            Sinacaban Water Supply System (SIWASS)
+            Sinacaban Water Supply System
           </span>
         )}
       </div>

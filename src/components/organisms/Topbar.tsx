@@ -47,7 +47,7 @@ export const Topbar: React.FC<TopbarProps> = ({
   return (
     <>
       <header
-        className={`h-14 border-b border-black/15 bg-white sticky top-0 z-30 select-none text-[14px] ${className}`}
+        className={`h-14 border-b border-black/20 bg-white shadow-[0_2px_0px_0px_rgba(0,0,0,0.06)] sticky top-0 z-30 select-none text-[14px] ${className}`}
       >
         <div className="max-w-[1440px] w-full mx-auto px-6 sm:px-10 lg:px-14 flex items-center justify-between h-full">
           <div className="flex items-center gap-3">

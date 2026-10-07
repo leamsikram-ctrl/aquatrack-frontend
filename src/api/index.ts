@@ -14,6 +14,22 @@ export interface OfficeAccountDetails {
   longitude: number | null;
 }
 
+export interface MeterTagData {
+  user_id: number;
+  customer_name: string;
+  account_number: string;
+  meter_id: number;
+  meter_number: string;
+  meter_status: string;
+  qr_token: string;
+  barangay: string;
+  address: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  verified_at: string;
+  issued_by: string;
+}
+
 export const authApi = {
   login: async (credentials: { login: string; password: string; device_name?: string }) => {
     const res = await apiClient.post<{ token: string; user: User }>('/auth/login', credentials);
@@ -161,6 +177,16 @@ export const adminApi = {
 
   customersList: async (params?: { status?: string; page?: number; per_page?: number }) => {
     const res = await apiClient.get<{ data: User[]; pagination: { total: number } }>('/admin/customers', { params });
+    return res.data;
+  },
+
+  meterTag: async (userId: number) => {
+    const res = await apiClient.get<{ tag: MeterTagData }>(`/admin/customers/${userId}/meter-tag`);
+    return res.data.tag;
+  },
+
+  regenerateMeterQr: async (meterId: number) => {
+    const res = await apiClient.post<{ message: string; meter: Meter }>(`/admin/meters/${meterId}/regenerate-qr`);
     return res.data;
   },
 };

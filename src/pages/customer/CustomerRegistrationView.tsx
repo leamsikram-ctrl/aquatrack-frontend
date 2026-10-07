@@ -236,7 +236,7 @@ export function CustomerRegistrationView({ onBackToPortal }: Props) {
                   Account Verified & Activated!
                 </h2>
                 <p className="text-[14px] text-black/70">
-                  Welcome to SIWASS Online Portal. Your water account has been successfully linked.
+                  Welcome to AquaTrack Online Portal. Your water account has been successfully linked.
                 </p>
               </div>
 
@@ -289,7 +289,7 @@ export function CustomerRegistrationView({ onBackToPortal }: Props) {
               Water Utility Account Registration
             </h1>
             <p className="text-[14px] text-black/60">
-              Link your existing SIWASS municipal water account & physical meter for online billing and services.
+              Link your existing municipal water account & physical meter for online billing and services.
             </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
@@ -323,7 +323,7 @@ export function CustomerRegistrationView({ onBackToPortal }: Props) {
                     <IconSearch size={16} className="text-[#1E6FD9]" />
                     <span>Step 1A · Verify Existing Municipal Water Account</span>
                   </div>
-                  <span className="text-[12px] text-black/60">From your paper bill or SIWASS receipt</span>
+                  <span className="text-[12px] text-black/60">From your paper bill or official receipt</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -484,7 +484,7 @@ export function CustomerRegistrationView({ onBackToPortal }: Props) {
                     required
                   />
                   <span className="text-[14px] text-black">
-                    I accept the <strong>SIWASS Terms of Use (v1.0)</strong> for municipal water utility access and billing administration.
+                    I accept the <strong>AquaTrack Terms of Use (v1.0)</strong> for municipal water utility access and billing administration.
                   </span>
                 </label>
 
@@ -497,7 +497,7 @@ export function CustomerRegistrationView({ onBackToPortal }: Props) {
                     required
                   />
                   <span className="text-[14px] text-black">
-                    I consent to the <strong>SIWASS Privacy Notice (v1.0)</strong> and agree to receive utility SMS notifications regarding my water service account.
+                    I consent to the <strong>AquaTrack Privacy Notice (v1.0)</strong> and agree to receive utility SMS notifications regarding my water service account.
                   </span>
                 </label>
               </div>

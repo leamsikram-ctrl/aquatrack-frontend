@@ -115,17 +115,17 @@ export function LandingView() {
       )}
 
       {/* Main Institutional Header */}
-      <header className="sticky top-0 z-40 bg-white border-b border-black/15 shadow-2xs">
+      <header className="sticky top-0 z-40 bg-white border-b border-black/20 shadow-[0_3px_0px_0px_rgba(0,0,0,0.08)]">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14 h-16 flex items-center justify-between gap-6">
           {/* Logo & Municipal Identity */}
           <Link to="/" className="flex items-center gap-3 text-black hover:opacity-90">
             <AquaTrackLogo size={34} variant="mark" />
             <div className="flex flex-col leading-tight">
               <span className="font-bold uppercase tracking-wider text-black text-[14px]">
-                Sinacaban Water Supply System
+                AquaTrack
               </span>
               <span className="text-black/60 font-normal text-[14px]">
-                SIWASS — Municipality of Sinacaban
+                Sinacaban Water Supply System
               </span>
             </div>
           </Link>
@@ -166,18 +166,23 @@ export function LandingView() {
       </header>
 
       {/* Hero Section: Centered Civic Headline & Expansive 4-Metric Strip */}
-      <section className="relative border-b border-black/15 bg-white py-20 sm:py-28 lg:py-32">
+      <section className="relative border-b border-black/20 shadow-[0_2px_0px_0px_rgba(0,0,0,0.06)] bg-white py-20 sm:py-28 lg:py-32">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14">
           <div className="max-w-4xl mx-auto text-center space-y-6">
             {/* Pill Tag */}
             <div className="inline-flex items-center px-3.5 py-1.5 rounded-full border border-[#1E6FD9]/30 bg-[#F0F6FD] text-[#1E6FD9] font-bold uppercase tracking-wider text-xs">
-              Official Municipal Public Utility Gateway — SIWASS
+              Official Municipal Public Utility Gateway — AquaTrack
             </div>
 
             {/* Main Centered Civic Headline */}
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold uppercase tracking-tight text-black leading-[1.08] max-w-4xl mx-auto">
-              Sinacaban Water Supply System
-            </h1>
+            <div className="space-y-2">
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold uppercase tracking-tight text-black leading-[1.08] max-w-4xl mx-auto">
+                AquaTrack
+              </h1>
+              <p className="text-base sm:text-lg lg:text-xl font-bold uppercase tracking-wider text-black/80">
+                Sinacaban Water Supply System
+              </p>
+            </div>
 
             {/* Single Concise Mission Description */}
             <p className="text-sm sm:text-base lg:text-lg text-black/70 font-normal leading-relaxed max-w-2xl mx-auto">
@@ -189,7 +194,7 @@ export function LandingView() {
               <Link to="/register">
                 <Button
                   variant="primary"
-                  className="h-12 px-7 text-xs sm:text-sm font-bold rounded-lg shadow-xs"
+                  className="h-12 px-7 text-xs sm:text-sm font-bold rounded-lg shadow-[2px_2px_0px_0px_rgba(0,0,0,0.2)]"
                   rightIcon={<IconArrowRight size={16} />}
                 >
                   Register Water Connection
@@ -210,7 +215,7 @@ export function LandingView() {
           <div className="mt-14 sm:mt-20 pt-10 sm:pt-14 border-t border-black/10">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               {/* Metric 1 */}
-              <Card className="p-5 sm:p-6 border-black/15 hover:border-[#1E6FD9] transition-all bg-white rounded-xl space-y-2">
+              <Card className="p-5 sm:p-6 border-black/20 hover:border-[#1E6FD9] transition-all bg-white rounded-xl space-y-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[3px_3px_0px_0px_#1E6FD9]">
                 <span className="text-black/60 font-bold uppercase tracking-wider text-[14px] block">
                   Municipal Reach
                 </span>
@@ -226,7 +231,7 @@ export function LandingView() {
               </Card>
 
               {/* Metric 2 */}
-              <Card className="p-5 sm:p-6 border-black/15 hover:border-[#1E6FD9] transition-all bg-white rounded-xl space-y-2">
+              <Card className="p-5 sm:p-6 border-black/20 hover:border-[#1E6FD9] transition-all bg-white rounded-xl space-y-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[3px_3px_0px_0px_#1E6FD9]">
                 <span className="text-black/60 font-bold uppercase tracking-wider text-[14px] block">
                   Meter Management
                 </span>
@@ -234,7 +239,7 @@ export function LandingView() {
                   100%
                 </div>
                 <div className="text-black font-bold uppercase tracking-wider text-xs">
-                  Verified SIWASS Meters
+                  Verified Municipal Meters
                 </div>
                 <p className="text-black/70 font-normal leading-relaxed text-xs">
                   Physical QR token-encoded municipal meter registry with official verification.
@@ -242,7 +247,7 @@ export function LandingView() {
               </Card>
 
               {/* Metric 3 */}
-              <Card className="p-5 sm:p-6 border-black/15 hover:border-[#1E6FD9] transition-all bg-white rounded-xl space-y-2">
+              <Card className="p-5 sm:p-6 border-black/20 hover:border-[#1E6FD9] transition-all bg-white rounded-xl space-y-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[3px_3px_0px_0px_#1E6FD9]">
                 <span className="text-black/60 font-bold uppercase tracking-wider text-[14px] block">
                   Field Maintenance
                 </span>
@@ -258,7 +263,7 @@ export function LandingView() {
               </Card>
 
               {/* Metric 4 */}
-              <Card className="p-5 sm:p-6 border-black/15 hover:border-[#1E6FD9] transition-all bg-white rounded-xl space-y-2">
+              <Card className="p-5 sm:p-6 border-black/20 hover:border-[#1E6FD9] transition-all bg-white rounded-xl space-y-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[3px_3px_0px_0px_#1E6FD9]">
                 <span className="text-black/60 font-bold uppercase tracking-wider text-[14px] block">
                   Public Transparency
                 </span>
@@ -278,7 +283,7 @@ export function LandingView() {
       </section>
 
       {/* Public Utility Services Grid */}
-      <section id="services" className="py-20 sm:py-24 lg:py-28 border-b border-black/15 bg-white">
+      <section id="services" className="py-20 sm:py-24 lg:py-28 border-b border-black/20 shadow-[0_2px_0px_0px_rgba(0,0,0,0.06)] bg-white">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14 space-y-10">
           <div className="text-center max-w-2xl mx-auto space-y-2">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold uppercase tracking-tight text-black">
@@ -291,7 +296,7 @@ export function LandingView() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {/* Service 1 */}
-            <Card className="p-6 border-black/15 hover:border-[#1E6FD9] transition-all space-y-3 rounded-xl">
+            <Card className="p-6 border-black/20 hover:border-[#1E6FD9] transition-all space-y-3 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[3px_3px_0px_0px_#1E6FD9]">
               <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">
                 <IconUserCheck size={18} />
               </div>
@@ -309,7 +314,7 @@ export function LandingView() {
             </Card>
 
             {/* Service 2 */}
-            <Card className="p-6 border-black/15 hover:border-[#1E6FD9] transition-all space-y-3 rounded-xl">
+            <Card className="p-6 border-black/20 hover:border-[#1E6FD9] transition-all space-y-3 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[3px_3px_0px_0px_#1E6FD9]">
               <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">
                 <IconTools size={18} />
               </div>
@@ -327,7 +332,7 @@ export function LandingView() {
             </Card>
 
             {/* Service 3 */}
-            <Card className="p-6 border-black/15 hover:border-[#1E6FD9] transition-all space-y-3 rounded-xl">
+            <Card className="p-6 border-black/20 hover:border-[#1E6FD9] transition-all space-y-3 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[3px_3px_0px_0px_#1E6FD9]">
               <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">
                 <IconAlertTriangle size={18} />
               </div>
@@ -345,7 +350,7 @@ export function LandingView() {
             </Card>
 
             {/* Service 4 */}
-            <Card className="p-6 border-black/15 hover:border-[#1E6FD9] transition-all space-y-3 rounded-xl">
+            <Card className="p-6 border-black/20 hover:border-[#1E6FD9] transition-all space-y-3 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[3px_3px_0px_0px_#1E6FD9]">
               <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">
                 <IconFileInvoice size={18} />
               </div>
@@ -363,7 +368,7 @@ export function LandingView() {
             </Card>
 
             {/* Service 5 */}
-            <Card className="p-6 border-black/15 hover:border-[#1E6FD9] transition-all space-y-3 rounded-xl">
+            <Card className="p-6 border-black/20 hover:border-[#1E6FD9] transition-all space-y-3 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[3px_3px_0px_0px_#1E6FD9]">
               <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">
                 <IconQrcode size={18} />
               </div>
@@ -381,7 +386,7 @@ export function LandingView() {
             </Card>
 
             {/* Service 6 */}
-            <Card className="p-6 border-black/15 hover:border-[#1E6FD9] transition-all space-y-3 rounded-xl">
+            <Card className="p-6 border-black/20 hover:border-[#1E6FD9] transition-all space-y-3 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[3px_3px_0px_0px_#1E6FD9]">
               <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">
                 <IconBuilding size={18} />
               </div>
@@ -402,7 +407,7 @@ export function LandingView() {
       </section>
 
       {/* Public Interruption Advisories Bulletin */}
-      <section id="advisories" className="py-20 sm:py-24 lg:py-28 border-b border-black/15 bg-white">
+      <section id="advisories" className="py-20 sm:py-24 lg:py-28 border-b border-black/20 shadow-[0_2px_0px_0px_rgba(0,0,0,0.06)] bg-white">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14 space-y-10">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div className="space-y-2">
@@ -425,7 +430,7 @@ export function LandingView() {
             {activeAdvisories.map((advisory) => (
               <Card
                 key={advisory.id}
-                className="p-6 border-black/20 hover:border-[#1E6FD9] transition-all space-y-3.5 bg-white rounded-xl"
+                className="p-6 border-black/20 hover:border-[#1E6FD9] transition-all space-y-3.5 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[3px_3px_0px_0px_#1E6FD9]"
               >
                 <div className="flex items-center justify-between border-b border-black/10 pb-2.5">
                   <div className="flex items-center gap-2">
@@ -435,7 +440,7 @@ export function LandingView() {
                     </span>
                   </div>
                   <Badge variant="blue" className="text-[14px]">
-                    SIWASS
+                    AquaTrack
                   </Badge>
                 </div>
 
@@ -460,7 +465,7 @@ export function LandingView() {
       </section>
 
       {/* Barangay Coverage Section */}
-      <section id="coverage" className="py-20 sm:py-24 lg:py-28 border-b border-black/15 bg-white">
+      <section id="coverage" className="py-20 sm:py-24 lg:py-28 border-b border-black/20 shadow-[0_2px_0px_0px_rgba(0,0,0,0.06)] bg-white">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14 space-y-8">
           <div className="text-center max-w-2xl mx-auto space-y-2">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold uppercase tracking-tight text-black">
@@ -475,7 +480,7 @@ export function LandingView() {
           <div className="flex items-center justify-center gap-2 flex-wrap">
             <button
               onClick={() => setSelectedBarangay('All')}
-              className={`px-3.5 py-1.5 rounded-full border text-xs font-bold cursor-pointer transition-colors ${
+              className={`px-3.5 py-1.5 rounded-full border text-xs font-bold cursor-pointer transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,0.08)] ${
                 selectedBarangay === 'All'
                   ? 'bg-[#1E6FD9] text-white border-[#1E6FD9]'
                   : 'bg-white text-black border-black/20 hover:border-black'
@@ -485,7 +490,7 @@ export function LandingView() {
             </button>
             <button
               onClick={() => setSelectedBarangay('Poblacion')}
-              className={`px-3.5 py-1.5 rounded-full border text-xs font-bold cursor-pointer transition-colors ${
+              className={`px-3.5 py-1.5 rounded-full border text-xs font-bold cursor-pointer transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,0.08)] ${
                 selectedBarangay === 'Poblacion'
                   ? 'bg-[#1E6FD9] text-white border-[#1E6FD9]'
                   : 'bg-white text-black border-black/20 hover:border-black'
@@ -503,7 +508,7 @@ export function LandingView() {
               .map((bName) => (
                 <div
                   key={bName}
-                  className="p-3.5 border border-black/15 rounded-xl bg-white hover:border-[#1E6FD9] transition-all flex items-center justify-center text-center"
+                  className="p-3.5 border border-black/20 rounded-xl bg-white hover:border-[#1E6FD9] shadow-[2px_2px_0px_0px_rgba(0,0,0,0.08)] hover:shadow-[2px_2px_0px_0px_#1E6FD9] transition-all flex items-center justify-center text-center"
                 >
                   <span className="font-bold text-black uppercase tracking-wider text-xs">
                     {bName}
@@ -515,7 +520,7 @@ export function LandingView() {
       </section>
 
       {/* Gateway Portals Selector */}
-      <section id="gateways" className="py-20 sm:py-24 lg:py-28 border-b border-black/15 bg-white">
+      <section id="gateways" className="py-20 sm:py-24 lg:py-28 border-b border-black/20 shadow-[0_2px_0px_0px_rgba(0,0,0,0.06)] bg-white">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14 space-y-10">
           <div className="text-center max-w-2xl mx-auto space-y-2">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold uppercase tracking-tight text-black">
@@ -528,7 +533,7 @@ export function LandingView() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
             {/* Gateway 1: Customer */}
-            <Card className="p-6 sm:p-7 border-black/20 hover:border-[#1E6FD9] transition-all flex flex-col justify-between space-y-5 bg-white rounded-xl">
+            <Card className="p-6 sm:p-7 border-black/20 hover:border-[#1E6FD9] transition-all flex flex-col justify-between space-y-5 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[3px_3px_0px_0px_#1E6FD9]">
               <div className="space-y-3.5">
                 <div className="flex items-center justify-between">
                   <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">
@@ -571,7 +576,7 @@ export function LandingView() {
             </Card>
 
             {/* Gateway 2: Staff */}
-            <Card className="p-6 sm:p-7 border-black/20 hover:border-[#1E6FD9] transition-all flex flex-col justify-between space-y-5 bg-white rounded-xl">
+            <Card className="p-6 sm:p-7 border-black/20 hover:border-[#1E6FD9] transition-all flex flex-col justify-between space-y-5 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[3px_3px_0px_0px_#1E6FD9]">
               <div className="space-y-3.5">
                 <div className="flex items-center justify-between">
                   <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">
@@ -609,7 +614,7 @@ export function LandingView() {
             </Card>
 
             {/* Gateway 3: Admin */}
-            <Card className="p-6 sm:p-7 border-black/20 hover:border-[#1E6FD9] transition-all flex flex-col justify-between space-y-5 bg-white rounded-xl">
+            <Card className="p-6 sm:p-7 border-black/20 hover:border-[#1E6FD9] transition-all flex flex-col justify-between space-y-5 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[3px_3px_0px_0px_#1E6FD9]">
               <div className="space-y-3.5">
                 <div className="flex items-center justify-between">
                   <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">
@@ -650,7 +655,7 @@ export function LandingView() {
       </section>
 
       {/* Office & Support Contact Information */}
-      <section id="contact" className="py-20 sm:py-24 lg:py-28 border-b border-black/15 bg-white">
+      <section id="contact" className="py-20 sm:py-24 lg:py-28 border-b border-black/20 shadow-[0_2px_0px_0px_rgba(0,0,0,0.06)] bg-white">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
             <div className="lg:col-span-5 space-y-3.5">
@@ -690,13 +695,13 @@ export function LandingView() {
             </div>
 
             <div className="lg:col-span-7">
-              <Card className="p-6 sm:p-7 border-black/20 shadow-xs bg-white space-y-4 rounded-xl">
+              <Card className="p-6 sm:p-7 border-black/20 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] bg-white space-y-4 rounded-xl">
                 <h3 className="font-bold text-black uppercase tracking-wider border-b border-black/10 pb-2.5 text-base">
                   Quick Citizen Questions
                 </h3>
 
                 <div className="space-y-3">
-                  <div className="border border-black/10 rounded-lg p-3.5">
+                  <div className="border border-black/20 rounded-lg p-3.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.06)]">
                     <h4 className="font-bold text-black uppercase tracking-wider text-xs sm:text-sm">
                       How long does connection verification take?
                     </h4>
@@ -705,7 +710,7 @@ export function LandingView() {
                     </p>
                   </div>
 
-                  <div className="border border-black/10 rounded-lg p-3.5">
+                  <div className="border border-black/20 rounded-lg p-3.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.06)]">
                     <h4 className="font-bold text-black uppercase tracking-wider text-xs sm:text-sm">
                       Where can water payments be made?
                     </h4>
@@ -721,13 +726,13 @@ export function LandingView() {
       </section>
 
       {/* Institutional Municipal Footer */}
-      <footer className="bg-white border-t border-black/15 py-10 mt-auto">
+      <footer className="bg-white border-t border-black/20 shadow-[0_-2px_0px_0px_rgba(0,0,0,0.06)] py-10 mt-auto">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14 space-y-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-black/10 pb-6">
             <div className="flex items-center gap-2.5">
               <AquaTrackLogo size={24} variant="mark" />
               <span className="font-bold uppercase tracking-wider text-black text-xs sm:text-sm">
-                Sinacaban Water Supply System (SIWASS)
+                AquaTrack — Sinacaban Water Supply System
               </span>
             </div>
 

@@ -8,11 +8,15 @@ import { EmptyState } from '../../components/molecules/EmptyState';
 import { adminApi } from '../../api';
 import type { User, Meter } from '../../types';
 import { IconCheck, IconX, IconQrcode, IconMapPin } from '@tabler/icons-react';
+import { MeterTagModal } from '../../components/organisms/MeterTagModal';
 
 export function AdminVerificationView() {
   const navigate = useNavigate();
   const [pendingUsers, setPendingUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Meter Tag Modal State
+  const [verifiedUserForTag, setVerifiedUserForTag] = useState<User | null>(null);
 
   // Meter Picker Modal State
   const [selectedUserForVerify, setSelectedUserForVerify] = useState<User | null>(null);
@@ -64,11 +68,13 @@ export function AdminVerificationView() {
   const handleConfirmVerify = async () => {
     if (!selectedUserForVerify || !selectedMeterId) return;
 
+    const userToTag = selectedUserForVerify;
     setIsVerifying(true);
     try {
       await adminApi.verifyRegistration(selectedUserForVerify.id, selectedMeterId);
       setSelectedUserForVerify(null);
       fetchPending();
+      setVerifiedUserForTag(userToTag);
     } catch (err: unknown) {
       const errorObj = err as { response?: { data?: { message?: string } } };
       alert(errorObj?.response?.data?.message || 'Verification failed.');
@@ -349,6 +355,14 @@ export function AdminVerificationView() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Auto-Open Meter Tag Modal for Verified Customer */}
+      {verifiedUserForTag && (
+        <MeterTagModal
+          customer={verifiedUserForTag}
+          onClose={() => setVerifiedUserForTag(null)}
+        />
       )}
       </div>
     </AdminLayout>

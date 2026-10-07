@@ -7,7 +7,8 @@ import { Badge } from '../../components/atoms/Badge';
 import { EmptyState } from '../../components/molecules/EmptyState';
 import { adminApi } from '../../api';
 import type { User } from '../../types';
-import { IconUsers, IconSearch, IconEye, IconX, IconMail, IconPhone, IconMapPin } from '@tabler/icons-react';
+import { IconUsers, IconSearch, IconEye, IconX, IconMail, IconPhone, IconMapPin, IconQrcode } from '@tabler/icons-react';
+import { MeterTagModal } from '../../components/organisms/MeterTagModal';
 
 export function AdminCustomersView() {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ export function AdminCustomersView() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCustomer, setSelectedCustomer] = useState<User | null>(null);
+  const [selectedCustomerForTag, setSelectedCustomerForTag] = useState<User | null>(null);
 
   const fetchCustomers = async () => {
     setIsLoading(true);
@@ -168,13 +170,26 @@ export function AdminCustomersView() {
                         </Badge>
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <Button
-                          variant="secondary"
-                          onClick={() => setSelectedCustomer(cust)}
-                        >
-                          <IconEye size={12} className="inline mr-1" />
-                          View Profile
-                        </Button>
+                        <div className="flex items-center justify-end gap-1.5">
+                          {profile?.meter && (
+                            <Button
+                              variant="primary"
+                              onClick={() => setSelectedCustomerForTag(cust)}
+                              className="text-[12px] py-1 px-2.5"
+                            >
+                              <IconQrcode size={13} className="inline mr-1" />
+                              QR Tag
+                            </Button>
+                          )}
+                          <Button
+                            variant="secondary"
+                            onClick={() => setSelectedCustomer(cust)}
+                            className="text-[12px] py-1 px-2.5"
+                          >
+                            <IconEye size={13} className="inline mr-1" />
+                            View
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -293,9 +308,22 @@ export function AdminCustomersView() {
               )}
             </div>
 
-            <div className="flex justify-end pt-2 border-t border-black/15">
+            <div className="flex justify-between items-center pt-2 border-t border-black/15">
+              {selectedCustomer.customer_profile?.meter ? (
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    const target = selectedCustomer;
+                    setSelectedCustomer(null);
+                    setSelectedCustomerForTag(target);
+                  }}
+                >
+                  <IconQrcode size={14} className="inline mr-1" />
+                  Generate Meter Tag QR
+                </Button>
+              ) : <div />}
               <Button
-                variant="primary"
+                variant="secondary"
                 onClick={() => setSelectedCustomer(null)}
               >
                 Close
@@ -303,6 +331,14 @@ export function AdminCustomersView() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Meter Tag & QR Generator Modal */}
+      {selectedCustomerForTag && (
+        <MeterTagModal
+          customer={selectedCustomerForTag}
+          onClose={() => setSelectedCustomerForTag(null)}
+        />
       )}
       </div>
     </AdminLayout>

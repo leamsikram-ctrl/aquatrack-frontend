@@ -51,7 +51,7 @@ export interface Meter {
   id: number;
   meter_number: string;
   qr_token: string;
-  status: 'unassigned' | 'active' | 'faulty' | 'decommissioned';
+  status: 'unassigned' | 'active' | 'assigned' | 'faulty' | 'decommissioned';
   location_notes?: string;
 }
 
