@@ -1,7 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { AuthProvider } from './contexts/AuthContext';
 
-// Auth Pages
+// Public Pages
+import { LandingView } from './pages/public/LandingView';
 import { LoginView } from './pages/auth/LoginView';
 
 // Admin Pages
@@ -31,31 +32,6 @@ import { StaffScannerView } from './pages/staff/StaffScannerView';
 import { StaffHistoryView } from './pages/staff/StaffHistoryView';
 import { StaffProfileView } from './pages/staff/StaffProfileView';
 
-function RootRedirect() {
-  const { user, isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center text-[10px] font-bold text-black">
-        Loading Sinacaban Municipal System...
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (user.role === 'admin') {
-    return <Navigate to="/admin/dashboard" replace />;
-  }
-
-  if (user.role === 'staff') {
-    return <Navigate to="/staff/tasks" replace />;
-  }
-
-  return <Navigate to="/customer/home" replace />;
-}
 
 export function App() {
   return (
@@ -63,7 +39,8 @@ export function App() {
       <BrowserRouter>
         <Routes>
           {/* Public & Authentication Routes */}
-          <Route path="/" element={<RootRedirect />} />
+          <Route path="/" element={<LandingView />} />
+          <Route path="/landing" element={<LandingView />} />
           <Route path="/login" element={<LoginView />} />
           <Route path="/register" element={<CustomerRegistrationView />} />
 
