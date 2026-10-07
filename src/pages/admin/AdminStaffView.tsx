@@ -98,7 +98,7 @@ export function AdminStaffView() {
         role: 'staff',
         status: 'active',
         name: newName,
-        email: newEmail || `${newName.toLowerCase().replace(/\s+/g, '')}@siwass.gov`,
+        email: newEmail || `${newName.toLowerCase().replace(/\s+/g, '')}@sinacaban.gov.ph`,
         mobile_number: newMobile,
         must_change_password: true,
         staff_profile: {
@@ -388,7 +388,7 @@ export function AdminStaffView() {
                   </label>
                   <input
                     type="email"
-                    placeholder="pedro@siwass.gov"
+                    placeholder="pedro@sinacaban.gov.ph"
                     className="w-full p-2 bg-white text-black border border-black rounded text-[14px] outline-none focus:border-[#1E6FD9]"
                     value={newEmail}
                     onChange={(e) => setNewEmail(e.target.value)}

@@ -51,7 +51,7 @@ describe('MeterTagModal Component', () => {
       barangay: 'Poblacion',
       address: 'Purok 2, Near Public Market',
       verified_at: '2026-10-07',
-      issued_by: 'SIWASS LGU Sinacaban',
+      issued_by: 'AquaTrack LGU Sinacaban',
     });
 
     render(<MeterTagModal customer={mockCustomer} onClose={vi.fn()} />);
@@ -59,7 +59,7 @@ describe('MeterTagModal Component', () => {
     expect(screen.getByText(/Meter Tag & QR Code Generator/i)).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(screen.getByText('SIWASS Meter Tag')).toBeInTheDocument();
+      expect(screen.getByText('AquaTrack Meter Tag')).toBeInTheDocument();
       expect(screen.getByText('Maria Santos')).toBeInTheDocument();
       expect(screen.getByText('ACC-2026-0001')).toBeInTheDocument();
       expect(screen.getByText('MTR-SIN-0001')).toBeInTheDocument();

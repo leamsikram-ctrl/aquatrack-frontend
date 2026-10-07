@@ -107,7 +107,7 @@ export function MeterTagModal({ customer, onClose }: Props) {
     const dataUrl = canvasRef.current.toDataURL('image/png');
     const a = document.createElement('a');
     a.href = dataUrl;
-    a.download = `SIWASS-QR-${tagData.meter_number}-${tagData.account_number}.png`;
+    a.download = `AquaTrack-QR-${tagData.meter_number}-${tagData.account_number}.png`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -170,7 +170,7 @@ export function MeterTagModal({ customer, onClose }: Props) {
           <div className="space-y-4">
             {/* The Physical Meter Tag (This prints cleanly via @media print) */}
             <div
-              id="siwass-meter-tag-print-area"
+              id="aquatrack-meter-tag-print-area"
               className="bg-white border-2 border-black rounded-xl p-4 shadow-sm flex flex-col items-center max-w-[340px] mx-auto text-black"
             >
               {/* Tag Header */}
@@ -184,7 +184,7 @@ export function MeterTagModal({ customer, onClose }: Props) {
                       LGU Sinacaban
                     </span>
                     <span className="font-extrabold text-[11px] text-[#1E6FD9] uppercase block">
-                      SIWASS Meter Tag
+                      AquaTrack Meter Tag
                     </span>
                   </div>
                 </div>

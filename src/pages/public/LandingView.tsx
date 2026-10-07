@@ -158,7 +158,7 @@ export function LandingView() {
             </Link>
             <Link to="/register">
               <Button variant="primary" className="h-9 px-4 text-[14px] font-bold">
-                Register Household
+                Register Water Account
               </Button>
             </Link>
           </div>
@@ -168,25 +168,31 @@ export function LandingView() {
       {/* Hero Section: Centered Civic Headline & Expansive 4-Metric Strip */}
       <section className="relative border-b border-black/20 shadow-[0_2px_0px_0px_rgba(0,0,0,0.06)] bg-white py-20 sm:py-28 lg:py-32">
         <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14">
-          <div className="max-w-4xl mx-auto text-center space-y-6">
+          <div className="max-w-6xl mx-auto text-center space-y-6 sm:space-y-8">
             {/* Pill Tag */}
             <div className="inline-flex items-center px-3.5 py-1.5 rounded-full border border-[#1E6FD9]/30 bg-[#F0F6FD] text-[#1E6FD9] font-bold uppercase tracking-wider text-xs">
               Official Municipal Public Utility Gateway — AquaTrack
             </div>
 
             {/* Main Centered Civic Headline */}
-            <div className="space-y-2">
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold uppercase tracking-tight text-black leading-[1.08] max-w-4xl mx-auto">
-                AquaTrack
+            <div className="space-y-3 sm:space-y-4">
+              <h1
+                aria-label="AquaTrack"
+                className="hero-aquatrack-3d flex items-center justify-center flex-wrap sm:flex-nowrap text-5xl sm:text-7xl md:text-8xl lg:text-[110px] xl:text-[132px] 2xl:text-[144px] font-black uppercase tracking-tight text-black leading-none max-w-6xl mx-auto select-none"
+              >
+                <span className="hero-logo-mark inline-flex items-center justify-center shrink-0 w-[1.05em] h-[1.05em] -mr-[0.06em]">
+                  <AquaTrackLogo size="100%" variant="mark" className="w-full h-full" />
+                </span>
+                <span className="hero-aquatrack-letters">QUATRACK</span>
               </h1>
-              <p className="text-base sm:text-lg lg:text-xl font-bold uppercase tracking-wider text-black/80">
+              <p className="text-base sm:text-xl lg:text-2xl font-bold uppercase tracking-widest text-black/80">
                 Sinacaban Water Supply System
               </p>
             </div>
 
             {/* Single Concise Mission Description */}
             <p className="text-sm sm:text-base lg:text-lg text-black/70 font-normal leading-relaxed max-w-2xl mx-auto">
-              Unified digital platform powering household water connections, rapid maintenance dispatch, and transparent billing across all 19 barangays.
+              Unified digital platform for municipal water consumer accounts, meter verification, rapid maintenance dispatch, and transparent billing across all 19 barangays.
             </p>
 
             {/* Prominent Action CTAs */}
@@ -197,7 +203,7 @@ export function LandingView() {
                   className="h-12 px-7 text-xs sm:text-sm font-bold rounded-lg shadow-[2px_2px_0px_0px_rgba(0,0,0,0.2)]"
                   rightIcon={<IconArrowRight size={16} />}
                 >
-                  Register Water Connection
+                  Register Water Account
                 </Button>
               </Link>
               <Link to="/login">
@@ -301,14 +307,14 @@ export function LandingView() {
                 <IconUserCheck size={18} />
               </div>
               <h3 className="font-bold text-black uppercase tracking-wider text-base">
-                Household Registration
+                Link Water Account
               </h3>
               <p className="text-black/70 font-normal leading-relaxed text-xs sm:text-sm">
-                2-step online self-registration with household pin location and SMS verification.
+                Link your existing municipal water account and meter number with instant SMS OTP activation.
               </p>
               <div className="pt-2 border-t border-black/10">
                 <Link to="/register" className="font-bold text-[#1E6FD9] hover:underline flex items-center gap-1 text-xs">
-                  Apply Online <IconArrowRight size={13} />
+                  Register Online <IconArrowRight size={13} />
                 </Link>
               </div>
             </Card>
@@ -569,7 +575,7 @@ export function LandingView() {
                 </Link>
                 <Link to="/register" className="block">
                   <Button variant="secondary" className="w-full h-9 text-xs font-bold">
-                    Register Connection
+                    Register Water Account
                   </Button>
                 </Link>
               </div>
@@ -703,10 +709,10 @@ export function LandingView() {
                 <div className="space-y-3">
                   <div className="border border-black/20 rounded-lg p-3.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.06)]">
                     <h4 className="font-bold text-black uppercase tracking-wider text-xs sm:text-sm">
-                      How long does connection verification take?
+                      How do I register my existing water account?
                     </h4>
                     <p className="text-black/70 font-normal mt-1 leading-relaxed text-xs sm:text-sm">
-                      Verification and meter linking takes 1–2 business days. An automated SMS notification is sent upon approval.
+                      Enter your Account Number and Meter Number from your official SIWASS receipt. Once confirmed, you will receive an SMS OTP to activate your online account immediately.
                     </p>
                   </div>
 
@@ -741,7 +747,7 @@ export function LandingView() {
                 Sign In
               </Link>
               <Link to="/register" className="hover:text-[#1E6FD9] transition-colors">
-                Register
+                Register Account
               </Link>
               <a href="#services" className="hover:text-[#1E6FD9] transition-colors">
                 Services

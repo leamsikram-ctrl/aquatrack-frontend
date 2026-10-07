@@ -1,7 +1,7 @@
 import React from 'react';
 
 export interface AquaTrackLogoProps {
-  size?: number;
+  size?: number | string;
   className?: string;
   variant?: 'mark' | 'full';
   showSubtitle?: boolean;

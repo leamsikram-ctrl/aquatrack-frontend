@@ -302,7 +302,7 @@ export function LoginView() {
                   <div className="relative">
                     <input
                       type="text"
-                      placeholder="admin@siwass.gov or account number"
+                      placeholder="e.g. admin@sinacaban.gov.ph or account number"
                       className="w-full pl-7 pr-3 py-2 text-[14px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
                       value={loginInput}
                       onChange={(e) => setLoginInput(e.target.value)}
@@ -385,12 +385,12 @@ export function LoginView() {
 
               {/* Registration link */}
               <div className="text-center pt-2 border-t border-black/10">
-                <span className="text-black/60">New water consumer? </span>
+                <span className="text-black/60">Have an existing water connection? </span>
                 <Link
                   to="/register"
                   className="text-[#1E6FD9] font-bold underline"
                 >
-                  Register Household
+                  Register Water Account
                 </Link>
               </div>
             </>

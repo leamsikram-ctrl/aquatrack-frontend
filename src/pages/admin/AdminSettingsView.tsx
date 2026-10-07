@@ -39,7 +39,7 @@ export function AdminSettingsView() {
   const [smsSaved, setSmsSaved] = useState(false);
 
   // Security Tab
-  const [adminEmail, setAdminEmail] = useState('admin@siwass.gov');
+  const [adminEmail, setAdminEmail] = useState('admin@sinacaban.gov.ph');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [securitySaved, setSecuritySaved] = useState(false);

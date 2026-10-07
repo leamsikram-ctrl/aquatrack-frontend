@@ -118,7 +118,7 @@ export function AdminVerificationView() {
             Customer Account Verification Queue
           </h1>
           <p className="text-[14px] text-black/60">
-            Review self-registered applicants, link physical water meters, and authorize municipal service
+            Review customer registration applications, assign physical water meters, and generate hardware meter tags
           </p>
         </div>
         <Badge variant={pendingUsers.length > 0 ? 'blue' : 'outline'}>
@@ -133,7 +133,7 @@ export function AdminVerificationView() {
       ) : pendingUsers.length === 0 ? (
         <EmptyState
           title="All Applications Processed"
-          description="There are currently no self-registered customer accounts awaiting administrative meter assignment or verification."
+          description="There are currently no customer accounts awaiting administrative meter assignment or verification."
         />
       ) : (
         <div className="space-y-4">

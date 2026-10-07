@@ -24,7 +24,7 @@ export function AdminCustomersView() {
     setIsLoading(true);
     try {
       const res = await adminApi.customersList({
-        status: statusFilter === 'all' ? undefined : statusFilter,
+        status: statusFilter === 'all' ? undefined : (statusFilter === 'verified' ? 'active' : 'pending'),
         per_page: 50,
       });
       setCustomers(res.data);
@@ -138,7 +138,7 @@ export function AdminCustomersView() {
               ) : (
                 filteredCustomers.map((cust) => {
                   const profile = cust.customer_profile;
-                  const isVerified = cust.is_verified;
+                  const isVerified = cust.is_verified ?? (cust.status === 'active');
 
                   return (
                     <tr key={cust.id} className="hover:bg-[#F0F6FD]/50 transition-colors">

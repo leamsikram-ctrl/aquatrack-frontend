@@ -131,6 +131,10 @@ export function CustomerProfileView() {
               <span className="font-bold text-black">Address</span>
               <span className="text-black/80 font-normal">{barangayAddress}</span>
             </div>
+            <div className="flex justify-between py-2.5">
+              <span className="font-bold text-black">Water Meter</span>
+              <span className="font-mono font-bold text-black">{profile?.meter?.meter_number || 'MTR-SIN-0001'}</span>
+            </div>
           </div>
 
           {/* Action Buttons */}
