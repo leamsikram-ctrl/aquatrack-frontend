@@ -6,8 +6,7 @@ import { Badge } from '../../components/atoms/Badge';
 import { Button } from '../../components/atoms/Button';
 import { requestsApi, billingApi, authApi, interruptionsApi } from '../../api';
 import type { ServiceRequest, Billing, User, WaterInterruption } from '../../types';
-import { IconBell, IconChevronRight } from '@tabler/icons-react';
-import { NotificationCenter } from '../../components/organisms/NotificationCenter';
+import { IconChevronRight } from '@tabler/icons-react';
 
 export function CustomerHomeView() {
   const navigate = useNavigate();
@@ -15,7 +14,6 @@ export function CustomerHomeView() {
   const [activeRequest, setActiveRequest] = useState<ServiceRequest | null>(null);
   const [currentBill, setCurrentBill] = useState<Billing | null>(null);
   const [latestAdvisory, setLatestAdvisory] = useState<WaterInterruption | null>(null);
-  const [showNotifications, setShowNotifications] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [description, setDescription] = useState('');
   const [customerUrgency, setCustomerUrgency] = useState('can_wait');
@@ -107,18 +105,10 @@ export function CustomerHomeView() {
     >
       <div className="max-w-xl mx-auto space-y-4">
         {/* Header */}
-        <div className="flex items-center justify-between pb-1">
+        <div className="pb-1">
           <h1 className="text-base font-bold text-black uppercase tracking-wider">
             Home
           </h1>
-          <button
-            onClick={() => setShowNotifications(true)}
-            className="p-1.5 rounded border border-black text-black hover:bg-[#F0F6FD] hover:text-[#1E6FD9] transition-colors relative"
-            title="Notifications"
-          >
-            <IconBell size={18} />
-            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#1E6FD9] rounded-full border border-white" />
-          </button>
         </div>
 
         {/* Card 1: Account */}
@@ -256,13 +246,6 @@ export function CustomerHomeView() {
               'Scheduled maintenance and pipeline pressure checks across municipal distribution zones.'}
           </p>
         </Card>
-
-        {/* Notification Modal */}
-        <NotificationCenter
-          isOpen={showNotifications}
-          onClose={() => setShowNotifications(false)}
-          role="customer"
-        />
 
         {/* Report Issue Modal */}
         {showReportModal && (

@@ -9,24 +9,14 @@ import { InterruptionCalendar } from '../../components/organisms/InterruptionCal
 import { requestsApi, interruptionsApi } from '../../api';
 import type { ServiceRequest, WaterInterruption, Urgency } from '../../types';
 import {
-  IconBell,
   IconMapPin,
   IconCalendar,
   IconArrowLeft,
   IconCamera,
   IconCheck,
-  IconTrash,
   IconUser,
   IconPhoto,
 } from '@tabler/icons-react';
-
-interface StaffNotificationItem {
-  id: string;
-  type: 'assignment' | 'cancellation' | 'advisory';
-  title: string;
-  timestamp: string;
-  read: boolean;
-}
 
 export function StaffTasksView() {
   const navigate = useNavigate();
@@ -43,38 +33,12 @@ export function StaffTasksView() {
   const [selectedTask, setSelectedTask] = useState<ServiceRequest | null>(null); // Wireframe S3 Task Details
   const [showMapModal, setShowMapModal] = useState<boolean>(false); // Wireframe S5 Staff Map
   const [showCalendarModal, setShowCalendarModal] = useState<boolean>(false); // Wireframe S6 Interruptions
-  const [showNotificationsModal, setShowNotificationsModal] = useState<boolean>(false); // Wireframe S7 Notifications
 
   // S3 Resolution state
   const [remarks, setRemarks] = useState<string>('');
   const [evidencePhotoAttached, setEvidencePhotoAttached] = useState<boolean>(false);
   const [isResolving, setIsResolving] = useState<boolean>(false);
   const [isStarting, setIsStarting] = useState<boolean>(false);
-
-  // Wireframe S7 Notifications
-  const [notifications, setNotifications] = useState<StaffNotificationItem[]>([
-    {
-      id: 'notif-1',
-      type: 'assignment',
-      title: 'You were assigned AT-0001 (Main Pipe Leak in Poblacion).',
-      timestamp: '10 mins ago',
-      read: false,
-    },
-    {
-      id: 'notif-2',
-      type: 'cancellation',
-      title: 'AT-0004 was cancelled by the customer.',
-      timestamp: '1 hour ago',
-      read: false,
-    },
-    {
-      id: 'notif-3',
-      type: 'advisory',
-      title: 'Interruption advisory added for San Isidro & Poblacion.',
-      timestamp: '3 hours ago',
-      read: true,
-    },
-  ]);
 
   const fetchTasksAndData = async () => {
     setIsLoading(true);
@@ -134,16 +98,6 @@ export function StaffTasksView() {
     }
   };
 
-  const handleDeleteNotification = (id: string) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-  };
-
-  const handleMarkAllRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-  };
-
-  const unreadNotifsCount = notifications.filter((n) => !n.read).length;
-
   // Filter & sort logic for Active vs History tabs
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
@@ -181,21 +135,8 @@ export function StaffTasksView() {
             </p>
           </div>
 
-          {/* Top-Right Action Icons: Bell, Map, Calendar */}
+          {/* Top-Right Action Icons: Map, Calendar */}
           <div className="flex items-center gap-1.5">
-            <button
-              onClick={() => setShowNotificationsModal(true)}
-              className="relative p-1.5 bg-[#F0F6FD] hover:bg-[#1E6FD9] hover:text-white text-black border border-black/20 rounded transition-colors"
-              title="Notifications"
-            >
-              <IconBell size={16} />
-              {unreadNotifsCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#1E6FD9] text-white text-[9px] font-bold rounded-full flex items-center justify-center">
-                  {unreadNotifsCount}
-                </span>
-              )}
-            </button>
-
             <button
               onClick={() => setShowMapModal(true)}
               className="p-1.5 bg-[#F0F6FD] hover:bg-[#1E6FD9] hover:text-white text-black border border-black/20 rounded transition-colors"
@@ -679,67 +620,6 @@ export function StaffTasksView() {
           </div>
         )}
 
-        {/* ------------------------------------------------------------- */}
-        {/* Wireframe S7: Staff Notifications Modal */}
-        {/* ------------------------------------------------------------- */}
-        {showNotificationsModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-md bg-white rounded border border-black p-5 space-y-4 shadow-xl">
-              {/* Header: ← Notifications & Mark all read */}
-              <div className="flex items-center justify-between border-b border-black/15 pb-2">
-                <button
-                  onClick={() => setShowNotificationsModal(false)}
-                  className="p-1 hover:bg-[#F0F6FD] rounded text-black flex items-center gap-1 font-bold text-[10px]"
-                >
-                  <IconArrowLeft size={14} />
-                  <span>Notifications</span>
-                </button>
-                <button
-                  onClick={handleMarkAllRead}
-                  className="text-[#1E6FD9] font-bold text-[10px] hover:underline"
-                >
-                  Mark all read
-                </button>
-              </div>
-
-              {/* Notification List */}
-              <div className="space-y-2 max-h-72 overflow-y-auto">
-                {notifications.length === 0 ? (
-                  <div className="p-6 text-center text-black/50 border border-black/10 rounded">
-                    No new staff notifications.
-                  </div>
-                ) : (
-                  notifications.map((n) => (
-                    <div
-                      key={n.id}
-                      className={`p-2.5 rounded border border-black/15 flex items-start justify-between gap-2 transition-colors ${
-                        n.read ? 'bg-white' : 'bg-[#F0F6FD] font-semibold'
-                      }`}
-                    >
-                      <div className="space-y-0.5">
-                        <div className="text-[10px] text-black">{n.title}</div>
-                        <div className="text-[8px] text-black/50">{n.timestamp}</div>
-                      </div>
-                      <button
-                        onClick={() => handleDeleteNotification(n.id)}
-                        className="text-black/40 hover:text-black p-1 shrink-0"
-                        title="Delete notification"
-                      >
-                        <IconTrash size={12} />
-                      </button>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              <div className="flex justify-end pt-2 border-t border-black/10">
-                <Button variant="ghost" onClick={() => setShowNotificationsModal(false)}>
-                  Close
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </StaffLayout>
   );

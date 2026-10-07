@@ -111,29 +111,44 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
     return DEFAULT_NOTIFICATIONS[role] || DEFAULT_NOTIFICATIONS.customer;
   });
 
+  // Sync notifications whenever role changes
   useEffect(() => {
     try {
-      localStorage.setItem(storageKey, JSON.stringify(notifications));
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        setNotifications(JSON.parse(saved));
+        return;
+      }
     } catch {
-      // Ignore
+      // fallback
     }
-  }, [notifications, storageKey]);
+    setNotifications(DEFAULT_NOTIFICATIONS[role] || DEFAULT_NOTIFICATIONS.customer);
+  }, [role, storageKey]);
 
   if (!isOpen) return null;
 
+  const saveNotifications = (newNotifs: AppNotification[]) => {
+    setNotifications(newNotifs);
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(newNotifs));
+    } catch {
+      // Ignore
+    }
+  };
+
   const markAllRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    saveNotifications(notifications.map((n) => ({ ...n, read: true })));
   };
 
   const toggleRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: !n.read } : n))
+    saveNotifications(
+      notifications.map((n) => (n.id === id ? { ...n, read: !n.read } : n))
     );
   };
 
   const deleteNotif = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    saveNotifications(notifications.filter((n) => n.id !== id));
   };
 
   const renderIcon = (type: AppNotification['type']) => {
