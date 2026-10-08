@@ -102,7 +102,7 @@ export function AdminActivityLogView() {
         {/* Wireframe A12 Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/15 pb-3">
           <div>
-            <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
+            <h1 className="text-xl sm:text-2xl font-bold text-black">
               Activity Log
             </h1>
           </div>
@@ -155,9 +155,9 @@ export function AdminActivityLogView() {
             <table className="w-full text-left text-[14px]">
               <thead className="bg-[#F0F6FD] text-black border-b border-black/15">
                 <tr>
-                  <th className="px-4 py-2.5 font-bold uppercase tracking-wider w-40">Time</th>
-                  <th className="px-4 py-2.5 font-bold uppercase tracking-wider w-52">User</th>
-                  <th className="px-4 py-2.5 font-bold uppercase tracking-wider">Action</th>
+                  <th className="px-4 py-2 text-xs font-semibold text-black/60 w-40">Time</th>
+                  <th className="px-4 py-2 text-xs font-semibold text-black/60 w-52">User</th>
+                  <th className="px-4 py-2 text-xs font-semibold text-black/60">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-black/10">
@@ -177,7 +177,7 @@ export function AdminActivityLogView() {
                         {log.time}
                       </td>
                       <td className="px-4 py-3">
-                        <strong className="text-black block font-bold">{log.user}</strong>
+                        <span className="text-sm font-normal text-black block">{log.user}</span>
                         <span className="text-[9px] text-[#1E6FD9] font-bold uppercase">
                           {log.role}
                         </span>
@@ -198,7 +198,7 @@ export function AdminActivityLogView() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
             <div className="w-full max-w-sm bg-white rounded border border-black p-5 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
-                <span className="font-bold text-black uppercase tracking-wider text-[14px]">
+                <span className="text-sm font-bold text-black">
                   Filter Activity Date Range
                 </span>
                 <button
@@ -211,7 +211,7 @@ export function AdminActivityLogView() {
 
               <div className="space-y-3">
                 <div>
-                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
+                  <label className="block text-xs font-semibold text-black/60 mb-1">
                     Start Date
                   </label>
                   <input
@@ -223,7 +223,7 @@ export function AdminActivityLogView() {
                 </div>
 
                 <div>
-                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
+                  <label className="block text-xs font-semibold text-black/60 mb-1">
                     End Date
                   </label>
                   <input
