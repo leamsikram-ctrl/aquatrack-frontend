@@ -18,10 +18,11 @@ describe('Button Component', () => {
     expect(button).toHaveClass('text-black');
   });
 
-  it('renders ghost variant', () => {
+  it('aliases ghost variant to secondary for 2-variant design rule', () => {
     render(<Button variant="ghost">Dismiss</Button>);
     const button = screen.getByRole('button', { name: /dismiss/i });
-    expect(button).toHaveClass('bg-transparent');
+    expect(button).toHaveClass('bg-white');
+    expect(button).toHaveClass('text-black');
   });
 
   it('handles disabled state properly', () => {

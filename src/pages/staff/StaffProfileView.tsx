@@ -143,13 +143,13 @@ export function StaffProfileView() {
                   Change password
                 </Button>
 
-                <button
-                  type="button"
+                <Button
+                  variant="secondary"
+                  className="w-full justify-center py-2 text-[14px]"
                   onClick={handleLogout}
-                  className="w-full py-2 bg-white text-black hover:bg-[#F0F6FD] border border-black rounded text-[14px] font-bold uppercase transition-colors"
                 >
                   Log out
-                </button>
+                </Button>
               </div>
             </>
           )}
@@ -158,7 +158,7 @@ export function StaffProfileView() {
         {/* Change Password Modal */}
         {showPasswordModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-sm bg-white rounded border border-black p-5 space-y-4 shadow-xl">
+            <div className="w-full max-w-sm bg-white rounded border border-black p-5 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <div className="flex items-center gap-2">
                   <IconLock size={16} className="text-[#1E6FD9]" />
@@ -182,7 +182,7 @@ export function StaffProfileView() {
               )}
 
               {passwordError && (
-                <div className="p-2.5 bg-red-50 border border-black text-[14px] text-black font-normal">
+                <div className="p-2.5 bg-[#F0F6FD] border border-black text-[14px] text-black font-normal">
                   {passwordError}
                 </div>
               )}
@@ -230,7 +230,7 @@ export function StaffProfileView() {
                 <div className="flex justify-end gap-2 pt-2 border-t border-black/10">
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant="secondary"
                     onClick={() => setShowPasswordModal(false)}
                   >
                     Cancel

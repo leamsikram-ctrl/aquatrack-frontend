@@ -151,7 +151,7 @@ export function CustomerAdvisoriesView() {
                         Advisory #{advisory.id}
                       </span>
                     </div>
-                    <Badge variant={advisory.is_published ? 'blue' : 'black'}>
+                    <Badge variant={advisory.is_published ? 'blue' : 'outline'}>
                       {advisory.is_published ? 'Live' : 'Draft'}
                     </Badge>
                   </div>

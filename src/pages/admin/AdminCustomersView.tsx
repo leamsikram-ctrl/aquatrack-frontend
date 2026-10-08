@@ -61,22 +61,19 @@ export function AdminCustomersView() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/15 pb-4">
         <div>
-          <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
-            Consumer Account Directory
+          <h1 className="text-xl sm:text-2xl font-bold text-black">
+            Consumer Directory
           </h1>
-          <p className="text-[14px] text-black/60">
-            Registered Sinacaban water consumers, linked physical meters, and account credentials.
-          </p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="blue">{totalCustomers} Registered Consumers</Badge>
+          <Badge variant="blue">{totalCustomers} Consumers</Badge>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <span className="text-[14px] font-bold text-black uppercase">Status:</span>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-semibold text-black/60">Status:</span>
           {(['all', 'verified', 'unverified'] as const).map((filter) => (
             <button
               key={filter}
@@ -110,13 +107,13 @@ export function AdminCustomersView() {
           <table className="w-full text-left text-[14px]">
             <thead className="bg-[#F0F6FD] text-black border-b border-black/15">
               <tr>
-                <th className="px-4 py-2.5 font-bold uppercase">Account No.</th>
-                <th className="px-4 py-2.5 font-bold uppercase">Consumer Name</th>
-                <th className="px-4 py-2.5 font-bold uppercase">Email & Mobile</th>
-                <th className="px-4 py-2.5 font-bold uppercase">Assigned Meter</th>
-                <th className="px-4 py-2.5 font-bold uppercase">Barangay</th>
-                <th className="px-4 py-2.5 font-bold uppercase">Verification</th>
-                <th className="px-4 py-2.5 font-bold uppercase text-right">Actions</th>
+                <th className="px-4 py-2 text-xs font-semibold text-black/60">Account No.</th>
+                <th className="px-4 py-2 text-xs font-semibold text-black/60">Consumer Name</th>
+                <th className="px-4 py-2 text-xs font-semibold text-black/60">Email & Mobile</th>
+                <th className="px-4 py-2 text-xs font-semibold text-black/60">Assigned Meter</th>
+                <th className="px-4 py-2 text-xs font-semibold text-black/60">Barangay</th>
+                <th className="px-4 py-2 text-xs font-semibold text-black/60">Verification</th>
+                <th className="px-4 py-2 text-xs font-semibold text-black/60 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-black/10">
@@ -203,7 +200,7 @@ export function AdminCustomersView() {
       {/* Inspect Customer Modal */}
       {selectedCustomer && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-lg bg-white rounded-lg border border-black p-5 space-y-4 shadow-xl">
+          <div className="w-full max-w-lg bg-white rounded-lg border border-black p-5 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-black/15 pb-2">
               <div className="flex items-center gap-2">
                 <IconUsers size={14} className="text-[#1E6FD9]" />
@@ -303,7 +300,7 @@ export function AdminCustomersView() {
                 </div>
               ) : (
                 <div className="text-[14px] text-black/60 italic p-2 bg-[#F0F6FD] rounded">
-                  No physical water meter has been assigned to this account yet. Approve this user in the Customer Verifications queue to assign an active meter.
+                  No meter assigned.
                 </div>
               )}
             </div>

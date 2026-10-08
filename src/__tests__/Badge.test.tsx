@@ -9,10 +9,11 @@ describe('Badge Component', () => {
     expect(container.firstChild).toHaveClass('bg-[#1E6FD9]');
   });
 
-  it('renders black variant correctly', () => {
+  it('aliases black variant to outline for 2-variant design rule', () => {
     const { container } = render(<Badge variant="black">Offline</Badge>);
     expect(container.textContent).toBe('Offline');
-    expect(container.firstChild).toHaveClass('bg-black');
+    expect(container.firstChild).toHaveClass('bg-white');
+    expect(container.firstChild).toHaveClass('text-black');
   });
 
   it('renders outline variant correctly', () => {

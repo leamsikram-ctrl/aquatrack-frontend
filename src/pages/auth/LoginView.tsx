@@ -3,8 +3,20 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { Card } from '../../components/atoms/Card';
 import { Button } from '../../components/atoms/Button';
+import { Input } from '../../components/atoms/Input';
 import { AquaTrackLogo } from '../../components/atoms/AquaTrackLogo';
-import { IconAlertCircle, IconLock, IconMail, IconArrowLeft, IconPhone, IconCheck, IconKey } from '@tabler/icons-react';
+import {
+  IconAlertCircle,
+  IconLock,
+  IconMail,
+  IconArrowLeft,
+  IconPhone,
+  IconCheck,
+  IconKey,
+  IconEye,
+  IconEyeOff,
+  IconArrowRight,
+} from '@tabler/icons-react';
 
 export function LoginView() {
   const { login } = useAuth();
@@ -12,10 +24,11 @@ export function LoginView() {
 
   const [loginInput, setLoginInput] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Wireframe C5 Forgot Password State
+  // Forgot Password State
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [forgotMobile, setForgotMobile] = useState('');
   const [isSendingCode, setIsSendingCode] = useState(false);
@@ -23,6 +36,8 @@ export function LoginView() {
   const [resetCode, setResetCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [forgotSuccess, setForgotSuccess] = useState<string | null>(null);
   const [forgotError, setForgotError] = useState<string | null>(null);
 
@@ -33,18 +48,17 @@ export function LoginView() {
     setIsSendingCode(true);
     setForgotError(null);
 
-    // Simulate SMS gateway sending reset code
     setTimeout(() => {
       setIsSendingCode(false);
       setResetSent(true);
-      setResetCode('123456'); // Simulated verification code for demo
+      setResetCode('123456');
     }, 600);
   };
 
   const handleConfirmReset = (e: React.FormEvent) => {
     e.preventDefault();
     if (!resetCode.trim()) {
-      setForgotError('Please enter the 6-digit verification code.');
+      setForgotError('Enter the 6-digit code.');
       return;
     }
     if (newPassword.length < 6) {
@@ -56,7 +70,7 @@ export function LoginView() {
       return;
     }
 
-    setForgotSuccess('Your password has been reset successfully! You can now sign in.');
+    setForgotSuccess('Password reset successfully. Sign in with your new password.');
     setTimeout(() => {
       setShowForgotPassword(false);
       setResetSent(false);
@@ -75,7 +89,6 @@ export function LoginView() {
     try {
       await login({ login: loginInput.trim(), password });
 
-      // Determine redirection based on login email/account
       const val = loginInput.toLowerCase();
       if (val.includes('admin')) {
         navigate('/admin/dashboard');
@@ -86,7 +99,7 @@ export function LoginView() {
       }
     } catch (err: unknown) {
       const apiErr = err as { response?: { data?: { message?: string } } };
-      setErrorMessage(apiErr.response?.data?.message || 'Invalid credentials. Please verify your email/password.');
+      setErrorMessage(apiErr.response?.data?.message || 'Invalid credentials. Please verify your details.');
     } finally {
       setIsLoading(false);
     }
@@ -105,304 +118,331 @@ export function LoginView() {
     }
   };
 
+  const selectedRole =
+    loginInput === 'admin@siwass.gov'
+      ? 'admin'
+      : loginInput === 'staff@siwass.gov'
+      ? 'staff'
+      : loginInput === 'maria@example.com'
+      ? 'customer'
+      : null;
+
   return (
-    <div className="min-h-screen bg-white flex flex-col justify-between text-black text-[14px]">
-      <div className="max-w-[1440px] w-full mx-auto px-6 sm:px-10 lg:px-14 py-6 flex flex-col justify-between flex-1">
-        {/* Top Banner */}
-        <header className="flex items-center justify-between border-b border-black/15 pb-4">
-        <Link to="/" className="flex items-center gap-2 hover:opacity-90">
-          <AquaTrackLogo size={24} variant="mark" />
-          <span className="font-bold text-black uppercase tracking-wider text-[14px]">
-            AquaTrack
-          </span>
-        </Link>
-        <div className="text-black/60 hidden sm:block text-[14px]">
-          Official Municipal Public Utility Gateway
+    <div className="relative min-h-screen flex flex-col justify-between bg-white text-black text-[14px]">
+      {/* Abstract Background Layer */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.08] bg-cover bg-center"
+        style={{
+          backgroundImage: "url('/illustrations/bg-option-5-fluid.png')",
+        }}
+        aria-hidden="true"
+      />
+
+      {/* Clean Top Header (No extra nav links or duplicate action buttons) */}
+      <header className="sticky top-0 z-40 bg-white border-b border-black/20 shadow-[0_3px_0px_0px_rgba(0,0,0,0.08)]">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-14 h-16 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2.5 sm:gap-3 text-black hover:opacity-90">
+            <AquaTrackLogo size={32} variant="mark" />
+            <div className="flex flex-col leading-tight">
+              <span className="font-bold text-[15px] tracking-tight text-black">
+                AquaTrack
+              </span>
+              <span className="text-black/60 font-normal text-[12px] sm:text-[13px] hidden min-[380px]:inline">
+                Sinacaban Water Supply System
+              </span>
+            </div>
+          </Link>
+
+          <Link
+            to="/"
+            className="text-[14px] font-medium text-black/70 hover:text-[#1E6FD9] flex items-center gap-1.5 transition-colors"
+          >
+            <IconArrowLeft size={16} />
+            <span>Home</span>
+          </Link>
         </div>
       </header>
 
-      {/* Main Login Card */}
-      <div className="w-full max-w-sm mx-auto my-8">
-        <Card className="p-6 border border-black/15 shadow-sm space-y-4">
-          {showForgotPassword ? (
-            /* Wireframe C5: Forgot Password */
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 border-b border-black/15 pb-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowForgotPassword(false);
-                    setResetSent(false);
-                    setForgotError(null);
-                    setForgotSuccess(null);
-                  }}
-                  className="p-1 hover:bg-[#F0F6FD] rounded text-black flex items-center gap-1 font-bold text-[14px]"
-                >
-                  <IconArrowLeft size={14} />
-                  <span>Forgot password</span>
-                </button>
-              </div>
+      {/* Main Content: Perfectly vertically centered */}
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 py-6 sm:py-8">
+        <div className="w-full max-w-md mx-auto my-auto space-y-6 animate-hero-entrance">
+          {/* Consistent Page Header prominently placed at the top */}
+          <div className="text-center">
+            <h1 className="text-[22px] sm:text-[26px] font-bold tracking-tight text-black">
+              Water Utility Portal Sign In
+            </h1>
+          </div>
 
-              {forgotSuccess && (
-                <div className="p-2.5 bg-[#F0F6FD] border border-black rounded text-[14px] text-black flex items-center gap-2">
-                  <IconCheck size={14} className="text-[#1E6FD9] shrink-0" />
-                  <span>{forgotSuccess}</span>
-                </div>
-              )}
-
-              {forgotError && (
-                <div className="p-2.5 bg-[#F0F6FD] border border-black rounded text-[14px] text-black flex items-center gap-2">
-                  <IconAlertCircle size={14} className="text-[#1E6FD9] shrink-0" />
-                  <span>{forgotError}</span>
-                </div>
-              )}
-
-              {!resetSent ? (
-                <form onSubmit={handleSendResetCode} className="space-y-3">
-                  <p className="text-[14px] text-black leading-relaxed">
-                    Enter the mobile number on your account. A reset code will be sent by SMS.
-                  </p>
-
-                  <div>
-                    <label className="block text-[14px] font-bold text-black uppercase mb-1">
-                      Mobile number
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="tel"
-                        placeholder="0917 123 4567"
-                        className="w-full pl-7 pr-3 py-2 text-[14px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9] font-normal"
-                        value={forgotMobile}
-                        onChange={(e) => setForgotMobile(e.target.value)}
-                        required
-                      />
-                      <IconPhone size={12} className="absolute left-2.5 top-2.5 text-black/50" />
-                    </div>
-                  </div>
-
-                  <Button
-                    variant="primary"
-                    type="submit"
-                    className="w-full py-2"
-                    isLoading={isSendingCode}
+          <Card className="p-5 sm:p-8 border border-black/20 rounded-xl bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)] space-y-6">
+            {showForgotPassword ? (
+              /* Forgot Password */
+              <div className="space-y-5">
+                <div className="flex items-center gap-2 border-b border-black/10 pb-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowForgotPassword(false);
+                      setResetSent(false);
+                      setForgotError(null);
+                      setForgotSuccess(null);
+                    }}
+                    className="hover:text-[#1E6FD9] text-black flex items-center gap-1.5 font-bold text-[14px] cursor-pointer"
                   >
-                    Send reset code
-                  </Button>
+                    <IconArrowLeft size={16} />
+                    <span>Back to Sign In</span>
+                  </button>
+                </div>
 
-                  <p className="text-[14px] text-black/60 italic text-center pt-1">
-                    Next: enter the code, then set a new password.
+                <div className="text-center space-y-1">
+                  <h2 className="text-[18px] font-bold text-black tracking-tight">
+                    Reset Password
+                  </h2>
+                  <p className="text-[13px] text-black/60 font-normal">
+                    Verify your registered mobile number to receive a reset code.
                   </p>
-
-                  <div className="text-center pt-2 border-t border-black/10">
-                    <button
-                      type="button"
-                      onClick={() => setShowForgotPassword(false)}
-                      className="text-[#1E6FD9] font-bold hover:underline"
-                    >
-                      Return to log in
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                <form onSubmit={handleConfirmReset} className="space-y-3">
-                  <div className="p-2 bg-[#F0F6FD] border border-black/15 rounded text-[14px]">
-                    <span className="font-bold text-black block mb-0.5">SMS Reset Dispatched:</span>
-                    <span>A 6-digit verification code has been sent to <strong>{forgotMobile}</strong>.</span>
-                  </div>
-
-                  <div>
-                    <label className="block text-[14px] font-bold text-black uppercase mb-1">
-                      6-Digit SMS Code
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        placeholder="123456"
-                        maxLength={6}
-                        className="w-full pl-7 pr-3 py-2 text-[14px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9] tracking-widest font-bold"
-                        value={resetCode}
-                        onChange={(e) => setResetCode(e.target.value)}
-                        required
-                      />
-                      <IconKey size={12} className="absolute left-2.5 top-2.5 text-black/50" />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-[14px] font-bold text-black uppercase mb-1">
-                      New Password
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="password"
-                        placeholder="••••••••"
-                        className="w-full pl-7 pr-3 py-2 text-[14px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        required
-                      />
-                      <IconLock size={12} className="absolute left-2.5 top-2.5 text-black/50" />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-[14px] font-bold text-black uppercase mb-1">
-                      Confirm New Password
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="password"
-                        placeholder="••••••••"
-                        className="w-full pl-7 pr-3 py-2 text-[14px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        required
-                      />
-                      <IconLock size={12} className="absolute left-2.5 top-2.5 text-black/50" />
-                    </div>
-                  </div>
-
-                  <Button
-                    variant="primary"
-                    type="submit"
-                    className="w-full py-2"
-                  >
-                    Confirm & Save New Password
-                  </Button>
-                </form>
-              )}
-            </div>
-          ) : (
-            /* Wireframe C4: Standard Sign In */
-            <>
-              <div className="text-center space-y-2">
-                <div className="flex items-center justify-center mx-auto mb-1">
-                  <AquaTrackLogo size={42} variant="mark" />
                 </div>
-                <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
-                  Institutional Account Sign In
-                </h1>
-                <p className="text-[14px] text-black/60">
-                  Access your administrative, field technician, or consumer portal.
-                </p>
-              </div>
 
-              {errorMessage && (
-                <div className="p-2.5 bg-[#F0F6FD] border border-black rounded text-[14px] text-black flex items-center gap-2">
-                  <IconAlertCircle size={14} className="text-[#1E6FD9] shrink-0" />
-                  <span>{errorMessage}</span>
-                </div>
-              )}
+                {forgotSuccess && (
+                  <div className="p-3 bg-[#F0F6FD] border border-black/20 rounded-lg text-[13px] text-black flex items-center gap-2.5">
+                    <IconCheck size={16} className="text-[#1E6FD9] shrink-0" />
+                    <span>{forgotSuccess}</span>
+                  </div>
+                )}
 
-              <form onSubmit={handleSubmit} className="space-y-3">
-                <div>
-                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
-                    Email or Account Number
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="e.g. admin@sinacaban.gov.ph or account number"
-                      className="w-full pl-7 pr-3 py-2 text-[14px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
-                      value={loginInput}
-                      onChange={(e) => setLoginInput(e.target.value)}
+                {forgotError && (
+                  <div className="p-3 bg-[#FFF2F2] border border-black/30 rounded-lg text-[13px] font-medium text-black flex items-center gap-2.5">
+                    <IconAlertCircle size={16} className="text-black shrink-0" />
+                    <span>{forgotError}</span>
+                  </div>
+                )}
+
+                {!resetSent ? (
+                  <form onSubmit={handleSendResetCode} className="space-y-4">
+                    <Input
+                      label="Mobile Number"
+                      type="tel"
+                      placeholder="0917 123 4567"
+                      value={forgotMobile}
+                      onChange={(e) => setForgotMobile(e.target.value)}
+                      leftIcon={<IconPhone size={16} className="text-black/60" />}
                       required
                     />
-                    <IconMail size={12} className="absolute left-2.5 top-2.5 text-black/50" />
-                  </div>
+
+                    <Button
+                      variant="primary"
+                      type="submit"
+                      className="w-full h-9 text-[14px] font-semibold"
+                      isLoading={isSendingCode}
+                    >
+                      Send Code
+                    </Button>
+                  </form>
+                ) : (
+                  <form onSubmit={handleConfirmReset} className="space-y-4">
+                    <Input
+                      label="6-Digit SMS Code"
+                      type="text"
+                      placeholder="123456"
+                      maxLength={6}
+                      value={resetCode}
+                      onChange={(e) => setResetCode(e.target.value)}
+                      leftIcon={<IconKey size={16} className="text-black/60" />}
+                      className="font-mono tracking-widest font-bold"
+                      required
+                    />
+
+                    <Input
+                      label="New Password"
+                      type={showNewPassword ? 'text' : 'password'}
+                      placeholder="••••••••"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      leftIcon={<IconLock size={16} className="text-black/60" />}
+                      rightIcon={
+                        <button
+                          type="button"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                          className="text-black/50 hover:text-black focus:outline-none cursor-pointer"
+                          tabIndex={-1}
+                          aria-label={showNewPassword ? 'Hide password' : 'Show password'}
+                        >
+                          {showNewPassword ? <IconEyeOff size={16} /> : <IconEye size={16} />}
+                        </button>
+                      }
+                      required
+                    />
+
+                    <Input
+                      label="Confirm Password"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      placeholder="••••••••"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      leftIcon={<IconLock size={16} className="text-black/60" />}
+                      rightIcon={
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="text-black/50 hover:text-black focus:outline-none cursor-pointer"
+                          tabIndex={-1}
+                          aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                        >
+                          {showConfirmPassword ? <IconEyeOff size={16} /> : <IconEye size={16} />}
+                        </button>
+                      }
+                      required
+                    />
+
+                    <Button
+                      variant="primary"
+                      type="submit"
+                      className="w-full h-9 text-[14px] font-semibold"
+                    >
+                      Save Password & Sign In
+                    </Button>
+                  </form>
+                )}
+              </div>
+            ) : (
+              /* Standard Sign In */
+              <>
+                <div className="border-b border-black/10 pb-3">
+                  <h2 className="font-bold text-[16px] text-black">
+                    Account Credentials
+                  </h2>
+                  <p className="text-[13px] text-black/60 font-normal pt-0.5">
+                    Enter your registered email or water account number.
+                  </p>
                 </div>
 
-                <div>
-                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="password"
+                {errorMessage && (
+                  <div className="p-3 bg-[#FFF2F2] border border-black/30 rounded-lg text-[13px] font-medium text-black flex items-center gap-2.5">
+                    <IconAlertCircle size={16} className="text-black shrink-0" />
+                    <span>{errorMessage}</span>
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <Input
+                    label="Email or Account Number"
+                    type="text"
+                    placeholder="ACC-2026-0002 or email"
+                    value={loginInput}
+                    onChange={(e) => setLoginInput(e.target.value)}
+                    leftIcon={<IconMail size={16} className="text-black/60" />}
+                    required
+                  />
+
+                  <div>
+                    <Input
+                      label="Password"
+                      type={showPassword ? 'text' : 'password'}
                       placeholder="••••••••"
-                      className="w-full pl-7 pr-3 py-2 text-[14px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
+                      leftIcon={<IconLock size={16} className="text-black/60" />}
+                      rightIcon={
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="text-black/50 hover:text-black focus:outline-none cursor-pointer"
+                          tabIndex={-1}
+                          aria-label={showPassword ? 'Hide password' : 'Show password'}
+                        >
+                          {showPassword ? <IconEyeOff size={16} /> : <IconEye size={16} />}
+                        </button>
+                      }
                       required
                     />
-                    <IconLock size={12} className="absolute left-2.5 top-2.5 text-black/50" />
+                    <div className="flex justify-end mt-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowForgotPassword(true);
+                          setResetSent(false);
+                          setForgotError(null);
+                          setForgotSuccess(null);
+                        }}
+                        className="text-[13px] text-[#1E6FD9] hover:underline font-medium cursor-pointer"
+                      >
+                        Forgot password?
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex justify-end mt-1">
+
+                  <Button
+                    variant="primary"
+                    type="submit"
+                    className="w-full h-9 text-[14px] font-semibold"
+                    isLoading={isLoading}
+                    rightIcon={<IconArrowRight size={16} />}
+                  >
+                    Sign In
+                  </Button>
+                </form>
+
+                {/* Quick Demo Pre-fill Chips */}
+                <div className="border-t border-black/10 pt-4 space-y-2">
+                  <span className="text-[13px] font-medium text-black/60 block">
+                    Demo Accounts:
+                  </span>
+                  <div className="grid grid-cols-3 gap-2.5">
                     <button
                       type="button"
-                      onClick={() => {
-                        setShowForgotPassword(true);
-                        setResetSent(false);
-                        setForgotError(null);
-                        setForgotSuccess(null);
-                      }}
-                      className="text-[14px] text-[#1E6FD9] hover:underline"
+                      onClick={() => handleQuickDemoSelect('customer')}
+                      className={`h-9 border rounded-lg text-[13px] font-semibold transition-all text-center cursor-pointer ${
+                        selectedRole === 'customer'
+                          ? 'bg-[#1E6FD9] text-white border-[#1E6FD9] shadow-[2px_2px_0px_0px_#000000]'
+                          : 'bg-white text-black border-black/20 hover:border-[#1E6FD9] hover:text-[#1E6FD9]'
+                      }`}
                     >
-                      Forgot password
+                      Consumer
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleQuickDemoSelect('staff')}
+                      className={`h-9 border rounded-lg text-[13px] font-semibold transition-all text-center cursor-pointer ${
+                        selectedRole === 'staff'
+                          ? 'bg-[#1E6FD9] text-white border-[#1E6FD9] shadow-[2px_2px_0px_0px_#000000]'
+                          : 'bg-white text-black border-black/20 hover:border-[#1E6FD9] hover:text-[#1E6FD9]'
+                      }`}
+                    >
+                      Staff
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleQuickDemoSelect('admin')}
+                      className={`h-9 border rounded-lg text-[13px] font-semibold transition-all text-center cursor-pointer ${
+                        selectedRole === 'admin'
+                          ? 'bg-[#1E6FD9] text-white border-[#1E6FD9] shadow-[2px_2px_0px_0px_#000000]'
+                          : 'bg-white text-black border-black/20 hover:border-[#1E6FD9] hover:text-[#1E6FD9]'
+                      }`}
+                    >
+                      Admin
                     </button>
                   </div>
                 </div>
 
-                <Button
-                  variant="primary"
-                  type="submit"
-                  className="w-full py-2"
-                  isLoading={isLoading}
-                >
-                  Sign In to Portal
-                </Button>
-              </form>
-
-              {/* Quick Demo Pre-fills */}
-              <div className="border-t border-black/15 pt-3 space-y-1.5">
-                <span className="text-[14px] font-bold text-black uppercase block text-center">
-                  Quick Live Demonstrations:
-                </span>
-                <div className="grid grid-cols-3 gap-1">
-                  <button
-                    type="button"
-                    onClick={() => handleQuickDemoSelect('admin')}
-                    className="py-1 px-1 bg-[#F0F6FD] hover:bg-[#1E6FD9] hover:text-white text-black border border-black rounded text-[14px] font-bold transition-colors"
+                {/* Register Link */}
+                <div className="text-center pt-3 border-t border-black/10 text-[13px]">
+                  <span className="text-black/60">New water account? </span>
+                  <Link
+                    to="/register"
+                    className="text-[#1E6FD9] font-semibold hover:underline"
                   >
-                    Admin
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleQuickDemoSelect('staff')}
-                    className="py-1 px-1 bg-[#F0F6FD] hover:bg-[#1E6FD9] hover:text-white text-black border border-black rounded text-[14px] font-bold transition-colors"
-                  >
-                    Staff
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleQuickDemoSelect('customer')}
-                    className="py-1 px-1 bg-[#F0F6FD] hover:bg-[#1E6FD9] hover:text-white text-black border border-black rounded text-[14px] font-bold transition-colors"
-                  >
-                    Customer
-                  </button>
+                    Register
+                  </Link>
                 </div>
-              </div>
+              </>
+            )}
+          </Card>
+        </div>
+      </main>
 
-              {/* Registration link */}
-              <div className="text-center pt-2 border-t border-black/10">
-                <span className="text-black/60">Have an existing water connection? </span>
-                <Link
-                  to="/register"
-                  className="text-[#1E6FD9] font-bold underline"
-                >
-                  Register Water Account
-                </Link>
-              </div>
-            </>
-          )}
-        </Card>
-      </div>
-
-        {/* Footer */}
-        <footer className="border-t border-black/15 pt-4 text-center text-black/50 text-[14px]">
-          AquaTrack — Sinacaban Water Supply System · Municipality of Sinacaban, Misamis Occidental
-        </footer>
-      </div>
+      {/* Minimal Footer */}
+      <footer className="border-t border-black/20 py-2.5 text-center text-black/50 text-[14px]">
+        AquaTrack — Sinacaban Water Supply System
+      </footer>
     </div>
   );
 }

@@ -84,7 +84,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
         {sections.map((section, idx) => (
           <div key={idx} className="space-y-1">
             {section.title && (
-              <div className="px-2 text-[14px] font-bold text-black/50 border-b border-black/10 pb-1 mb-1 uppercase tracking-wider">
+              <div className="px-2 text-[14px] font-bold text-black/50 border-b border-black/10 pb-1 mb-1">
                 {section.title}
               </div>
             )}

@@ -22,5 +22,12 @@ describe('AquaTrackLogo Component', () => {
     expect(screen.getByText('AquaTrack')).toBeInTheDocument();
     expect(screen.queryByText(/Sinacaban Water Supply/i)).not.toBeInTheDocument();
   });
+
+  it('renders letter variant with tight viewBox for wordmark embedding', () => {
+    const { container } = render(<AquaTrackLogo variant="letter" size="1em" />);
+    const svg = container.querySelector('svg');
+    expect(svg).toBeInTheDocument();
+    expect(svg).toHaveAttribute('viewBox', '22 16 74 86');
+  });
 });
 

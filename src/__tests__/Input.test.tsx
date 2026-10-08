@@ -28,5 +28,10 @@ describe('Input Component', () => {
     render(<Input label="Search" leftIcon={<span data-testid="search-icon">🔍</span>} />);
     expect(screen.getByTestId('search-icon')).toBeInTheDocument();
   });
+
+  it('supports right icon rendering', () => {
+    render(<Input label="Password" rightIcon={<span data-testid="right-eye-icon">👁</span>} />);
+    expect(screen.getByTestId('right-eye-icon')).toBeInTheDocument();
+  });
 });
 

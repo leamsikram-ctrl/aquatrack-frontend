@@ -93,13 +93,8 @@ export function StaffScannerView() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/15 pb-4">
         <div>
           <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
-            {activeMode === 'placeholder' ? 'Scan meter' : 'Meter Scanner & Inspection'}
+            {activeMode === 'placeholder' ? 'Scan meter' : 'Meter Scanner'}
           </h1>
-          <p className="text-[14px] text-black/60 font-normal">
-            {activeMode === 'placeholder'
-              ? 'Meter scanning is managed via the mobile app.'
-              : 'Scan meter QR codes or enter meter serial numbers for instant lookup.'}
-          </p>
         </div>
         <div className="flex items-center gap-2">
           {/* Tab Switcher */}
@@ -141,29 +136,26 @@ export function StaffScannerView() {
                 Scan meters in the mobile app
               </h2>
               <p className="text-[14px] text-black/70 leading-relaxed px-4">
-                Meter QR scanning is done in the AquaTrack Android app. Sign in with your staff account.
+                Available in the AquaTrack Android app.
               </p>
             </div>
 
-            <div className="pt-2 space-y-2">
+            <div className="pt-2">
               <button
                 disabled
                 className="w-full py-2 bg-black/5 text-black/40 border border-black/20 rounded font-bold text-[14px] cursor-not-allowed select-none"
               >
-                Download the app (coming soon)
+                Download app (coming soon)
               </button>
-              <div className="text-[14px] text-black/50 italic">
-                The installable file is not yet available.
-              </div>
             </div>
 
             <div className="border-t border-black/10 pt-3 text-[14px] text-black/60">
-              Need to test meter lookups in this web demo?{' '}
+              Need web testing?{' '}
               <button
                 onClick={() => setActiveMode('simulator')}
                 className="text-[#1E6FD9] font-bold underline ml-1"
               >
-                Switch to Interactive Simulator
+                Switch to Simulator
               </button>
             </div>
           </Card>
@@ -178,14 +170,11 @@ export function StaffScannerView() {
             <div className="flex items-center gap-2 border-b border-black/15 pb-2">
               <IconQrcode size={14} className="text-[#1E6FD9]" />
               <span className="font-bold text-black uppercase tracking-wider text-[14px]">
-                Scan QR Token / Barcode
+                QR Token Scanner
               </span>
             </div>
-            <p className="text-[14px] text-black/70">
-              Input the token encoded in the consumer's physical meter badge:
-            </p>
 
-            <form onSubmit={handleLookupByQr} className="flex gap-2">
+            <form onSubmit={handleLookupByQr} className="flex flex-col sm:flex-row gap-2">
               <input
                 type="text"
                 placeholder="e.g. MTR-TOKEN-0001"
@@ -205,14 +194,11 @@ export function StaffScannerView() {
             <div className="flex items-center gap-2 border-b border-black/15 pb-2">
               <IconSearch size={14} className="text-[#1E6FD9]" />
               <span className="font-bold text-black uppercase tracking-wider text-[14px]">
-                Manual Meter Number Lookup
+                Meter Number Lookup
               </span>
             </div>
-            <p className="text-[14px] text-black/70 font-normal">
-              Enter the stamped serial number printed on the meter casing:
-            </p>
 
-            <form onSubmit={handleLookupByNumber} className="flex gap-2">
+            <form onSubmit={handleLookupByNumber} className="flex flex-col sm:flex-row gap-2">
               <input
                 type="text"
                 placeholder="e.g. MTR-SIN-0001"
@@ -264,7 +250,7 @@ export function StaffScannerView() {
                 Ready to Inspect Meter
               </div>
               <p className="text-[14px] text-black/50">
-                Scan a meter QR or enter a serial number on the left to verify active registration, customer connection, and log monthly consumption.
+                Scan a QR token or enter a serial number.
               </p>
             </Card>
           )}
@@ -319,7 +305,7 @@ export function StaffScannerView() {
                   </div>
                 ) : (
                   <div className="text-black/60 italic">
-                    Unassigned meter in municipal storage inventory.
+                    Unassigned meter.
                   </div>
                 )}
               </div>
@@ -329,7 +315,7 @@ export function StaffScannerView() {
                 <span className="font-bold text-black uppercase tracking-wider text-[14px] block">
                   Log Current Reading (Cubic Meters)
                 </span>
-                <form onSubmit={handleLogReading} className="flex gap-2">
+                <form onSubmit={handleLogReading} className="flex flex-col sm:flex-row gap-2">
                   <input
                     type="number"
                     step="0.01"

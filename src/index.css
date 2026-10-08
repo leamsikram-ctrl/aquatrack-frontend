@@ -17,6 +17,11 @@
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
 :root {
   font-family: var(--font-sans);
   font-size: 14px; /* Uniform 14px typography system */
@@ -75,11 +80,24 @@ button, input, select, textarea {
   }
 }
 
-/* Hero 3D Title: Architectural typography with left-cast blue shadow and downward hard shadow */
+/* Hero 3D Title: Architectural wordmark with logo as letter 'A', left blue cast shadow and downward hard shadow */
 .hero-aquatrack-3d {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+.hero-logo-mark {
+  height: 1.09em;
+  width: auto;
+  display: inline-block;
+  margin-right: -0.06em;
+  filter:
+    drop-shadow(-2px 0px 0px #1E6FD9)
+    drop-shadow(-4px 0px 0px #1E6FD9)
+    drop-shadow(-6px 0px 0px #1E6FD9)
+    drop-shadow(0px 3px 0px rgba(0, 0, 0, 0.28))
+    drop-shadow(0px 6px 0px rgba(0, 0, 0, 0.24));
 }
 
 .hero-aquatrack-letters {
@@ -95,16 +113,15 @@ button, input, select, textarea {
     -4px 6px 0 rgba(0, 0, 0, 0.16);
 }
 
-.hero-logo-mark {
-  filter:
-    drop-shadow(-2px 0px 0px #1E6FD9)
-    drop-shadow(-4px 0px 0px #1E6FD9)
-    drop-shadow(-6px 0px 0px #1E6FD9)
-    drop-shadow(0px 3px 0px rgba(0, 0, 0, 0.28))
-    drop-shadow(0px 6px 0px rgba(0, 0, 0, 0.20));
-}
-
 @media (min-width: 640px) {
+  .hero-logo-mark {
+    filter:
+      drop-shadow(-3px 0px 0px #1E6FD9)
+      drop-shadow(-6px 0px 0px #1E6FD9)
+      drop-shadow(-9px 0px 0px #1E6FD9)
+      drop-shadow(0px 4px 0px rgba(0, 0, 0, 0.30))
+      drop-shadow(0px 8px 0px rgba(0, 0, 0, 0.26));
+  }
   .hero-aquatrack-letters {
     text-shadow:
       -3px 0 0 #1E6FD9,
@@ -116,17 +133,19 @@ button, input, select, textarea {
       0 8px 0 rgba(0, 0, 0, 0.26),
       -6px 8px 0 rgba(0, 0, 0, 0.18);
   }
+}
+
+@media (min-width: 1024px) {
   .hero-logo-mark {
     filter:
       drop-shadow(-3px 0px 0px #1E6FD9)
       drop-shadow(-6px 0px 0px #1E6FD9)
-      drop-shadow(-9px 0px 0px #1E6FD9)
-      drop-shadow(0px 4px 0px rgba(0, 0, 0, 0.30))
-      drop-shadow(0px 8px 0px rgba(0, 0, 0, 0.22));
+      drop-shadow(-10px 0px 0px #1E6FD9)
+      drop-shadow(-13px 0px 0px #1E6FD9)
+      drop-shadow(0px 5px 0px rgba(0, 0, 0, 0.32))
+      drop-shadow(0px 10px 0px rgba(0, 0, 0, 0.28))
+      drop-shadow(0px 14px 0px rgba(0, 0, 0, 0.18));
   }
-}
-
-@media (min-width: 1024px) {
   .hero-aquatrack-letters {
     text-shadow:
       -3px 0 0 #1E6FD9,
@@ -141,15 +160,52 @@ button, input, select, textarea {
       -8px 12px 0 rgba(0, 0, 0, 0.20),
       -12px 14px 0 rgba(0, 0, 0, 0.15);
   }
-  .hero-logo-mark {
-    filter:
-      drop-shadow(-3px 0px 0px #1E6FD9)
-      drop-shadow(-6px 0px 0px #1E6FD9)
-      drop-shadow(-10px 0px 0px #1E6FD9)
-      drop-shadow(-13px 0px 0px #1E6FD9)
-      drop-shadow(0px 5px 0px rgba(0, 0, 0, 0.32))
-      drop-shadow(0px 10px 0px rgba(0, 0, 0, 0.28))
-      drop-shadow(0px 14px 0px rgba(0, 0, 0, 0.18));
+}
+
+/* Constant subtle shimmer animation for highlighted CTAs */
+@keyframes cta-shimmer {
+  0% {
+    transform: translateX(-160%) skewX(-20deg);
+  }
+  60%, 100% {
+    transform: translateX(260%) skewX(-20deg);
   }
 }
 
+.btn-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.35) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: cta-shimmer 2.6s infinite ease-in-out;
+  pointer-events: none;
+}
+
+/* Hero Entrance Smooth Fade-In & Upward Lift */
+@keyframes hero-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-hero-entrance {
+  animation: hero-fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}

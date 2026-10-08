@@ -3,7 +3,7 @@ import React from 'react';
 export interface AquaTrackLogoProps {
   size?: number | string;
   className?: string;
-  variant?: 'mark' | 'full';
+  variant?: 'mark' | 'full' | 'letter';
   showSubtitle?: boolean;
 }
 
@@ -14,15 +14,8 @@ export const AquaTrackLogo: React.FC<AquaTrackLogoProps> = ({
   showSubtitle = true,
 }) => {
   // Concept 4: Modern Minimalist 'A' + Hydro Droplet & Ascending Tracking Arrow
-  const Mark = (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 120 120"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={`shrink-0 ${className}`}
-    >
+  const SvgPaths = (
+    <>
       {/* Outer Structural Shadow / Border Geometry */}
       <g stroke="#000000" strokeWidth="4" strokeLinejoin="round" strokeLinecap="round">
         {/* Left Leg of Architectural 'A' */}
@@ -70,6 +63,35 @@ export const AquaTrackLogo: React.FC<AquaTrackLogoProps> = ({
         strokeLinecap="round"
         fill="none"
       />
+    </>
+  );
+
+  if (variant === 'letter') {
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="22 16 74 86"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={`shrink-0 ${className}`}
+        aria-hidden="true"
+      >
+        {SvgPaths}
+      </svg>
+    );
+  }
+
+  const Mark = (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 120 120"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={`shrink-0 ${className}`}
+    >
+      {SvgPaths}
     </svg>
   );
 

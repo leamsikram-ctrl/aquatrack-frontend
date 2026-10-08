@@ -50,23 +50,18 @@ export function AdminDashboardView() {
 
   return (
     <AdminLayout
-      title="Operations Dashboard"
-      subtitle="Sinacaban Municipal System"
       currentPath="/admin/dashboard"
       onNavigate={(path) => navigate(path)}
     >
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/15 pb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/15 pb-4">
           <div>
-            <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
-              Administrator Operations Overview
+            <h1 className="text-xl sm:text-2xl font-bold text-black">
+              Dashboard
             </h1>
-            <p className="text-[14px] text-black/60">
-              Real-time operations, service requests, and utility statistics for Sinacaban (AquaTrack).
-            </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button variant="secondary" onClick={() => navigate('/admin/verification')}>
               Verification Queue
             </Button>
@@ -74,7 +69,7 @@ export function AdminDashboardView() {
               Dispatch Technicians
             </Button>
             <Button variant="primary" onClick={() => navigate('/admin/billing')}>
-              Billing CSV Import
+              Billing Import
             </Button>
           </div>
         </div>
@@ -84,22 +79,18 @@ export function AdminDashboardView() {
           <StatCard
             label="Open Requests"
             value={isLoading ? '...' : openCount}
-            subtext="Customer submitted issues"
           />
           <StatCard
             label="Unassigned"
             value={isLoading ? '...' : unassignedCount}
-            subtext="Pending staff assignment"
           />
           <StatCard
             label="Unpaid Bills"
             value={isLoading ? '...' : unpaidBillsCount}
-            subtext="Current billing cycle"
           />
           <StatCard
             label="Active Interruptions"
             value={isLoading ? '...' : activeInterruptionCount}
-            subtext="Published advisories"
           />
         </div>
 
@@ -108,10 +99,10 @@ export function AdminDashboardView() {
           {/* Needs attention card */}
           <Card className="p-4 border border-black/15 space-y-3">
             <div className="border-b border-black/10 pb-1.5 flex items-center justify-between">
-              <span className="font-bold text-black uppercase tracking-wider text-[14px]">
+              <span className="font-bold text-black text-[14px]">
                 Needs attention
               </span>
-              <Badge variant="black">Action Required</Badge>
+              <Badge variant="outline">Action Required</Badge>
             </div>
 
             <div className="space-y-2">
@@ -122,7 +113,7 @@ export function AdminDashboardView() {
                     <strong className="text-black font-bold">
                       {req.reference_number || req.reference || `AT-${req.id}`}
                     </strong>
-                    <span className="text-black/60 ml-1.5 font-normal">Submitted, not yet assigned</span>
+                    <span className="text-black/60 ml-1.5 font-normal">Submitted</span>
                   </div>
                   <Button
                     variant="primary"
@@ -170,7 +161,7 @@ export function AdminDashboardView() {
           <Card className="p-4 border border-black/15 space-y-3 flex flex-col justify-between">
             <div className="space-y-3">
               <div className="border-b border-black/10 pb-1.5 flex items-center justify-between">
-                <span className="font-bold text-black uppercase tracking-wider text-[14px]">
+                <span className="font-bold text-black text-[14px]">
                   Upcoming interruptions
                 </span>
                 <Badge variant="blue">Advisories</Badge>
@@ -192,7 +183,7 @@ export function AdminDashboardView() {
                           {item.starts_at} - {item.ends_at}
                         </span>
                       </div>
-                      <Badge variant="black">Scheduled</Badge>
+                      <Badge variant="outline">Scheduled</Badge>
                     </div>
                   ))
                 )}
@@ -213,12 +204,9 @@ export function AdminDashboardView() {
 
         {/* Live Service Requests Table */}
         <Card className="p-0 overflow-hidden border border-black/15">
-          <div className="px-4 py-2.5 border-b border-black/15 flex items-center justify-between bg-[#F0F6FD]">
-            <div>
-              <div className="text-[14px] font-bold text-black uppercase tracking-wider">
-                Recent Service Requests Feed
-              </div>
-              <div className="text-[14px] text-black/60">Live feed from consumer submissions</div>
+          <div className="px-4 py-2.5 border-b border-black/15 flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-[#F0F6FD]">
+            <div className="text-[14px] font-bold text-black">
+              Recent Service Requests
             </div>
             <div className="flex items-center gap-2">
               <Badge variant="blue">{requests.length} Listed</Badge>
@@ -226,7 +214,7 @@ export function AdminDashboardView() {
                 onClick={() => navigate('/admin/requests')}
                 className="text-[14px] font-bold text-[#1E6FD9] hover:underline flex items-center gap-0.5"
               >
-                View Full Dispatcher <IconArrowRight size={10} />
+                View All <IconArrowRight size={10} />
               </button>
             </div>
           </div>
@@ -235,12 +223,12 @@ export function AdminDashboardView() {
             <table className="w-full text-left text-[14px]">
               <thead className="bg-[#FFFFFF] text-black border-b border-black/15">
                 <tr>
-                  <th className="px-4 py-2 font-bold uppercase">Reference</th>
-                  <th className="px-4 py-2 font-bold uppercase">Issue Description</th>
-                  <th className="px-4 py-2 font-bold uppercase">Barangay Zone</th>
-                  <th className="px-4 py-2 font-bold uppercase">Urgency</th>
-                  <th className="px-4 py-2 font-bold uppercase">Status</th>
-                  <th className="px-4 py-2 font-bold uppercase">Assigned Staff</th>
+                  <th className="px-4 py-2 text-xs font-semibold text-black/60">Reference</th>
+                  <th className="px-4 py-2 text-xs font-semibold text-black/60">Issue Description</th>
+                  <th className="px-4 py-2 text-xs font-semibold text-black/60">Barangay Zone</th>
+                  <th className="px-4 py-2 text-xs font-semibold text-black/60">Urgency</th>
+                  <th className="px-4 py-2 text-xs font-semibold text-black/60">Status</th>
+                  <th className="px-4 py-2 text-xs font-semibold text-black/60">Assigned Staff</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-black/10">
@@ -259,13 +247,13 @@ export function AdminDashboardView() {
                       <td className="px-4 py-2.5 text-black max-w-xs truncate">{req.description}</td>
                       <td className="px-4 py-2.5 text-black">{req.barangay?.name || 'Poblacion'}</td>
                       <td className="px-4 py-2.5">
-                        <Badge variant={req.urgency === 'high' ? 'blue' : 'black'}>
-                          {req.urgency ? req.urgency.toUpperCase() : 'MEDIUM'}
+                        <Badge variant={req.urgency === 'high' ? 'blue' : 'outline'}>
+                          {req.urgency ? (req.urgency.charAt(0).toUpperCase() + req.urgency.slice(1)) : 'Medium'}
                         </Badge>
                       </td>
                       <td className="px-4 py-2.5">
-                        <Badge variant={req.status === 'resolved' ? 'blue' : 'black'}>
-                          {req.status ? req.status.replace('_', ' ').toUpperCase() : 'SUBMITTED'}
+                        <Badge variant={req.status === 'resolved' ? 'blue' : 'outline'}>
+                          {req.status ? (req.status.replace('_', ' ').charAt(0).toUpperCase() + req.status.replace('_', ' ').slice(1)) : 'Submitted'}
                         </Badge>
                       </td>
                       <td className="px-4 py-2.5 text-black font-normal">

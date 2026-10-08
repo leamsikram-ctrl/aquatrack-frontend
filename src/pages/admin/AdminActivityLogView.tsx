@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '../../components/templates/AdminLayout';
 import { Card } from '../../components/atoms/Card';
 import { Button } from '../../components/atoms/Button';
+import { Badge } from '../../components/atoms/Badge';
 import { EmptyState } from '../../components/molecules/EmptyState';
 import { IconSearch, IconCalendar } from '@tabler/icons-react';
 
@@ -104,14 +105,9 @@ export function AdminActivityLogView() {
             <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
               Activity Log
             </h1>
-            <p className="text-[14px] text-black/60">
-              Immutable institutional audit trail of dispatch orders, urgency overrides, and staff resolutions.
-            </p>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[9px] text-black/60 bg-[#F0F6FD] px-2 py-1 border border-black/15 rounded">
-              {filteredLogs.length} Logged Events
-            </span>
+            <Badge variant="blue">{filteredLogs.length} Events</Badge>
           </div>
         </div>
 
@@ -128,7 +124,7 @@ export function AdminActivityLogView() {
             <IconSearch size={14} className="absolute left-2.5 top-2.5 text-black/40" />
           </div>
 
-          <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
@@ -200,7 +196,7 @@ export function AdminActivityLogView() {
         {/* Date Range Modal */}
         {showDateRangeModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-sm bg-white rounded border border-black p-5 space-y-4 shadow-xl">
+            <div className="w-full max-w-sm bg-white rounded border border-black p-5 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <span className="font-bold text-black uppercase tracking-wider text-[14px]">
                   Filter Activity Date Range
@@ -240,7 +236,7 @@ export function AdminActivityLogView() {
               </div>
 
               <div className="flex justify-end gap-2 pt-2 border-t border-black/10">
-                <Button variant="ghost" onClick={() => setShowDateRangeModal(false)}>
+                <Button variant="secondary" onClick={() => setShowDateRangeModal(false)}>
                   Cancel
                 </Button>
                 <Button variant="primary" onClick={() => setShowDateRangeModal(false)}>

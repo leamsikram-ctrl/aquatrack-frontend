@@ -91,11 +91,8 @@ export function AdminSettingsView() {
         {/* Header */}
         <div className="border-b border-black/15 pb-3">
           <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
-            System Settings & Configuration
+            System Settings
           </h1>
-          <p className="text-[14px] text-black/60">
-            Institutional utility parameters, priority matrix rules, and communication templates.
-          </p>
         </div>
 
         {/* Wireframe A13 / A14 Tabs */}
@@ -455,7 +452,7 @@ export function AdminSettingsView() {
         {/* Add Issue Type Modal */}
         {showAddIssueModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-sm bg-white rounded border border-black p-5 space-y-4 shadow-xl">
+            <div className="w-full max-w-sm bg-white rounded border border-black p-5 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <span className="font-bold text-black uppercase tracking-wider text-[14px]">
                   Add Issue Category
@@ -501,7 +498,7 @@ export function AdminSettingsView() {
                 <div className="flex justify-end gap-2 pt-2 border-t border-black/10">
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant="secondary"
                     onClick={() => setShowAddIssueModal(false)}
                   >
                     Cancel

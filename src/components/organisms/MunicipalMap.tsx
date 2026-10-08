@@ -84,19 +84,16 @@ function createPickerIcon() {
   return L.divIcon({
     className: 'custom-picker-marker',
     html: `
-      <div style="display: flex; flex-direction: column; align-items: center; transform: translate(-50%, -100%); cursor: grab;">
-        <div style="background-color: #1E6FD9; color: white; padding: 4px 8px; border-radius: 8px; font-size: 11px; font-weight: 800; border: 2px solid white; box-shadow: 0 4px 12px rgba(30,111,217,0.45); display: flex; align-items: center; gap: 4px;">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-            <circle cx="12" cy="10" r="3"></circle>
-          </svg>
-          <span>Selected Pin</span>
-        </div>
-        <div style="width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 8px solid #1E6FD9;"></div>
+      <div style="cursor: grab;">
+        <svg width="28" height="38" viewBox="0 0 28 38" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35)); display: block;">
+          <path d="M14 1C6.82 1 1 6.82 1 14c0 10.5 13 23 13 23s13-12.5 13-23c0-7.18-5.82-13-13-13z" fill="#1E6FD9" stroke="#ffffff" stroke-width="2"/>
+          <circle cx="14" cy="14" r="4.5" fill="#ffffff"/>
+        </svg>
       </div>
     `,
-    iconSize: [0, 0],
-    iconAnchor: [0, 0],
+    iconSize: [28, 38],
+    iconAnchor: [14, 38],
+    popupAnchor: [0, -38],
   });
 }
 

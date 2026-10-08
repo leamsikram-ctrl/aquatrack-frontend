@@ -222,17 +222,14 @@ export function AdminMapView() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-black/15 pb-3">
           <div>
-            <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
+            <h1 className="text-xl sm:text-2xl font-bold text-black">
               Municipal Map
             </h1>
-            <p className="text-[14px] text-black/60">
-              Sinacaban GIS service map, customer pins, work order coordinates, and failure hotspots.
-            </p>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[9px] text-black/60 bg-[#F0F6FD] px-2 py-1 border border-black/15 rounded">
-              {filteredRequests.length} Active Incidents · {filteredCustomers.length} Consumers Mapped
-            </span>
+            <Badge variant="blue">
+              {filteredRequests.length} Incidents · {filteredCustomers.length} Consumers
+            </Badge>
           </div>
         </div>
 
@@ -240,7 +237,7 @@ export function AdminMapView() {
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-white p-3 border border-black/15 rounded">
           {/* Layer Toggles (Pills) */}
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="font-bold text-black uppercase tracking-wider text-[9px] mr-1">
+            <span className="text-xs font-semibold text-black/60 mr-1">
               Layers:
             </span>
             <button
@@ -325,8 +322,8 @@ export function AdminMapView() {
         {/* Wireframe A6 Map Canvas & Hotspot Layer */}
         <Card className="p-0 border border-black/15 overflow-hidden relative shadow-sm">
           {/* Top Status Bar over Map */}
-          <div className="flex justify-between items-center px-3 py-2 bg-white/95 border-b border-black/10 z-10">
-            <div className="text-[14px] font-bold text-black flex items-center gap-1.5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 px-3 py-2 bg-white/95 border-b border-black/10 z-10">
+            <div className="text-xs font-semibold text-black flex items-center gap-1.5">
               <IconMapPin size={13} className="text-[#1E6FD9]" />
               <span>Sinacaban Municipal GIS · Misamis Occidental (8.2835° N, 123.8340° E)</span>
             </div>
@@ -366,11 +363,11 @@ export function AdminMapView() {
                   <span className="text-black font-bold">{selectedItem.barangay}</span>
                   <span className="text-black/50">·</span>
                   <Badge variant={selectedItem.status === 'assigned' ? 'blue' : 'black'}>
-                    {(selectedItem.status || 'ACTIVE').toUpperCase()}
+                    {selectedItem.status || 'Active'}
                   </Badge>
                   {selectedItem.urgency && (
                     <Badge variant={selectedItem.urgency === 'high' ? 'outline' : 'blue'}>
-                      {selectedItem.urgency.toUpperCase()} URGENCY
+                      {selectedItem.urgency} urgency
                     </Badge>
                   )}
                 </div>
@@ -412,9 +409,9 @@ export function AdminMapView() {
         {/* Quick Assign Modal (Wireframe A4 format) */}
         {showAssignModal && selectedItem && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-sm bg-white rounded border border-black p-5 space-y-4 shadow-xl">
+            <div className="w-full max-w-sm bg-white rounded border border-black p-5 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
-                <span className="font-bold text-black uppercase tracking-wider text-[14px]">
+                <span className="text-sm font-bold text-black">
                   Assign Staff to {selectedItem.reference}
                 </span>
                 <button
@@ -427,7 +424,7 @@ export function AdminMapView() {
 
               <form onSubmit={handleAssignSubmit} className="space-y-3">
                 <div>
-                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
+                  <label className="block text-xs font-semibold text-black/60 mb-1">
                     Field Technician
                   </label>
                   <select
@@ -446,7 +443,7 @@ export function AdminMapView() {
                 </div>
 
                 <div>
-                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
+                  <label className="block text-xs font-semibold text-black/60 mb-1">
                     Assignment Instructions / Notes
                   </label>
                   <textarea
@@ -461,7 +458,7 @@ export function AdminMapView() {
                 <div className="flex justify-end gap-2 pt-2 border-t border-black/10">
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant="secondary"
                     onClick={() => setShowAssignModal(false)}
                   >
                     Cancel

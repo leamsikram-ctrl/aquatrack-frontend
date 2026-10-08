@@ -16,10 +16,6 @@ export interface TopbarProps {
 }
 
 export const Topbar: React.FC<TopbarProps> = ({
-  title,
-  subtitle,
-  userName,
-  userRole,
   isMobileMenuOpen = false,
   onToggleMobileMenu,
   className = '',
@@ -27,15 +23,6 @@ export const Topbar: React.FC<TopbarProps> = ({
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
-
-  const displayName = userName || user?.name || 'Authorized User';
-  const displayRole =
-    userRole ||
-    (user?.role === 'admin'
-      ? 'System Administrator'
-      : user?.role === 'staff'
-      ? 'Field Technician'
-      : 'Water Consumer');
 
   const roleKey = user?.role || 'customer';
 
@@ -47,10 +34,11 @@ export const Topbar: React.FC<TopbarProps> = ({
   return (
     <>
       <header
-        className={`h-14 border-b border-black/20 bg-white shadow-[0_2px_0px_0px_rgba(0,0,0,0.06)] sticky top-0 z-30 select-none text-[14px] ${className}`}
+        className={`h-16 border-b border-black/20 bg-white shadow-[0_2px_0px_0px_rgba(0,0,0,0.06)] sticky top-0 z-30 select-none text-[14px] ${className}`}
       >
-        <div className="max-w-[1440px] w-full mx-auto px-6 sm:px-10 lg:px-14 flex items-center justify-between h-full">
-          <div className="flex items-center gap-3">
+        <div className="w-full px-4 sm:px-6 flex items-center justify-between h-full">
+          {/* Nearest left side: Mobile toggle + AquaTrack Logo & Text just like landing page */}
+          <div className="flex items-center gap-2.5 sm:gap-3">
             {onToggleMobileMenu && (
               <button
                 onClick={onToggleMobileMenu}
@@ -61,32 +49,21 @@ export const Topbar: React.FC<TopbarProps> = ({
               </button>
             )}
 
-            <div className="flex items-center gap-2">
-              <AquaTrackLogo size={24} variant="mark" />
-              <span className="font-bold text-[14px] uppercase tracking-wider text-black">
-                AquaTrack
-              </span>
-              {title && (
-                <div className="flex items-center gap-1.5 text-black">
-                  <span className="text-black/30">/</span>
-                  <span className="font-bold text-[14px]">{title}</span>
-                </div>
-              )}
-              {subtitle && (
-                <span className="text-black/50 text-[14px] font-normal hidden sm:inline">
-                  ({subtitle})
+            <div className="flex items-center gap-2.5 sm:gap-3 text-black">
+              <AquaTrackLogo size={32} variant="mark" />
+              <div className="flex flex-col leading-tight">
+                <span className="font-bold text-black text-[14px]">
+                  AquaTrack
                 </span>
-              )}
+                <span className="text-black/60 font-normal text-[12px] sm:text-[14px] hidden min-[380px]:inline">
+                  Sinacaban Water Supply System
+                </span>
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="text-right">
-              <div className="font-bold text-black text-[14px]">{displayName}</div>
-              <div className="text-black/60 text-[14px] font-normal">{displayRole}</div>
-            </div>
-
-            {/* Bell Icon */}
+          {/* Nearest right side: Notification bell and Logout button */}
+          <div className="flex items-center gap-2 sm:gap-3">
             <button
               onClick={() => setShowNotifications(true)}
               title="Notifications"
@@ -99,7 +76,7 @@ export const Topbar: React.FC<TopbarProps> = ({
             <button
               onClick={handleLogout}
               title="Sign Out"
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded border border-black text-black hover:bg-[#F0F6FD] hover:text-[#1E6FD9] text-[14px] font-bold transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded border border-black text-black hover:bg-[#F0F6FD] hover:text-[#1E6FD9] text-[14px] font-bold transition-colors"
             >
               <IconLogout size={14} />
               <span className="hidden sm:inline">Sign Out</span>

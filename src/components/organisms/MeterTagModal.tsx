@@ -120,7 +120,7 @@ export function MeterTagModal({ customer, onClose }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 overflow-y-auto">
-      <div className="w-full max-w-lg bg-white rounded-lg border border-black p-5 space-y-4 shadow-2xl relative my-auto">
+      <div className="w-full max-w-lg bg-white rounded-lg border border-black p-5 space-y-4 shadow-2xl relative my-auto max-h-[90vh] overflow-y-auto">
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-black/15 pb-2">
           <div className="flex items-center gap-2">
@@ -255,7 +255,7 @@ export function MeterTagModal({ customer, onClose }: Props) {
                 </Button>
               </div>
 
-              <div className="flex items-center justify-between pt-2">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2">
                 <button
                   type="button"
                   onClick={handleRegenerateToken}

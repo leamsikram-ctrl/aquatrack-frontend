@@ -156,18 +156,14 @@ export function AdminRequestsView() {
     >
       <div className="space-y-4 text-[14px]">
         {/* Wireframe A2 Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/15 pb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/15 pb-4">
           <div>
-            <h1 className="text-[14px] font-bold uppercase tracking-wider text-black">
-              Service Requests Manager
+            <h1 className="text-xl sm:text-2xl font-bold text-black">
+              Service Requests
             </h1>
-            <p className="text-[14px] text-black/60">
-              Active dispatches, technician assignments, and maintenance logs for Sinacaban (AquaTrack)
-            </p>
           </div>
 
           <div className="flex items-center gap-1.5">
-            <span className="text-black/60">Total in view:</span>
             <Badge variant="blue">{filteredRequests.length} Requests</Badge>
           </div>
         </div>
@@ -220,7 +216,7 @@ export function AdminRequestsView() {
 
           {/* Filter Pills based on active tab */}
           <div className="flex flex-wrap items-center gap-1.5 pt-1">
-            <span className="font-bold text-black uppercase text-[14px] mr-1">Filter:</span>
+            <span className="text-xs font-semibold text-black/60 mr-1">Filter:</span>
             {(activeTab === 'active'
               ? ['all', 'submitted', 'assigned', 'in_progress']
               : ['all', 'resolved', 'cancelled']
@@ -244,16 +240,16 @@ export function AdminRequestsView() {
         <Card className="overflow-hidden border border-black/15 p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-[14px]">
-              <thead className="bg-[#F0F6FD] border-b border-black/15 uppercase tracking-wider text-black">
+              <thead className="bg-[#F0F6FD] border-b border-black/15 text-black">
                 <tr>
-                  <th className="px-4 py-2.5 font-bold">Reference</th>
-                  <th className="px-4 py-2.5 font-bold">Customer</th>
-                  <th className="px-4 py-2.5 font-bold">Issue Description</th>
-                  <th className="px-4 py-2.5 font-bold">Barangay</th>
-                  <th className="px-4 py-2.5 font-bold">Urgency</th>
-                  <th className="px-4 py-2.5 font-bold">Status</th>
-                  <th className="px-4 py-2.5 font-bold">Assigned Tech</th>
-                  <th className="px-4 py-2.5 font-bold text-right">Action</th>
+                  <th className="px-4 py-2 text-xs font-semibold text-black/60">Reference</th>
+                  <th className="px-4 py-2 text-xs font-semibold text-black/60">Customer</th>
+                  <th className="px-4 py-2 text-xs font-semibold text-black/60">Issue Description</th>
+                  <th className="px-4 py-2 text-xs font-semibold text-black/60">Barangay</th>
+                  <th className="px-4 py-2 text-xs font-semibold text-black/60">Urgency</th>
+                  <th className="px-4 py-2 text-xs font-semibold text-black/60">Status</th>
+                  <th className="px-4 py-2 text-xs font-semibold text-black/60">Assigned Tech</th>
+                  <th className="px-4 py-2 text-xs font-semibold text-black/60 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-black/10">
@@ -293,24 +289,16 @@ export function AdminRequestsView() {
                       </td>
                       <td className="px-4 py-2.5">
                         <Badge
-                          variant={
-                            r.urgency === 'high'
-                              ? 'black'
-                              : r.urgency === 'medium'
-                              ? 'blue'
-                              : 'outline'
-                          }
+                          variant={r.urgency === 'high' ? 'blue' : 'outline'}
                         >
-                          {r.urgency.toUpperCase()}
+                          {r.urgency ? (r.urgency.charAt(0).toUpperCase() + r.urgency.slice(1)) : 'Medium'}
                         </Badge>
                       </td>
                       <td className="px-4 py-2.5">
                         <Badge
                           variant={
-                            r.status === 'in_progress'
+                            r.status === 'in_progress' || r.status === 'resolved'
                               ? 'blue'
-                              : r.status === 'resolved'
-                              ? 'black'
                               : 'outline'
                           }
                         >
@@ -420,7 +408,7 @@ export function AdminRequestsView() {
                   <span className="font-bold text-black uppercase tracking-wider text-[9px]">
                     Urgency Engine Derivation
                   </span>
-                  <Badge variant={drawerReq.urgency === 'high' ? 'black' : 'blue'}>
+                  <Badge variant={drawerReq.urgency === 'high' ? 'outline' : 'blue'}>
                     FINAL: {drawerReq.urgency.toUpperCase()}
                   </Badge>
                 </div>
@@ -484,10 +472,6 @@ export function AdminRequestsView() {
                     </span>
                   )}
                 </div>
-
-                <span className="text-[9px] text-black/50 block italic">
-                  Original and adjusted values stay in the municipal audit activity log.
-                </span>
               </div>
 
               {/* Status Stepper Timeline */}
@@ -538,7 +522,7 @@ export function AdminRequestsView() {
         {/* Wireframe A4: Assign Staff Modal */}
         {assigningReq && (
           <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-            <div className="bg-white border-2 border-black rounded-lg max-w-md w-full p-5 space-y-4 shadow-xl text-[14px]">
+            <div className="bg-white border-2 border-black rounded-lg max-w-md w-full p-5 space-y-4 shadow-xl text-[14px] max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <div className="flex items-center gap-2">
                   <IconUserPlus size={14} className="text-[#1E6FD9]" />

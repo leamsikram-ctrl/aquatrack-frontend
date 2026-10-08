@@ -153,19 +153,20 @@ export function CustomerProfileView() {
             >
               Change password
             </Button>
-            <button
+            <Button
+              variant="secondary"
+              className="w-full justify-center"
               onClick={handleLogout}
-              className="w-full py-2 text-center text-[14px] font-bold text-black hover:text-[#1E6FD9] transition-colors"
             >
               Log out
-            </button>
+            </Button>
           </div>
         </Card>
 
         {/* Edit Profile Modal */}
         {showEditModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-sm bg-white rounded-lg border border-black p-5 space-y-4 shadow-2xl">
+            <div className="w-full max-w-sm bg-white rounded-lg border border-black p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <span className="font-bold text-[14px] text-black uppercase tracking-wider">
                   Edit Profile
@@ -239,7 +240,7 @@ export function CustomerProfileView() {
         {/* Change Password Modal */}
         {showPasswordModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-sm bg-white rounded-lg border border-black p-5 space-y-4 shadow-2xl">
+            <div className="w-full max-w-sm bg-white rounded-lg border border-black p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <span className="font-bold text-[14px] text-black uppercase tracking-wider">
                   Change Password

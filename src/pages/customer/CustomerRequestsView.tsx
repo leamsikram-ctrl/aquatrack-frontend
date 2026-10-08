@@ -191,13 +191,9 @@ export function CustomerRequestsView() {
                     </span>
                     <Badge
                       variant={
-                        req.status === 'resolved'
+                        req.status === 'resolved' || req.status === 'in_progress'
                           ? 'blue'
-                          : req.status === 'cancelled'
-                          ? 'black'
-                          : req.status === 'in_progress'
-                          ? 'blue'
-                          : 'black'
+                          : 'outline'
                       }
                     >
                       {req.status === 'in_progress'
@@ -251,7 +247,7 @@ export function CustomerRequestsView() {
         {/* Report an issue Modal */}
         {showCreateModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-sm bg-white rounded-lg border border-black p-5 space-y-4 shadow-2xl">
+            <div className="w-full max-w-sm bg-white rounded-lg border border-black p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <span className="font-bold text-[14px] text-black uppercase tracking-wider">
                   Report an issue
@@ -385,7 +381,7 @@ export function CustomerRequestsView() {
         {/* Request details Modal */}
         {selectedReq && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-sm bg-white rounded-lg border border-black p-5 space-y-4 shadow-2xl">
+            <div className="w-full max-w-sm bg-white rounded-lg border border-black p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <button
                   onClick={() => setSelectedReq(null)}
@@ -398,11 +394,9 @@ export function CustomerRequestsView() {
                 </button>
                 <Badge
                   variant={
-                    selectedReq.status === 'resolved'
+                    selectedReq.status === 'resolved' || selectedReq.status === 'in_progress'
                       ? 'blue'
-                      : selectedReq.status === 'cancelled'
-                      ? 'black'
-                      : 'blue'
+                      : 'outline'
                   }
                 >
                   {selectedReq.status === 'in_progress'
@@ -520,16 +514,17 @@ export function CustomerRequestsView() {
               {/* Action Buttons */}
               {canCancel(selectedReq.status) ? (
                 <div className="pt-2">
-                  <button
+                  <Button
+                    variant="secondary"
+                    className="w-full justify-center"
                     onClick={() => setShowCancelModal(true)}
-                    className="w-full py-2 border border-black text-black hover:bg-[#F0F6FD] hover:text-[#1E6FD9] rounded font-bold text-[14px] transition-colors"
                   >
                     Cancel request
-                  </button>
+                  </Button>
                 </div>
               ) : selectedReq.status === 'in_progress' ? (
                 <div className="p-2.5 border border-black/20 rounded bg-white text-[14px] font-normal text-black/80 text-center">
-                  This repair has already started. Contact AquaTrack if anything has changed.
+                  This repair has started. Contact AquaTrack if details have changed.
                 </div>
               ) : (
                 <div className="pt-2">
@@ -549,14 +544,11 @@ export function CustomerRequestsView() {
         {/* Cancel Confirmation Modal */}
         {showCancelModal && selectedReq && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-xs bg-white rounded-lg border border-black p-5 space-y-3.5 shadow-2xl">
+            <div className="w-full max-w-xs bg-white rounded-lg border border-black p-5 space-y-3.5 shadow-2xl max-h-[90vh] overflow-y-auto">
               <div className="text-left space-y-1">
                 <h3 className="font-bold text-[14px] text-black">
                   Cancel {selectedReq.reference_no || selectedReq.reference || `AT-2026-${selectedReq.id}`}?
                 </h3>
-                <p className="text-[14px] text-black/70 font-normal leading-relaxed">
-                  The assigned technician will be notified and the request will be closed.
-                </p>
               </div>
 
               <div>

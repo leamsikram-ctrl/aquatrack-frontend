@@ -170,7 +170,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-end bg-black/40 p-2 sm:p-4 animate-fade-in">
-      <div className="w-full max-w-sm bg-white rounded-lg border border-black shadow-2xl overflow-hidden flex flex-col text-[14px] text-black">
+      <div className="w-full max-w-sm bg-white rounded-lg border border-black shadow-2xl overflow-hidden flex flex-col text-[14px] text-black max-h-[calc(100vh-1rem)] sm:max-h-[calc(100vh-2rem)]">
         {/* Header */}
         <div className="flex items-center justify-between px-3.5 py-3 border-b border-black/15 bg-[#F0F6FD]">
           <div className="flex items-center gap-1.5">
@@ -205,7 +205,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
         </div>
 
         {/* Notifications List */}
-        <div className="max-h-[420px] overflow-y-auto divide-y divide-black/10">
+        <div className="flex-1 max-h-[calc(100vh-7rem)] overflow-y-auto divide-y divide-black/10">
           {notifications.length === 0 ? (
             <div className="p-8 text-center text-black/60">
               <IconBell size={28} className="mx-auto mb-2 text-black/30" />

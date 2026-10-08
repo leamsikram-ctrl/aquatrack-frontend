@@ -116,12 +116,9 @@ export function AdminReportsView() {
         {/* Wireframe A11 Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/15 pb-3">
           <div>
-            <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
+            <h1 className="text-xl sm:text-2xl font-bold text-black">
               Maintenance Reports
             </h1>
-            <p className="text-[14px] text-black/60">
-              Compile statutory municipal utility analytics, response times, and failure reports.
-            </p>
           </div>
           <Button
             variant="primary"
@@ -146,8 +143,8 @@ export function AdminReportsView() {
           <form onSubmit={handleGenerateReport} className="space-y-3">
             {/* Report Type */}
             <div>
-              <label className="block text-[14px] font-bold text-black uppercase mb-1">
-                Report type
+              <label className="block text-xs font-semibold text-black/60 mb-1">
+                Report Type
               </label>
               <select
                 value={reportType}
@@ -164,7 +161,7 @@ export function AdminReportsView() {
             {/* Date Range: From & To */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-[14px] font-bold text-black uppercase mb-1 flex items-center gap-1">
+                <label className="block text-xs font-semibold text-black/60 mb-1 flex items-center gap-1">
                   <IconCalendar size={12} className="text-[#1E6FD9]" />
                   <span>From</span>
                 </label>
@@ -178,7 +175,7 @@ export function AdminReportsView() {
               </div>
 
               <div>
-                <label className="block text-[14px] font-bold text-black uppercase mb-1 flex items-center gap-1">
+                <label className="block text-xs font-semibold text-black/60 mb-1 flex items-center gap-1">
                   <IconCalendar size={12} className="text-[#1E6FD9]" />
                   <span>To</span>
                 </label>
@@ -194,7 +191,7 @@ export function AdminReportsView() {
 
             {/* Barangay Filter */}
             <div>
-              <label className="block text-[14px] font-bold text-black uppercase mb-1 flex items-center gap-1">
+              <label className="block text-xs font-semibold text-black/60 mb-1 flex items-center gap-1">
                 <IconFilter size={12} className="text-[#1E6FD9]" />
                 <span>Barangay</span>
               </label>
@@ -215,7 +212,7 @@ export function AdminReportsView() {
             {/* Wireframe A11 Preview Box: counts by status, issue type, barangay */}
             <div className="border border-dashed border-black/30 rounded p-4 bg-[#F0F6FD] space-y-3">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-black uppercase tracking-wider text-[14px]">
+                <span className="text-sm font-bold text-black">
                   Preview: counts by status, issue type, barangay
                 </span>
                 <Badge variant="blue">{filteredData.length} Matching Records</Badge>
@@ -225,24 +222,24 @@ export function AdminReportsView() {
                 <div className="py-4 text-center text-black/50">Computing municipal dataset...</div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[14px]">
-                  <div className="bg-white p-2 border border-black/15 rounded">
-                    <span className="text-black/60 uppercase block text-[14px] font-bold">Resolved Repairs</span>
-                    <strong className="text-[#1E6FD9] text-[14px] font-bold">{countsByStatus.resolved}</strong>
+                  <div className="bg-white p-3 border border-black/15 rounded">
+                    <span className="text-xs font-semibold text-black/60 block">Resolved Repairs</span>
+                    <strong className="text-2xl sm:text-3xl font-bold text-[#1E6FD9] block mt-1">{countsByStatus.resolved}</strong>
                   </div>
 
-                  <div className="bg-white p-2 border border-black/15 rounded">
-                    <span className="text-black/60 uppercase block text-[14px] font-bold">In Progress Jobs</span>
-                    <strong className="text-black text-[14px] font-bold">{countsByStatus.in_progress}</strong>
+                  <div className="bg-white p-3 border border-black/15 rounded">
+                    <span className="text-xs font-semibold text-black/60 block">In Progress Jobs</span>
+                    <strong className="text-2xl sm:text-3xl font-bold text-black block mt-1">{countsByStatus.in_progress}</strong>
                   </div>
 
-                  <div className="bg-white p-2 border border-black/15 rounded">
-                    <span className="text-black/60 uppercase block text-[14px] font-bold">High Priority</span>
-                    <strong className="text-black text-[14px] font-bold">{countsByUrgency.high}</strong>
+                  <div className="bg-white p-3 border border-black/15 rounded">
+                    <span className="text-xs font-semibold text-black/60 block">High Priority</span>
+                    <strong className="text-2xl sm:text-3xl font-bold text-black block mt-1">{countsByUrgency.high}</strong>
                   </div>
 
-                  <div className="bg-white p-2 border border-black/15 rounded">
-                    <span className="text-black/60 uppercase block text-[14px] font-bold">Total Advisories</span>
-                    <strong className="text-black text-[14px] font-bold">{interruptions.length}</strong>
+                  <div className="bg-white p-3 border border-black/15 rounded">
+                    <span className="text-xs font-semibold text-black/60 block">Total Advisories</span>
+                    <strong className="text-2xl sm:text-3xl font-bold text-black block mt-1">{interruptions.length}</strong>
                   </div>
                 </div>
               )}

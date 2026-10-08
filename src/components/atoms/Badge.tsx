@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type BadgeVariant = 'blue' | 'black' | 'outline';
+export type BadgeVariant = 'blue' | 'outline' | 'black';
 
 export interface BadgeProps {
   children: React.ReactNode;
@@ -15,9 +15,9 @@ export const Badge: React.FC<BadgeProps> = ({
 }) => {
   const variantStyles = {
     blue: 'bg-[#1E6FD9] text-white border-[#1E6FD9]',
-    black: 'bg-black text-white border-black',
     outline: 'bg-white text-black border-black',
-  }[variant];
+    black: 'bg-white text-black border-black', // Aliased to outline to strictly enforce 2 component variants
+  }[variant] || 'bg-white text-black border-black';
 
   return (
     <span

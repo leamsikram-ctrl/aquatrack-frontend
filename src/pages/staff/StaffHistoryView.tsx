@@ -37,34 +37,28 @@ export function StaffHistoryView() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/15 pb-4">
         <div>
-          <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
-            Completed Field Operations & Resolution Log
+          <h1 className="text-[14px] font-bold text-black">
+            Completed Operations
           </h1>
-          <p className="text-[14px] text-black/60">
-            Archive of resolved service requests, maintenance jobs, and field repairs conducted in Sinacaban.
-          </p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="blue">{completedTasks.length} Completed Missions</Badge>
+          <Badge variant="blue">{completedTasks.length} Resolved</Badge>
         </div>
       </div>
 
       {/* Summary KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="p-4 border-l-4 border-l-[#1E6FD9] border border-black/15">
-          <div className="text-[14px] text-black/60 uppercase font-bold">Total Resolved</div>
-          <div className="text-[14px] font-bold text-[#1E6FD9] mt-1">{completedTasks.length}</div>
-          <div className="text-[14px] text-black/50 mt-0.5">Verified on-site repairs</div>
+        <Card className="p-4 border-l-4 border-l-[#1E6FD9] border border-black/15 bg-white">
+          <div className="text-[14px] text-black/60 font-bold">Total Resolved</div>
+          <div className="text-3xl font-bold text-[#1E6FD9] mt-2">{completedTasks.length}</div>
         </Card>
-        <Card className="p-4 border border-black/15">
-          <div className="text-[14px] text-black/60 uppercase font-bold">Standard Resolution Time</div>
-          <div className="text-[14px] font-bold text-black mt-1">&lt; 4 Hours</div>
-          <div className="text-[14px] text-black/50 mt-0.5">Average response SLA</div>
+        <Card className="p-4 border border-black/15 bg-white">
+          <div className="text-[14px] text-black/60 font-bold">Resolution Time</div>
+          <div className="text-3xl font-bold text-black mt-2">&lt; 4 Hours</div>
         </Card>
-        <Card className="p-4 border border-black/15">
-          <div className="text-[14px] text-black/60 uppercase font-bold">Customer Satisfaction</div>
-          <div className="text-[14px] font-bold text-black mt-1">100% Verified</div>
-          <div className="text-[14px] text-black/50 mt-0.5">No unresolved callbacks</div>
+        <Card className="p-4 border border-black/15 bg-white">
+          <div className="text-[14px] text-black/60 font-bold">Customer Satisfaction</div>
+          <div className="text-3xl font-bold text-black mt-2">100% Verified</div>
         </Card>
       </div>
 
@@ -74,12 +68,12 @@ export function StaffHistoryView() {
           <table className="w-full text-left text-[14px]">
             <thead className="bg-[#F0F6FD] text-black border-b border-black/15">
               <tr>
-                <th className="px-4 py-2.5 font-bold uppercase">Reference</th>
-                <th className="px-4 py-2.5 font-bold uppercase">Issue Type</th>
-                <th className="px-4 py-2.5 font-bold uppercase">Barangay</th>
-                <th className="px-4 py-2.5 font-bold uppercase">Resolution Remarks</th>
-                <th className="px-4 py-2.5 font-bold uppercase">Status</th>
-                <th className="px-4 py-2.5 font-bold uppercase text-right">Action</th>
+                <th className="px-4 py-2.5 font-bold">Reference</th>
+                <th className="px-4 py-2.5 font-bold">Issue Type</th>
+                <th className="px-4 py-2.5 font-bold">Barangay</th>
+                <th className="px-4 py-2.5 font-bold">Resolution Remarks</th>
+                <th className="px-4 py-2.5 font-bold">Status</th>
+                <th className="px-4 py-2.5 font-bold text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-black/10">
@@ -136,7 +130,7 @@ export function StaffHistoryView() {
       {/* View Report Modal */}
       {selectedTask && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md bg-white rounded-lg border border-black p-5 space-y-4 shadow-xl">
+          <div className="w-full max-w-md bg-white rounded-lg border border-black p-5 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-black/15 pb-2">
               <div className="flex items-center gap-2">
                 <IconCheck size={14} className="text-[#1E6FD9]" />
@@ -179,10 +173,10 @@ export function StaffHistoryView() {
 
             <div className="flex justify-end pt-2 border-t border-black/15">
               <Button
-                variant="primary"
+                variant="secondary"
                 onClick={() => setSelectedTask(null)}
               >
-                Close Report
+                Close
               </Button>
             </div>
           </div>

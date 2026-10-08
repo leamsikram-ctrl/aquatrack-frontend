@@ -131,12 +131,9 @@ export function AdminStaffView() {
         {/* Wireframe A9 Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/15 pb-3">
           <div>
-            <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
+            <h1 className="text-xl sm:text-2xl font-bold text-black">
               Staff Directory
             </h1>
-            <p className="text-[14px] text-black/60">
-              Field technician duty assignments, coverage sectors, and open maintenance tasks.
-            </p>
           </div>
           <Button
             variant="primary"
@@ -166,10 +163,10 @@ export function AdminStaffView() {
             <table className="w-full text-left text-[14px]">
               <thead className="bg-[#F0F6FD] text-black border-b border-black/15">
                 <tr>
-                  <th className="px-4 py-2.5 font-bold uppercase tracking-wider">Name</th>
-                  <th className="px-4 py-2.5 font-bold uppercase tracking-wider">Assigned area</th>
-                  <th className="px-4 py-2.5 font-bold uppercase tracking-wider text-center">Open tasks</th>
-                  <th className="px-4 py-2.5 font-bold uppercase tracking-wider text-right">Actions</th>
+                  <th className="px-4 py-2 text-xs font-semibold text-black/60">Name</th>
+                  <th className="px-4 py-2 text-xs font-semibold text-black/60">Assigned Area</th>
+                  <th className="px-4 py-2 text-xs font-semibold text-black/60 text-center">Open Tasks</th>
+                  <th className="px-4 py-2 text-xs font-semibold text-black/60 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-black/10">
@@ -204,8 +201,8 @@ export function AdminStaffView() {
                         onClick={() => setSelectedStaff(staff)}
                       >
                         <td className="px-4 py-3">
-                          <strong className="text-black block font-bold">{name}</strong>
-                          <span className="text-[9px] text-black/60 font-normal">
+                          <span className="text-sm font-normal text-black block">{name}</span>
+                          <span className="text-xs text-black/60">
                             {staff.mobile_number}
                           </span>
                         </td>
@@ -250,7 +247,7 @@ export function AdminStaffView() {
               {/* Header */}
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <div>
-                  <span className="font-bold text-black uppercase tracking-wider text-[14px]">
+                  <span className="text-sm font-bold text-black">
                     Technician Profile: {selectedStaff.name || 'Staff Member'}
                   </span>
                   <div className="text-[9px] text-black/60 font-normal">
@@ -268,24 +265,24 @@ export function AdminStaffView() {
               {/* Profile Card */}
               <div className="p-3 bg-[#F0F6FD] border border-black/15 rounded space-y-2 text-[14px]">
                 <div className="flex justify-between">
-                  <span className="text-black/60 font-bold uppercase">Assigned Area:</span>
-                  <strong className="text-black font-bold">
+                  <span className="text-xs font-semibold text-black/60">Assigned Area:</span>
+                  <span className="text-sm font-semibold text-black">
                     {selectedStaff.staff_profile?.assigned_barangay?.name || 'All Sinacaban Sectors'}
-                  </strong>
+                  </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-black/60 font-bold uppercase">Contact Number:</span>
-                  <span className="text-black font-normal">{selectedStaff.mobile_number}</span>
+                  <span className="text-xs font-semibold text-black/60">Contact Number:</span>
+                  <span className="text-sm text-black font-normal">{selectedStaff.mobile_number}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-black/60 font-bold uppercase">Official Email:</span>
-                  <span className="text-black font-normal">{selectedStaff.email}</span>
+                  <span className="text-xs font-semibold text-black/60">Official Email:</span>
+                  <span className="text-sm text-black font-normal">{selectedStaff.email}</span>
                 </div>
               </div>
 
               {/* Assigned Tasks for this Staff */}
               <div className="space-y-2">
-                <span className="font-bold text-black uppercase tracking-wider block">
+                <span className="text-sm font-bold text-black block">
                   Current Assigned Work Orders ({staffOpenTasksCount[selectedStaff.id] || 0})
                 </span>
                 {tasks.filter((t) => t.assigned_staff_id === selectedStaff.id).length === 0 ? (
@@ -317,7 +314,7 @@ export function AdminStaffView() {
               </div>
 
               <div className="flex justify-end pt-2 border-t border-black/10">
-                <Button variant="ghost" onClick={() => setSelectedStaff(null)}>
+                <Button variant="secondary" onClick={() => setSelectedStaff(null)}>
                   Close
                 </Button>
               </div>
@@ -330,9 +327,9 @@ export function AdminStaffView() {
         {/* ------------------------------------------------------------- */}
         {showAddModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-sm bg-white rounded border border-black p-5 space-y-4 shadow-xl">
+            <div className="w-full max-w-sm bg-white rounded border border-black p-5 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
-                <span className="font-bold text-black uppercase tracking-wider text-[14px]">
+                <span className="text-sm font-bold text-black">
                   Add Field Technician
                 </span>
                 <button
@@ -352,7 +349,7 @@ export function AdminStaffView() {
 
               <form onSubmit={handleAddStaffSubmit} className="space-y-3">
                 <div>
-                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
+                  <label className="block text-xs font-semibold text-black/60 mb-1">
                     Full Name
                   </label>
                   <input
@@ -366,7 +363,7 @@ export function AdminStaffView() {
                 </div>
 
                 <div>
-                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
+                  <label className="block text-xs font-semibold text-black/60 mb-1">
                     Mobile Number
                   </label>
                   <div className="relative">
@@ -383,7 +380,7 @@ export function AdminStaffView() {
                 </div>
 
                 <div>
-                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
+                  <label className="block text-xs font-semibold text-black/60 mb-1">
                     Institutional Email (Optional)
                   </label>
                   <input
@@ -396,7 +393,7 @@ export function AdminStaffView() {
                 </div>
 
                 <div>
-                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
+                  <label className="block text-xs font-semibold text-black/60 mb-1">
                     Assigned Coverage Barangay
                   </label>
                   <select
@@ -416,7 +413,7 @@ export function AdminStaffView() {
                 <div className="flex justify-end gap-2 pt-2 border-t border-black/10">
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant="secondary"
                     onClick={() => setShowAddModal(false)}
                   >
                     Cancel

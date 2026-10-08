@@ -112,17 +112,14 @@ export function AdminVerificationView() {
     >
       <div className="space-y-6">
       {/* View Header */}
-      <div className="flex items-center justify-between border-b border-black/10 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/10 pb-4">
         <div>
-          <h1 className="text-[14px] font-bold uppercase tracking-wider text-black">
-            Customer Account Verification Queue
+          <h1 className="text-xl sm:text-2xl font-bold text-black">
+            Customer Verifications
           </h1>
-          <p className="text-[14px] text-black/60">
-            Review customer registration applications, assign physical water meters, and generate hardware meter tags
-          </p>
         </div>
         <Badge variant={pendingUsers.length > 0 ? 'blue' : 'outline'}>
-          {pendingUsers.length} PENDING APPLICATIONS
+          {pendingUsers.length} Pending
         </Badge>
       </div>
 
@@ -143,31 +140,31 @@ export function AdminVerificationView() {
               <Card key={user.id} className="p-5 border border-black/20 space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-black/10 pb-3">
                   <div>
-                    <span className="font-bold text-black uppercase tracking-wide">
+                    <span className="text-sm font-bold text-black">
                       {profile ? `${profile.first_name} ${profile.last_name}` : 'Unknown Applicant'}
                     </span>
                     <span className="text-black/50 ml-2">ID #{user.id}</span>
                   </div>
-                  <Badge variant="outline">PENDING REVIEW</Badge>
+                  <Badge variant="outline">Pending review</Badge>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-[14px]">
                   <div>
-                    <span className="font-bold text-black block">Contact Info:</span>
+                    <span className="text-xs font-semibold text-black/60 block">Contact Info</span>
                     <span className="text-black/80">{user.mobile_number}</span>
                     {user.email && <span className="text-black/60 block">{user.email}</span>}
                   </div>
 
                   <div>
-                    <span className="font-bold text-black block">Barangay & Address:</span>
-                    <span className="text-black font-bold">
+                    <span className="text-xs font-semibold text-black/60 block">Barangay & Address</span>
+                    <span className="text-black font-semibold">
                       {profile?.barangay?.name ?? 'Sinacaban Barangay'}
                     </span>
                     <span className="text-black/60 block font-normal">{profile?.address}</span>
                   </div>
 
                   <div>
-                    <span className="font-bold text-black block">Location Pin:</span>
+                    <span className="text-xs font-semibold text-black/60 block">Location Pin</span>
                     {profile?.latitude && profile?.longitude ? (
                       <span className="text-black/80 flex items-center gap-1">
                         <IconMapPin size={12} className="text-[#1E6FD9]" />
@@ -179,9 +176,9 @@ export function AdminVerificationView() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end gap-2 pt-3 border-t border-black/10">
+                <div className="flex flex-wrap items-center justify-end gap-2 pt-3 border-t border-black/10">
                   <Button
-                    variant="ghost"
+                    variant="secondary"
                     onClick={() => {
                       setSelectedUserForDecline(user);
                       setDeclineRemarks('');
@@ -207,10 +204,10 @@ export function AdminVerificationView() {
       {/* Meter Picker Modal */}
       {selectedUserForVerify && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white border-2 border-black rounded-xl max-w-lg w-full p-5 space-y-4 shadow-xl">
+          <div className="bg-white border-2 border-black rounded-xl max-w-lg w-full p-5 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-black/10 pb-3">
               <div>
-                <h3 className="font-bold text-black uppercase tracking-wider">
+                <h3 className="text-sm font-bold text-black">
                   Link Unassigned Meter & Verify Account
                 </h3>
                 <p className="text-[14px] text-black/60">
@@ -243,7 +240,7 @@ export function AdminVerificationView() {
               </div>
             ) : (
               <div className="space-y-3">
-                <label className="block font-bold text-black uppercase tracking-wider text-[14px]">
+                <label className="block text-xs font-semibold text-black/60">
                   Select Pre-Loaded Sinacaban Water Meter:
                 </label>
                 <div className="max-h-60 overflow-y-auto space-y-2 border border-black/10 rounded-lg p-2">
@@ -263,7 +260,7 @@ export function AdminVerificationView() {
                           <div className="flex items-center gap-2">
                             <span>Meter #{m.meter_number}</span>
                             <Badge variant={isSelected ? 'outline' : 'blue'}>
-                              {m.status.toUpperCase()}
+                              {m.status}
                             </Badge>
                           </div>
                           <div className={`text-[14px] ${isSelected ? 'text-white/80' : 'text-black/60'}`}>
@@ -277,7 +274,7 @@ export function AdminVerificationView() {
                 </div>
 
                 <div className="p-3 bg-[#F0F6FD] border border-black/10 rounded-lg text-[14px] text-black/80 space-y-1">
-                  <span className="font-bold text-black block">Automated Verification Actions:</span>
+                  <span className="text-xs font-semibold text-black/60 block">Automated Verification Actions:</span>
                   <ul className="list-disc pl-4 space-y-0.5">
                     <li>Generates permanent <strong>ACC-YYYY-####</strong> account number</li>
                     <li>Sets account status to <strong>ACTIVE</strong></li>
@@ -288,9 +285,9 @@ export function AdminVerificationView() {
               </div>
             )}
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-black/10">
+            <div className="flex flex-wrap justify-end gap-2 pt-2 border-t border-black/10">
               <Button
-                variant="ghost"
+                variant="secondary"
                 onClick={() => setSelectedUserForVerify(null)}
                 disabled={isVerifying}
               >
@@ -311,9 +308,9 @@ export function AdminVerificationView() {
       {/* Decline Remarks Modal */}
       {selectedUserForDecline && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white border-2 border-black rounded-xl max-w-md w-full p-5 space-y-4 shadow-xl">
+          <div className="bg-white border-2 border-black rounded-xl max-w-md w-full p-5 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-black/10 pb-3">
-              <h3 className="font-bold text-black uppercase tracking-wider">
+              <h3 className="text-sm font-bold text-black">
                 Decline Customer Application
               </h3>
               <button
@@ -325,7 +322,7 @@ export function AdminVerificationView() {
             </div>
 
             <div className="space-y-2">
-              <label className="block font-bold text-black text-[14px]">
+              <label className="block text-xs font-semibold text-black/60">
                 Reason for Rejection (Required):
               </label>
               <textarea
@@ -337,16 +334,16 @@ export function AdminVerificationView() {
               />
             </div>
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-black/10">
+            <div className="flex flex-wrap justify-end gap-2 pt-2 border-t border-black/10">
               <Button
-                variant="ghost"
+                variant="secondary"
                 onClick={() => setSelectedUserForDecline(null)}
                 disabled={isDeclining}
               >
                 Cancel
               </Button>
               <Button
-                variant="secondary"
+                variant="primary"
                 onClick={handleConfirmDecline}
                 disabled={isDeclining || !declineRemarks.trim()}
               >

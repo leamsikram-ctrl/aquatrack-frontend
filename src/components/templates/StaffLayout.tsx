@@ -69,7 +69,7 @@ export const StaffLayout: React.FC<StaffLayoutProps> = ({
         </aside>
 
         {/* Content Area */}
-        <main className="flex-1 px-6 sm:px-10 lg:px-14 py-6 overflow-y-auto">{children}</main>
+        <main className="flex-1 px-4 sm:px-8 lg:px-14 py-4 sm:py-6 overflow-y-auto">{children}</main>
       </div>
 
       <BottomNav

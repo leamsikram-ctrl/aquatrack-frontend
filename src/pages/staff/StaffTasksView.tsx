@@ -153,9 +153,6 @@ export function StaffTasksView() {
             <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
               My tasks
             </h1>
-            <p className="text-[14px] text-black/60 font-normal">
-              Work orders and field repairs in Sinacaban
-            </p>
           </div>
 
           {/* Top-Right Action Icons: Map, Calendar */}
@@ -274,7 +271,7 @@ export function StaffTasksView() {
                     <span className="font-bold text-black text-[14px] uppercase tracking-wider">
                       {refNo}
                     </span>
-                    <Badge variant={task.urgency === 'high' ? 'black' : 'blue'}>
+                    <Badge variant={task.urgency === 'high' ? 'outline' : 'blue'}>
                       {task.urgency ? task.urgency.toUpperCase() : 'MEDIUM'}
                     </Badge>
                   </div>
@@ -288,34 +285,34 @@ export function StaffTasksView() {
 
                   {/* Bottom row: Status pill & Primary action */}
                   <div className="flex items-center justify-between pt-2 border-t border-black/10">
-                    <span className="px-2 py-0.5 bg-[#F0F6FD] border border-black/20 rounded font-bold uppercase text-[9px] text-black">
+                    <Badge variant="outline">
                       {task.status === 'in_progress' ? 'In progress' : task.status}
-                    </span>
+                    </Badge>
 
                     <div className="flex items-center gap-2">
                       {task.status === 'assigned' && (
-                        <button
+                        <Button
+                          variant="primary"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleStartTask(task.id);
                           }}
                           disabled={isStarting}
-                          className="px-3 py-1 bg-[#1E6FD9] text-white border border-[#1E6FD9] rounded font-bold text-[14px] hover:bg-black transition-colors"
                         >
                           Get started
-                        </button>
+                        </Button>
                       )}
 
                       {task.status === 'in_progress' && (
-                        <button
+                        <Button
+                          variant="secondary"
                           onClick={(e) => {
                             e.stopPropagation();
                             setSelectedTask(task);
                           }}
-                          className="px-3 py-1 bg-white text-[#1E6FD9] border border-[#1E6FD9] rounded font-bold text-[14px] hover:bg-[#F0F6FD] transition-colors"
                         >
                           Resolve details
-                        </button>
+                        </Button>
                       )}
                     </div>
                   </div>
@@ -375,7 +372,7 @@ export function StaffTasksView() {
               <div className="p-3 bg-white border border-black/15 rounded space-y-1.5 text-[14px]">
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-black uppercase">Issue and Urgency</span>
-                  <Badge variant={selectedTask.urgency === 'high' ? 'black' : 'blue'}>
+                  <Badge variant={selectedTask.urgency === 'high' ? 'outline' : 'blue'}>
                     {selectedTask.urgency ? selectedTask.urgency.toUpperCase() : 'MEDIUM'} URGENCY
                   </Badge>
                 </div>
@@ -402,16 +399,13 @@ export function StaffTasksView() {
               {selectedTask.status === 'assigned' && (
                 <div className="p-3 bg-[#F0F6FD] border border-black/15 rounded space-y-2">
                   <span className="font-bold text-black uppercase block">Task Ready to Begin</span>
-                  <p className="text-black/70 text-[14px]">
-                    This task is assigned to your shift. Click Get Started when you arrive on site.
-                  </p>
                   <Button
                     variant="primary"
                     className="w-full"
                     onClick={() => handleStartTask(selectedTask.id)}
                     isLoading={isStarting}
                   >
-                    Get Started (Move to In Progress)
+                    Get Started
                   </Button>
                 </div>
               )}
@@ -474,14 +468,11 @@ export function StaffTasksView() {
                   <p className="text-black bg-white p-2 rounded border border-black/10">
                     Remarks: {selectedTask.resolution_remarks || 'Work completed and validated.'}
                   </p>
-                  <span className="text-[9px] text-black/60 italic block">
-                    Task is stored in municipal resolution history.
-                  </span>
                 </div>
               )}
 
               <div className="flex justify-end pt-2 border-t border-black/10">
-                <Button variant="ghost" onClick={() => setSelectedTask(null)}>
+                <Button variant="secondary" onClick={() => setSelectedTask(null)}>
                   Close
                 </Button>
               </div>
@@ -494,7 +485,7 @@ export function StaffTasksView() {
         {/* ------------------------------------------------------------- */}
         {showMapModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-lg bg-white rounded border border-black p-5 space-y-4 shadow-xl">
+            <div className="w-full max-w-lg bg-white rounded border border-black p-5 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
               {/* Header */}
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <button
@@ -539,7 +530,7 @@ export function StaffTasksView() {
                   }
 
                   return (
-                    <div className="p-2.5 bg-white border-t border-black/20 flex items-center justify-between">
+                    <div className="p-2.5 bg-white border-t border-black/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <div>
                         <strong className="text-black font-bold text-[14px]">
                           {activeCardTask.reference_no || activeCardTask.reference || `AT-${activeCardTask.id}`}
@@ -568,7 +559,7 @@ export function StaffTasksView() {
               </div>
 
               <div className="flex justify-end pt-1">
-                <Button variant="ghost" onClick={() => setShowMapModal(false)}>
+                <Button variant="secondary" onClick={() => setShowMapModal(false)}>
                   Close Map
                 </Button>
               </div>
@@ -625,7 +616,7 @@ export function StaffTasksView() {
                           {item.starts_at} - {item.ends_at}
                         </span>
                       </div>
-                      <Badge variant="black">
+                      <Badge variant="outline">
                         {item.status === 'ongoing' ? 'Today' : 'Upcoming'}
                       </Badge>
                     </div>
@@ -634,7 +625,7 @@ export function StaffTasksView() {
               </div>
 
               <div className="flex justify-end pt-1">
-                <Button variant="ghost" onClick={() => setShowCalendarModal(false)}>
+                <Button variant="secondary" onClick={() => setShowCalendarModal(false)}>
                   Close
                 </Button>
               </div>

@@ -20,6 +20,7 @@ import {
   IconUser,
   IconUserCheck,
   IconQrcode,
+  IconChevronDown,
 } from '@tabler/icons-react';
 
 // Official 19 Sinacaban Barangays fallback
@@ -99,15 +100,15 @@ export function LandingView() {
     <div className="min-h-screen bg-white text-black font-sans text-[14px] flex flex-col selection:bg-[#F0F6FD] selection:text-[#1E6FD9]">
       {/* Top Session Ribbon (If Logged In) */}
       {user && (
-        <div className="bg-[#1E6FD9] text-white px-6 sm:px-10 lg:px-14 py-2.5 flex items-center justify-between border-b border-black/10">
+        <div className="bg-[#1E6FD9] text-white px-4 sm:px-8 lg:px-14 py-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1.5 border-b border-black/10">
           <div className="flex items-center gap-2">
-            <span className="font-bold">
+            <span className="font-bold text-xs sm:text-sm">
               Active Session: {user.name || (user.customer_profile ? `${user.customer_profile.first_name} ${user.customer_profile.last_name}` : user.email || user.mobile_number)} ({user.role.toUpperCase()})
             </span>
           </div>
           <button
             onClick={() => navigate(getDashboardPath())}
-            className="font-bold underline uppercase tracking-wider hover:text-white/80 cursor-pointer text-[14px]"
+            className="font-bold underline uppercase tracking-wider hover:text-white/80 cursor-pointer text-xs sm:text-sm"
           >
             Enter {user.role === 'admin' ? 'Admin' : user.role === 'staff' ? 'Staff' : 'Customer'} Dashboard →
           </button>
@@ -116,15 +117,15 @@ export function LandingView() {
 
       {/* Main Institutional Header */}
       <header className="sticky top-0 z-40 bg-white border-b border-black/20 shadow-[0_3px_0px_0px_rgba(0,0,0,0.08)]">
-        <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14 h-16 flex items-center justify-between gap-6">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-14 h-16 flex items-center justify-between gap-4">
           {/* Logo & Municipal Identity */}
-          <Link to="/" className="flex items-center gap-3 text-black hover:opacity-90">
-            <AquaTrackLogo size={34} variant="mark" />
+          <Link to="/" className="flex items-center gap-2.5 sm:gap-3 text-black hover:opacity-90">
+            <AquaTrackLogo size={32} variant="mark" />
             <div className="flex flex-col leading-tight">
               <span className="font-bold uppercase tracking-wider text-black text-[14px]">
                 AquaTrack
               </span>
-              <span className="text-black/60 font-normal text-[14px]">
+              <span className="text-black/60 font-normal text-[12px] sm:text-[14px] hidden min-[380px]:inline">
                 Sinacaban Water Supply System
               </span>
             </div>
@@ -150,39 +151,41 @@ export function LandingView() {
           </nav>
 
           {/* Action CTAs */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Link to="/login">
-              <Button variant="secondary" className="h-9 px-4 text-[14px] font-bold">
+              <Button variant="secondary" className="h-9 px-3 sm:px-4 text-[13px] sm:text-[14px] font-bold">
                 Sign In
               </Button>
             </Link>
             <Link to="/register">
-              <Button variant="primary" className="h-9 px-4 text-[14px] font-bold">
-                Register Water Account
+              <Button variant="primary" className="h-9 px-3 sm:px-4 text-[13px] sm:text-[14px] font-bold">
+                Register
               </Button>
             </Link>
           </div>
         </div>
       </header>
 
-      {/* Hero Section: Centered Civic Headline & Expansive 4-Metric Strip */}
-      <section className="relative border-b border-black/20 shadow-[0_2px_0px_0px_rgba(0,0,0,0.06)] bg-white py-20 sm:py-28 lg:py-32">
-        <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14">
-          <div className="max-w-6xl mx-auto text-center space-y-6 sm:space-y-8">
-            {/* Pill Tag */}
-            <div className="inline-flex items-center px-3.5 py-1.5 rounded-full border border-[#1E6FD9]/30 bg-[#F0F6FD] text-[#1E6FD9] font-bold uppercase tracking-wider text-xs">
-              Official Municipal Public Utility Gateway — AquaTrack
-            </div>
+      {/* Hero Section: Centered Civic Headline */}
+      <section className="relative overflow-hidden min-h-[calc(100vh-4rem)] flex items-center justify-center border-b border-black/20 shadow-[0_2px_0px_0px_rgba(0,0,0,0.06)] bg-white py-12 sm:py-16">
+        {/* Abstract Background Layer (Organic Splash) */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-[0.09] bg-cover bg-center"
+          style={{
+            backgroundImage: "url('/illustrations/bg-option-5-fluid.png')",
+          }}
+          aria-hidden="true"
+        />
 
+        <div className="relative z-10 w-full max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-14 flex items-center justify-center">
+          <div className="max-w-6xl mx-auto text-center space-y-6 sm:space-y-8 animate-hero-entrance">
             {/* Main Centered Civic Headline */}
             <div className="space-y-3 sm:space-y-4">
               <h1
                 aria-label="AquaTrack"
-                className="hero-aquatrack-3d flex items-center justify-center flex-wrap sm:flex-nowrap text-5xl sm:text-7xl md:text-8xl lg:text-[110px] xl:text-[132px] 2xl:text-[144px] font-black uppercase tracking-tight text-black leading-none max-w-6xl mx-auto select-none"
+                className="hero-aquatrack-3d flex items-center justify-center text-4xl min-[400px]:text-5xl sm:text-7xl md:text-8xl lg:text-[110px] xl:text-[132px] 2xl:text-[144px] font-black uppercase tracking-tight text-black leading-none max-w-6xl mx-auto select-none"
               >
-                <span className="hero-logo-mark inline-flex items-center justify-center shrink-0 w-[1.05em] h-[1.05em] -mr-[0.06em]">
-                  <AquaTrackLogo size="100%" variant="mark" className="w-full h-full" />
-                </span>
+                <AquaTrackLogo variant="letter" className="hero-logo-mark" />
                 <span className="hero-aquatrack-letters">QUATRACK</span>
               </h1>
               <p className="text-base sm:text-xl lg:text-2xl font-bold uppercase tracking-widest text-black/80">
@@ -200,7 +203,7 @@ export function LandingView() {
               <Link to="/register">
                 <Button
                   variant="primary"
-                  className="h-12 px-7 text-xs sm:text-sm font-bold rounded-lg shadow-[2px_2px_0px_0px_rgba(0,0,0,0.2)]"
+                  className="btn-shimmer relative overflow-hidden h-12 px-7 text-xs sm:text-sm font-bold rounded-lg shadow-[2px_2px_0px_0px_rgba(0,0,0,0.2)]"
                   rightIcon={<IconArrowRight size={16} />}
                 >
                   Register Water Account
@@ -211,79 +214,93 @@ export function LandingView() {
                   variant="secondary"
                   className="h-12 px-7 text-xs sm:text-sm font-bold rounded-lg"
                 >
-                  Institutional Sign In
+                  Sign In
                 </Button>
               </Link>
             </div>
           </div>
+        </div>
 
-          {/* Expansive 4-Metric Strip */}
-          <div className="mt-14 sm:mt-20 pt-10 sm:pt-14 border-t border-black/10">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-              {/* Metric 1 */}
-              <Card className="p-5 sm:p-6 border-black/20 hover:border-[#1E6FD9] transition-all bg-white rounded-xl space-y-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[3px_3px_0px_0px_#1E6FD9]">
-                <span className="text-black/60 font-bold uppercase tracking-wider text-[14px] block">
-                  Municipal Reach
-                </span>
-                <div className="text-2xl sm:text-3xl font-bold text-black tracking-tight">
-                  19
-                </div>
-                <div className="text-black font-bold uppercase tracking-wider text-xs">
-                  Barangays Covered
-                </div>
-                <p className="text-black/70 font-normal leading-relaxed text-xs">
-                  Full distribution network servicing Poblacion and all surrounding rural zones.
-                </p>
-              </Card>
+        {/* Floating Scroll Indicator Prompt */}
+        <a
+          href="#metrics"
+          aria-label="Scroll to explore"
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-black/40 hover:text-[#1E6FD9] transition-colors cursor-pointer group select-none"
+        >
+          <span className="text-[11px] font-bold uppercase tracking-widest text-black/50 group-hover:text-[#1E6FD9] transition-colors">
+            Explore System
+          </span>
+          <IconChevronDown size={18} className="animate-bounce" />
+        </a>
+      </section>
 
-              {/* Metric 2 */}
-              <Card className="p-5 sm:p-6 border-black/20 hover:border-[#1E6FD9] transition-all bg-white rounded-xl space-y-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[3px_3px_0px_0px_#1E6FD9]">
-                <span className="text-black/60 font-bold uppercase tracking-wider text-[14px] block">
-                  Meter Management
-                </span>
-                <div className="text-2xl sm:text-3xl font-bold text-black tracking-tight">
-                  100%
-                </div>
-                <div className="text-black font-bold uppercase tracking-wider text-xs">
-                  Verified Municipal Meters
-                </div>
-                <p className="text-black/70 font-normal leading-relaxed text-xs">
-                  Physical QR token-encoded municipal meter registry with official verification.
-                </p>
-              </Card>
+      {/* Expansive 4-Metric Strip */}
+      <section id="metrics" className="py-16 sm:py-20 border-b border-black/20 shadow-[0_2px_0px_0px_rgba(0,0,0,0.06)] bg-white">
+        <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {/* Metric 1 */}
+            <Card className="p-5 sm:p-6 border-black/20 hover:border-[#1E6FD9] transition-all duration-200 hover:-translate-y-1 bg-white rounded-xl space-y-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[4px_4px_0px_0px_#1E6FD9]">
+              <span className="text-black/60 font-bold uppercase tracking-wider text-[14px] block">
+                Municipal Reach
+              </span>
+              <div className="text-2xl sm:text-3xl font-bold text-black tracking-tight">
+                19
+              </div>
+              <div className="text-black font-bold uppercase tracking-wider text-xs">
+                Barangays Covered
+              </div>
+              <p className="text-black/70 font-normal leading-relaxed text-xs">
+                Full distribution network servicing Poblacion and all surrounding rural zones.
+              </p>
+            </Card>
 
-              {/* Metric 3 */}
-              <Card className="p-5 sm:p-6 border-black/20 hover:border-[#1E6FD9] transition-all bg-white rounded-xl space-y-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[3px_3px_0px_0px_#1E6FD9]">
-                <span className="text-black/60 font-bold uppercase tracking-wider text-[14px] block">
-                  Field Maintenance
-                </span>
-                <div className="text-2xl sm:text-3xl font-bold text-black tracking-tight">
-                  24/7
-                </div>
-                <div className="text-black font-bold uppercase tracking-wider text-xs">
-                  Rapid Field Dispatch
-                </div>
-                <p className="text-black/70 font-normal leading-relaxed text-xs">
-                  Automated incident queue for burst pipes, low pressure, and urgent repairs.
-                </p>
-              </Card>
+            {/* Metric 2 */}
+            <Card className="p-5 sm:p-6 border-black/20 hover:border-[#1E6FD9] transition-all duration-200 hover:-translate-y-1 bg-white rounded-xl space-y-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[4px_4px_0px_0px_#1E6FD9]">
+              <span className="text-black/60 font-bold uppercase tracking-wider text-[14px] block">
+                Meter Management
+              </span>
+              <div className="text-2xl sm:text-3xl font-bold text-black tracking-tight">
+                100%
+              </div>
+              <div className="text-black font-bold uppercase tracking-wider text-xs">
+                Verified Municipal Meters
+              </div>
+              <p className="text-black/70 font-normal leading-relaxed text-xs">
+                Physical QR token-encoded municipal meter registry with official verification.
+              </p>
+            </Card>
 
-              {/* Metric 4 */}
-              <Card className="p-5 sm:p-6 border-black/20 hover:border-[#1E6FD9] transition-all bg-white rounded-xl space-y-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[3px_3px_0px_0px_#1E6FD9]">
-                <span className="text-black/60 font-bold uppercase tracking-wider text-[14px] block">
-                  Public Transparency
-                </span>
-                <div className="text-2xl sm:text-3xl font-bold text-black tracking-tight">
-                  Live
-                </div>
-                <div className="text-black font-bold uppercase tracking-wider text-xs">
-                  Published Billing Ledger
-                </div>
-                <p className="text-black/70 font-normal leading-relaxed text-xs">
-                  Audited monthly statements with official municipal payment accountability.
-                </p>
-              </Card>
-            </div>
+            {/* Metric 3 */}
+            <Card className="p-5 sm:p-6 border-black/20 hover:border-[#1E6FD9] transition-all duration-200 hover:-translate-y-1 bg-white rounded-xl space-y-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[4px_4px_0px_0px_#1E6FD9]">
+              <span className="text-black/60 font-bold uppercase tracking-wider text-[14px] block">
+                Field Maintenance
+              </span>
+              <div className="text-2xl sm:text-3xl font-bold text-black tracking-tight">
+                24/7
+              </div>
+              <div className="text-black font-bold uppercase tracking-wider text-xs">
+                Rapid Field Dispatch
+              </div>
+              <p className="text-black/70 font-normal leading-relaxed text-xs">
+                Automated incident queue for burst pipes, low pressure, and urgent repairs.
+              </p>
+            </Card>
+
+            {/* Metric 4 */}
+            <Card className="p-5 sm:p-6 border-black/20 hover:border-[#1E6FD9] transition-all duration-200 hover:-translate-y-1 bg-white rounded-xl space-y-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[4px_4px_0px_0px_#1E6FD9]">
+              <span className="text-black/60 font-bold uppercase tracking-wider text-[14px] block">
+                Public Transparency
+              </span>
+              <div className="text-2xl sm:text-3xl font-bold text-black tracking-tight">
+                Live
+              </div>
+              <div className="text-black font-bold uppercase tracking-wider text-xs">
+                Published Billing Ledger
+              </div>
+              <p className="text-black/70 font-normal leading-relaxed text-xs">
+                Audited monthly statements with official municipal payment accountability.
+              </p>
+            </Card>
           </div>
         </div>
       </section>
@@ -302,7 +319,7 @@ export function LandingView() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {/* Service 1 */}
-            <Card className="p-6 border-black/20 hover:border-[#1E6FD9] transition-all space-y-3 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[3px_3px_0px_0px_#1E6FD9]">
+            <Card className="p-6 border-black/20 hover:border-[#1E6FD9] transition-all duration-200 hover:-translate-y-1 space-y-3 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[4px_4px_0px_0px_#1E6FD9]">
               <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">
                 <IconUserCheck size={18} />
               </div>
@@ -320,7 +337,7 @@ export function LandingView() {
             </Card>
 
             {/* Service 2 */}
-            <Card className="p-6 border-black/20 hover:border-[#1E6FD9] transition-all space-y-3 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[3px_3px_0px_0px_#1E6FD9]">
+            <Card className="p-6 border-black/20 hover:border-[#1E6FD9] transition-all duration-200 hover:-translate-y-1 space-y-3 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[4px_4px_0px_0px_#1E6FD9]">
               <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">
                 <IconTools size={18} />
               </div>
@@ -338,7 +355,7 @@ export function LandingView() {
             </Card>
 
             {/* Service 3 */}
-            <Card className="p-6 border-black/20 hover:border-[#1E6FD9] transition-all space-y-3 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[3px_3px_0px_0px_#1E6FD9]">
+            <Card className="p-6 border-black/20 hover:border-[#1E6FD9] transition-all duration-200 hover:-translate-y-1 space-y-3 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[4px_4px_0px_0px_#1E6FD9]">
               <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">
                 <IconAlertTriangle size={18} />
               </div>
@@ -356,7 +373,7 @@ export function LandingView() {
             </Card>
 
             {/* Service 4 */}
-            <Card className="p-6 border-black/20 hover:border-[#1E6FD9] transition-all space-y-3 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[3px_3px_0px_0px_#1E6FD9]">
+            <Card className="p-6 border-black/20 hover:border-[#1E6FD9] transition-all duration-200 hover:-translate-y-1 space-y-3 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[4px_4px_0px_0px_#1E6FD9]">
               <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">
                 <IconFileInvoice size={18} />
               </div>
@@ -374,7 +391,7 @@ export function LandingView() {
             </Card>
 
             {/* Service 5 */}
-            <Card className="p-6 border-black/20 hover:border-[#1E6FD9] transition-all space-y-3 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[3px_3px_0px_0px_#1E6FD9]">
+            <Card className="p-6 border-black/20 hover:border-[#1E6FD9] transition-all duration-200 hover:-translate-y-1 space-y-3 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[4px_4px_0px_0px_#1E6FD9]">
               <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">
                 <IconQrcode size={18} />
               </div>
@@ -392,7 +409,7 @@ export function LandingView() {
             </Card>
 
             {/* Service 6 */}
-            <Card className="p-6 border-black/20 hover:border-[#1E6FD9] transition-all space-y-3 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[3px_3px_0px_0px_#1E6FD9]">
+            <Card className="p-6 border-black/20 hover:border-[#1E6FD9] transition-all duration-200 hover:-translate-y-1 space-y-3 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[4px_4px_0px_0px_#1E6FD9]">
               <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">
                 <IconBuilding size={18} />
               </div>
@@ -436,10 +453,14 @@ export function LandingView() {
             {activeAdvisories.map((advisory) => (
               <Card
                 key={advisory.id}
-                className="p-6 border-black/20 hover:border-[#1E6FD9] transition-all space-y-3.5 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[3px_3px_0px_0px_#1E6FD9]"
+                className="p-6 border-black/20 hover:border-[#1E6FD9] transition-all duration-200 hover:-translate-y-1 space-y-3.5 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[4px_4px_0px_0px_#1E6FD9]"
               >
                 <div className="flex items-center justify-between border-b border-black/10 pb-2.5">
                   <div className="flex items-center gap-2">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#1E6FD9] opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-[#1E6FD9]" />
+                    </span>
                     <IconAlertTriangle size={15} className="text-black" />
                     <span className="font-bold uppercase tracking-wider text-black text-xs">
                       {advisory.type}
@@ -514,7 +535,7 @@ export function LandingView() {
               .map((bName) => (
                 <div
                   key={bName}
-                  className="p-3.5 border border-black/20 rounded-xl bg-white hover:border-[#1E6FD9] shadow-[2px_2px_0px_0px_rgba(0,0,0,0.08)] hover:shadow-[2px_2px_0px_0px_#1E6FD9] transition-all flex items-center justify-center text-center"
+                  className="p-3.5 border border-black/20 rounded-xl bg-white hover:border-[#1E6FD9] shadow-[2px_2px_0px_0px_rgba(0,0,0,0.08)] hover:shadow-[3px_3px_0px_0px_#1E6FD9] hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center text-center cursor-default"
                 >
                   <span className="font-bold text-black uppercase tracking-wider text-xs">
                     {bName}
@@ -539,7 +560,7 @@ export function LandingView() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
             {/* Gateway 1: Customer */}
-            <Card className="p-6 sm:p-7 border-black/20 hover:border-[#1E6FD9] transition-all flex flex-col justify-between space-y-5 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[3px_3px_0px_0px_#1E6FD9]">
+            <Card className="p-6 sm:p-7 border-black/20 hover:border-[#1E6FD9] transition-all duration-200 hover:-translate-y-1 flex flex-col justify-between space-y-5 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[4px_4px_0px_0px_#1E6FD9]">
               <div className="space-y-3.5">
                 <div className="flex items-center justify-between">
                   <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">
@@ -582,7 +603,7 @@ export function LandingView() {
             </Card>
 
             {/* Gateway 2: Staff */}
-            <Card className="p-6 sm:p-7 border-black/20 hover:border-[#1E6FD9] transition-all flex flex-col justify-between space-y-5 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[3px_3px_0px_0px_#1E6FD9]">
+            <Card className="p-6 sm:p-7 border-black/20 hover:border-[#1E6FD9] transition-all duration-200 hover:-translate-y-1 flex flex-col justify-between space-y-5 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[4px_4px_0px_0px_#1E6FD9]">
               <div className="space-y-3.5">
                 <div className="flex items-center justify-between">
                   <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">
@@ -620,7 +641,7 @@ export function LandingView() {
             </Card>
 
             {/* Gateway 3: Admin */}
-            <Card className="p-6 sm:p-7 border-black/20 hover:border-[#1E6FD9] transition-all flex flex-col justify-between space-y-5 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[3px_3px_0px_0px_#1E6FD9]">
+            <Card className="p-6 sm:p-7 border-black/20 hover:border-[#1E6FD9] transition-all duration-200 hover:-translate-y-1 flex flex-col justify-between space-y-5 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[4px_4px_0px_0px_#1E6FD9]">
               <div className="space-y-3.5">
                 <div className="flex items-center justify-between">
                   <div className="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">

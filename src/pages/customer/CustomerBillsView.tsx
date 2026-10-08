@@ -48,15 +48,15 @@ export function CustomerBillsView() {
         {currentUnpaidBill ? (
           <Card className="p-4 border border-black/15 bg-white space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-[14px] uppercase font-bold text-black/50 tracking-wider">
+              <span className="text-[14px] font-bold text-black/50">
                 Current bill
               </span>
-              <Badge variant={currentUnpaidBill.payment_status === 'paid' ? 'blue' : 'black'}>
-                {currentUnpaidBill.payment_status === 'paid' ? 'PAID' : 'UNPAID'}
+              <Badge variant={currentUnpaidBill.payment_status === 'paid' ? 'blue' : 'outline'}>
+                {currentUnpaidBill.payment_status === 'paid' ? 'Paid' : 'Unpaid'}
               </Badge>
             </div>
 
-            <div className="text-[14px] font-bold text-black">
+            <div className="text-3xl font-bold text-black">
               ₱{Number(currentUnpaidBill.amount_paid || 350.0).toFixed(2)}
             </div>
 
@@ -88,7 +88,7 @@ export function CustomerBillsView() {
 
         {/* Section: Billing history */}
         <div className="space-y-2 pt-2">
-          <div className="text-[14px] uppercase tracking-wider font-bold text-black/50">
+          <div className="text-[14px] font-bold text-black/50">
             Billing history
           </div>
 
@@ -126,8 +126,8 @@ export function CustomerBillsView() {
                       <span className="font-bold text-black text-[14px]">
                         ₱{Number(bill.amount_paid || 0).toFixed(2)}
                       </span>
-                      <Badge variant={isPaid ? 'blue' : 'black'}>
-                        {isPaid ? 'PAID' : 'UNPAID'}
+                      <Badge variant={isPaid ? 'blue' : 'outline'}>
+                        {isPaid ? 'Paid' : 'Unpaid'}
                       </Badge>
                     </div>
                   </div>
@@ -140,7 +140,7 @@ export function CustomerBillsView() {
         {/* Statement Receipt Modal */}
         {selectedBill && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-md bg-white rounded-lg border border-black p-5 space-y-4 shadow-xl text-[14px]">
+            <div className="w-full max-w-md bg-white rounded-lg border border-black p-5 space-y-4 shadow-xl text-[14px] max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <div className="flex items-center gap-2">
                   <IconReceipt size={16} className="text-[#1E6FD9]" />
@@ -186,7 +186,7 @@ export function CustomerBillsView() {
                   </div>
                   <div className="flex justify-between border-t border-black/15 pt-2">
                     <span className="text-black/60 font-normal">Payment Status:</span>
-                    <Badge variant={selectedBill.payment_status === 'paid' ? 'blue' : 'black'}>
+                    <Badge variant={selectedBill.payment_status === 'paid' ? 'blue' : 'outline'}>
                       {selectedBill.payment_status.toUpperCase()}
                     </Badge>
                   </div>

@@ -113,7 +113,7 @@ export function CustomerHomeView() {
 
         {/* Card 1: Account */}
         <Card className="p-4 border border-black/15 bg-white space-y-1">
-          <div className="text-[14px] uppercase tracking-wider text-black/50 font-bold">
+          <div className="text-[14px] text-black/50 font-bold">
             Account
           </div>
           <div className="text-[14px] font-bold text-black">
@@ -126,10 +126,10 @@ export function CustomerHomeView() {
 
         {/* Card 2: Current bill */}
         <Card className="p-4 border border-black/15 bg-white space-y-3">
-          <div className="text-[14px] uppercase tracking-wider text-black/50 font-bold">
+          <div className="text-[14px] text-black/50 font-bold">
             Current bill
           </div>
-          <div className="text-[14px] font-bold text-black">
+          <div className="text-3xl font-bold text-black">
             ₱{Number(currentBill?.amount_paid || (currentBill ? 350.0 : 0)).toFixed(2)}
           </div>
           <div className="text-[14px] text-black/60 font-normal">
@@ -142,8 +142,8 @@ export function CustomerHomeView() {
               : 'Due Oct 25, 2026'}
           </div>
           <div className="flex items-center justify-between pt-2 border-t border-black/10">
-            <Badge variant={currentBill?.payment_status === 'paid' ? 'blue' : 'black'}>
-              {currentBill?.payment_status === 'paid' ? 'PAID' : 'UNPAID'}
+            <Badge variant={currentBill?.payment_status === 'paid' ? 'blue' : 'outline'}>
+              {currentBill?.payment_status === 'paid' ? 'Paid' : 'Unpaid'}
             </Badge>
             <Button
               variant="secondary"
@@ -160,7 +160,7 @@ export function CustomerHomeView() {
           onClick={() => navigate('/customer/requests')}
         >
           <div className="flex items-center justify-between">
-            <div className="text-[14px] uppercase tracking-wider text-black/50 font-bold">
+            <div className="text-[14px] text-black/50 font-bold">
               Active request
             </div>
             <IconChevronRight size={16} className="text-black/40" />
@@ -188,7 +188,7 @@ export function CustomerHomeView() {
                     );
                   })}
                 </div>
-                <div className="grid grid-cols-4 text-center text-[14px] font-bold text-black/70">
+                <div className="grid grid-cols-4 text-center text-[11px] sm:text-[13px] md:text-[14px] font-bold text-black/70">
                   <span className={currentStepIdx >= 0 ? 'text-[#1E6FD9]' : ''}>
                     Submitted
                   </span>
@@ -205,7 +205,7 @@ export function CustomerHomeView() {
               </div>
             </>
           ) : (
-            <div className="py-2 text-center text-black/60 flex items-center justify-between text-[14px] font-normal">
+            <div className="py-2 text-center text-black/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 text-[14px] font-normal">
               <span>No active service request logged.</span>
               <Button
                 variant="secondary"
@@ -250,7 +250,7 @@ export function CustomerHomeView() {
         {/* Report Issue Modal */}
         {showReportModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-md bg-white rounded-lg border border-black p-5 space-y-4 shadow-xl text-[14px]">
+            <div className="w-full max-w-md bg-white rounded-lg border border-black p-5 space-y-4 shadow-xl text-[14px] max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <span className="font-bold text-[14px] text-black uppercase tracking-wider">
                   Report a Water Service Issue
