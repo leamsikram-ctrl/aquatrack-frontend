@@ -90,7 +90,7 @@ export function AdminSettingsView() {
       <div className="space-y-4 text-[14px] text-black">
         {/* Header */}
         <div className="border-b border-black/15 pb-3">
-          <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
+          <h1 className="text-xl sm:text-2xl font-bold text-black">
             System Settings
           </h1>
         </div>
@@ -152,7 +152,7 @@ export function AdminSettingsView() {
         {activeTab === 'profile' && (
           <Card className="p-5 border border-black/15 shadow-sm space-y-4 max-w-xl">
             <div className="border-b border-black/10 pb-2">
-              <h2 className="text-[14px] font-bold text-black uppercase tracking-wider">
+              <h2 className="text-sm font-bold text-black">
                 Utility Profile
               </h2>
               <p className="text-[14px] text-black/60">
@@ -169,7 +169,7 @@ export function AdminSettingsView() {
 
             <form onSubmit={handleSaveProfile} className="space-y-3">
               <div>
-                <label className="block text-[14px] font-bold text-black uppercase mb-1">
+                <label className="block text-xs font-semibold text-black/60 mb-1">
                   Utility name
                 </label>
                 <input
@@ -182,7 +182,7 @@ export function AdminSettingsView() {
               </div>
 
               <div>
-                <label className="block text-[14px] font-bold text-black uppercase mb-1">
+                <label className="block text-xs font-semibold text-black/60 mb-1">
                   Address
                 </label>
                 <input
@@ -195,7 +195,7 @@ export function AdminSettingsView() {
               </div>
 
               <div>
-                <label className="block text-[14px] font-bold text-black uppercase mb-1">
+                <label className="block text-xs font-semibold text-black/60 mb-1">
                   Contact number
                 </label>
                 <input
@@ -224,7 +224,7 @@ export function AdminSettingsView() {
             <Card className="p-5 border border-black/15 shadow-sm space-y-4">
               <div className="flex items-center justify-between border-b border-black/10 pb-2">
                 <div>
-                  <h2 className="text-[14px] font-bold text-black uppercase tracking-wider">
+                  <h2 className="text-sm font-bold text-black">
                     Configured Issue Categories & Priority Weights
                   </h2>
                   <p className="text-[14px] text-black/60">
@@ -253,14 +253,14 @@ export function AdminSettingsView() {
                 <table className="w-full text-left text-[14px]">
                   <thead className="bg-[#F0F6FD] text-black border-b border-black/15">
                     <tr>
-                      <th className="px-4 py-2.5 font-bold uppercase tracking-wider">Issue type</th>
-                      <th className="px-4 py-2.5 font-bold uppercase tracking-wider text-right">Default urgency</th>
+                      <th className="px-4 py-2 text-xs font-semibold text-black/60">Issue Type</th>
+                      <th className="px-4 py-2 text-xs font-semibold text-black/60 text-right">Default Urgency</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-black/10">
                     {issueTypes.map((it) => (
                       <tr key={it.id} className="hover:bg-[#F0F6FD]/40 transition-colors">
-                        <td className="px-4 py-3 font-bold text-black">
+                        <td className="px-4 py-3 font-normal text-black">
                           {it.name}
                         </td>
                         <td className="px-4 py-3 text-right">
@@ -308,7 +308,7 @@ export function AdminSettingsView() {
         {activeTab === 'sms' && (
           <Card className="p-5 border border-black/15 shadow-sm space-y-4 max-w-xl">
             <div className="border-b border-black/10 pb-2">
-              <h2 className="text-[14px] font-bold text-black uppercase tracking-wider">
+              <h2 className="text-sm font-bold text-black">
                 SMS Gateway & Dispatch Triggers
               </h2>
               <p className="text-[14px] text-black/60">
@@ -325,7 +325,7 @@ export function AdminSettingsView() {
 
             <div className="space-y-3">
               <div>
-                <label className="block text-[14px] font-bold text-black uppercase mb-1">
+                <label className="block text-xs font-semibold text-black/60 mb-1">
                   SMS Sender ID
                 </label>
                 <input
