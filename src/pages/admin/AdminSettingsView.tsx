@@ -378,7 +378,7 @@ export function AdminSettingsView() {
         {activeTab === 'security' && (
           <Card className="p-5 border border-black/15 shadow-sm space-y-4 max-w-xl">
             <div className="border-b border-black/10 pb-2">
-              <h2 className="text-[14px] font-bold text-black uppercase tracking-wider">
+              <h2 className="text-sm font-bold text-black">
                 Institutional Security & Access
               </h2>
               <p className="text-[14px] text-black/60">
@@ -395,7 +395,7 @@ export function AdminSettingsView() {
 
             <div className="space-y-3">
               <div>
-                <label className="block text-[14px] font-bold text-black uppercase mb-1">
+                <label className="block text-xs font-semibold text-black/60 mb-1">
                   Master Admin Email
                 </label>
                 <input
@@ -407,7 +407,7 @@ export function AdminSettingsView() {
               </div>
 
               <div>
-                <label className="block text-[14px] font-bold text-black uppercase mb-1">
+                <label className="block text-xs font-semibold text-black/60 mb-1">
                   Current Password
                 </label>
                 <input
@@ -420,7 +420,7 @@ export function AdminSettingsView() {
               </div>
 
               <div>
-                <label className="block text-[14px] font-bold text-black uppercase mb-1">
+                <label className="block text-xs font-semibold text-black/60 mb-1">
                   New Master Password
                 </label>
                 <input
@@ -454,7 +454,7 @@ export function AdminSettingsView() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
             <div className="w-full max-w-sm bg-white rounded border border-black p-5 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
-                <span className="font-bold text-black uppercase tracking-wider text-[14px]">
+                <span className="text-sm font-bold text-black">
                   Add Issue Category
                 </span>
                 <button
@@ -467,7 +467,7 @@ export function AdminSettingsView() {
 
               <form onSubmit={handleAddIssueType} className="space-y-3">
                 <div>
-                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
+                  <label className="block text-xs font-semibold text-black/60 mb-1">
                     Issue Category Name
                   </label>
                   <input
@@ -481,7 +481,7 @@ export function AdminSettingsView() {
                 </div>
 
                 <div>
-                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
+                  <label className="block text-xs font-semibold text-black/60 mb-1">
                     Default Urgency
                   </label>
                   <select
