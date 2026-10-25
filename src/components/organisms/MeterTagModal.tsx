@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import QRCode from 'qrcode';
 import { Button } from '../atoms/Button';
 import { Badge } from '../atoms/Badge';
+import { SystemModal } from '../molecules/SystemModal';
 import { adminApi, type MeterTagData } from '../../api';
 import type { User } from '../../types';
 import {
@@ -27,6 +28,21 @@ export function MeterTagModal({ customer, onClose }: Props) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isCopied, setIsCopied] = useState(false);
   const [isRotating, setIsRotating] = useState(false);
+  const [systemModal, setSystemModal] = useState<{
+    isOpen: boolean;
+    type: 'info' | 'success' | 'warning' | 'error' | 'confirm';
+    title: string;
+    message: string | React.ReactNode;
+    confirmText?: string;
+    cancelText?: string;
+    onConfirm?: () => void | Promise<void>;
+    isDestructive?: boolean;
+  }>({
+    isOpen: false,
+    type: 'info',
+    title: '',
+    message: '',
+  });
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -83,22 +99,37 @@ export function MeterTagModal({ customer, onClose }: Props) {
   };
 
   // Rotate / Regenerate QR Token
-  const handleRegenerateToken = async () => {
+  const handleRegenerateToken = () => {
     if (!tagData?.meter_id) return;
-    if (!window.confirm('Are you sure you want to rotate this meter QR token? Existing printed tags will become inactive.')) {
-      return;
-    }
 
-    setIsRotating(true);
-    try {
-      const res = await adminApi.regenerateMeterQr(tagData.meter_id);
-      setTagData((prev) => (prev ? { ...prev, qr_token: res.meter.qr_token } : null));
-    } catch (err: unknown) {
-      const errorObj = err as { response?: { data?: { message?: string } } };
-      alert(errorObj?.response?.data?.message || 'Failed to rotate QR token.');
-    } finally {
-      setIsRotating(false);
-    }
+    setSystemModal({
+      isOpen: true,
+      type: 'confirm',
+      isDestructive: true,
+      title: 'Regenerate QR Code Token',
+      message: 'Are you sure you want to rotate this meter QR token? Existing physical printed tags will become inactive and will no longer scan.',
+      confirmText: 'Regenerate Token',
+      cancelText: 'Keep Current',
+      onConfirm: async () => {
+        setSystemModal((m) => ({ ...m, isOpen: false }));
+        setIsRotating(true);
+        try {
+          const res = await adminApi.regenerateMeterQr(tagData.meter_id);
+          setTagData((prev) => (prev ? { ...prev, qr_token: res.meter.qr_token } : null));
+        } catch (err: unknown) {
+          const errorObj = err as { response?: { data?: { message?: string } } };
+          setSystemModal({
+            isOpen: true,
+            type: 'error',
+            title: 'Regeneration Error',
+            message: errorObj?.response?.data?.message || 'Failed to rotate QR token.',
+            confirmText: 'Close',
+          });
+        } finally {
+          setIsRotating(false);
+        }
+      },
+    });
   };
 
   // Download QR Code as PNG file
@@ -119,19 +150,19 @@ export function MeterTagModal({ customer, onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/65 backdrop-blur-md p-4 overflow-y-auto">
       <div className="w-full max-w-lg bg-white rounded-lg border border-black p-5 space-y-4 shadow-2xl relative my-auto max-h-[90vh] overflow-y-auto">
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-black/15 pb-2">
           <div className="flex items-center gap-2">
             <IconQrcode size={18} className="text-[#1E6FD9]" />
-            <h2 className="font-bold text-black uppercase tracking-wider text-[14px]">
+            <h2 className="text-sm font-bold text-black">
               Meter Tag & QR Code Generator
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="text-black hover:text-[#1E6FD9] p-1 font-bold"
+            className="text-black hover:text-[#1E6FD9] p-1"
             title="Close"
           >
             <IconX size={16} />
@@ -149,7 +180,7 @@ export function MeterTagModal({ customer, onClose }: Props) {
         {/* Error / No Meter State */}
         {!isLoading && errorMessage && (
           <div className="p-4 bg-[#FFF2F2] border border-black/30 rounded-lg space-y-3 text-black">
-            <div className="flex items-center gap-2 font-bold text-black">
+            <div className="flex items-center gap-2 font-medium text-black">
               <IconAlertCircle size={18} className="text-black" />
               <span>Unassigned Water Meter</span>
             </div>
@@ -176,14 +207,14 @@ export function MeterTagModal({ customer, onClose }: Props) {
               {/* Tag Header */}
               <div className="w-full flex items-center justify-between border-b border-black/15 pb-2 mb-2">
                 <div className="flex items-center gap-1.5">
-                  <div className="w-5 h-5 rounded-full bg-[#1E6FD9] text-white flex items-center justify-center font-bold text-[10px]">
+                  <div className="w-5 h-5 rounded-full bg-[#1E6FD9] text-white flex items-center justify-center font-medium text-[10px]">
                     <IconDroplet size={12} />
                   </div>
                   <div className="text-left leading-tight">
-                    <span className="font-bold text-[10px] text-black uppercase tracking-wider block">
+                    <span className="font-semibold text-[10px] text-black uppercase tracking-wider block">
                       LGU Sinacaban
                     </span>
-                    <span className="font-extrabold text-[11px] text-[#1E6FD9] uppercase block">
+                    <span className="font-semibold text-[11px] text-[#1E6FD9] uppercase block">
                       AquaTrack Meter Tag
                     </span>
                   </div>
@@ -196,7 +227,7 @@ export function MeterTagModal({ customer, onClose }: Props) {
               {/* QR Code Container */}
               <div className="p-2 bg-white border-2 border-[#1E6FD9] rounded-lg my-1 flex flex-col items-center justify-center shadow-inner">
                 <canvas ref={canvasRef} className="block" />
-                <span className="text-[10px] font-mono font-bold text-black/70 tracking-widest mt-1">
+                <span className="text-[10px] font-mono font-medium text-black/70 tracking-widest mt-1">
                   TOKEN: {tagData.qr_token.substring(0, 16)}...
                 </span>
               </div>
@@ -206,19 +237,19 @@ export function MeterTagModal({ customer, onClose }: Props) {
                 <tbody>
                   <tr className="border-b border-dashed border-black/15">
                     <td className="py-1 text-black/60 font-medium">Customer:</td>
-                    <td className="py-1 font-bold text-right text-black">{tagData.customer_name}</td>
+                    <td className="py-1 font-medium text-right text-black">{tagData.customer_name}</td>
                   </tr>
                   <tr className="border-b border-dashed border-black/15">
                     <td className="py-1 text-black/60 font-medium">Account No:</td>
-                    <td className="py-1 font-mono font-bold text-right text-[#1E6FD9]">{tagData.account_number}</td>
+                    <td className="py-1 font-mono font-medium text-right text-[#1E6FD9]">{tagData.account_number}</td>
                   </tr>
                   <tr className="border-b border-dashed border-black/15">
                     <td className="py-1 text-black/60 font-medium">Meter Serial:</td>
-                    <td className="py-1 font-mono font-bold text-right text-black">{tagData.meter_number}</td>
+                    <td className="py-1 font-mono font-medium text-right text-black">{tagData.meter_number}</td>
                   </tr>
                   <tr className="border-b border-dashed border-black/15">
                     <td className="py-1 text-black/60 font-medium">Barangay:</td>
-                    <td className="py-1 font-bold text-right text-black">{tagData.barangay}</td>
+                    <td className="py-1 font-medium text-right text-black">{tagData.barangay}</td>
                   </tr>
                   <tr>
                     <td className="py-1 text-black/60 font-medium">Issued Date:</td>
@@ -228,7 +259,7 @@ export function MeterTagModal({ customer, onClose }: Props) {
               </table>
 
               {/* Tag Footer Warning */}
-              <div className="w-full bg-[#F0F6FD] border border-[#1E6FD9]/30 rounded p-1.5 text-center text-[10px] text-[#1E6FD9] font-bold leading-tight">
+              <div className="w-full bg-white border border-black/15 rounded p-1.5 text-center text-[10px] text-black/70 font-medium leading-tight">
                 Official Utility Property · Scan with AquaTrack Staff App
               </div>
             </div>
@@ -260,7 +291,7 @@ export function MeterTagModal({ customer, onClose }: Props) {
                   type="button"
                   onClick={handleRegenerateToken}
                   disabled={isRotating}
-                  className="text-[12px] font-bold text-black/60 hover:text-black hover:underline flex items-center gap-1"
+                  className="text-[12px] font-medium text-black/60 hover:text-black hover:underline flex items-center gap-1"
                 >
                   <IconRotate size={12} className={isRotating ? 'animate-spin' : ''} />
                   {isRotating ? 'Rotating...' : 'Rotate Token / Invalidate Old Tag'}
@@ -274,6 +305,19 @@ export function MeterTagModal({ customer, onClose }: Props) {
           </div>
         )}
       </div>
+
+      {/* Modern Confirmation & Error Dialog */}
+      <SystemModal
+        isOpen={systemModal.isOpen}
+        onClose={() => setSystemModal((m) => ({ ...m, isOpen: false }))}
+        type={systemModal.type}
+        title={systemModal.title}
+        message={systemModal.message}
+        confirmText={systemModal.confirmText}
+        cancelText={systemModal.cancelText}
+        onConfirm={systemModal.onConfirm}
+        isDestructive={systemModal.isDestructive}
+      />
     </div>
   );
 }

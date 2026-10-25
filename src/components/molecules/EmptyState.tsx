@@ -20,7 +20,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 }) => {
   return (
     <div
-      className={`flex flex-col items-center justify-center p-8 text-center rounded-lg border border-black/20 bg-white text-[14px] ${className}`}
+      className={`flex flex-col items-center justify-center p-8 text-center rounded-lg bg-white border border-black/10 shadow-[0_4px_0_0_rgba(0,0,0,0.08)] text-[14px] ${className}`}
     >
       {icon && <div className="text-[#1E6FD9] mb-2">{icon}</div>}
       <div className="font-bold text-black text-[14px] uppercase tracking-wider">{title}</div>

@@ -128,12 +128,24 @@ export function AdminStaffView() {
   return (
     <AdminLayout currentPath="/admin/staff" onNavigate={(path) => navigate(path)}>
       <div className="space-y-4 text-[14px] text-black">
-        {/* Wireframe A9 Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/15 pb-3">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-black">
-              Staff Directory
-            </h1>
+        {/* Header */}
+        <div className="border-b border-black/10 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h1 className="text-xl sm:text-2xl font-bold text-black tracking-tight">
+            Staff Directory
+          </h1>
+        </div>
+
+        {/* Staff Controls Card */}
+        <Card className="p-4 bg-white shadow-[0_10px_25px_-5px_rgba(0,0,0,0.14),0_6px_10px_-4px_rgba(0,0,0,0.08)] rounded-md border border-black/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div className="relative flex-1 sm:max-w-md">
+            <input
+              type="text"
+              placeholder="Search staff name, mobile, or assigned sector..."
+              className="w-full pl-8 pr-3 py-1.5 text-[14px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <IconSearch size={14} className="absolute left-2.5 top-2.5 text-black/40" />
           </div>
           <Button
             variant="primary"
@@ -143,25 +155,13 @@ export function AdminStaffView() {
             <IconUserPlus size={14} />
             <span>Add staff</span>
           </Button>
-        </div>
-
-        {/* Wireframe A9 Search Bar */}
-        <div className="relative max-w-md">
-          <input
-            type="text"
-            placeholder="Search staff name, mobile, or assigned sector..."
-            className="w-full pl-8 pr-3 py-2 text-[14px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <IconSearch size={14} className="absolute left-2.5 top-2.5 text-black/40" />
-        </div>
+        </Card>
 
         {/* Wireframe A9 Table */}
-        <Card className="p-0 border border-black/15 overflow-hidden">
+        <Card className="p-0 border border-black/10 rounded-md shadow-[0_10px_25px_-5px_rgba(0,0,0,0.14),0_6px_10px_-4px_rgba(0,0,0,0.08)] overflow-hidden bg-white">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-[14px]">
-              <thead className="bg-[#F0F6FD] text-black border-b border-black/15">
+              <thead className="bg-white text-black border-b border-black/15">
                 <tr>
                   <th className="px-4 py-2 text-xs font-semibold text-black/60">Name</th>
                   <th className="px-4 py-2 text-xs font-semibold text-black/60">Assigned Area</th>
@@ -197,7 +197,7 @@ export function AdminStaffView() {
                     return (
                       <tr
                         key={staff.id}
-                        className="hover:bg-[#F0F6FD]/50 transition-colors cursor-pointer"
+                        className="hover:bg-black/5 transition-colors cursor-pointer"
                         onClick={() => setSelectedStaff(staff)}
                       >
                         <td className="px-4 py-3">
@@ -256,14 +256,14 @@ export function AdminStaffView() {
                 </div>
                 <button
                   onClick={() => setSelectedStaff(null)}
-                  className="text-black hover:text-[#1E6FD9] p-1 font-bold text-[14px]"
+                  className="text-black hover:text-[#1E6FD9] p-1 text-[14px]"
                 >
                   <IconX size={14} />
                 </button>
               </div>
 
               {/* Profile Card */}
-              <div className="p-3 bg-[#F0F6FD] border border-black/15 rounded space-y-2 text-[14px]">
+              <div className="p-3 bg-white border border-black/15 rounded space-y-2 text-[14px]">
                 <div className="flex justify-between">
                   <span className="text-xs font-semibold text-black/60">Assigned Area:</span>
                   <span className="text-sm font-semibold text-black">
@@ -299,9 +299,9 @@ export function AdminStaffView() {
                           className="p-2.5 bg-white border border-black/15 rounded flex items-center justify-between text-[14px]"
                         >
                           <div>
-                            <strong className="text-black font-bold">
+                            <span className="text-black font-medium">
                               {task.reference_no || task.reference || `AT-${task.id}`}
-                            </strong>
+                            </span>
                             <div className="text-black/70 font-normal">{task.description}</div>
                           </div>
                           <Badge variant={task.status === 'in_progress' ? 'blue' : 'black'}>
@@ -334,14 +334,14 @@ export function AdminStaffView() {
                 </span>
                 <button
                   onClick={() => setShowAddModal(false)}
-                  className="text-black hover:text-[#1E6FD9] p-1 font-bold text-[14px]"
+                  className="text-black hover:text-[#1E6FD9] p-1 text-[14px]"
                 >
                   <IconX size={14} />
                 </button>
               </div>
 
               {addSuccess && (
-                <div className="p-2.5 bg-[#F0F6FD] border border-black rounded text-[14px] text-black flex items-center gap-2">
+                <div className="p-2.5 bg-white border border-black rounded text-[14px] text-black flex items-center gap-2">
                   <IconCheck size={14} className="text-[#1E6FD9] shrink-0" />
                   <span>{addSuccess}</span>
                 </div>

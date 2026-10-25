@@ -23,27 +23,25 @@ import {
   IconChevronDown,
 } from '@tabler/icons-react';
 
-// Official 19 Sinacaban Barangays fallback
+// Official 17 Sinacaban Barangays (PSGC / PhilAtlas)
 const OFFICIAL_BARANGAYS: string[] = [
   'Cagay-anon',
   'Camanse',
-  'Colupan',
+  'Colupan Alto',
+  'Colupan Bajo',
   'Dinas',
   'Estrella',
   'Katipunan',
-  'Libertad',
+  'Libertad Alto',
+  'Libertad Bajo',
   'Poblacion',
-  'San Antonio',
-  'San Isidro',
-  'San Jose',
-  'San Martin',
+  'San Isidro Alto',
+  'San Isidro Bajo',
+  'San Lorenzo Ruiz',
   'San Vicente',
+  'Señor',
   'Sinonoc',
-  'Subic',
   'Tipan',
-  'Tubo-an',
-  'Upper Katipunan',
-  'Upper San Jose',
 ];
 
 export function LandingView() {
@@ -58,7 +56,7 @@ export function LandingView() {
     {
       id: 1,
       title: 'Mainline Interconnection & Pressure Balancing',
-      barangays: ['Poblacion', 'San Antonio', 'San Isidro'],
+      barangays: ['Poblacion', 'Colupan Alto', 'San Isidro Alto'],
       timeWindow: 'Saturday, 1:00 PM – 5:00 PM',
       type: 'Scheduled Maintenance',
     },
@@ -97,7 +95,7 @@ export function LandingView() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-black font-sans text-[14px] flex flex-col selection:bg-[#F0F6FD] selection:text-[#1E6FD9]">
+    <div className="min-h-screen bg-white text-black font-sans text-[14px] flex flex-col selection:bg-[#1E6FD9] selection:text-white">
       {/* Top Session Ribbon (If Logged In) */}
       {user && (
         <div className="bg-[#1E6FD9] text-white px-4 sm:px-8 lg:px-14 py-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1.5 border-b border-black/10">

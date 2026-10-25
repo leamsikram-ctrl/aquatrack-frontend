@@ -40,7 +40,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
 
   return (
     <nav
-      className={`fixed bottom-0 left-0 right-0 z-30 h-14 border-t border-black/15 bg-white px-3 flex items-center justify-around select-none md:hidden ${className}`}
+      className={`fixed bottom-0 left-0 right-0 z-30 h-16 border-t border-black/10 bg-white/95 backdrop-blur-md px-2 flex items-center justify-around select-none md:hidden shadow-[0_-2px_0px_0px_rgba(0,0,0,0.04)] ${className}`}
       aria-label="Mobile Navigation"
     >
       {items.map((item) => {
@@ -53,20 +53,18 @@ export const BottomNav: React.FC<BottomNavProps> = ({
             onClick={() => onNavigate?.(item.path)}
             title={item.title}
             aria-label={item.title}
-            className={`flex items-center justify-center flex-1 h-full transition-colors relative
-              ${
-                isActive
-                  ? 'text-[#1E6FD9]'
-                  : 'text-black/60 hover:text-[#1E6FD9]'
-              }
-            `}
+            className={`flex flex-row items-center justify-center gap-1.5 flex-1 h-full py-1 px-1 transition-all ${
+              isActive
+                ? 'text-[#1E6FD9] font-bold'
+                : 'text-black/60 hover:text-black font-medium'
+            }`}
           >
-            <div className={`p-1.5 rounded ${isActive ? 'bg-[#F0F6FD]' : ''}`}>
-              <IconComponent size={22} stroke={isActive ? 2.2 : 1.7} />
+            <div className={`p-0.5 rounded-lg transition-transform shrink-0 ${isActive ? 'scale-110' : ''}`}>
+              <IconComponent size={18} stroke={isActive ? 2.2 : 1.7} />
             </div>
-            {isActive && (
-              <span className="absolute bottom-1 w-1.5 h-1.5 rounded-full bg-[#1E6FD9]" />
-            )}
+            <span className="text-[11px] sm:text-[12px] tracking-tight leading-none whitespace-nowrap">
+              {item.title}
+            </span>
           </button>
         );
       })}

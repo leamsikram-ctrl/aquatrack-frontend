@@ -1,9 +1,11 @@
 import React, { forwardRef } from 'react';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost';
+export type ButtonSize = 'sm' | 'md' | 'lg';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
+  size?: ButtonSize;
   isLoading?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
@@ -13,6 +15,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
       variant = 'primary',
+      size = 'md',
       isLoading = false,
       leftIcon,
       rightIcon,
@@ -23,33 +26,39 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    // Uniform font-size (10px), clean borders, 3-color palette (Blue, White, Black)
+    // Global button styling matching the Untitled UI design system with strict horizontal icon placement
     const baseStyles =
-      'inline-flex items-center justify-center text-[14px] font-bold px-4 py-2 rounded-md transition-colors cursor-pointer select-none border disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1E6FD9]';
+      'inline-flex flex-row items-center justify-center gap-1.5 font-semibold rounded-lg transition-all cursor-pointer select-none border whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900';
+
+    const sizeStyles = {
+      sm: 'text-xs px-2.5 py-1',
+      md: 'text-[13px] px-3.5 py-1.5',
+      lg: 'text-[14px] px-4 py-2',
+    }[size];
 
     const variantStyles = {
       primary:
-        'bg-[#1E6FD9] text-white border-[#1E6FD9] hover:bg-[#1557AB] active:bg-[#104382]',
+        'bg-[#0F172A] hover:bg-slate-800 text-white border-slate-900 shadow-sm active:translate-y-0.5',
       secondary:
-        'bg-white text-black border-black hover:bg-[#F0F6FD] hover:text-[#1E6FD9] hover:border-[#1E6FD9]',
+        'bg-white text-black border-slate-300 shadow-2xs hover:bg-slate-50 hover:border-slate-400 active:translate-y-0.5',
       ghost:
-        'bg-white text-black border-black hover:bg-[#F0F6FD] hover:text-[#1E6FD9] hover:border-[#1E6FD9]',
+        'bg-white text-black border-slate-300 shadow-2xs hover:bg-slate-50 hover:border-slate-400 active:translate-y-0.5',
     }[variant];
 
     return (
       <button
         ref={ref}
         disabled={disabled || isLoading}
-        className={`${baseStyles} ${variantStyles} ${className}`}
+        className={`${baseStyles} ${sizeStyles} ${variantStyles} ${className}`}
         {...props}
       >
         {isLoading ? (
-          <span className="inline-block w-4 h-4 mr-2 border-2 border-current border-t-transparent rounded-full animate-spin" />
+          <span className="inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin shrink-0" />
         ) : (
-          leftIcon && <span className="mr-2 inline-flex items-center">{leftIcon}</span>
+          leftIcon && <span className="inline-flex items-center shrink-0">{leftIcon}</span>
         )}
-        <span>{children}</span>
-        {!isLoading && rightIcon && <span className="ml-2 inline-flex items-center">{rightIcon}</span>}
+        <span className="inline-flex flex-row items-center gap-1.5">{children}</span>
+        {!isLoading && rightIcon && <span className="inline-flex items-center shrink-0">{rightIcon}</span>}
       </button>
     );
   }

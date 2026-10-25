@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CustomerLayout } from '../../components/templates/CustomerLayout';
 import { Card } from '../../components/atoms/Card';
@@ -6,7 +6,23 @@ import { Badge } from '../../components/atoms/Badge';
 import { Button } from '../../components/atoms/Button';
 import { requestsApi, billingApi, authApi, interruptionsApi } from '../../api';
 import type { ServiceRequest, Billing, User, WaterInterruption } from '../../types';
-import { IconChevronRight } from '@tabler/icons-react';
+import { FIXED_ISSUE_TYPES, maintenanceStore } from '../../services/maintenanceStore';
+import {
+  IconReceipt,
+  IconTool,
+  IconVolume,
+  IconChevronRight,
+  IconCalendar,
+  IconGauge,
+  IconMapPin,
+  IconCheck,
+  IconClock,
+  IconBuildingCommunity,
+  IconAlertCircle,
+  IconPlus,
+  IconX,
+  IconPhone,
+} from '@tabler/icons-react';
 
 export function CustomerHomeView() {
   const navigate = useNavigate();
@@ -15,8 +31,8 @@ export function CustomerHomeView() {
   const [currentBill, setCurrentBill] = useState<Billing | null>(null);
   const [latestAdvisory, setLatestAdvisory] = useState<WaterInterruption | null>(null);
   const [showReportModal, setShowReportModal] = useState(false);
+  const [issueTypeId, setIssueTypeId] = useState<number>(FIXED_ISSUE_TYPES[3].id);
   const [description, setDescription] = useState('');
-  const [customerUrgency, setCustomerUrgency] = useState('can_wait');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchConsumerData = async () => {
@@ -29,23 +45,34 @@ export function CustomerHomeView() {
       ]);
 
       if (userData) setUser(userData);
-      
+
       if (reqData.data && reqData.data.length > 0) {
         const active = reqData.data.find(
           (r) => ['submitted', 'assigned', 'in_progress'].includes(r.status)
         );
         setActiveRequest(active || reqData.data[0]);
+      } else {
+        const localRequests = maintenanceStore.getRequests();
+        const active = localRequests.find(
+          (r) => ['submitted', 'assigned', 'in_progress'].includes(r.status)
+        );
+        if (active) setActiveRequest(active);
       }
-      
+
       if (billData.data && billData.data.length > 0) {
         setCurrentBill(billData.data[0]);
       }
-      
+
       if (intData.data && intData.data.length > 0) {
         setLatestAdvisory(intData.data[0]);
       }
     } catch {
       // Offline fallback
+      const localRequests = maintenanceStore.getRequests();
+      const active = localRequests.find(
+        (r) => ['submitted', 'assigned', 'in_progress'].includes(r.status)
+      );
+      if (active) setActiveRequest(active);
     }
   };
 
@@ -58,17 +85,39 @@ export function CustomerHomeView() {
     if (!description.trim()) return;
 
     setIsSubmitting(true);
+    const selectedType =
+      FIXED_ISSUE_TYPES.find((t) => t.id === issueTypeId) || FIXED_ISSUE_TYPES[0];
+    const autoUrgency = selectedType.default_urgency;
+    const customerChoiceMap = {
+      low: 'can_wait',
+      medium: 'needs_attention_soon',
+      high: 'urgent',
+    } as const;
+
     try {
-      const newReq = await requestsApi.create({
-        issue_type_id: 1,
-        customer_urgency: customerUrgency,
-        description,
+      const apiReq = await requestsApi.create({
+        issue_type_id: issueTypeId,
+        customer_urgency: customerChoiceMap[autoUrgency],
+        description: description.trim(),
       });
-      setActiveRequest(newReq);
+      await fetchConsumerData();
+      if (apiReq) {
+        setActiveRequest(apiReq);
+      }
       setShowReportModal(false);
       setDescription('');
     } catch {
-      alert('Could not submit request. Please check connection.');
+      const created = maintenanceStore.createRequest({
+        issueTypeId,
+        customerUrgency: autoUrgency,
+        description: description.trim(),
+        latitude: 8.2855,
+        longitude: 123.8429,
+        barangay: user?.customer_profile?.barangay?.name || 'Poblacion',
+      });
+      setActiveRequest(created);
+      setShowReportModal(false);
+      setDescription('');
     } finally {
       setIsSubmitting(false);
     }
@@ -77,7 +126,8 @@ export function CustomerHomeView() {
   const profile = user?.customer_profile;
   const accountNumber = profile?.account_number || 'ACC-2026-0001';
   const meterNumber = profile?.meter?.meter_number || 'MTR-SIN-0001';
-  const barangayName = profile?.barangay?.name || 'Barangay Poblacion';
+  const barangayName = profile?.barangay?.name || 'Poblacion';
+  const consumerName = user?.name || 'Maria Santos';
 
   const getProgressStepIndex = (status?: string) => {
     switch (status) {
@@ -95,204 +145,434 @@ export function CustomerHomeView() {
   };
 
   const currentStepIdx = activeRequest ? getProgressStepIndex(activeRequest.status) : 0;
+  const billAmount = Number(
+    (currentBill?.payment_status === 'paid' ? currentBill?.amount_paid : currentBill?.amount_due) ??
+      (currentBill ? 350.0 : 350.0)
+  );
 
   return (
     <CustomerLayout
       currentPath="/customer/home"
       onNavigate={(path) => navigate(path)}
-      userName={user?.name || 'Consumer'}
+      userName={consumerName}
       accountNumber={accountNumber}
     >
-      <div className="space-y-4">
-        {/* Header */}
-        <div className="pb-1">
-          <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
-            Home
-          </h1>
-        </div>
+      <div className="space-y-5 text-[14px]">
+        {/* Modern Welcome & Action Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-black tracking-tight">
+              Home
+            </h1>
+            <div className="text-black/60 text-[14px]">
+              Welcome back, <span className="font-semibold text-black">{consumerName}</span>
+            </div>
+          </div>
 
-        {/* Card 1: Account */}
-        <Card className="p-4 border border-black/15 bg-white space-y-1">
-          <div className="text-[14px] text-black/50 font-bold">
-            Account
-          </div>
-          <div className="text-[14px] font-bold text-black">
-            {accountNumber} · {meterNumber}
-          </div>
-          <div className="text-[14px] text-black/70 font-normal">
-            {barangayName}
-          </div>
-        </Card>
-
-        {/* Card 2: Current bill */}
-        <Card className="p-4 border border-black/15 bg-white space-y-3">
-          <div className="text-[14px] text-black/50 font-bold">
-            Current bill
-          </div>
-          <div className="text-3xl font-bold text-black">
-            ₱{Number(currentBill?.amount_paid || (currentBill ? 350.0 : 0)).toFixed(2)}
-          </div>
-          <div className="text-[14px] text-black/60 font-normal">
-            {currentBill?.due_date
-              ? `Due ${new Date(currentBill.due_date).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric',
-                })}`
-              : 'Due Oct 25, 2026'}
-          </div>
-          <div className="flex items-center justify-between pt-2 border-t border-black/10">
-            <Badge variant={currentBill?.payment_status === 'paid' ? 'blue' : 'outline'}>
-              {currentBill?.payment_status === 'paid' ? 'Paid' : 'Unpaid'}
-            </Badge>
+          <div className="flex items-center gap-2.5">
             <Button
-              variant="secondary"
-              onClick={() => navigate('/customer/bills')}
+              variant="primary"
+              leftIcon={<IconPlus size={16} />}
+              onClick={() => setShowReportModal(true)}
+              className="shadow-[2px_2px_0px_0px_rgba(0,0,0,0.15)]"
             >
-              View bill
+              Report an Issue
             </Button>
           </div>
-        </Card>
+        </div>
 
-        {/* Card 3: Active request */}
-        <Card
-          className="p-4 border border-black/15 bg-white space-y-3 cursor-pointer hover:border-[#1E6FD9] transition-colors"
-          onClick={() => navigate('/customer/requests')}
-        >
-          <div className="flex items-center justify-between">
-            <div className="text-[14px] text-black/50 font-bold">
-              Active request
+        {/* Card 1: Account Snapshot (Clean encapsulated banner) */}
+        <Card className="p-4 sm:p-5 border border-black/10 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.06)]">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-start sm:items-center gap-3.5">
+              <div className="w-11 h-11 rounded-lg bg-[#F0F6FD] text-[#1E6FD9] flex items-center justify-center shrink-0 border border-[#1E6FD9]/20">
+                <IconGauge size={22} />
+              </div>
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-black/50 uppercase tracking-wider">
+                    Account & Meter
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#F0F6FD] text-[#1E6FD9] border border-[#1E6FD9]/20">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#1E6FD9] animate-pulse" />
+                    Active Supply
+                  </span>
+                </div>
+                <h2 className="text-[14px] sm:text-base font-bold text-black">
+                  {accountNumber} · <span className="text-[#1E6FD9] font-bold">{meterNumber}</span>
+                </h2>
+                <div className="text-[14px] text-black/70 flex items-center gap-1">
+                  <IconMapPin size={14} className="text-[#1E6FD9]" />
+                  <span>{barangayName}, Sinacaban, Misamis Occidental</span>
+                </div>
+              </div>
             </div>
-            <IconChevronRight size={16} className="text-black/40" />
-          </div>
 
-          {activeRequest ? (
-            <>
-              <div className="text-[14px] font-bold text-black">
-                {activeRequest.reference_no || activeRequest.reference || 'AT-2026-0012'} ·{' '}
-                {activeRequest.issue_type?.name || 'Service Issue'}
-              </div>
-
-              {/* 4-step progress bar */}
-              <div className="space-y-1.5 pt-1">
-                <div className="grid grid-cols-4 gap-1.5">
-                  {[0, 1, 2, 3].map((step) => {
-                    const isPassed = step <= currentStepIdx;
-                    return (
-                      <div
-                        key={step}
-                        className={`h-2 rounded-full ${
-                          isPassed ? 'bg-[#1E6FD9]' : 'bg-black/15'
-                        }`}
-                      />
-                    );
-                  })}
-                </div>
-                <div className="grid grid-cols-4 text-center text-[11px] sm:text-[13px] md:text-[14px] font-bold text-black/70">
-                  <span className={currentStepIdx >= 0 ? 'text-[#1E6FD9]' : ''}>
-                    Submitted
-                  </span>
-                  <span className={currentStepIdx >= 1 ? 'text-[#1E6FD9]' : ''}>
-                    Assigned
-                  </span>
-                  <span className={currentStepIdx >= 2 ? 'text-[#1E6FD9]' : ''}>
-                    In progress
-                  </span>
-                  <span className={currentStepIdx >= 3 ? 'text-[#1E6FD9]' : ''}>
-                    Resolved
-                  </span>
-                </div>
-              </div>
-            </>
-          ) : (
-            <div className="py-2 text-center text-black/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 text-[14px] font-normal">
-              <span>No active service request logged.</span>
+            <div className="flex items-center gap-2 pt-2 md:pt-0 border-t md:border-t-0 border-black/10">
               <Button
                 variant="secondary"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowReportModal(true);
-                }}
+                size="sm"
+                onClick={() => navigate('/customer/profile')}
+                className="text-xs"
               >
-                Report an issue
+                Account Details
               </Button>
             </div>
-          )}
+          </div>
         </Card>
 
-        {/* Card 4: Latest advisory */}
-        <Card
-          className="p-4 border border-black/15 bg-white space-y-2 cursor-pointer hover:border-[#1E6FD9] transition-colors"
-          onClick={() => navigate('/customer/advisories')}
-        >
-          <div className="flex items-center justify-between">
-            <div className="text-[14px] uppercase tracking-wider text-black/50 font-bold">
-              Latest advisory
+        {/* 2-Column Grid: Billing (Col 1) and Active Request (Col 2) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          {/* Card 2: Current Bill */}
+          <Card className="p-5 border border-black/10 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.06)] flex flex-col justify-between space-y-4">
+            <div>
+              <div className="flex items-center justify-between border-b border-black/10 pb-3 mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-[#F0F6FD] text-[#1E6FD9] flex items-center justify-center">
+                    <IconReceipt size={18} />
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-black/50 uppercase tracking-wider block">
+                      Current Bill
+                    </span>
+                    <span className="text-[14px] font-semibold text-black">
+                      October 2026 Statement
+                    </span>
+                  </div>
+                </div>
+
+                <Badge variant={currentBill?.payment_status === 'paid' ? 'blue' : 'outline'}>
+                  {currentBill?.payment_status === 'paid' ? 'Paid' : 'Unpaid'}
+                </Badge>
+              </div>
+
+              <div className="space-y-1">
+                <div className="text-xs text-black/60 font-medium">Total Amount Due</div>
+                <div className="text-3xl font-extrabold text-black tracking-tight">
+                  ₱{billAmount.toFixed(2)}
+                </div>
+                <div className="flex items-center gap-1.5 text-[14px] text-black/60 pt-0.5">
+                  <IconCalendar size={15} className="text-[#1E6FD9]" />
+                  <span>
+                    {currentBill?.due_date
+                      ? `Due ${new Date(currentBill.due_date).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                        })}`
+                      : 'Due Oct 25, 2026'}
+                  </span>
+                </div>
+              </div>
             </div>
-            <IconChevronRight size={16} className="text-black/40" />
-          </div>
-          <div className="text-[14px] font-bold text-black">
-            {latestAdvisory?.barangays?.[0]?.name || barangayName} ·{' '}
-            {latestAdvisory?.starts_at
-              ? new Date(latestAdvisory.starts_at).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric',
-                })
-              : 'Oct 12, 2026'}
-          </div>
-          <p className="text-[14px] text-black/70 line-clamp-2 font-normal">
-            {latestAdvisory?.message ||
-              'Scheduled maintenance and pipeline pressure checks across municipal distribution zones.'}
-          </p>
-        </Card>
+
+            <div className="space-y-3">
+              <div className="p-2.5 bg-[#F0F6FD] border border-[#1E6FD9]/20 rounded-lg text-xs text-black/80 flex items-start gap-2">
+                <IconBuildingCommunity size={16} className="text-[#1E6FD9] shrink-0 mt-0.5" />
+                <span>
+                  Official payments are received in person at the Sinacaban Municipal Treasury Office (Monday–Friday, 8:00 AM – 5:00 PM).
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-black/10">
+                <span className="text-xs text-black/50 font-medium">SIWASS Billing Service</span>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => navigate('/customer/bills')}
+                >
+                  View Bill
+                </Button>
+              </div>
+            </div>
+          </Card>
+
+          {/* Card 3: Active Service Request */}
+          <Card
+            className="p-5 border border-black/10 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.06)] hover:border-[#1E6FD9] transition-all flex flex-col justify-between space-y-4"
+          >
+            <div>
+              <div className="flex items-center justify-between border-b border-black/10 pb-3 mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-[#F0F6FD] text-[#1E6FD9] flex items-center justify-center">
+                    <IconTool size={18} />
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-black/50 uppercase tracking-wider block">
+                      Active Request
+                    </span>
+                    <span className="text-[14px] font-semibold text-black">
+                      Maintenance & Repairs
+                    </span>
+                  </div>
+                </div>
+
+                {activeRequest && (
+                  <Badge variant={activeRequest.status === 'resolved' ? 'blue' : 'outline'}>
+                    {activeRequest.status.replace('_', ' ').toUpperCase()}
+                  </Badge>
+                )}
+              </div>
+
+              {activeRequest ? (
+                <div className="space-y-3">
+                  <div>
+                    <h2 className="text-[14px] font-bold text-black flex items-center gap-2">
+                      <span>{activeRequest.reference_no || activeRequest.reference || 'AT-2026-0012'}</span>
+                      <span className="text-black/40">·</span>
+                      <span className="text-[#1E6FD9]">{activeRequest.issue_type?.name || 'Water Service Issue'}</span>
+                    </h2>
+                    <p className="text-xs text-black/70 line-clamp-1 mt-0.5">
+                      {activeRequest.description || 'Reported maintenance ticket for residential water line.'}
+                    </p>
+                  </div>
+
+                  {/* 4-Step Progress Flow */}
+                  <div className="space-y-2 pt-1">
+                    <div className="grid grid-cols-4 gap-1.5">
+                      {[0, 1, 2, 3].map((step) => {
+                        const isPassed = step <= currentStepIdx;
+                        return (
+                          <div
+                            key={step}
+                            className={`h-2 rounded-full transition-colors ${
+                              isPassed ? 'bg-[#1E6FD9]' : 'bg-black/10'
+                            }`}
+                          />
+                        );
+                      })}
+                    </div>
+                    <div className="grid grid-cols-4 text-center text-[11px] font-medium text-black/70">
+                      <span className={currentStepIdx >= 0 ? 'text-[#1E6FD9] font-bold' : ''}>
+                        Submitted
+                      </span>
+                      <span className={currentStepIdx >= 1 ? 'text-[#1E6FD9] font-bold' : ''}>
+                        Assigned
+                      </span>
+                      <span className={currentStepIdx >= 2 ? 'text-[#1E6FD9] font-bold' : ''}>
+                        In progress
+                      </span>
+                      <span className={currentStepIdx >= 3 ? 'text-[#1E6FD9] font-bold' : ''}>
+                        Resolved
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="py-4 text-center space-y-2 text-black/60">
+                  <div className="w-10 h-10 rounded-full bg-[#F0F6FD] text-[#1E6FD9] flex items-center justify-center mx-auto">
+                    <IconCheck size={20} />
+                  </div>
+                  <div className="text-[14px] font-semibold text-black">
+                    No active service request logged.
+                  </div>
+                  <p className="text-xs text-black/60">
+                    Your water connection is currently operating under normal pressure.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between pt-2 border-t border-black/10">
+              <span className="text-xs text-black/50 font-medium">SIWASS Field Dispatch</span>
+              {activeRequest ? (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => navigate('/customer/requests')}
+                >
+                  Track Request
+                </Button>
+              ) : (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setShowReportModal(true)}
+                >
+                  Report an Issue
+                </Button>
+              )}
+            </div>
+          </Card>
+        </div>
+
+        {/* 2-Column Grid: Latest Advisory (Col 1) and Municipal Directory (Col 2) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          {/* Card 4: Latest Water Advisory */}
+          <Card
+            className="p-5 border border-black/10 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.06)] hover:border-[#1E6FD9] transition-all flex flex-col justify-between space-y-3 cursor-pointer"
+            onClick={() => navigate('/customer/advisories')}
+          >
+            <div>
+              <div className="flex items-center justify-between border-b border-black/10 pb-3 mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-[#F0F6FD] text-[#1E6FD9] flex items-center justify-center">
+                    <IconVolume size={18} />
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-black/50 uppercase tracking-wider block">
+                      Latest Advisory
+                    </span>
+                    <span className="text-[14px] font-semibold text-black">
+                      Water Service Announcement
+                    </span>
+                  </div>
+                </div>
+                <IconChevronRight size={18} className="text-black/40" />
+              </div>
+
+              <div className="space-y-1.5">
+                <div className="text-sm font-bold text-black">
+                  {latestAdvisory?.barangays?.[0]?.name || barangayName} ·{' '}
+                  {latestAdvisory?.starts_at
+                    ? new Date(latestAdvisory.starts_at).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })
+                    : 'Oct 12, 2026'}
+                </div>
+                <p className="text-[13px] text-black/70 line-clamp-2 leading-relaxed">
+                  {latestAdvisory?.message ||
+                    'Scheduled maintenance and pipeline pressure checks across municipal distribution zones.'}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-2 border-t border-black/10">
+              <span className="text-xs text-black/50 font-medium">Public Information Unit</span>
+              <span className="text-xs font-semibold text-[#1E6FD9] hover:underline flex items-center gap-1">
+                All Advisories <IconChevronRight size={12} />
+              </span>
+            </div>
+          </Card>
+
+          {/* Card 5: Municipal Quick Access & Support */}
+          <Card className="p-5 border border-black/10 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.06)] flex flex-col justify-between space-y-3">
+            <div>
+              <div className="flex items-center justify-between border-b border-black/10 pb-3 mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-[#F0F6FD] text-[#1E6FD9] flex items-center justify-center">
+                    <IconBuildingCommunity size={18} />
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-black/50 uppercase tracking-wider block">
+                      Municipal Support
+                    </span>
+                    <span className="text-[14px] font-semibold text-black">
+                      SIWASS Help Desk
+                    </span>
+                  </div>
+                </div>
+                <span className="text-xs font-medium text-black/50">Sinacaban LGU</span>
+              </div>
+
+              <div className="space-y-2 text-xs text-black/80">
+                <div className="flex items-center gap-2">
+                  <IconPhone size={15} className="text-[#1E6FD9]" />
+                  <span>Municipal Emergency Hotline: <strong className="text-black">(088) 564-1234</strong></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <IconClock size={15} className="text-[#1E6FD9]" />
+                  <span>Office Hours: <strong className="text-black">Mon – Fri, 8:00 AM – 5:00 PM</strong></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <IconMapPin size={15} className="text-[#1E6FD9]" />
+                  <span>Location: <strong className="text-black">Municipal Hall, Sinacaban, Misamis Occ.</strong></span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-black/10">
+              <button
+                onClick={() => navigate('/customer/bills')}
+                className="px-2.5 py-1 rounded bg-[#F0F6FD] text-[#1E6FD9] text-xs font-semibold hover:bg-[#1E6FD9] hover:text-white transition-colors"
+              >
+                My Bills
+              </button>
+              <button
+                onClick={() => navigate('/customer/requests')}
+                className="px-2.5 py-1 rounded bg-[#F0F6FD] text-[#1E6FD9] text-xs font-semibold hover:bg-[#1E6FD9] hover:text-white transition-colors"
+              >
+                Service Requests
+              </button>
+              <button
+                onClick={() => navigate('/customer/advisories')}
+                className="px-2.5 py-1 rounded bg-[#F0F6FD] text-[#1E6FD9] text-xs font-semibold hover:bg-[#1E6FD9] hover:text-white transition-colors"
+              >
+                Advisories
+              </button>
+              <button
+                onClick={() => navigate('/customer/profile')}
+                className="px-2.5 py-1 rounded bg-[#F0F6FD] text-[#1E6FD9] text-xs font-semibold hover:bg-[#1E6FD9] hover:text-white transition-colors"
+              >
+                Profile
+              </button>
+            </div>
+          </Card>
+        </div>
 
         {/* Report Issue Modal */}
         {showReportModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-md bg-white rounded-lg border border-black p-5 space-y-4 shadow-xl text-[14px] max-h-[90vh] overflow-y-auto">
-              <div className="flex items-center justify-between border-b border-black/15 pb-2">
-                <span className="font-bold text-[14px] text-black uppercase tracking-wider">
-                  Report a Water Service Issue
-                </span>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="w-full max-w-md bg-white rounded-xl border border-black/15 p-5 space-y-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] text-[14px] max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between border-b border-black/10 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-md bg-[#F0F6FD] text-[#1E6FD9] flex items-center justify-center">
+                    <IconTool size={16} />
+                  </div>
+                  <h2 className="text-[14px] font-bold text-black">
+                    Report a Water Service Issue
+                  </h2>
+                </div>
                 <button
                   onClick={() => setShowReportModal(false)}
-                  className="text-black font-bold p-1 hover:text-[#1E6FD9]"
+                  className="text-black/50 hover:text-black p-1 rounded-md hover:bg-black/5 transition-colors"
+                  aria-label="Close modal"
                 >
-                  ✕
+                  <IconX size={18} />
                 </button>
               </div>
 
-              <form onSubmit={handleReportSubmit} className="space-y-3 text-left">
+              <form onSubmit={handleReportSubmit} className="space-y-3.5 text-left">
                 <div>
-                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
-                    Description of the issue
+                  <label className="block text-xs font-bold text-black/70 mb-1 uppercase tracking-wider">
+                    Issue Category *
+                  </label>
+                  <select
+                    className="w-full p-2.5 text-[14px] font-medium text-black bg-white border border-black/20 rounded-lg outline-none focus:border-[#1E6FD9] focus:ring-1 focus:ring-[#1E6FD9]"
+                    value={issueTypeId}
+                    onChange={(e) => setIssueTypeId(Number(e.target.value))}
+                  >
+                    {FIXED_ISSUE_TYPES.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-black/70 mb-1 uppercase tracking-wider">
+                    Problem Description *
                   </label>
                   <textarea
-                    placeholder="Describe the problem..."
+                    placeholder="Describe the issue (location, water pressure, leaks, etc.)..."
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="w-full p-2.5 text-[14px] font-normal bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9] h-24"
+                    className="w-full p-2.5 text-[14px] font-normal bg-white text-black border border-black/20 rounded-lg outline-none focus:border-[#1E6FD9] focus:ring-1 focus:ring-[#1E6FD9] h-28 resize-none"
                     required
                   />
                 </div>
 
-                <div>
-                  <label className="block text-[14px] font-bold text-black uppercase mb-1">
-                    Urgency for your household
-                  </label>
-                  <select
-                    className="w-full p-2 text-[14px] font-normal text-black bg-white border border-black rounded outline-none focus:border-[#1E6FD9]"
-                    value={customerUrgency}
-                    onChange={(e) => setCustomerUrgency(e.target.value)}
-                  >
-                    <option value="can_wait">Can wait (Low)</option>
-                    <option value="needs_attention_soon">Needs attention soon (Medium)</option>
-                    <option value="urgent">Urgent, affecting household now (High)</option>
-                  </select>
+                <div className="p-2.5 rounded-lg bg-[#F0F6FD] border border-[#1E6FD9]/20 text-xs text-black/70 flex items-start gap-2">
+                  <IconAlertCircle size={16} className="text-[#1E6FD9] shrink-0 mt-0.5" />
+                  <span>
+                    Your meter number (<strong>{meterNumber}</strong>) and registered barangay (<strong>{barangayName}</strong>) are automatically attached to this dispatch ticket.
+                  </span>
                 </div>
 
-                <div className="flex justify-end gap-2 pt-2 border-t border-black/15">
+                <div className="flex justify-end gap-2 pt-3 border-t border-black/10">
                   <Button variant="secondary" type="button" onClick={() => setShowReportModal(false)}>
                     Cancel
                   </Button>

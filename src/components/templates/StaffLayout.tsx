@@ -42,7 +42,7 @@ export const StaffLayout: React.FC<StaffLayoutProps> = ({
       <div className="flex flex-1 max-w-[1440px] w-full mx-auto">
         {/* Desktop Sidebar (>= 768px) */}
         <aside className="hidden md:flex w-52 shrink-0 flex-col border-r border-black/15 bg-white p-3">
-          <div className="mb-2 px-2 text-[14px] font-bold text-black/50 border-b border-black/10 pb-1 uppercase tracking-wider">
+          <div className="mb-2 px-2 text-xs font-medium text-black/50 border-b border-black/10 pb-1 uppercase tracking-wider">
             Field Menu
           </div>
           <nav className="space-y-1">
@@ -54,10 +54,10 @@ export const StaffLayout: React.FC<StaffLayoutProps> = ({
                 <button
                   key={item.path}
                   onClick={() => onNavigate?.(item.path)}
-                  className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded text-[14px] font-bold transition-colors text-left ${
+                  className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded text-[14px] transition-colors text-left ${
                     isActive
-                      ? 'bg-[#1E6FD9] text-white'
-                      : 'text-black hover:bg-[#F0F6FD] hover:text-[#1E6FD9]'
+                      ? 'bg-[#1E6FD9] text-white font-medium'
+                      : 'text-black hover:bg-black/5 hover:text-black font-normal'
                   }`}
                 >
                   <IconComponent size={16} className={isActive ? 'text-white' : 'text-black/70'} />

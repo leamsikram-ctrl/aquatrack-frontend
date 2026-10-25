@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { NotificationCenter } from './NotificationCenter';
+import { useNotificationBadge } from '../../services/notificationService';
 import {
   IconDroplet,
   IconSearch,
@@ -7,7 +9,6 @@ import {
   IconLayoutDashboard,
   IconTool,
   IconReceipt2,
-  IconMapPin,
   IconUsers,
   IconAlertTriangle,
   IconFileReport,
@@ -25,12 +26,14 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({
   onNavigate,
   className = '',
 }) => {
+  const [showNotifications, setShowNotifications] = useState(false);
+  const { unreadCount } = useNotificationBadge('admin');
+
   const mainNavItems = [
     { name: 'Dashboard', path: '/admin/dashboard', icon: IconLayoutDashboard },
-    { name: 'Requests', path: '/admin/requests', icon: IconTool },
+    { name: 'Maintenance', path: '/admin/maintenance', icon: IconTool },
     { name: 'Billing', path: '/admin/billing', icon: IconReceipt2 },
-    { name: 'Map', path: '/admin/map', icon: IconMapPin },
-    { name: 'Customers', path: '/admin/customers', icon: IconUsers },
+    { name: 'Users', path: '/admin/users', icon: IconUsers },
     { name: 'Advisories', path: '/admin/interruptions', icon: IconAlertTriangle },
     { name: 'Reports', path: '/admin/reports', icon: IconFileReport },
   ];
@@ -45,29 +48,34 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({
             <IconDroplet size={15} />
           </div>
           <div className="flex items-center gap-2">
-            <span className="font-bold text-[14px] tracking-wider uppercase text-black">AquaTrack</span>
+            <span className="font-semibold text-sm tracking-wider text-black">AquaTrack</span>
             <span className="text-black/30">/</span>
-            <span className="text-[14px] font-bold text-black/60 bg-[#F0F6FD] px-1.5 py-0.5 rounded border border-black/10">
+            <span className="text-xs font-normal text-black/60 bg-white px-1.5 py-0.5 rounded border border-black/10">
               Sinacaban
             </span>
           </div>
         </div>
 
         {/* Center Nav Tabs */}
-        <nav className="hidden md:flex items-center gap-1 bg-[#F0F6FD] p-1 rounded-lg border border-black/10">
+        <nav className="hidden md:flex items-center gap-1 bg-white p-1 rounded-lg border border-black/10">
           {mainNavItems.map((item) => {
-            const isActive = currentPath === item.path;
+            const isActive =
+              currentPath === item.path ||
+              currentPath?.startsWith(item.path + '/') ||
+              currentPath?.startsWith(item.path + '?') ||
+              (item.path === '/admin/maintenance' && (currentPath?.startsWith('/admin/requests') || currentPath?.startsWith('/admin/map'))) ||
+              (item.path === '/admin/users' && (currentPath?.startsWith('/admin/customers') || currentPath?.startsWith('/admin/staff')));
             const Icon = item.icon;
 
             return (
               <button
                 key={item.path}
                 onClick={() => onNavigate?.(item.path)}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-[14px] font-bold transition-all
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-sm font-normal transition-all
                   ${
                     isActive
-                      ? 'bg-white text-black shadow-xs'
-                      : 'text-black/60 hover:text-black hover:bg-white/60'
+                      ? 'bg-black/5 text-black shadow-xs font-medium'
+                      : 'text-black/60 hover:text-black hover:bg-black/5'
                   }
                 `}
               >
@@ -82,32 +90,42 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({
         <div className="flex items-center gap-2">
           {/* Quick Command Palette Button */}
           <button
-            className="hidden sm:flex items-center gap-2 h-7 px-2.5 rounded border border-black/15 bg-white text-[14px] font-normal text-black/60 hover:bg-[#F0F6FD] transition-colors"
-            onClick={() => alert('Command palette (Ctrl+K)')}
+            className="hidden sm:flex items-center gap-2 h-7 px-2.5 rounded border border-black/15 bg-white text-[14px] font-normal text-black/60 hover:bg-black/5 transition-colors"
+            onClick={() => {
+              const searchInput = document.querySelector('input[placeholder*="Search"], input[type="text"]') as HTMLInputElement | null;
+              searchInput?.focus();
+            }}
           >
             <IconSearch size={13} className="text-black/50" />
             <span className="text-[14px] font-normal">Quick search...</span>
-            <kbd className="flex items-center gap-0.5 rounded bg-white px-1 py-0.5 text-[14px] font-bold text-black/60 border border-black/15">
+            <kbd className="flex items-center gap-0.5 rounded bg-white px-1 py-0.5 text-xs font-normal text-black/60 border border-black/15">
               <IconCommand size={10} /> K
             </kbd>
           </button>
 
           <button
-            className="flex h-7 w-7 items-center justify-center rounded border border-black/15 text-black hover:bg-[#F0F6FD] relative"
-            aria-label="Notifications"
+            onClick={() => setShowNotifications(true)}
+            className="flex h-7 w-7 items-center justify-center rounded border border-black/15 text-black hover:bg-black/5 relative"
+            aria-label={unreadCount > 0 ? `Notifications (${unreadCount} unread)` : 'Notifications'}
+            title={unreadCount > 0 ? `Notifications (${unreadCount} unread)` : 'Open Notifications'}
           >
             <IconBell size={14} />
-            <span className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-[#1E6FD9]" />
+            {unreadCount > 0 && (
+              <span
+                data-testid="notification-badge"
+                className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-[#1E6FD9]"
+              />
+            )}
           </button>
 
           <div className="h-4 w-px bg-black/15 mx-0.5" />
 
           {/* User Profile Pill */}
           <div className="flex items-center gap-2 pl-1 cursor-pointer">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-black text-[14px] font-bold text-white">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-black text-xs font-normal text-white">
               AD
             </div>
-            <span className="hidden lg:inline text-[14px] font-bold text-black">Admin</span>
+            <span className="hidden lg:inline text-sm font-normal text-black">Admin</span>
           </div>
         </div>
       </div>
@@ -120,8 +138,8 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({
             <button
               key={item.path}
               onClick={() => onNavigate?.(item.path)}
-              className={`whitespace-nowrap px-2.5 py-1 rounded text-[14px] font-bold ${
-                isActive ? 'bg-[#1E6FD9] text-white' : 'text-black/70 hover:bg-[#F0F6FD]'
+              className={`whitespace-nowrap px-2.5 py-1 rounded text-sm font-normal ${
+                isActive ? 'bg-[#1E6FD9] text-white font-medium' : 'text-black/70 hover:bg-black/5'
               }`}
             >
               {item.name}
@@ -129,6 +147,12 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({
           );
         })}
       </div>
+
+      <NotificationCenter
+        isOpen={showNotifications}
+        onClose={() => setShowNotifications(false)}
+        role="admin"
+      />
     </div>
   );
 };

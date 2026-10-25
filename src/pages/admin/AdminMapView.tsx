@@ -7,6 +7,7 @@ import { Button } from '../../components/atoms/Button';
 import { requestsApi, referenceApi, adminApi } from '../../api';
 import type { ServiceRequest, Barangay, User } from '../../types';
 import { MunicipalMap, type MapMarker, type MapHotspot } from '../../components/organisms/MunicipalMap';
+import { SystemModal } from '../../components/molecules/SystemModal';
 import { IconMapPin, IconUsers, IconAlertTriangle, IconFlame, IconCheck } from '@tabler/icons-react';
 
 export function AdminMapView() {
@@ -44,6 +45,19 @@ export function AdminMapView() {
   const [assignStaffId, setAssignStaffId] = useState<number | ''>('');
   const [assignNotes, setAssignNotes] = useState('');
   const [isAssigning, setIsAssigning] = useState(false);
+
+  // Modern System Alert Modal
+  const [systemModal, setSystemModal] = useState<{
+    isOpen: boolean;
+    type: 'info' | 'success' | 'warning' | 'error';
+    title: string;
+    message: string;
+  }>({
+    isOpen: false,
+    type: 'info',
+    title: '',
+    message: '',
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -120,6 +134,11 @@ export function AdminMapView() {
           label: req.reference_no || req.reference || `AT-${req.id}`,
           urgency: req.urgency,
           status: req.status,
+          imageUrl: req.photo_path
+            ? req.photo_path.startsWith('http')
+              ? req.photo_path
+              : `/storage/${req.photo_path}`
+            : undefined,
           onClick: () => {
             setSelectedItem({
               type: 'request',
@@ -210,7 +229,12 @@ export function AdminMapView() {
         setSelectedItem((prev) => prev ? { ...prev, status: 'assigned' } : null);
       }
     } catch {
-      alert('Failed to assign staff.');
+      setSystemModal({
+        isOpen: true,
+        type: 'error',
+        title: 'Assignment Failed',
+        message: 'Unable to assign technician to this maintenance request. Please ensure the staff account is active.',
+      });
     } finally {
       setIsAssigning(false);
     }
@@ -220,32 +244,28 @@ export function AdminMapView() {
     <AdminLayout currentPath="/admin/map" onNavigate={(path) => navigate(path)}>
       <div className="space-y-4 text-[14px] text-black">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-black/15 pb-3">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-black">
-              Municipal Map
-            </h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="blue">
-              {filteredRequests.length} Incidents · {filteredCustomers.length} Consumers
-            </Badge>
-          </div>
+        <div className="border-b border-black/10 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h1 className="text-xl sm:text-2xl font-bold text-black tracking-tight">
+            Municipal Map
+          </h1>
         </div>
 
-        {/* Wireframe A6 Controls Row: Layer Toggles & Dropdown Filters */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-white p-3 border border-black/15 rounded">
-          {/* Layer Toggles (Pills) */}
+        {/* Wireframe A6 Controls Card: Layer Toggles & Dropdown Filters */}
+        <Card className="p-4 bg-white shadow-[0_10px_25px_-5px_rgba(0,0,0,0.14),0_6px_10px_-4px_rgba(0,0,0,0.08)] rounded-md border border-black/10 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          {/* Layer Toggles (Pills) & Counts */}
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-xs font-semibold text-black/60 mr-1">
+            <Badge variant="blue" className="mr-1">
+              {filteredRequests.length} Incidents · {filteredCustomers.length} Consumers
+            </Badge>
+            <span className="text-xs font-medium text-black/60 mr-1">
               Layers:
             </span>
             <button
               onClick={() => setShowCustomers(!showCustomers)}
-              className={`px-2.5 py-1 rounded text-[14px] font-bold flex items-center gap-1 border transition-colors ${
+              className={`px-2.5 py-1 rounded text-[14px] flex items-center gap-1 border transition-colors ${
                 showCustomers
-                  ? 'bg-[#1E6FD9] text-white border-[#1E6FD9]'
-                  : 'bg-white text-black border-black/20 hover:bg-[#F0F6FD]'
+                  ? 'bg-[#1E6FD9] text-white border-[#1E6FD9] font-medium'
+                  : 'bg-white text-black border-black/20 hover:bg-black/5 font-normal'
               }`}
             >
               <IconUsers size={12} />
@@ -254,10 +274,10 @@ export function AdminMapView() {
 
             <button
               onClick={() => setShowRequests(!showRequests)}
-              className={`px-2.5 py-1 rounded text-[14px] font-bold flex items-center gap-1 border transition-colors ${
+              className={`px-2.5 py-1 rounded text-[14px] flex items-center gap-1 border transition-colors ${
                 showRequests
-                  ? 'bg-[#1E6FD9] text-white border-[#1E6FD9]'
-                  : 'bg-white text-black border-black/20 hover:bg-[#F0F6FD]'
+                  ? 'bg-[#1E6FD9] text-white border-[#1E6FD9] font-medium'
+                  : 'bg-white text-black border-black/20 hover:bg-black/5 font-normal'
               }`}
             >
               <IconAlertTriangle size={12} />
@@ -266,10 +286,10 @@ export function AdminMapView() {
 
             <button
               onClick={() => setShowHotspots(!showHotspots)}
-              className={`px-2.5 py-1 rounded text-[14px] font-bold flex items-center gap-1 border transition-colors ${
+              className={`px-2.5 py-1 rounded text-[14px] flex items-center gap-1 border transition-colors ${
                 showHotspots
-                  ? 'bg-black text-white border-black'
-                  : 'bg-white text-black border-black/20 hover:bg-[#F0F6FD]'
+                  ? 'bg-black text-white border-black font-medium'
+                  : 'bg-white text-black border-black/20 hover:bg-black/5 font-normal'
               }`}
             >
               <IconFlame size={12} />
@@ -317,10 +337,10 @@ export function AdminMapView() {
               ))}
             </select>
           </div>
-        </div>
+        </Card>
 
         {/* Wireframe A6 Map Canvas & Hotspot Layer */}
-        <Card className="p-0 border border-black/15 overflow-hidden relative shadow-sm">
+        <Card className="p-0 border border-black/10 rounded-md shadow-[0_10px_25px_-5px_rgba(0,0,0,0.14),0_6px_10px_-4px_rgba(0,0,0,0.08)] overflow-hidden relative">
           {/* Top Status Bar over Map */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 px-3 py-2 bg-white/95 border-b border-black/10 z-10">
             <div className="text-xs font-semibold text-black flex items-center gap-1.5">
@@ -328,7 +348,7 @@ export function AdminMapView() {
               <span>Sinacaban Municipal GIS · Misamis Occidental (8.2835° N, 123.8340° E)</span>
             </div>
             {showHotspots && (
-              <div className="bg-black text-white px-2 py-0.5 rounded text-[9px] font-bold flex items-center gap-1">
+              <div className="bg-black text-white px-2 py-0.5 rounded text-[9px] font-medium flex items-center gap-1">
                 <IconFlame size={12} className="text-[#1E6FD9]" />
                 <span>Pipe Failure Pressure Sectors Active</span>
               </div>
@@ -336,7 +356,7 @@ export function AdminMapView() {
           </div>
 
           {isLoading ? (
-            <div className="h-96 w-full bg-[#F0F6FD] flex items-center justify-center font-bold text-[14px] text-black">
+            <div className="h-96 w-full bg-white flex items-center justify-center font-normal text-[14px] text-black/60">
               Loading Sinacaban municipal GIS data...
             </div>
           ) : (
@@ -356,11 +376,11 @@ export function AdminMapView() {
             <div className="bg-white border-t border-black/20 p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="space-y-0.5">
                 <div className="flex items-center gap-2">
-                  <strong className="font-bold text-black text-[14px]">
+                  <span className="font-medium text-black text-[14px]">
                     {selectedItem.reference}
-                  </strong>
+                  </span>
                   <span className="text-black/50">·</span>
-                  <span className="text-black font-bold">{selectedItem.barangay}</span>
+                  <span className="text-black font-normal">{selectedItem.barangay}</span>
                   <span className="text-black/50">·</span>
                   <Badge variant={selectedItem.status === 'assigned' ? 'blue' : 'black'}>
                     {selectedItem.status || 'Active'}
@@ -416,7 +436,7 @@ export function AdminMapView() {
                 </span>
                 <button
                   onClick={() => setShowAssignModal(false)}
-                  className="text-black hover:text-[#1E6FD9] p-1 font-bold text-[14px]"
+                  className="text-black hover:text-[#1E6FD9] p-1 text-[14px]"
                 >
                   ✕
                 </button>
@@ -476,6 +496,15 @@ export function AdminMapView() {
             </div>
           </div>
         )}
+
+        {/* Modern Alert Modal */}
+        <SystemModal
+          isOpen={systemModal.isOpen}
+          onClose={() => setSystemModal((m) => ({ ...m, isOpen: false }))}
+          type={systemModal.type}
+          title={systemModal.title}
+          message={systemModal.message}
+        />
       </div>
     </AdminLayout>
   );

@@ -1,5 +1,5 @@
 export type UserRole = 'admin' | 'staff' | 'customer';
-export type UserStatus = 'pending' | 'active' | 'declined' | 'suspended';
+export type UserStatus = 'pending' | 'active' | 'declined' | 'inactive' | 'suspended';
 export type RequestStatus = 'submitted' | 'assigned' | 'in_progress' | 'resolved' | 'cancelled';
 export type Urgency = 'low' | 'medium' | 'high';
 export type PaymentStatus = 'unpaid' | 'paid' | 'overdue';
@@ -9,12 +9,20 @@ export interface User {
   role: UserRole;
   status: UserStatus;
   name?: string;
+  full_name?: string;
   mobile_number: string;
   email?: string;
+  avatar?: string;
   is_verified?: boolean;
+  verification_status?: string;
+  decline_reason?: string;
+  terms_accepted?: boolean;
   must_change_password: boolean;
   customer_profile?: CustomerProfile;
   staff_profile?: StaffProfile;
+  created_at?: string;
+  updated_at?: string;
+  last_active_at?: string;
 }
 
 export interface Barangay {
@@ -26,8 +34,9 @@ export interface CustomerProfile {
   id: number;
   user_id: number;
   account_number?: string;
-  first_name: string;
-  last_name: string;
+  meter_number?: string;
+  first_name?: string;
+  last_name?: string;
   mobile_number?: string;
   barangay_id: number;
   barangay?: Barangay;
@@ -51,6 +60,7 @@ export interface Meter {
   id: number;
   meter_number: string;
   qr_token: string;
+  barangay?: Barangay;
   status: 'unassigned' | 'active' | 'assigned' | 'faulty' | 'decommissioned';
   location_notes?: string;
 }
@@ -83,13 +93,13 @@ export interface ServiceRequest {
   urgency: Urgency;
   urgency_adjustment_reason?: string;
   status: RequestStatus;
-  assigned_staff_id?: number;
+  assigned_staff_id?: number | null;
   assigned_staff?: {
     id: number;
     email?: string;
     mobile_number: string;
     name: string;
-  };
+  } | null;
   assigned_at?: string;
   assignment_notes?: string;
   started_at?: string;

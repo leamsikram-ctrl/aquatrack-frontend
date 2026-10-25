@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { AdminUIProvider } from './contexts/AdminUIContext';
 
 // Public Pages
 import { LandingView } from './pages/public/LandingView';
@@ -8,12 +9,10 @@ import { LoginView } from './pages/auth/LoginView';
 // Admin Pages
 import { AdminDashboardView } from './pages/admin/AdminDashboardView';
 import { AdminVerificationView } from './pages/admin/AdminVerificationView';
-import { AdminRequestsView } from './pages/admin/AdminRequestsView';
+import { AdminMaintenanceView } from './pages/admin/AdminMaintenanceView';
+import { AdminUsersView } from './pages/admin/AdminUsersView';
 import { AdminBillingImportView } from './pages/admin/AdminBillingImportView';
 import { AdminInterruptionsView } from './pages/admin/AdminInterruptionsView';
-import { AdminCustomersView } from './pages/admin/AdminCustomersView';
-import { AdminMapView } from './pages/admin/AdminMapView';
-import { AdminStaffView } from './pages/admin/AdminStaffView';
 import { AdminReportsView } from './pages/admin/AdminReportsView';
 import { AdminActivityLogView } from './pages/admin/AdminActivityLogView';
 import { AdminSettingsView } from './pages/admin/AdminSettingsView';
@@ -36,54 +35,58 @@ import { StaffProfileView } from './pages/staff/StaffProfileView';
 export function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* Public & Authentication Routes */}
-          <Route path="/" element={<LandingView />} />
-          <Route path="/landing" element={<LandingView />} />
-          <Route path="/login" element={<LoginView />} />
-          <Route path="/register" element={<CustomerRegistrationView />} />
+      <AdminUIProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Public & Authentication Routes */}
+            <Route path="/" element={<LandingView />} />
+            <Route path="/landing" element={<LandingView />} />
+            <Route path="/login" element={<LoginView />} />
+            <Route path="/register" element={<CustomerRegistrationView />} />
 
-          {/* Dedicated Admin Portal Routes */}
-          <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-          <Route path="/admin/dashboard" element={<AdminDashboardView />} />
-          <Route path="/admin/verification" element={<AdminVerificationView />} />
-          <Route path="/admin/requests" element={<AdminRequestsView />} />
-          <Route path="/admin/map" element={<AdminMapView />} />
-          <Route path="/admin/billing" element={<AdminBillingImportView />} />
-          <Route path="/admin/interruptions" element={<AdminInterruptionsView />} />
-          <Route path="/admin/customers" element={<AdminCustomersView />} />
-          <Route path="/admin/staff" element={<AdminStaffView />} />
-          <Route path="/admin/reports" element={<AdminReportsView />} />
-          <Route path="/admin/activity-log" element={<AdminActivityLogView />} />
-          <Route path="/admin/settings" element={<AdminSettingsView />} />
+            {/* Dedicated Admin Portal Routes */}
+            <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+            <Route path="/admin/dashboard" element={<AdminDashboardView />} />
+            <Route path="/admin/verification" element={<AdminVerificationView />} />
+            <Route path="/admin/maintenance" element={<AdminMaintenanceView />} />
+            <Route path="/admin/requests" element={<Navigate to="/admin/maintenance" replace />} />
+            <Route path="/admin/map" element={<Navigate to="/admin/maintenance?view=map" replace />} />
+            <Route path="/admin/users" element={<AdminUsersView />} />
+            <Route path="/admin/customers" element={<Navigate to="/admin/users?role=consumer" replace />} />
+            <Route path="/admin/staff" element={<Navigate to="/admin/users?role=staff" replace />} />
+            <Route path="/admin/billing" element={<AdminBillingImportView />} />
+            <Route path="/admin/interruptions" element={<AdminInterruptionsView />} />
+            <Route path="/admin/reports" element={<AdminReportsView />} />
+            <Route path="/admin/activity-log" element={<AdminActivityLogView />} />
+            <Route path="/admin/settings" element={<AdminSettingsView />} />
 
-          {/* Dedicated Customer Portal Routes */}
-          <Route path="/customer" element={<Navigate to="/customer/home" replace />} />
-          <Route path="/customer/home" element={<CustomerHomeView />} />
-          <Route path="/customer/bills" element={<CustomerBillsView />} />
-          <Route path="/customer/requests" element={<CustomerRequestsView />} />
-          <Route path="/customer/advisories" element={<CustomerAdvisoriesView />} />
-          <Route path="/customer/profile" element={<CustomerProfileView />} />
+            {/* Dedicated Customer Portal Routes */}
+            <Route path="/customer" element={<Navigate to="/customer/home" replace />} />
+            <Route path="/customer/home" element={<CustomerHomeView />} />
+            <Route path="/customer/bills" element={<CustomerBillsView />} />
+            <Route path="/customer/requests" element={<CustomerRequestsView />} />
+            <Route path="/advisories" element={<Navigate to="/customer/advisories" replace />} />
+            <Route path="/customer/advisories" element={<CustomerAdvisoriesView />} />
+            <Route path="/customer/profile" element={<CustomerProfileView />} />
 
-          {/* Customer Portal Backward Compatibility / Direct shortcuts */}
-          <Route path="/home" element={<Navigate to="/customer/home" replace />} />
-          <Route path="/bills" element={<Navigate to="/customer/bills" replace />} />
-          <Route path="/requests" element={<Navigate to="/customer/requests" replace />} />
-          <Route path="/advisories" element={<Navigate to="/customer/advisories" replace />} />
-          <Route path="/profile" element={<Navigate to="/customer/profile" replace />} />
+            {/* Customer Portal Backward Compatibility / Direct shortcuts */}
+            <Route path="/home" element={<Navigate to="/customer/home" replace />} />
+            <Route path="/bills" element={<Navigate to="/customer/bills" replace />} />
+            <Route path="/requests" element={<Navigate to="/customer/requests" replace />} />
+            <Route path="/profile" element={<Navigate to="/customer/profile" replace />} />
 
-          {/* Dedicated Staff Portal Routes */}
-          <Route path="/staff" element={<Navigate to="/staff/tasks" replace />} />
-          <Route path="/staff/tasks" element={<StaffTasksView />} />
-          <Route path="/staff/scan" element={<StaffScannerView />} />
-          <Route path="/staff/history" element={<StaffHistoryView />} />
-          <Route path="/staff/profile" element={<StaffProfileView />} />
+            {/* Dedicated Staff Portal Routes */}
+            <Route path="/staff" element={<Navigate to="/staff/tasks" replace />} />
+            <Route path="/staff/tasks" element={<StaffTasksView />} />
+            <Route path="/staff/scan" element={<StaffScannerView />} />
+            <Route path="/staff/history" element={<StaffHistoryView />} />
+            <Route path="/staff/profile" element={<StaffProfileView />} />
 
-          {/* Fallback Catch-all Route */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
+            {/* Fallback Catch-all Route */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </AdminUIProvider>
     </AuthProvider>
   );
 }

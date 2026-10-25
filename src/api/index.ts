@@ -86,6 +86,85 @@ export const authApi = {
     const res = await apiClient.post('/auth/logout');
     return res.data;
   },
+
+  changePassword: async (payload: {
+    current_password: string;
+    password: string;
+    password_confirmation: string;
+  }) => {
+    const res = await apiClient.post<{ message: string; user: User }>('/auth/change-password', payload);
+    return res.data;
+  },
+
+  requestPasswordReset: async (payload: { identifier: string; method: 'sms' | 'email' }) => {
+    const res = await apiClient.post<{ message: string; debug_token_or_pin?: string | null }>(
+      '/auth/forgot-password/request',
+      payload
+    );
+    return res.data;
+  },
+
+  completePasswordReset: async (payload: {
+    identifier: string;
+    method: 'sms' | 'email';
+    token_or_pin: string;
+    password: string;
+    password_confirmation: string;
+  }) => {
+    const res = await apiClient.post<{ message: string }>('/auth/forgot-password/reset', payload);
+    return res.data;
+  },
+};
+
+export const profileApi = {
+  updateProfile: async (payload: {
+    address?: string;
+    latitude?: number | string;
+    longitude?: number | string;
+    name?: string;
+  }) => {
+    const res = await apiClient.put<{ message: string; user: User }>('/profile', payload);
+    return res.data;
+  },
+
+  uploadPhoto: async (payload: { photo_data?: string }) => {
+    const res = await apiClient.post<{ message: string; user: User }>('/profile/photo', payload);
+    return res.data;
+  },
+
+  removePhoto: async () => {
+    const res = await apiClient.delete<{ message: string; user: User }>('/profile/photo');
+    return res.data;
+  },
+
+  requestMobilePin: async (payload: { mobile_number: string }) => {
+    const res = await apiClient.post<{
+      message: string;
+      debug_pin?: string | null;
+      expires_in_minutes: number;
+    }>('/profile/mobile/request-pin', payload);
+    return res.data;
+  },
+
+  verifyMobilePin: async (payload: { pin: string }) => {
+    const res = await apiClient.post<{ message: string; user: User }>('/profile/mobile/verify-pin', payload);
+    return res.data;
+  },
+
+  requestEmailLink: async (payload: { email: string }) => {
+    const res = await apiClient.post<{
+      message: string;
+      link_url?: string;
+      debug_token?: string | null;
+      expires_in_minutes: number;
+    }>('/profile/email/request-link', payload);
+    return res.data;
+  },
+
+  verifyEmailLink: async (payload: { token: string }) => {
+    const res = await apiClient.post<{ message: string; user: User }>('/profile/email/verify-link', payload);
+    return res.data;
+  },
 };
 
 export const requestsApi = {
@@ -109,6 +188,11 @@ export const requestsApi = {
       staff_user_id: staffUserId,
       assignment_notes: notes,
     });
+    return res.data.data;
+  },
+
+  unassign: async (id: number) => {
+    const res = await apiClient.post<{ message: string; data: ServiceRequest }>(`/requests/${id}/unassign`);
     return res.data.data;
   },
 
@@ -146,6 +230,67 @@ export const referenceApi = {
 };
 
 export const adminApi = {
+  dashboard: async () => {
+    const res = await apiClient.get<{
+      summary: {
+        total_requests: number;
+        resolved_requests: number;
+        active_requests: number;
+        unassigned_requests: number;
+        overall_resolution_rate: number;
+        total_users: number;
+        users_by_role: {
+          consumers: number;
+          staff: number;
+          admins: number;
+        };
+        users_by_status: {
+          active: number;
+          pending: number;
+          declined: number;
+        };
+        total_consumers: number;
+        active_consumers: number;
+        pending_verifications: number;
+        active_advisories: number;
+        total_advisories: number;
+        total_billed_amount: number;
+        unpaid_bills_count: number;
+        paid_bills_count: number;
+        unpublished_bills_count?: number;
+        overdue_bills_count?: number;
+        collection_rate: number;
+        coverage_rate: number;
+        active_meter_rate: number;
+      };
+      monthly_trends: Array<{
+        month: string;
+        year_month: string;
+        logged: number;
+        resolved: number;
+        rate: number;
+        collected?: number;
+        billed?: number;
+      }>;
+      categories: Array<{
+        category: string;
+        count: number;
+        resolved: number;
+        percentage: number;
+      }>;
+      barangay_coverage: Array<{
+        id: number;
+        name: string;
+        connections: number;
+        open_requests: number;
+        status: 'Normal' | 'Advisory';
+      }>;
+      recent_requests: ServiceRequest[];
+      upcoming_interruptions: WaterInterruption[];
+    }>('/admin/dashboard');
+    return res.data;
+  },
+
   pendingRegistrations: async () => {
     const res = await apiClient.get<{ data: User[]; pagination: { total: number } }>('/admin/pending-registrations');
     return res.data;
@@ -156,16 +301,16 @@ export const adminApi = {
     return res.data.data;
   },
 
-  verifyRegistration: async (userId: number, meterId: number) => {
-    const res = await apiClient.post<{ message: string; user: User }>(`/admin/registrations/${userId}/verify`, {
-      meter_id: meterId,
-    });
+  verifyRegistration: async (userId: number, options?: { meter_id?: number; meter_number?: string } | number) => {
+    const payload = typeof options === 'number' ? { meter_id: options } : (options || {});
+    const res = await apiClient.post<{ message: string; user: User }>(`/admin/registrations/${userId}/verify`, payload);
     return res.data;
   },
 
-  declineRegistration: async (userId: number, remarks: string) => {
+  declineRegistration: async (userId: number, reason: string) => {
     const res = await apiClient.post<{ message: string }>(`/admin/registrations/${userId}/decline`, {
-      remarks,
+      reason,
+      remarks: reason,
     });
     return res.data;
   },
@@ -173,6 +318,69 @@ export const adminApi = {
   staffList: async () => {
     const res = await apiClient.get<{ data: User[] }>('/admin/staff');
     return res.data.data;
+  },
+
+  createStaff: async (payload: {
+    name: string;
+    email: string;
+    mobile_number: string;
+    assigned_barangay_id?: number;
+    temporary_password?: string;
+  }) => {
+    const res = await apiClient.post<{ message: string; temporary_password: string; user: User }>('/admin/staff', payload);
+    return res.data;
+  },
+
+  createCustomer: async (payload: {
+    name: string;
+    email?: string;
+    mobile_number: string;
+    meter_number: string;
+    barangay_id: number;
+    address: string;
+    temporary_password?: string;
+  }) => {
+    const res = await apiClient.post<{ message: string; temporary_password: string; user: User }>('/admin/customers', payload);
+    return res.data;
+  },
+
+  updateStaff: async (
+    id: number,
+    payload: { name?: string; email?: string; mobile_number?: string; assigned_barangay_id?: number | null }
+  ) => {
+    const res = await apiClient.put<{ message: string; user: User }>(`/admin/staff/${id}`, payload);
+    return res.data;
+  },
+
+  updateUser: async (
+    id: number,
+    payload: { name?: string; email?: string; mobile_number?: string; barangay_id?: number; address?: string; avatar?: string | null; is_verified?: boolean }
+  ) => {
+    const res = await apiClient.put<{ message: string; user: User }>(`/admin/users/${id}`, payload);
+    return res.data;
+  },
+
+  deleteUser: async (id: number) => {
+    const res = await apiClient.delete<{ message: string }>(`/admin/users/${id}`);
+    return res.data;
+  },
+
+  deactivateUser: async (id: number) => {
+    const res = await apiClient.post<{ message: string; user: User }>(`/admin/users/${id}/deactivate`);
+    return res.data;
+  },
+
+  reactivateUser: async (id: number) => {
+    const res = await apiClient.post<{ message: string; user: User }>(`/admin/users/${id}/reactivate`);
+    return res.data;
+  },
+
+  issueTemporaryPassword: async (id: number, temporaryPassword?: string) => {
+    const res = await apiClient.post<{ message: string; temporary_password: string; user: User }>(
+      `/admin/users/${id}/temporary-password`,
+      { temporary_password: temporaryPassword }
+    );
+    return res.data;
   },
 
   customersList: async (params?: { status?: string; page?: number; per_page?: number }) => {
@@ -189,7 +397,38 @@ export const adminApi = {
     const res = await apiClient.post<{ message: string; meter: Meter }>(`/admin/meters/${meterId}/regenerate-qr`);
     return res.data;
   },
+
+  activityLogs: async (params?: { action?: string; from?: string; to?: string; page?: number; per_page?: number }) => {
+    const res = await apiClient.get<{
+      data: Array<{
+        id: number;
+        user_id: number | null;
+        action: string;
+        subject_type: string | null;
+        subject_id: number | null;
+        old_values: Record<string, any> | null;
+        new_values: Record<string, any> | null;
+        ip_address: string | null;
+        created_at: string;
+        user?: {
+          id: number;
+          name?: string;
+          email?: string;
+          role?: string;
+        } | null;
+      }>;
+      pagination: {
+        current_page: number;
+        per_page: number;
+        total: number;
+        last_page: number;
+      };
+    }>('/admin/activity-logs', { params });
+    return res.data;
+  },
 };
+
+export * from './notifications';
 
 export const metersApi = {
   lookupByNumber: async (meterNumber: string) => {
@@ -273,4 +512,3 @@ export const interruptionsApi = {
     return res.data;
   },
 };
-

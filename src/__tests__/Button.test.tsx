@@ -7,7 +7,7 @@ describe('Button Component', () => {
     render(<Button>Submit</Button>);
     const button = screen.getByRole('button', { name: /submit/i });
     expect(button).toBeInTheDocument();
-    expect(button).toHaveClass('bg-[#1E6FD9]');
+    expect(button).toHaveClass('bg-[#0F172A]');
     expect(button).not.toBeDisabled();
   });
 
@@ -39,7 +39,7 @@ describe('Button Component', () => {
     expect(button.querySelector('.animate-spin')).toBeInTheDocument();
   });
 
-  it('renders left and right icons', () => {
+  it('renders left and right icons horizontally next to text', () => {
     render(
       <Button
         leftIcon={<span data-testid="left-icon">←</span>}
@@ -48,8 +48,24 @@ describe('Button Component', () => {
         Navigate
       </Button>
     );
+    const button = screen.getByRole('button');
+    expect(button).toHaveClass('flex-row');
+    expect(button).toHaveClass('items-center');
     expect(screen.getByTestId('left-icon')).toBeInTheDocument();
     expect(screen.getByTestId('right-icon')).toBeInTheDocument();
+  });
+
+  it('renders inline icon and text inside children side-by-side without vertical stacking', () => {
+    render(
+      <Button>
+        <span data-testid="inline-icon">★</span>
+        <span>Action Text</span>
+      </Button>
+    );
+    const textWrapper = screen.getByText('Action Text').parentElement;
+    expect(textWrapper).toHaveClass('flex-row');
+    expect(textWrapper).toHaveClass('items-center');
+    expect(textWrapper).toHaveClass('gap-1.5');
   });
 });
 

@@ -8,7 +8,6 @@
   */
   --color-brand-blue: #1E6FD9;
   --color-brand-blue-hover: #1557AB;
-  --color-brand-blue-light: #F0F6FD;
 
   --color-brand-white: #FFFFFF;
   --color-brand-black: #000000;
@@ -58,7 +57,7 @@ button, input, select, textarea {
   border-radius: 0px;
 }
 
-/* Print styling for physical utility meter tags */
+/* Print styling for physical utility meter tags & official municipal reports */
 @media print {
   body {
     background: #FFFFFF !important;
@@ -67,7 +66,9 @@ button, input, select, textarea {
     visibility: hidden;
   }
   #aquatrack-meter-tag-print-area,
-  #aquatrack-meter-tag-print-area * {
+  #aquatrack-meter-tag-print-area *,
+  #aquatrack-report-print-area,
+  #aquatrack-report-print-area * {
     visibility: visible;
   }
   #aquatrack-meter-tag-print-area {
@@ -77,6 +78,16 @@ button, input, select, textarea {
     transform: translate(-50%, -50%);
     width: 320px;
     box-shadow: none !important;
+  }
+  #aquatrack-report-print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 20px;
+    box-shadow: none !important;
+    border: none !important;
   }
 }
 
@@ -208,4 +219,34 @@ button, input, select, textarea {
 
 .animate-hero-entrance {
   animation: hero-fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Custom Leaflet Map Pin Styles */
+.custom-leaflet-marker {
+  background: transparent !important;
+  border: none !important;
+}
+.custom-leaflet-marker .pin-marker-body {
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.custom-leaflet-marker:hover .pin-marker-body {
+  transform: scale(1.14) translateY(-2px);
+}
+
+@keyframes pin-radar {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.65;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+
+.pin-radar-pulse {
+  animation: pin-radar 2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { StaffLayout } from '../../components/templates/StaffLayout';
 import { Card } from '../../components/atoms/Card';
 import { Button } from '../../components/atoms/Button';
@@ -25,7 +25,11 @@ interface MeterData {
 
 export function StaffScannerView() {
   const navigate = useNavigate();
-  const [activeMode, setActiveMode] = useState<'placeholder' | 'simulator'>('placeholder');
+  const [searchParams] = useSearchParams();
+  const [activeMode, setActiveMode] = useState<'placeholder' | 'simulator'>(() => {
+    const m = searchParams.get('mode');
+    return m === 'placeholder' ? 'placeholder' : 'simulator';
+  });
   const [meterInput, setMeterInput] = useState('');
   const [tokenInput, setTokenInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -78,61 +82,60 @@ export function StaffScannerView() {
     e.preventDefault();
     if (!currentReading) return;
 
-    // Simulate reading logging
     setReadingLogged(true);
     setTimeout(() => {
-      alert(`Meter reading of ${currentReading} m³ logged successfully for ${meterData?.meter_number}!`);
+      setReadingLogged(false);
       setCurrentReading('');
-    }, 300);
+    }, 3000);
   };
 
   return (
     <StaffLayout currentPath="/staff/scan" onNavigate={(path) => navigate(path)}>
       <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/15 pb-4">
-        <div>
-          <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
-            {activeMode === 'placeholder' ? 'Scan meter' : 'Meter Scanner'}
-          </h1>
-        </div>
-        <div className="flex items-center gap-2">
-          {/* Tab Switcher */}
-          <div className="flex border border-black/20 rounded p-0.5 bg-[#F0F6FD]">
-            <button
-              onClick={() => setActiveMode('placeholder')}
-              className={`px-3 py-1 text-[14px] rounded transition-colors ${
-                activeMode === 'placeholder'
-                  ? 'bg-[#1E6FD9] text-white font-bold'
-                  : 'text-black hover:text-[#1E6FD9] font-normal'
-              }`}
-            >
-              Scan meter
-            </button>
-            <button
-              onClick={() => setActiveMode('simulator')}
-              className={`px-3 py-1 text-[14px] rounded transition-colors ${
-                activeMode === 'simulator'
-                  ? 'bg-[#1E6FD9] text-white font-bold'
-                  : 'text-black hover:text-[#1E6FD9] font-normal'
-              }`}
-            >
-              Interactive Simulator
-            </button>
-          </div>
-        </div>
+      <div className="pb-1">
+        <h1 className="text-xl sm:text-2xl font-bold text-black">
+          {activeMode === 'placeholder' ? 'Scan Meter' : 'Meter Scanner'}
+        </h1>
       </div>
+
+      {/* Scanner Mode Card */}
+      <Card className="p-3 bg-white flex items-center justify-between">
+        <span className="text-xs font-semibold text-black/60">Scanner mode</span>
+        <div className="flex border border-black/15 rounded p-0.5 bg-black/5">
+          <button
+            onClick={() => setActiveMode('placeholder')}
+            className={`px-3 py-1 text-[14px] rounded transition-colors ${
+              activeMode === 'placeholder'
+                ? 'bg-[#1E6FD9] text-white font-medium'
+                : 'text-black hover:text-[#1E6FD9] font-normal'
+            }`}
+          >
+            Scan Meter
+          </button>
+          <button
+            onClick={() => setActiveMode('simulator')}
+            className={`px-3 py-1 text-[14px] rounded transition-colors ${
+              activeMode === 'simulator'
+                ? 'bg-[#1E6FD9] text-white font-medium'
+                : 'text-black hover:text-[#1E6FD9] font-normal'
+            }`}
+          >
+            Interactive Simulator
+          </button>
+        </div>
+      </Card>
 
       {activeMode === 'placeholder' ? (
         /* Wireframe S4: Exact Web Placeholder Layout */
         <div className="max-w-md mx-auto py-8">
           <Card className="p-8 border border-black/15 text-center space-y-5">
-            <div className="w-16 h-16 rounded-full bg-[#F0F6FD] border border-black/20 flex items-center justify-center mx-auto text-[#1E6FD9]">
+            <div className="w-16 h-16 rounded-full bg-white border border-black/15 flex items-center justify-center mx-auto text-[#1E6FD9]">
               <IconDeviceMobile size={36} />
             </div>
 
             <div className="space-y-2">
-              <h2 className="text-[14px] font-bold text-black uppercase tracking-wider">
+              <h2 className="text-sm font-bold text-black">
                 Scan meters in the mobile app
               </h2>
               <p className="text-[14px] text-black/70 leading-relaxed px-4">
@@ -143,7 +146,7 @@ export function StaffScannerView() {
             <div className="pt-2">
               <button
                 disabled
-                className="w-full py-2 bg-black/5 text-black/40 border border-black/20 rounded font-bold text-[14px] cursor-not-allowed select-none"
+                className="w-full py-2 bg-black/5 text-black/40 border border-black/20 rounded font-medium text-[14px] cursor-not-allowed select-none"
               >
                 Download app (coming soon)
               </button>
@@ -153,7 +156,7 @@ export function StaffScannerView() {
               Need web testing?{' '}
               <button
                 onClick={() => setActiveMode('simulator')}
-                className="text-[#1E6FD9] font-bold underline ml-1"
+                className="text-[#1E6FD9] font-medium underline ml-1"
               >
                 Switch to Simulator
               </button>
@@ -169,9 +172,9 @@ export function StaffScannerView() {
           <Card className="p-4 border border-black/15 space-y-3">
             <div className="flex items-center gap-2 border-b border-black/15 pb-2">
               <IconQrcode size={14} className="text-[#1E6FD9]" />
-              <span className="font-bold text-black uppercase tracking-wider text-[14px]">
+              <h2 className="text-sm font-bold text-black">
                 QR Token Scanner
-              </span>
+              </h2>
             </div>
 
             <form onSubmit={handleLookupByQr} className="flex flex-col sm:flex-row gap-2">
@@ -193,9 +196,9 @@ export function StaffScannerView() {
           <Card className="p-4 border border-black/15 space-y-3">
             <div className="flex items-center gap-2 border-b border-black/15 pb-2">
               <IconSearch size={14} className="text-[#1E6FD9]" />
-              <span className="font-bold text-black uppercase tracking-wider text-[14px]">
+              <h2 className="text-sm font-bold text-black">
                 Meter Number Lookup
-              </span>
+              </h2>
             </div>
 
             <form onSubmit={handleLookupByNumber} className="flex flex-col sm:flex-row gap-2">
@@ -214,8 +217,8 @@ export function StaffScannerView() {
           </Card>
 
           {/* Quick Demo Shortcuts */}
-          <div className="p-3 bg-[#F0F6FD] border border-black/15 rounded space-y-1 text-[14px]">
-            <span className="font-bold text-black uppercase block">Field Quick Test Codes:</span>
+          <div className="p-3 bg-white border border-black/15 rounded space-y-1 text-[14px]">
+            <span className="text-xs font-medium text-black/60 block">Field Quick Test Codes:</span>
             <div className="flex flex-wrap gap-1.5 pt-1">
               {['MTR-SIN-0001', 'MTR-SIN-0002', 'MTR-SIN-0003'].map((sn) => (
                 <button
@@ -224,7 +227,7 @@ export function StaffScannerView() {
                     setMeterInput(sn);
                     metersApi.lookupByNumber(sn).then(setMeterData).catch(() => {});
                   }}
-                  className="px-2 py-0.5 bg-white border border-black rounded text-[14px] font-bold hover:bg-[#1E6FD9] hover:text-white"
+                  className="px-2 py-0.5 bg-white border border-black rounded text-[14px] font-normal hover:bg-[#1E6FD9] hover:text-white"
                 >
                   {sn}
                 </button>
@@ -236,9 +239,9 @@ export function StaffScannerView() {
         {/* Meter Details / Lookup Result */}
         <div>
           {searchError && (
-            <Card className="p-6 border border-black text-center space-y-2 bg-[#F0F6FD]">
+            <Card className="p-6 border border-black/15 text-center space-y-2 bg-white">
               <IconAlertCircle size={24} className="text-black mx-auto" />
-              <div className="font-bold text-black text-[14px] uppercase">Lookup Failed</div>
+              <div className="font-medium text-black text-sm">Lookup Failed</div>
               <p className="text-[14px] text-black/70">{searchError}</p>
             </Card>
           )}
@@ -246,7 +249,7 @@ export function StaffScannerView() {
           {!meterData && !searchError && (
             <Card className="p-8 border border-black/15 text-center text-black/50 space-y-2">
               <IconGauge size={32} className="text-black/30 mx-auto" />
-              <div className="font-bold text-[14px] uppercase text-black/60">
+              <div className="text-sm font-medium text-black/60">
                 Ready to Inspect Meter
               </div>
               <p className="text-[14px] text-black/50">
@@ -256,51 +259,51 @@ export function StaffScannerView() {
           )}
 
           {meterData && (
-            <Card className="p-5 border-l-4 border-l-[#1E6FD9] border border-black/15 space-y-4">
+            <Card className="p-5 border border-black/15 space-y-4 bg-white">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <div className="flex items-center gap-1.5">
                   <IconGauge size={14} className="text-[#1E6FD9]" />
-                  <span className="font-bold text-black uppercase tracking-wider text-[14px]">
+                  <h2 className="text-sm font-bold text-black">
                     Verified Meter Specs
-                  </span>
+                  </h2>
                 </div>
                 <Badge variant="blue">{meterData.status.toUpperCase()}</Badge>
               </div>
 
-              <div className="space-y-2 bg-[#F0F6FD] p-3 rounded border border-black/10 text-[14px]">
+              <div className="space-y-2 bg-white p-3 rounded border border-black/15 text-[14px]">
                 <div className="flex justify-between">
-                  <span className="text-black/60 uppercase font-bold">Serial Number:</span>
-                  <strong className="text-black font-bold">{meterData.meter_number}</strong>
+                  <span className="text-black/60 text-xs font-medium">Serial Number:</span>
+                  <span className="text-black font-medium">{meterData.meter_number}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-black/60 uppercase font-bold">QR Token:</span>
+                  <span className="text-black/60 text-xs font-medium">QR Token:</span>
                   <span className="text-black font-normal">{meterData.qr_token}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-black/60 uppercase font-bold">Barangay Zone:</span>
+                  <span className="text-black/60 text-xs font-medium">Barangay Zone:</span>
                   <span className="text-black font-normal">{meterData.barangay || 'Poblacion'}</span>
                 </div>
               </div>
 
               {/* Connected Customer Info */}
               <div className="border border-black/15 p-3 rounded space-y-2 text-[14px]">
-                <div className="flex items-center gap-1.5 font-bold text-black uppercase">
+                <div className="flex items-center gap-1.5 text-xs font-medium text-black/60">
                   <IconUser size={12} className="text-[#1E6FD9]" />
                   Connected Household
                 </div>
                 {meterData.customer ? (
                   <div className="space-y-1 text-black font-normal">
                     <div>
-                      <strong className="font-bold">Consumer:</strong> {meterData.customer.name}
+                      <span className="text-black/60 font-medium">Consumer:</span> {meterData.customer.name}
                     </div>
                     <div>
-                      <strong className="font-bold">Account:</strong>{' '}
-                      <span className="text-[#1E6FD9] font-bold">
+                      <span className="text-black/60 font-medium">Account:</span>{' '}
+                      <span className="text-[#1E6FD9] font-medium">
                         {meterData.customer.account_number}
                       </span>
                     </div>
                     <div>
-                      <strong>Address:</strong> {meterData.customer.address || 'Sinacaban'}
+                      <span className="text-black/60 font-medium">Address:</span> {meterData.customer.address || 'Sinacaban'}
                     </div>
                   </div>
                 ) : (
@@ -310,29 +313,35 @@ export function StaffScannerView() {
                 )}
               </div>
 
-              {/* Log Field Reading */}
+              {/* On-Site Field Verification Audit Note */}
               <div className="border-t border-black/15 pt-3 space-y-2">
-                <span className="font-bold text-black uppercase tracking-wider text-[14px] block">
-                  Log Current Reading (Cubic Meters)
-                </span>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-black block">
+                    On-Site Field Verification Note
+                  </h3>
+                  <span className="text-xs text-black/60">Field Audit</span>
+                </div>
+                <p className="text-xs text-black/60 font-normal">
+                  Record on-site meter dial number for maintenance inspection. Note: Monthly customer bills are calculated and imported via municipal batch records.
+                </p>
                 <form onSubmit={handleLogReading} className="flex flex-col sm:flex-row gap-2">
                   <input
                     type="number"
                     step="0.01"
-                    placeholder="e.g. 142.50"
+                    placeholder="Physical dial reading (m³)"
                     className="flex-1 p-2 text-[14px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
                     value={currentReading}
                     onChange={(e) => setCurrentReading(e.target.value)}
                     required
                   />
-                  <Button variant="primary" type="submit">
+                  <Button variant="secondary" type="submit">
                     <IconCheck size={12} className="inline mr-1" />
-                    Record Reading
+                    Save Audit Note
                   </Button>
                 </form>
                 {readingLogged && (
-                  <div className="text-[14px] text-[#1E6FD9] font-bold">
-                    ✓ Reading recorded successfully to municipal ledger.
+                  <div className="p-2 bg-[#F0F6FD] border border-black/10 rounded text-xs text-black font-medium">
+                    ✓ Field dial inspection noted for maintenance audit. Official billing remains governed by municipal CSV records.
                   </div>
                 )}
               </div>

@@ -1,38 +1,56 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { CustomerLayout } from '../../components/templates/CustomerLayout';
 import { Card } from '../../components/atoms/Card';
 import { Button } from '../../components/atoms/Button';
 import { Badge } from '../../components/atoms/Badge';
 import { EmptyState } from '../../components/molecules/EmptyState';
-import { requestsApi, referenceApi } from '../../api';
-import type { ServiceRequest, IssueType } from '../../types';
+import { StatusTimeline } from '../../components/organisms/StatusTimeline';
+import {
+  MunicipalMap,
+  getSinacabanBarangayCoords,
+  isWithinSinacabanBounds,
+} from '../../components/organisms/MunicipalMap';
+import { requestsApi } from '../../api';
+import type { ServiceRequest, IssueType, Urgency } from '../../types';
+import {
+  FIXED_ISSUE_TYPES,
+  maintenanceStore,
+  formatTimelineDateTime,
+} from '../../services/maintenanceStore';
+import { SINACABAN_BARANGAY_LIST } from '../../services/advisoriesStore';
 import {
   IconCamera,
   IconCrosshair,
   IconCheck,
-  IconClock,
-  IconTool,
-  IconCircleCheck,
+  IconX,
 } from '@tabler/icons-react';
 
 export function CustomerRequestsView() {
   const navigate = useNavigate();
-  const [requests, setRequests] = useState<ServiceRequest[]>([]);
-  const [issueTypes, setIssueTypes] = useState<IssueType[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [requests, setRequests] = useState<ServiceRequest[]>(() =>
+    maintenanceStore.getRequests()
+  );
+  const [issueTypes] = useState<IssueType[]>(FIXED_ISSUE_TYPES);
 
-  // Report issue Modal
+  // Report an Issue Modal
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [issueTypeId, setIssueTypeId] = useState<number>(1);
-  const [customerUrgency, setCustomerUrgency] = useState<string>('needs_attention_soon');
+  const [issueTypeId, setIssueTypeId] = useState<number>(FIXED_ISSUE_TYPES[3].id);
   const [description, setDescription] = useState('');
-  const [hasLocationPin, setHasLocationPin] = useState(false);
-  const [photoAdded, setPhotoAdded] = useState(false);
+  const [selectedBarangay, setSelectedBarangay] = useState<string>('Poblacion');
+  const [pinCoords, setPinCoords] = useState<[number, number]>(() =>
+    getSinacabanBarangayCoords('Poblacion')
+  );
+  const [mapZoom, setMapZoom] = useState<number>(15);
+  const [mapResetKey, setMapResetKey] = useState<number>(0);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [photoFileName, setPhotoFileName] = useState<string | null>(null);
+  const photoInputRef = useRef<HTMLInputElement | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
 
-  // Request details Modal
+  // Request Details Modal
   const [selectedReq, setSelectedReq] = useState<ServiceRequest | null>(null);
 
   // Cancel Confirmation Modal
@@ -40,92 +58,173 @@ export function CustomerRequestsView() {
   const [cancelReason, setCancelReason] = useState('');
   const [isCancelling, setIsCancelling] = useState(false);
 
-  const fetchData = async () => {
-    setIsLoading(true);
+  // Toast Notification
+  const [toast, setToast] = useState<string | null>(null);
+
+  const fetchRequests = async () => {
     try {
-      const [reqRes, typeRes] = await Promise.all([
-        requestsApi.list({ per_page: 50 }),
-        referenceApi.getIssueTypes().catch(() => []),
-      ]);
-      setRequests(reqRes.data);
-      setIssueTypes(typeRes);
-      if (typeRes.length > 0) {
-        setIssueTypeId(typeRes[0].id);
+      const res = await requestsApi.list({ per_page: 50 });
+      if (res && Array.isArray(res.data)) {
+        setRequests(res.data);
+        maintenanceStore.saveRequests(res.data);
+        return;
       }
     } catch {
-      // Fallback
-    } finally {
-      setIsLoading(false);
+      // offline fallback
     }
+    setRequests(maintenanceStore.getRequests());
   };
 
   useEffect(() => {
-    fetchData();
+    fetchRequests();
   }, []);
+
+  // Selected Issue Type object (automatically determines default urgency internally for Admin/Staff)
+  const currentIssueType = useMemo(() => {
+    return issueTypes.find((t) => t.id === issueTypeId) || FIXED_ISSUE_TYPES[0];
+  }, [issueTypes, issueTypeId]);
+
+  const handleSelectIssueType = (id: number) => {
+    setIssueTypeId(id);
+  };
+
+  // Automatically adjust map center, zoom, and pin when Barangay changes
+  const handleBarangayChange = (barangayName: string) => {
+    setSelectedBarangay(barangayName);
+    const coords = getSinacabanBarangayCoords(barangayName);
+    setPinCoords(coords);
+    setMapZoom(15);
+    setMapResetKey((k) => k + 1);
+  };
+
+  // Automatically adjust map center, zoom, and pin when Current Location is added
+  const handleUseCurrentLocation = () => {
+    const fallbackCoords = getSinacabanBarangayCoords(selectedBarangay);
+    if (typeof navigator !== 'undefined' && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          const target: [number, number] = isWithinSinacabanBounds(latitude, longitude)
+            ? [latitude, longitude]
+            : fallbackCoords;
+          setPinCoords(target);
+          setMapZoom(16);
+          setMapResetKey((k) => k + 1);
+        },
+        () => {
+          setPinCoords(fallbackCoords);
+          setMapZoom(16);
+          setMapResetKey((k) => k + 1);
+        },
+        { enableHighAccuracy: true, timeout: 6000 }
+      );
+    } else {
+      setPinCoords(fallbackCoords);
+      setMapZoom(16);
+      setMapResetKey((k) => k + 1);
+    }
+  };
+
+  const handlePhotoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPhotoFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        setPhotoPreview(reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemovePhoto = () => {
+    setPhotoPreview(null);
+    setPhotoFileName(null);
+    if (photoInputRef.current) {
+      photoInputRef.current.value = '';
+    }
+  };
 
   const handleCreateRequest = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!description.trim()) {
-      setCreateError('Please describe the problem.');
+      setCreateError('Please enter a description.');
       return;
     }
 
     setIsSubmitting(true);
     setCreateError(null);
 
+    // Urgency is assigned automatically from the selected Issue Type (not shown to customer)
+    const autoUrgency: Urgency = currentIssueType.default_urgency;
+
+    const customerChoiceMap: Record<Urgency, string> = {
+      low: 'can_wait',
+      medium: 'needs_attention_soon',
+      high: 'urgent',
+    };
+
     try {
-      await requestsApi.create({
+      const apiReq = await requestsApi.create({
         issue_type_id: issueTypeId,
-        customer_urgency: customerUrgency,
+        customer_urgency: customerChoiceMap[autoUrgency],
         description: description.trim(),
-        latitude: 8.2981,
-        longitude: 123.8374,
+        latitude: pinCoords[0],
+        longitude: pinCoords[1],
       });
+      await fetchRequests();
       setShowCreateModal(false);
       setDescription('');
-      setPhotoAdded(false);
-      setHasLocationPin(false);
-      fetchData();
-    } catch (err: unknown) {
-      const apiErr = err as { response?: { data?: { message?: string } } };
-      setCreateError(apiErr.response?.data?.message || 'Could not submit service request.');
+      setPhotoPreview(null);
+      setPhotoFileName(null);
+      if (photoInputRef.current) photoInputRef.current.value = '';
+      setToast(`Submitted ${apiReq?.reference_no || 'Request'} · Admin notified`);
+    } catch {
+      const created = maintenanceStore.createRequest({
+        issueTypeId,
+        customerUrgency: autoUrgency,
+        description: description.trim(),
+        latitude: pinCoords[0],
+        longitude: pinCoords[1],
+        barangay: selectedBarangay,
+        photoPath: photoPreview || undefined,
+      });
+
+      setRequests(maintenanceStore.getRequests());
+      setShowCreateModal(false);
+      setDescription('');
+      setPhotoPreview(null);
+      setPhotoFileName(null);
+      if (photoInputRef.current) photoInputRef.current.value = '';
+      setToast(`Submitted ${created.reference} · Admin notified`);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // Customer can cancel only while Submitted or Assigned
   const handleConfirmCancel = async () => {
     if (!selectedReq) return;
 
     setIsCancelling(true);
     try {
       await requestsApi.cancel(selectedReq.id, cancelReason);
+      await fetchRequests();
+      const nextSelected = { ...selectedReq, status: 'cancelled' as const, cancelled_reason: cancelReason };
+      setSelectedReq(nextSelected);
       setShowCancelModal(false);
-      setSelectedReq(null);
       setCancelReason('');
-      fetchData();
-    } catch (err: unknown) {
-      const apiErr = err as { response?: { data?: { message?: string } } };
-      alert(apiErr.response?.data?.message || 'Failed to cancel request.');
+      setToast(`Cancelled ${selectedReq.reference_no || selectedReq.reference || 'Request'} · Admin & staff notified`);
+    } catch {
+      const updated = maintenanceStore.cancelRequest(selectedReq.id, 'customer', cancelReason);
+      setRequests(maintenanceStore.getRequests());
+      setSelectedReq(updated);
+      setShowCancelModal(false);
+      setCancelReason('');
+      setToast(`Cancelled ${updated.reference} · Admin & staff notified`);
     } finally {
       setIsCancelling(false);
-    }
-  };
-
-  const getProgressStepIndex = (status: string) => {
-    switch (status) {
-      case 'submitted':
-        return 0;
-      case 'assigned':
-        return 1;
-      case 'in_progress':
-        return 2;
-      case 'resolved':
-        return 3;
-      case 'cancelled':
-        return -1;
-      default:
-        return 0;
     }
   };
 
@@ -133,62 +232,70 @@ export function CustomerRequestsView() {
     return status === 'submitted' || status === 'assigned';
   };
 
+  const isAnyModalOpen = Boolean(showCreateModal || selectedReq || showCancelModal);
+
   return (
     <CustomerLayout currentPath="/customer/requests" onNavigate={(path) => navigate(path)}>
-      <div className="space-y-4">
-        {/* Header */}
-        <div className="pb-1">
-          <h1 className="text-[14px] font-bold text-black uppercase tracking-wider">
-            My requests
-          </h1>
+      <div
+        className={`space-y-4 transition-all duration-200 ${
+          isAnyModalOpen ? 'filter blur-[4px] pointer-events-none select-none opacity-40' : ''
+        }`}
+      >
+        {/* Header + Report an Issue Button */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-black tracking-tight">
+              My Requests
+            </h1>
+            <div className="text-black/60 text-[14px]">
+              Water service reports, pipeline repairs, and dispatch timeline
+            </div>
+          </div>
+          <Button
+            variant="primary"
+            leftIcon={<IconCrosshair size={15} />}
+            onClick={() => {
+              handleSelectIssueType(FIXED_ISSUE_TYPES[3].id);
+              setShowCreateModal(true);
+            }}
+            className="shadow-[2px_2px_0px_0px_rgba(0,0,0,0.15)] self-start sm:self-auto"
+          >
+            Report an Issue
+          </Button>
         </div>
 
-        {/* Button: Report an issue */}
-        <Button
-          variant="primary"
-          className="w-full justify-center py-2.5 text-[14px]"
-          onClick={() => setShowCreateModal(true)}
-        >
-          Report an issue
-        </Button>
-
         {/* Requests List */}
-        {isLoading ? (
-          <Card className="p-4 border border-black/15 text-center text-black/60 text-[14px] font-normal">
-            Loading service requests...
-          </Card>
-        ) : requests.length === 0 ? (
-          <Card className="p-4 border border-black/15">
+        {requests.length === 0 ? (
+          <Card className="p-8 border border-black/10 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.06)]">
             <EmptyState
-              title="No Requests Logged"
-              description="You do not have any open or previous service requests."
-              actionLabel="Report an issue"
+              title="No Requests"
+              description="No maintenance requests submitted yet."
+              actionLabel="Report an Issue"
               onAction={() => setShowCreateModal(true)}
             />
           </Card>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-3.5">
             {requests.map((req) => {
-              const stepIdx = getProgressStepIndex(req.status);
-              const refNo = req.reference_no || req.reference || `AT-2026-${req.id.toString().padStart(4, '0')}`;
-              const formattedDate = req.created_at
-                ? new Date(req.created_at).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric',
-                  })
-                : 'Oct 7, 2026';
+              const refNo =
+                req.reference_no ||
+                req.reference ||
+                `AT-2026-${req.id.toString().padStart(4, '0')}`;
 
               return (
                 <Card
                   key={req.id}
                   onClick={() => setSelectedReq(req)}
-                  className="p-4 border border-black/15 bg-white space-y-2.5 cursor-pointer hover:border-[#1E6FD9] transition-colors"
+                  className="p-4 sm:p-5 border border-black/10 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.06)] space-y-3.5 cursor-pointer hover:border-[#1E6FD9] hover:shadow-[3px_3px_0px_0px_#1E6FD9] transition-all"
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-black text-[14px]">
-                      {refNo}
-                    </span>
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-black/10 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="font-extrabold text-black text-[14px]">{refNo}</span>
+                      <span className="text-black/40">·</span>
+                      <span className="font-bold text-[#1E6FD9] text-[14px]">
+                        {req.issue_type?.name || 'Pipe leak or burst'}
+                      </span>
+                    </div>
                     <Badge
                       variant={
                         req.status === 'resolved' || req.status === 'in_progress'
@@ -197,84 +304,95 @@ export function CustomerRequestsView() {
                       }
                     >
                       {req.status === 'in_progress'
-                        ? 'IN PROGRESS'
+                        ? 'In progress'
                         : req.status.toUpperCase()}
                     </Badge>
                   </div>
 
-                  <div className="text-[14px] text-black/60 font-normal">
-                    {req.issue_type?.name || 'Water Service'} · {formattedDate}
+                  <div className="text-xs text-black/70 flex flex-wrap items-center gap-2">
+                    <span className="font-medium text-black">
+                      Brgy. {req.customer?.barangay || 'Poblacion'}
+                    </span>
+                    <span className="text-black/30">•</span>
+                    <span>Logged: {formatTimelineDateTime(req.created_at)}</span>
+                    {req.assigned_staff && (
+                      <>
+                        <span className="text-black/30">•</span>
+                        <span className="text-black/90 font-medium">
+                          Technician: <strong>{req.assigned_staff.name}</strong>
+                        </span>
+                      </>
+                    )}
                   </div>
 
-                  {req.status !== 'cancelled' ? (
-                    <div className="space-y-1.5 pt-1">
-                      <div className="grid grid-cols-4 gap-1.5">
-                        {[0, 1, 2, 3].map((step) => (
-                          <div
-                            key={step}
-                            className={`h-2 rounded-full ${
-                              step <= stepIdx ? 'bg-[#1E6FD9]' : 'bg-black/15'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                      <div className="grid grid-cols-4 text-center text-[14px] font-bold text-black/70">
-                        <span className={stepIdx >= 0 ? 'text-[#1E6FD9]' : ''}>
-                          Submitted
-                        </span>
-                        <span className={stepIdx >= 1 ? 'text-[#1E6FD9]' : ''}>
-                          Assigned
-                        </span>
-                        <span className={stepIdx >= 2 ? 'text-[#1E6FD9]' : ''}>
-                          In progress
-                        </span>
-                        <span className={stepIdx >= 3 ? 'text-[#1E6FD9]' : ''}>
-                          Resolved
-                        </span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-[14px] text-black/50 font-normal italic">
-                      Request was cancelled.
-                    </div>
-                  )}
+                  <StatusTimeline
+                    status={req.status}
+                    submittedAt={req.created_at}
+                    assignedAt={req.assigned_at}
+                    startedAt={req.started_at}
+                    resolvedAt={req.resolved_at}
+                    cancelledAt={req.cancelled_at}
+                  />
                 </Card>
               );
             })}
           </div>
         )}
 
-        {/* Report an issue Modal */}
-        {showCreateModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-sm bg-white rounded-lg border border-black p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
-              <div className="flex items-center justify-between border-b border-black/15 pb-2">
-                <span className="font-bold text-[14px] text-black uppercase tracking-wider">
-                  Report an issue
-                </span>
+        {toast && (
+          <div className="fixed bottom-6 right-6 z-[99999] bg-black text-white px-4 py-3 rounded-xl shadow-[3px_3px_0px_0px_#1E6FD9] flex items-center gap-2.5 text-xs font-semibold">
+            <IconCheck size={16} className="text-[#1E6FD9]" />
+            <span>{toast}</span>
+            <button onClick={() => setToast(null)} className="ml-2 text-white/60 hover:text-white">
+              <IconX size={14} />
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Report an Issue Modal (Urgency is hidden from customer and set automatically by issue type) */}
+      {showCreateModal &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto"
+            onClick={() => setShowCreateModal(false)}
+          >
+            <Card
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-md bg-white rounded-xl border border-black/15 p-5 space-y-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] my-auto text-[14px]"
+            >
+              <div className="flex items-center justify-between border-b border-black/10 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-md bg-[#F0F6FD] text-[#1E6FD9] flex items-center justify-center">
+                    <IconCrosshair size={16} />
+                  </div>
+                  <h2 className="text-[14px] font-bold text-black">Report a Water Service Issue</h2>
+                </div>
                 <button
                   onClick={() => setShowCreateModal(false)}
-                  className="text-black hover:text-[#1E6FD9] p-1 font-bold text-[14px]"
+                  className="text-black/50 hover:text-black p-1 rounded-md hover:bg-black/5 transition-colors"
                 >
-                  ✕
+                  <IconX size={18} />
                 </button>
               </div>
 
               {createError && (
-                <div className="p-2 bg-[#F0F6FD] border border-black text-black rounded text-[14px] font-normal">
+                <div className="p-2.5 bg-black/5 border border-black/20 text-black rounded-lg text-xs font-semibold">
                   {createError}
                 </div>
               )}
 
-              <form onSubmit={handleCreateRequest} className="space-y-3">
+              <form onSubmit={handleCreateRequest} className="space-y-3.5">
+                {/* 1. Fixed Issue Type List */}
                 <div>
-                  <label className="block text-[14px] font-bold text-black/70 uppercase mb-1">
-                    Issue type
+                  <label className="block text-xs font-bold text-black/70 mb-1 uppercase tracking-wider">
+                    Issue Category *
                   </label>
                   <select
-                    className="w-full p-2 text-[14px] font-normal bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+                    className="w-full p-2.5 bg-white text-black text-[14px] font-medium border border-black/20 rounded-lg outline-none focus:border-[#1E6FD9]"
                     value={issueTypeId}
-                    onChange={(e) => setIssueTypeId(Number(e.target.value))}
+                    onChange={(e) => handleSelectIssueType(Number(e.target.value))}
                   >
                     {issueTypes.map((t) => (
                       <option key={t.id} value={t.id}>
@@ -284,307 +402,313 @@ export function CustomerRequestsView() {
                   </select>
                 </div>
 
+                {/* 2. Description */}
                 <div>
-                  <label className="block text-[14px] font-bold text-black/70 uppercase mb-1.5">
-                    Urgency level
-                  </label>
-                  <div className="space-y-1.5">
-                    {[
-                      { value: 'can_wait', label: 'Can wait' },
-                      { value: 'needs_attention_soon', label: 'Needs attention soon' },
-                      { value: 'urgent', label: 'Urgent, affecting household now' },
-                    ].map((opt) => (
-                      <label key={opt.value} className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="radio"
-                          name="customerUrgency"
-                          value={opt.value}
-                          checked={customerUrgency === opt.value}
-                          onChange={(e) => setCustomerUrgency(e.target.value)}
-                          className="accent-[#1E6FD9]"
-                        />
-                        <span className="text-[14px] text-black font-normal">{opt.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[14px] font-bold text-black/70 uppercase mb-1">
-                    Description
+                  <label className="block text-xs font-bold text-black/70 mb-1 uppercase tracking-wider">
+                    Problem Description *
                   </label>
                   <textarea
-                    placeholder="Describe the problem..."
+                    placeholder="Describe the problem (leaks, low pressure, broken pipe, etc.)..."
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    rows={3}
-                    className="w-full p-2 text-[14px] font-normal bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+                    rows={2}
+                    className="w-full p-2.5 bg-white text-black text-[14px] font-normal border border-black/20 rounded-lg outline-none focus:border-[#1E6FD9] resize-none"
                     required
                   />
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="block text-[14px] font-bold text-black/70 uppercase">
-                    Location
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setHasLocationPin(true)}
-                    className="w-full py-2 px-2 border border-black rounded text-[14px] font-bold flex items-center justify-center gap-1.5 hover:bg-[#F0F6FD]"
+                {/* 3. Location: Barangay + Map Pin or Current Location */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-black/70 uppercase tracking-wider">
+                      Incident Location (Pin on Map)
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleUseCurrentLocation}
+                      className="text-[#1E6FD9] text-xs font-bold inline-flex items-center gap-1 hover:underline cursor-pointer"
+                    >
+                      <IconCrosshair size={13} />
+                      <span>Use Current Location</span>
+                    </button>
+                  </div>
+
+                  <select
+                    value={selectedBarangay}
+                    onChange={(e) => handleBarangayChange(e.target.value)}
+                    className="w-full p-2.5 bg-white text-black text-[14px] font-medium border border-black/20 rounded-lg outline-none focus:border-[#1E6FD9]"
                   >
-                    <IconCrosshair size={14} className="text-[#1E6FD9]" />
-                    {hasLocationPin ? 'GPS pin recorded' : 'Use my location'}
-                  </button>
-                  <div className="h-14 border border-dashed border-black/40 rounded flex items-center justify-center text-black/50 text-[14px] font-normal bg-[#F0F6FD]">
-                    {hasLocationPin
-                      ? '📍 Lat 8.2981, Lng 123.8374 (Poblacion)'
-                      : 'Map pin will use your device location'}
+                    {SINACABAN_BARANGAY_LIST.map((b) => (
+                      <option key={b.id} value={b.name}>
+                        Barangay {b.name}
+                      </option>
+                    ))}
+                  </select>
+
+                  <div className="h-40 w-full rounded-lg border border-black/15 overflow-hidden shadow-inner">
+                    <MunicipalMap
+                      center={pinCoords}
+                      zoom={mapZoom}
+                      selectedCoords={pinCoords}
+                      interactivePicker={true}
+                      viewResetKey={mapResetKey}
+                      onSelectCoords={(lat, lng) => setPinCoords([lat, lng])}
+                      className="h-full w-full"
+                    />
                   </div>
                 </div>
 
-                <div>
-                  <button
-                    type="button"
-                    onClick={() => setPhotoAdded(!photoAdded)}
-                    className={`w-full py-2 px-2 border border-black rounded text-[14px] font-bold flex items-center justify-center gap-1.5 transition-colors ${
-                      photoAdded ? 'bg-[#1E6FD9] text-white' : 'hover:bg-[#F0F6FD] text-black'
-                    }`}
-                  >
-                    <IconCamera size={14} />
-                    {photoAdded ? '📷 Evidence Photo Attached' : 'Add photo'}
-                  </button>
+                {/* 4. Optional Photo */}
+                <div className="space-y-2">
+                  <input
+                    ref={photoInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoFileChange}
+                    className="hidden"
+                  />
+                  {photoPreview ? (
+                    <div className="p-2.5 border border-black/20 rounded-lg bg-[#F0F6FD]/50 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <img
+                          src={photoPreview}
+                          alt="Uploaded preview"
+                          className="w-12 h-12 rounded-lg object-cover border border-black/15 shrink-0"
+                        />
+                        <div className="min-w-0">
+                          <div className="font-bold text-black text-xs truncate">
+                            {photoFileName || 'Attached photo'}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => photoInputRef.current?.click()}
+                            className="text-[11px] text-[#1E6FD9] font-semibold hover:underline cursor-pointer"
+                          >
+                            Change photo
+                          </button>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleRemovePhoto}
+                        className="p-1.5 text-black/50 hover:text-black rounded hover:bg-black/5 cursor-pointer shrink-0"
+                        aria-label="Remove photo"
+                      >
+                        <IconX size={16} />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => photoInputRef.current?.click()}
+                      className="w-full py-2.5 px-3 border border-black/20 hover:bg-[#F0F6FD] hover:text-[#1E6FD9] text-black rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer text-xs"
+                    >
+                      <IconCamera size={16} />
+                      <span>Upload Issue Photo (Optional)</span>
+                    </button>
+                  )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-black/15">
+                <div className="flex items-center justify-end gap-2 pt-3 border-t border-black/10">
                   <Button
                     variant="secondary"
                     type="button"
                     onClick={() => setShowCreateModal(false)}
-                    className="justify-center"
                   >
                     Cancel
                   </Button>
-                  <Button
-                    variant="primary"
-                    type="submit"
-                    isLoading={isSubmitting}
-                    className="justify-center"
-                  >
-                    Submit
+                  <Button variant="primary" type="submit" isLoading={isSubmitting}>
+                    Submit Request
                   </Button>
                 </div>
               </form>
-            </div>
-          </div>
+            </Card>
+          </div>,
+          document.body
         )}
 
-        {/* Request details Modal */}
-        {selectedReq && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-sm bg-white rounded-lg border border-black p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
-              <div className="flex items-center justify-between border-b border-black/15 pb-2">
+      {/* Request Details & Status Timeline Modal */}
+      {selectedReq &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto"
+            onClick={() => setSelectedReq(null)}
+          >
+            <Card
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-md bg-white rounded-xl border border-black/15 p-5 space-y-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] my-auto text-[14px]"
+            >
+              <div className="flex items-center justify-between border-b border-black/10 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-md bg-[#F0F6FD] text-[#1E6FD9] flex items-center justify-center">
+                    <IconCrosshair size={16} />
+                  </div>
+                  <span className="text-[14px] font-extrabold text-black">
+                    {selectedReq.reference_no || selectedReq.reference}
+                  </span>
+                </div>
                 <button
                   onClick={() => setSelectedReq(null)}
-                  className="font-bold text-[14px] text-black hover:text-[#1E6FD9] flex items-center gap-1"
+                  className="p-1 text-black/50 hover:text-black rounded-md hover:bg-black/5 transition-colors cursor-pointer"
                 >
-                  ←{' '}
-                  <span className="font-bold">
-                    {selectedReq.reference_no || selectedReq.reference || `AT-2026-${selectedReq.id}`}
-                  </span>
+                  <IconX size={18} />
                 </button>
-                <Badge
-                  variant={
-                    selectedReq.status === 'resolved' || selectedReq.status === 'in_progress'
-                      ? 'blue'
-                      : 'outline'
-                  }
-                >
-                  {selectedReq.status === 'in_progress'
-                    ? 'In progress'
-                    : selectedReq.status.replace('_', ' ').toUpperCase()}
-                </Badge>
               </div>
 
-              {/* 4-stage Vertical Timeline */}
-              <div className="space-y-3 py-1">
-                <div className="flex items-center justify-between text-[14px]">
-                  <div className="flex items-center gap-2">
-                    <IconCircleCheck size={16} className="text-[#1E6FD9]" />
-                    <span className="font-bold text-black">Submitted</span>
-                  </div>
-                  <span className="text-black/50 font-normal">
-                    {selectedReq.created_at
-                      ? new Date(selectedReq.created_at).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                        })
-                      : 'Date'}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between text-[14px]">
-                  <div className="flex items-center gap-2">
-                    {['assigned', 'in_progress', 'resolved'].includes(selectedReq.status) ? (
-                      <IconCircleCheck size={16} className="text-[#1E6FD9]" />
-                    ) : (
-                      <IconClock size={16} className="text-black/30" />
-                    )}
-                    <span
-                      className={`font-bold ${
-                        ['assigned', 'in_progress', 'resolved'].includes(selectedReq.status)
-                          ? 'text-black'
-                          : 'text-black/40'
-                      }`}
-                    >
-                      Assigned
-                    </span>
-                  </div>
-                  <span className="text-black/50 font-normal">
-                    {['assigned', 'in_progress', 'resolved'].includes(selectedReq.status)
-                      ? selectedReq.updated_at
-                        ? new Date(selectedReq.updated_at).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                          })
-                        : 'Date'
-                      : 'Pending'}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between text-[14px]">
-                  <div className="flex items-center gap-2">
-                    {selectedReq.status === 'in_progress' ? (
-                      <IconTool size={16} className="text-[#1E6FD9]" />
-                    ) : selectedReq.status === 'resolved' ? (
-                      <IconCircleCheck size={16} className="text-[#1E6FD9]" />
-                    ) : (
-                      <IconClock size={16} className="text-black/30" />
-                    )}
-                    <span
-                      className={`font-bold ${
-                        ['in_progress', 'resolved'].includes(selectedReq.status)
-                          ? 'text-black'
-                          : 'text-black/40'
-                      }`}
-                    >
-                      In progress
-                    </span>
-                  </div>
-                  <span className="text-black/50 font-normal">
-                    {selectedReq.status === 'in_progress' || selectedReq.status === 'resolved'
-                      ? 'Active'
-                      : 'Pending'}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between text-[14px]">
-                  <div className="flex items-center gap-2">
-                    {selectedReq.status === 'resolved' ? (
-                      <IconCheck size={16} className="text-[#1E6FD9]" />
-                    ) : (
-                      <IconClock size={16} className="text-black/30" />
-                    )}
-                    <span
-                      className={`font-bold ${
-                        selectedReq.status === 'resolved' ? 'text-black' : 'text-black/40'
-                      }`}
-                    >
-                      Resolved
-                    </span>
-                  </div>
-                  <span className="text-black/50 font-normal">
-                    {selectedReq.status === 'resolved' ? 'Completed' : 'Pending'}
-                  </span>
-                </div>
-              </div>
-
-              {/* Details Card */}
-              <Card className="p-3.5 border border-black/15 bg-[#F0F6FD] space-y-1">
-                <div className="text-[14px] uppercase tracking-wider font-bold text-black/50">
-                  Details
-                </div>
-                <div className="text-[14px] font-bold text-black">
-                  {selectedReq.issue_type?.name || 'Water Service'} · Barangay Poblacion
-                </div>
-                <div className="text-[14px] text-black/70 font-normal">
-                  {selectedReq.description}
-                </div>
-              </Card>
-
-              {/* Action Buttons */}
-              {canCancel(selectedReq.status) ? (
-                <div className="pt-2">
-                  <Button
-                    variant="secondary"
-                    className="w-full justify-center"
-                    onClick={() => setShowCancelModal(true)}
-                  >
-                    Cancel request
-                  </Button>
-                </div>
-              ) : selectedReq.status === 'in_progress' ? (
-                <div className="p-2.5 border border-black/20 rounded bg-white text-[14px] font-normal text-black/80 text-center">
-                  This repair has started. Contact AquaTrack if details have changed.
-                </div>
-              ) : (
-                <div className="pt-2">
-                  <Button
-                    variant="secondary"
-                    className="w-full justify-center"
-                    onClick={() => setSelectedReq(null)}
-                  >
-                    Close
-                  </Button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Cancel Confirmation Modal */}
-        {showCancelModal && selectedReq && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-xs bg-white rounded-lg border border-black p-5 space-y-3.5 shadow-2xl max-h-[90vh] overflow-y-auto">
-              <div className="text-left space-y-1">
-                <h3 className="font-bold text-[14px] text-black">
-                  Cancel {selectedReq.reference_no || selectedReq.reference || `AT-2026-${selectedReq.id}`}?
-                </h3>
-              </div>
-
-              <div>
-                <label className="block text-[14px] font-bold text-black/70 uppercase mb-1">
-                  Reason (optional)
-                </label>
-                <input
-                  type="text"
-                  placeholder="Tell us why..."
-                  value={cancelReason}
-                  onChange={(e) => setCancelReason(e.target.value)}
-                  className="w-full p-2 text-[14px] font-normal bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+              {/* Status Timeline with Date & Time */}
+              <div className="py-1">
+                <StatusTimeline
+                  status={selectedReq.status}
+                  submittedAt={selectedReq.created_at}
+                  assignedAt={selectedReq.assigned_at}
+                  startedAt={selectedReq.started_at}
+                  resolvedAt={selectedReq.resolved_at}
+                  cancelledAt={selectedReq.cancelled_at}
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-2 pt-2 border-t border-black/15">
+              {/* Request Record Details */}
+              <div className="p-3.5 border border-black/10 rounded-xl bg-[#F0F6FD]/50 space-y-2.5 text-xs">
+                <div>
+                  <span className="text-[11px] font-bold uppercase text-black/50 block">
+                    Issue Type & Barangay
+                  </span>
+                  <span className="font-bold text-black text-[13px]">
+                    {selectedReq.issue_type?.name || 'Pipe leak or burst'} · Brgy.{' '}
+                    {selectedReq.customer?.barangay || 'Poblacion'}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[11px] font-bold uppercase text-black/50 block">
+                    Description
+                  </span>
+                  <span className="text-black text-[13px]">{selectedReq.description}</span>
+                </div>
+                {selectedReq.photo_path && (
+                  <div className="pt-1">
+                    <span className="text-[11px] font-bold uppercase text-black/50 block mb-1">
+                      Submitted Photo
+                    </span>
+                    <img
+                      src={
+                        selectedReq.photo_path.startsWith('http') ||
+                        selectedReq.photo_path.startsWith('/') ||
+                        selectedReq.photo_path.startsWith('data:')
+                          ? selectedReq.photo_path
+                          : `/storage/${selectedReq.photo_path}`
+                      }
+                      alt="Submitted issue"
+                      className="w-full h-40 object-cover rounded-lg border border-black/15 shadow-sm"
+                    />
+                  </div>
+                )}
+                {selectedReq.assigned_staff && (
+                  <div>
+                    <span className="text-[11px] font-bold uppercase text-black/50 block">
+                      Assigned Staff
+                    </span>
+                    <span className="font-semibold text-black text-[13px]">
+                      {selectedReq.assigned_staff.name}
+                    </span>
+                  </div>
+                )}
+                {selectedReq.resolution_remarks && (
+                  <div className="pt-1.5 border-t border-black/10">
+                    <span className="text-[11px] font-bold uppercase text-[#1E6FD9] block">
+                      Resolution Remarks
+                    </span>
+                    <span className="text-black text-[13px]">{selectedReq.resolution_remarks}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Customer can cancel ONLY while Submitted or Assigned */}
+              <div className="flex items-center justify-between pt-3 border-t border-black/10">
+                {canCancel(selectedReq.status) ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowCancelModal(true)}
+                    className="px-3 py-1.5 rounded-lg border border-black/20 text-black hover:bg-black/5 font-semibold text-xs cursor-pointer"
+                  >
+                    Cancel Request
+                  </button>
+                ) : (
+                  <span className="text-[11px] text-black/50 font-medium">
+                    {selectedReq.status === 'in_progress'
+                      ? 'In progress — dispatch active'
+                      : selectedReq.status === 'resolved'
+                      ? 'Resolved'
+                      : ''}
+                  </span>
+                )}
+
+                <Button variant="secondary" onClick={() => setSelectedReq(null)}>
+                  Close
+                </Button>
+              </div>
+            </Card>
+          </div>,
+          document.body
+        )}
+
+      {/* Cancel Confirmation Modal */}
+      {showCancelModal &&
+        selectedReq &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+            onClick={() => setShowCancelModal(false)}
+          >
+            <Card
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-sm bg-white rounded-xl border border-black/15 p-5 space-y-3.5 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] text-[14px]"
+            >
+              <h3 className="font-bold text-[14px] text-black">
+                Cancel {selectedReq.reference_no || selectedReq.reference}?
+              </h3>
+
+              <div className="text-xs text-black/70">
+                Are you sure you want to cancel this maintenance request? The field team will be notified immediately.
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-black/70 mb-1 uppercase tracking-wider">
+                  Cancellation Reason (Optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Issue resolved on its own..."
+                  value={cancelReason}
+                  onChange={(e) => setCancelReason(e.target.value)}
+                  className="w-full p-2.5 text-xs bg-white text-black border border-black/20 rounded-lg outline-none focus:border-[#1E6FD9]"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-black/10">
                 <Button
                   variant="secondary"
+                  size="sm"
+                  type="button"
                   onClick={() => setShowCancelModal(false)}
-                  className="justify-center"
                 >
-                  Keep request
+                  Keep Request
                 </Button>
                 <Button
                   variant="primary"
+                  size="sm"
+                  type="button"
                   onClick={handleConfirmCancel}
                   isLoading={isCancelling}
-                  className="justify-center"
                 >
                   Confirm Cancel
                 </Button>
               </div>
-            </div>
-          </div>
+            </Card>
+          </div>,
+          document.body
         )}
-      </div>
     </CustomerLayout>
   );
 }

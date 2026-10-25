@@ -5,6 +5,8 @@ import { Card } from '../../components/atoms/Card';
 import { Button } from '../../components/atoms/Button';
 import { Input } from '../../components/atoms/Input';
 import { AquaTrackLogo } from '../../components/atoms/AquaTrackLogo';
+import { accountsStore } from '../../services/accountsStore';
+import type { User } from '../../types';
 import {
   IconAlertCircle,
   IconLock,
@@ -16,10 +18,12 @@ import {
   IconEye,
   IconEyeOff,
   IconArrowRight,
+  IconShieldCheck,
+  IconLink,
 } from '@tabler/icons-react';
 
 export function LoginView() {
-  const { login } = useAuth();
+  const { login, setUser } = useAuth();
   const navigate = useNavigate();
 
   const [loginInput, setLoginInput] = useState('');
@@ -28,11 +32,22 @@ export function LoginView() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Forgot Password State
+  // First-Login Setup (Section 3.3: Admin & Staff accept Terms of Use once; Section 7.2/7.5: Temporary password change)
+  const [firstLoginUser, setFirstLoginUser] = useState<User | null>(null);
+  const [acceptFirstLoginTerms, setAcceptFirstLoginTerms] = useState(false);
+  const [tempNewPassword, setTempNewPassword] = useState('');
+  const [tempConfirmPassword, setTempConfirmPassword] = useState('');
+  const [firstLoginError, setFirstLoginError] = useState<string | null>(null);
+
+  // Section 6: Forgot Password State
   const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [forgotMobile, setForgotMobile] = useState('');
-  const [isSendingCode, setIsSendingCode] = useState(false);
+  const [forgotIdentifier, setForgotIdentifier] = useState('');
+  const [forgotMethod, setForgotMethod] = useState<'sms' | 'email'>('sms');
+  const [isSendingInstructions, setIsSendingInstructions] = useState(false);
   const [resetSent, setResetSent] = useState(false);
+  const [uniformNotice, setUniformNotice] = useState<string | null>(null);
+  const [debugResetCredential, setDebugResetCredential] = useState<string | null>(null);
+  const [linkOpened, setLinkOpened] = useState(false);
   const [resetCode, setResetCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -41,42 +56,85 @@ export function LoginView() {
   const [forgotSuccess, setForgotSuccess] = useState<string | null>(null);
   const [forgotError, setForgotError] = useState<string | null>(null);
 
-  const handleSendResetCode = (e: React.FormEvent) => {
+  const navigateByRole = (role: string) => {
+    if (role === 'admin') {
+      navigate('/admin/dashboard');
+    } else if (role === 'staff') {
+      navigate('/staff/tasks');
+    } else {
+      navigate('/customer/home');
+    }
+  };
+
+  const handleSendResetInstructions = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!forgotMobile.trim()) return;
+    if (!forgotIdentifier.trim()) return;
 
-    setIsSendingCode(true);
+    setIsSendingInstructions(true);
     setForgotError(null);
+    setForgotSuccess(null);
 
-    setTimeout(() => {
-      setIsSendingCode(false);
-      setResetSent(true);
-      setResetCode('123456');
-    }, 600);
+    const res = accountsStore.requestPasswordReset(forgotIdentifier.trim(), forgotMethod);
+    setIsSendingInstructions(false);
+
+    if (!res.success) {
+      setForgotError(res.error || 'Unable to process password reset request.');
+      return;
+    }
+
+    // Section 6 Step 2: Shows the exact same message whether or not the account exists
+    setUniformNotice(res.message);
+    setDebugResetCredential(res.debugCodeOrLink || null);
+    setResetSent(true);
+    setLinkOpened(false);
+    setResetCode(forgotMethod === 'sms' && res.debugCodeOrLink ? res.debugCodeOrLink : '');
   };
 
   const handleConfirmReset = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!resetCode.trim()) {
-      setForgotError('Enter the 6-digit code.');
-      return;
-    }
-    if (newPassword.length < 6) {
-      setForgotError('Password must be at least 6 characters.');
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      setForgotError('Passwords do not match.');
+    setForgotError(null);
+
+    const tokenOrPin =
+      forgotMethod === 'email' ? debugResetCredential || resetCode : resetCode;
+
+    if (!tokenOrPin.trim()) {
+      setForgotError(
+        forgotMethod === 'sms'
+          ? 'Please enter the 6-digit SMS pin.'
+          : 'Please open the single-use email reset link first.'
+      );
       return;
     }
 
-    setForgotSuccess('Password reset successfully. Sign in with your new password.');
+    const res = accountsStore.completePasswordReset(
+      forgotIdentifier,
+      forgotMethod,
+      tokenOrPin,
+      newPassword,
+      confirmPassword
+    );
+
+    if (!res.success) {
+      setForgotError(res.error || 'Failed to reset password.');
+      if (res.cancelled) {
+        setDebugResetCredential(null);
+      }
+      return;
+    }
+
+    setForgotSuccess(
+      'Password reset successfully. Your old password has stopped working — please sign in with your new password.'
+    );
     setTimeout(() => {
       setShowForgotPassword(false);
       setResetSent(false);
+      setLoginInput(forgotIdentifier.trim());
       setPassword(newPassword);
+      setNewPassword('');
+      setConfirmPassword('');
       setForgotSuccess(null);
-    }, 2000);
+      setUniformNotice(null);
+    }, 1500);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -87,33 +145,97 @@ export function LoginView() {
     setErrorMessage(null);
 
     try {
-      await login({ login: loginInput.trim(), password });
+      const authenticatedUser = await login({ login: loginInput.trim(), password });
 
-      const val = loginInput.toLowerCase();
-      if (val.includes('admin')) {
-        navigate('/admin/dashboard');
-      } else if (val.includes('staff')) {
-        navigate('/staff/tasks');
-      } else {
-        navigate('/customer/home');
+      const needsTermsAcceptance =
+        (authenticatedUser.role === 'admin' || authenticatedUser.role === 'staff') &&
+        authenticatedUser.terms_accepted === false;
+      const needsPasswordChange = Boolean(authenticatedUser.must_change_password);
+
+      if (needsTermsAcceptance || needsPasswordChange) {
+        setFirstLoginUser(authenticatedUser);
+        setAcceptFirstLoginTerms(!needsTermsAcceptance);
+        setTempNewPassword('');
+        setTempConfirmPassword('');
+        setFirstLoginError(null);
+        return;
       }
+
+      navigateByRole(authenticatedUser.role);
     } catch (err: unknown) {
       const apiErr = err as { response?: { data?: { message?: string } } };
-      setErrorMessage(apiErr.response?.data?.message || 'Invalid credentials. Please verify your details.');
+      setErrorMessage(
+        apiErr.response?.data?.message || 'Invalid credentials. Please verify your details.'
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleQuickDemoSelect = (role: 'admin' | 'staff' | 'customer') => {
-    if (role === 'admin') {
+  const handleCompleteFirstLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!firstLoginUser) return;
+    setFirstLoginError(null);
+
+    const needsTerms =
+      (firstLoginUser.role === 'admin' || firstLoginUser.role === 'staff') &&
+      firstLoginUser.terms_accepted === false;
+
+    if (needsTerms && !acceptFirstLoginTerms) {
+      setFirstLoginError('Please accept the Terms of Use to continue.');
+      return;
+    }
+
+    let updatedUser = firstLoginUser;
+
+    if (firstLoginUser.must_change_password) {
+      const passRes = accountsStore.changePassword(
+        firstLoginUser.id,
+        '',
+        tempNewPassword,
+        tempConfirmPassword,
+        true
+      );
+      if (!passRes.success || !passRes.user) {
+        setFirstLoginError(passRes.error || 'Failed to update temporary password.');
+        return;
+      }
+      updatedUser = passRes.user;
+    }
+
+    if (needsTerms) {
+      const afterTerms = accountsStore.acceptFirstLoginTerms(updatedUser.id);
+      if (afterTerms) {
+        updatedUser = afterTerms;
+      }
+    }
+
+    setUser(updatedUser);
+    setFirstLoginUser(null);
+    navigateByRole(updatedUser.role);
+  };
+
+  const handleQuickDemoSelect = (
+    preset: 'admin' | 'staff' | 'customer' | 'pending' | 'declined' | 'inactive'
+  ) => {
+    setErrorMessage(null);
+    if (preset === 'admin') {
       setLoginInput('admin@siwass.gov');
       setPassword('password123');
-    } else if (role === 'staff') {
+    } else if (preset === 'staff') {
       setLoginInput('staff@siwass.gov');
       setPassword('password123');
-    } else {
+    } else if (preset === 'customer') {
       setLoginInput('maria@example.com');
+      setPassword('password123');
+    } else if (preset === 'pending') {
+      setLoginInput('clara@example.com');
+      setPassword('password123');
+    } else if (preset === 'declined') {
+      setLoginInput('carlos.mendoza@example.com');
+      setPassword('password123');
+    } else if (preset === 'inactive') {
+      setLoginInput('rosa.v@example.com');
       setPassword('password123');
     }
   };
@@ -129,7 +251,6 @@ export function LoginView() {
 
   return (
     <div className="relative min-h-screen flex flex-col justify-between bg-white text-black text-[14px]">
-      {/* Abstract Background Layer */}
       <div
         className="absolute inset-0 pointer-events-none opacity-[0.08] bg-cover bg-center"
         style={{
@@ -138,7 +259,7 @@ export function LoginView() {
         aria-hidden="true"
       />
 
-      {/* Clean Top Header (No extra nav links or duplicate action buttons) */}
+      {/* Top Header */}
       <header className="sticky top-0 z-40 bg-white border-b border-black/20 shadow-[0_3px_0px_0px_rgba(0,0,0,0.08)]">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-14 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5 sm:gap-3 text-black hover:opacity-90">
@@ -163,10 +284,8 @@ export function LoginView() {
         </div>
       </header>
 
-      {/* Main Content: Perfectly vertically centered */}
       <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 py-6 sm:py-8">
         <div className="w-full max-w-md mx-auto my-auto space-y-6 animate-hero-entrance">
-          {/* Consistent Page Header prominently placed at the top */}
           <div className="text-center">
             <h1 className="text-[22px] sm:text-[26px] font-bold tracking-tight text-black">
               Water Utility Portal Sign In
@@ -174,8 +293,86 @@ export function LoginView() {
           </div>
 
           <Card className="p-5 sm:p-8 border border-black/20 rounded-xl bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)] space-y-6">
-            {showForgotPassword ? (
-              /* Forgot Password */
+            {firstLoginUser ? (
+              /* Section 3.3 & Section 7.2/7.5: First-Login Terms Acceptance & Temporary Password Change */
+              <form onSubmit={handleCompleteFirstLogin} className="space-y-4">
+                <div className="border-b border-black/10 pb-3 space-y-1">
+                  <div className="flex items-center gap-2 text-[#1E6FD9]">
+                    <IconShieldCheck size={18} />
+                    <h2 className="text-[16px] font-bold text-black">
+                      Account Security Setup
+                    </h2>
+                  </div>
+                  <p className="text-[13px] text-black/65">
+                    Welcome, <strong>{firstLoginUser.name}</strong>. Please complete your required login setup below.
+                  </p>
+                </div>
+
+                {firstLoginError && (
+                  <div className="p-3 bg-[#FFF2F2] border border-[#E53935]/40 rounded-lg text-[13px] font-medium text-[#E53935] flex items-center gap-2">
+                    <IconAlertCircle size={16} className="shrink-0" />
+                    <span>{firstLoginError}</span>
+                  </div>
+                )}
+
+                {firstLoginUser.must_change_password && (
+                  <div className="space-y-3">
+                    <div className="p-2.5 bg-amber-50 border border-amber-300 rounded-lg text-xs text-amber-900 font-medium">
+                      You signed in with a temporary password issued by the administrator. You must set a new password before continuing.
+                    </div>
+                    <Input
+                      label="New Password"
+                      type="password"
+                      placeholder="Minimum 8 characters"
+                      value={tempNewPassword}
+                      onChange={(e) => setTempNewPassword(e.target.value)}
+                      leftIcon={<IconLock size={16} className="text-black/60" />}
+                      required
+                    />
+                    <Input
+                      label="Confirm New Password"
+                      type="password"
+                      placeholder="Re-enter new password"
+                      value={tempConfirmPassword}
+                      onChange={(e) => setTempConfirmPassword(e.target.value)}
+                      leftIcon={<IconLock size={16} className="text-black/60" />}
+                      required
+                    />
+                  </div>
+                )}
+
+                {(firstLoginUser.role === 'admin' || firstLoginUser.role === 'staff') &&
+                  firstLoginUser.terms_accepted === false && (
+                    <div className="p-3 bg-slate-50 border border-black/15 rounded-lg space-y-2">
+                      <div className="text-xs font-bold text-black">
+                        Terms of Use (First Login Acceptance)
+                      </div>
+                      <p className="text-xs text-black/70 leading-relaxed">
+                        As an authorized {firstLoginUser.role} member of the Sinacaban Water Supply System, you agree to handle consumer records, service dispatches, and system credentials in accordance with municipal policies and the Data Privacy Act of 2012.
+                      </p>
+                      <label className="flex items-center gap-2 pt-1 cursor-pointer text-xs font-semibold text-black">
+                        <input
+                          type="checkbox"
+                          checked={acceptFirstLoginTerms}
+                          onChange={(e) => setAcceptFirstLoginTerms(e.target.checked)}
+                          className="w-4 h-4 rounded border-black/30 text-[#1E6FD9] cursor-pointer"
+                        />
+                        <span>I accept the AquaTrack Terms of Use</span>
+                      </label>
+                    </div>
+                  )}
+
+                <Button
+                  variant="primary"
+                  type="submit"
+                  className="w-full h-9 text-[14px] font-semibold"
+                  rightIcon={<IconArrowRight size={16} />}
+                >
+                  Save & Continue to Dashboard
+                </Button>
+              </form>
+            ) : showForgotPassword ? (
+              /* Section 6: Forgot Password (Option 1: SMS Pin | Option 2: Email Reset Link) */
               <div className="space-y-5">
                 <div className="flex items-center gap-2 border-b border-black/10 pb-3">
                   <button
@@ -185,8 +382,9 @@ export function LoginView() {
                       setResetSent(false);
                       setForgotError(null);
                       setForgotSuccess(null);
+                      setUniformNotice(null);
                     }}
-                    className="hover:text-[#1E6FD9] text-black flex items-center gap-1.5 font-bold text-[14px] cursor-pointer"
+                    className="hover:text-[#1E6FD9] text-black flex items-center gap-1.5 font-medium text-[14px] cursor-pointer"
                   >
                     <IconArrowLeft size={16} />
                     <span>Back to Sign In</span>
@@ -195,66 +393,147 @@ export function LoginView() {
 
                 <div className="text-center space-y-1">
                   <h2 className="text-[18px] font-bold text-black tracking-tight">
-                    Reset Password
+                    Forgot Password
                   </h2>
                   <p className="text-[13px] text-black/60 font-normal">
-                    Verify your registered mobile number to receive a reset code.
+                    Enter your registered email or mobile number and choose your reset method.
                   </p>
                 </div>
 
                 {forgotSuccess && (
-                  <div className="p-3 bg-[#F0F6FD] border border-black/20 rounded-lg text-[13px] text-black flex items-center gap-2.5">
-                    <IconCheck size={16} className="text-[#1E6FD9] shrink-0" />
+                  <div className="p-3 bg-emerald-50 border border-emerald-300 rounded-lg text-[13px] text-emerald-900 flex items-center gap-2.5">
+                    <IconCheck size={16} className="text-[#43A047] shrink-0" />
                     <span>{forgotSuccess}</span>
                   </div>
                 )}
 
                 {forgotError && (
-                  <div className="p-3 bg-[#FFF2F2] border border-black/30 rounded-lg text-[13px] font-medium text-black flex items-center gap-2.5">
-                    <IconAlertCircle size={16} className="text-black shrink-0" />
+                  <div className="p-3 bg-[#FFF2F2] border border-[#E53935]/40 rounded-lg text-[13px] font-medium text-[#E53935] flex items-center gap-2.5">
+                    <IconAlertCircle size={16} className="shrink-0" />
                     <span>{forgotError}</span>
                   </div>
                 )}
 
                 {!resetSent ? (
-                  <form onSubmit={handleSendResetCode} className="space-y-4">
+                  <form onSubmit={handleSendResetInstructions} className="space-y-4">
                     <Input
-                      label="Mobile Number"
-                      type="tel"
-                      placeholder="0917 123 4567"
-                      value={forgotMobile}
-                      onChange={(e) => setForgotMobile(e.target.value)}
-                      leftIcon={<IconPhone size={16} className="text-black/60" />}
+                      label="Registered Email or Mobile Number"
+                      type="text"
+                      placeholder="maria@example.com or 09171234567"
+                      value={forgotIdentifier}
+                      onChange={(e) => setForgotIdentifier(e.target.value)}
+                      leftIcon={<IconMail size={16} className="text-black/60" />}
                       required
                     />
+
+                    {/* Section 6 Step 3: User chooses the method */}
+                    <div className="space-y-1.5">
+                      <span className="block text-[13px] font-semibold text-black">
+                        Choose Reset Method
+                      </span>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setForgotMethod('sms')}
+                          className={`p-2.5 rounded-lg border text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                            forgotMethod === 'sms'
+                              ? 'bg-[#1E6FD9] text-white border-[#1E6FD9]'
+                              : 'bg-white text-black border-black/20 hover:bg-black/5'
+                          }`}
+                        >
+                          <IconPhone size={15} />
+                          <span>One-time pin by SMS</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setForgotMethod('email')}
+                          className={`p-2.5 rounded-lg border text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                            forgotMethod === 'email'
+                              ? 'bg-[#1E6FD9] text-white border-[#1E6FD9]'
+                              : 'bg-white text-black border-black/20 hover:bg-black/5'
+                          }`}
+                        >
+                          <IconLink size={15} />
+                          <span>Reset link by email</span>
+                        </button>
+                      </div>
+                    </div>
 
                     <Button
                       variant="primary"
                       type="submit"
-                      className="w-full h-9 text-[14px] font-semibold"
-                      isLoading={isSendingCode}
+                      className="w-full h-9 text-[14px] font-medium"
+                      isLoading={isSendingInstructions}
                     >
-                      Send Code
+                      Send Reset Instructions
                     </Button>
                   </form>
                 ) : (
                   <form onSubmit={handleConfirmReset} className="space-y-4">
-                    <Input
-                      label="6-Digit SMS Code"
-                      type="text"
-                      placeholder="123456"
-                      maxLength={6}
-                      value={resetCode}
-                      onChange={(e) => setResetCode(e.target.value)}
-                      leftIcon={<IconKey size={16} className="text-black/60" />}
-                      className="font-mono tracking-widest font-bold"
-                      required
-                    />
+                    {/* Section 6 Step 2: Uniform privacy-preserving message */}
+                    {uniformNotice && (
+                      <div className="p-3 bg-blue-50 border border-[#1E6FD9]/30 rounded-lg text-xs text-black space-y-1.5">
+                        <div className="font-bold text-[#1E6FD9]">{uniformNotice}</div>
+                        <div className="text-black/65">
+                          {forgotMethod === 'sms'
+                            ? 'A 6-digit pin sent by SMS is valid for 10 minutes and can be used once (cancelled after 5 wrong attempts).'
+                            : 'A single-use reset link sent by email is valid for 60 minutes.'}
+                        </div>
+                        {debugResetCredential && (
+                          <div className="pt-1.5 border-t border-[#1E6FD9]/20 font-mono text-[11px] text-black/80">
+                            {forgotMethod === 'sms' ? (
+                              <span>Simulated SMS Pin: <strong>{debugResetCredential}</strong></span>
+                            ) : (
+                              <div className="space-y-1">
+                                <div className="truncate">Link: {debugResetCredential}</div>
+                                {!linkOpened && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setLinkOpened(true);
+                                      setResetCode(debugResetCredential);
+                                    }}
+                                    className="px-2.5 py-1 rounded bg-[#1E6FD9] text-white font-sans font-bold text-xs cursor-pointer"
+                                  >
+                                    Open Single-Use Reset Link
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {forgotMethod === 'sms' ? (
+                      <Input
+                        label="6-Digit SMS Pin"
+                        type="text"
+                        placeholder="123456"
+                        maxLength={6}
+                        value={resetCode}
+                        onChange={(e) => setResetCode(e.target.value)}
+                        leftIcon={<IconKey size={16} className="text-black/60" />}
+                        className="font-mono tracking-widest font-bold"
+                        required
+                      />
+                    ) : (
+                      <Input
+                        label="Reset Link Token"
+                        type="text"
+                        placeholder="Click 'Open Single-Use Reset Link' or paste token"
+                        value={resetCode}
+                        onChange={(e) => setResetCode(e.target.value)}
+                        leftIcon={<IconLink size={16} className="text-black/60" />}
+                        className="font-mono text-xs"
+                        required
+                      />
+                    )}
 
                     <Input
                       label="New Password"
                       type={showNewPassword ? 'text' : 'password'}
-                      placeholder="••••••••"
+                      placeholder="Minimum 8 characters"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       leftIcon={<IconLock size={16} className="text-black/60" />}
@@ -273,9 +552,9 @@ export function LoginView() {
                     />
 
                     <Input
-                      label="Confirm Password"
+                      label="Confirm New Password"
                       type={showConfirmPassword ? 'text' : 'password'}
-                      placeholder="••••••••"
+                      placeholder="Re-enter new password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       leftIcon={<IconLock size={16} className="text-black/60" />}
@@ -293,40 +572,53 @@ export function LoginView() {
                       required
                     />
 
-                    <Button
-                      variant="primary"
-                      type="submit"
-                      className="w-full h-9 text-[14px] font-semibold"
-                    >
-                      Save Password & Sign In
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="secondary"
+                        type="button"
+                        onClick={() => {
+                          setResetSent(false);
+                          setForgotError(null);
+                        }}
+                        className="h-9 text-xs"
+                      >
+                        Request New
+                      </Button>
+                      <Button
+                        variant="primary"
+                        type="submit"
+                        className="flex-1 h-9 text-[14px] font-medium"
+                      >
+                        Save Password & Sign In
+                      </Button>
+                    </div>
                   </form>
                 )}
               </div>
             ) : (
-              /* Standard Sign In */
+              /* Standard Sign In (Section 3) */
               <>
                 <div className="border-b border-black/10 pb-3">
                   <h2 className="font-bold text-[16px] text-black">
                     Account Credentials
                   </h2>
                   <p className="text-[13px] text-black/60 font-normal pt-0.5">
-                    Enter your registered email or water account number.
+                    Enter your registered email address or mobile number and password.
                   </p>
                 </div>
 
                 {errorMessage && (
-                  <div className="p-3 bg-[#FFF2F2] border border-black/30 rounded-lg text-[13px] font-medium text-black flex items-center gap-2.5">
-                    <IconAlertCircle size={16} className="text-black shrink-0" />
+                  <div className="p-3 bg-[#FFF2F2] border border-[#E53935]/40 rounded-lg text-[13px] font-medium text-[#E53935] flex items-center gap-2.5">
+                    <IconAlertCircle size={16} className="shrink-0" />
                     <span>{errorMessage}</span>
                   </div>
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <Input
-                    label="Email or Account Number"
+                    label="Email or Mobile Number"
                     type="text"
-                    placeholder="ACC-2026-0002 or email"
+                    placeholder="maria@example.com or 09171234567"
                     value={loginInput}
                     onChange={(e) => setLoginInput(e.target.value)}
                     leftIcon={<IconMail size={16} className="text-black/60" />}
@@ -359,6 +651,7 @@ export function LoginView() {
                         type="button"
                         onClick={() => {
                           setShowForgotPassword(true);
+                          setForgotIdentifier(loginInput);
                           setResetSent(false);
                           setForgotError(null);
                           setForgotSuccess(null);
@@ -373,7 +666,7 @@ export function LoginView() {
                   <Button
                     variant="primary"
                     type="submit"
-                    className="w-full h-9 text-[14px] font-semibold"
+                    className="w-full h-9 text-[14px] font-medium"
                     isLoading={isLoading}
                     rightIcon={<IconArrowRight size={16} />}
                   >
@@ -382,15 +675,15 @@ export function LoginView() {
                 </form>
 
                 {/* Quick Demo Pre-fill Chips */}
-                <div className="border-t border-black/10 pt-4 space-y-2">
-                  <span className="text-[13px] font-medium text-black/60 block">
-                    Demo Accounts:
+                <div className="border-t border-black/10 pt-4 space-y-2.5">
+                  <span className="text-[12px] font-medium text-black/60 block">
+                    Demo Active Accounts:
                   </span>
                   <div className="grid grid-cols-3 gap-2.5">
                     <button
                       type="button"
                       onClick={() => handleQuickDemoSelect('customer')}
-                      className={`h-9 border rounded-lg text-[13px] font-semibold transition-all text-center cursor-pointer ${
+                      className={`h-9 border rounded-lg text-[13px] font-medium transition-all text-center cursor-pointer ${
                         selectedRole === 'customer'
                           ? 'bg-[#1E6FD9] text-white border-[#1E6FD9] shadow-[2px_2px_0px_0px_#000000]'
                           : 'bg-white text-black border-black/20 hover:border-[#1E6FD9] hover:text-[#1E6FD9]'
@@ -401,7 +694,7 @@ export function LoginView() {
                     <button
                       type="button"
                       onClick={() => handleQuickDemoSelect('staff')}
-                      className={`h-9 border rounded-lg text-[13px] font-semibold transition-all text-center cursor-pointer ${
+                      className={`h-9 border rounded-lg text-[13px] font-medium transition-all text-center cursor-pointer ${
                         selectedRole === 'staff'
                           ? 'bg-[#1E6FD9] text-white border-[#1E6FD9] shadow-[2px_2px_0px_0px_#000000]'
                           : 'bg-white text-black border-black/20 hover:border-[#1E6FD9] hover:text-[#1E6FD9]'
@@ -412,7 +705,7 @@ export function LoginView() {
                     <button
                       type="button"
                       onClick={() => handleQuickDemoSelect('admin')}
-                      className={`h-9 border rounded-lg text-[13px] font-semibold transition-all text-center cursor-pointer ${
+                      className={`h-9 border rounded-lg text-[13px] font-medium transition-all text-center cursor-pointer ${
                         selectedRole === 'admin'
                           ? 'bg-[#1E6FD9] text-white border-[#1E6FD9] shadow-[2px_2px_0px_0px_#000000]'
                           : 'bg-white text-black border-black/20 hover:border-[#1E6FD9] hover:text-[#1E6FD9]'
@@ -421,14 +714,40 @@ export function LoginView() {
                       Admin
                     </button>
                   </div>
+
+                  {/* Status Test Presets (Pending, Declined, Inactive per Section 3.2) */}
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                    <span className="text-[11px] text-black/50 mr-1">Test Status Rules:</span>
+                    <button
+                      type="button"
+                      onClick={() => handleQuickDemoSelect('pending')}
+                      className="px-2 py-0.5 rounded border border-amber-300 bg-amber-50 text-amber-800 text-[11px] font-semibold hover:bg-amber-100 cursor-pointer"
+                    >
+                      Pending
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleQuickDemoSelect('declined')}
+                      className="px-2 py-0.5 rounded border border-red-300 bg-red-50 text-red-700 text-[11px] font-semibold hover:bg-red-100 cursor-pointer"
+                    >
+                      Declined
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleQuickDemoSelect('inactive')}
+                      className="px-2 py-0.5 rounded border border-slate-300 bg-slate-100 text-slate-700 text-[11px] font-semibold hover:bg-slate-200 cursor-pointer"
+                    >
+                      Inactive
+                    </button>
+                  </div>
                 </div>
 
                 {/* Register Link */}
                 <div className="text-center pt-3 border-t border-black/10 text-[13px]">
-                  <span className="text-black/60">New water account? </span>
+                  <span className="text-black/60">Existing consumer without an online account? </span>
                   <Link
                     to="/register"
-                    className="text-[#1E6FD9] font-semibold hover:underline"
+                    className="text-[#1E6FD9] font-medium hover:underline"
                   >
                     Register
                   </Link>
@@ -439,7 +758,6 @@ export function LoginView() {
         </div>
       </main>
 
-      {/* Minimal Footer */}
       <footer className="border-t border-black/20 py-2.5 text-center text-black/50 text-[14px]">
         AquaTrack — Sinacaban Water Supply System
       </footer>

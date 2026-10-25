@@ -67,14 +67,14 @@ export const InterruptionCalendar: React.FC<InterruptionCalendarProps> = ({
         <div className="flex items-center gap-1">
           <button
             onClick={prevMonth}
-            className="p-1 hover:bg-[#F0F6FD] rounded text-black transition-colors"
+            className="p-1 hover:bg-black/5 rounded text-black transition-colors"
             title="Previous month"
           >
             <IconChevronLeft size={14} />
           </button>
           <button
             onClick={nextMonth}
-            className="p-1 hover:bg-[#F0F6FD] rounded text-black transition-colors"
+            className="p-1 hover:bg-black/5 rounded text-black transition-colors"
             title="Next month"
           >
             <IconChevronRight size={14} />
@@ -83,7 +83,7 @@ export const InterruptionCalendar: React.FC<InterruptionCalendarProps> = ({
       </div>
 
       {/* Days of week header */}
-      <div className="grid grid-cols-7 gap-1 text-center font-bold text-black/60 uppercase text-[9px]">
+      <div className="grid grid-cols-7 gap-1 text-center font-medium text-black/60 uppercase text-[9px]">
         {daysOfWeek.map((d) => (
           <div key={d} className="py-0.5">
             {d}
@@ -111,8 +111,8 @@ export const InterruptionCalendar: React.FC<InterruptionCalendarProps> = ({
               onClick={() => handleDayClick(day)}
               className={`h-7 rounded flex flex-col items-center justify-center relative transition-colors border ${
                 isSelected
-                  ? 'bg-[#1E6FD9] text-white font-bold border-[#1E6FD9]'
-                  : 'hover:bg-[#F0F6FD] text-black border-transparent'
+                  ? 'bg-[#1E6FD9] text-white font-medium border-[#1E6FD9]'
+                  : 'hover:bg-black/5 text-black border-transparent'
               }`}
             >
               <span>{day}</span>
@@ -131,7 +131,7 @@ export const InterruptionCalendar: React.FC<InterruptionCalendarProps> = ({
       {/* Selected Day Disruption Summary (if any) */}
       {selectedDay !== null && (
         <div className="pt-2 border-t border-black/10">
-          <span className="font-bold text-black block mb-1">
+          <span className="font-medium text-black block mb-1">
             {monthNames[month]} {selectedDay}, {year}:
           </span>
           {getInterruptionsForDay(selectedDay).length > 0 ? (
@@ -139,7 +139,7 @@ export const InterruptionCalendar: React.FC<InterruptionCalendarProps> = ({
               {getInterruptionsForDay(selectedDay).map((item) => (
                 <div
                   key={item.id}
-                  className="p-1.5 bg-[#F0F6FD] border border-black/15 rounded text-[9px] text-black"
+                  className="p-1.5 bg-white border border-black/15 rounded text-[9px] text-black"
                 >
                   <strong className="block text-[#1E6FD9]">
                     {item.barangays?.map((b) => b.name).join(', ') || 'Coverage Area'}

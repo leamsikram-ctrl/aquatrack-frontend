@@ -33,13 +33,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             disabled={disabled}
-            className={`w-full h-9 px-3 text-[14px] font-normal text-black bg-white border rounded-md transition-colors placeholder:text-black/40 outline-none
+            className={`w-full h-9 px-3 text-[14px] font-normal text-black bg-white border rounded-md transition-all placeholder:text-black/40 outline-none
               ${leftIcon ? 'pl-9' : ''}
               ${rightIcon ? 'pr-9' : ''}
               ${
                 error
-                  ? 'border-black ring-1 ring-black'
-                  : 'border-black/30 hover:border-[#1E6FD9] focus:border-[#1E6FD9] focus:ring-1 focus:ring-[#1E6FD9]'
+                  ? 'border-black shadow-[0_2px_0_0_#000000] ring-1 ring-black'
+                  : 'border-black/15 hover:border-black/25 shadow-[0_2px_0_0_rgba(0,0,0,0.06)] focus:border-[#1E6FD9] focus:shadow-[0_2px_0_0_#1E6FD9]'
               }
               disabled:opacity-50 disabled:cursor-not-allowed
               ${className}

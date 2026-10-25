@@ -59,34 +59,30 @@ export function AdminCustomersView() {
     >
       <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/15 pb-4">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-black">
-            Consumer Directory
-          </h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="blue">{totalCustomers} Consumers</Badge>
-        </div>
+      <div className="border-b border-black/10 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <h1 className="text-xl sm:text-2xl font-bold text-black tracking-tight">
+          Consumer Directory
+        </h1>
       </div>
 
-      {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      {/* Directory Filter & Search Card */}
+      <Card className="p-4 bg-white shadow-[0_10px_25px_-5px_rgba(0,0,0,0.14),0_6px_10px_-4px_rgba(0,0,0,0.08)] rounded-md border border-black/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs font-semibold text-black/60">Status:</span>
           {(['all', 'verified', 'unverified'] as const).map((filter) => (
             <button
               key={filter}
               onClick={() => setStatusFilter(filter)}
-              className={`px-3 py-1 rounded text-[14px] font-bold capitalize transition-colors border border-black ${
+              className={`px-3 py-1 rounded text-xs capitalize transition-colors border border-black ${
                 statusFilter === filter
-                  ? 'bg-[#1E6FD9] text-white'
-                  : 'bg-white text-black hover:bg-[#F0F6FD]'
+                  ? 'bg-[#1E6FD9] text-white font-medium'
+                  : 'bg-white text-black hover:bg-black/5 font-normal'
               }`}
             >
               {filter}
             </button>
           ))}
+          <Badge variant="blue" className="ml-1">{totalCustomers} Consumers</Badge>
         </div>
 
         <div className="relative flex-1 sm:max-w-xs">
@@ -99,13 +95,13 @@ export function AdminCustomersView() {
           />
           <IconSearch size={12} className="absolute left-2 top-2.5 text-black/50" />
         </div>
-      </div>
+      </Card>
 
       {/* Customers Table */}
-      <Card className="p-0 overflow-hidden border border-black/15">
+      <Card className="p-0 overflow-hidden border border-black/10 rounded-md shadow-[0_10px_25px_-5px_rgba(0,0,0,0.14),0_6px_10px_-4px_rgba(0,0,0,0.08)] bg-white">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-[14px]">
-            <thead className="bg-[#F0F6FD] text-black border-b border-black/15">
+            <thead className="bg-white text-black border-b border-black/15">
               <tr>
                 <th className="px-4 py-2 text-xs font-semibold text-black/60">Account No.</th>
                 <th className="px-4 py-2 text-xs font-semibold text-black/60">Consumer Name</th>
@@ -138,11 +134,11 @@ export function AdminCustomersView() {
                   const isVerified = cust.is_verified ?? (cust.status === 'active');
 
                   return (
-                    <tr key={cust.id} className="hover:bg-[#F0F6FD]/50 transition-colors">
-                      <td className="px-4 py-3 font-bold text-[#1E6FD9]">
+                    <tr key={cust.id} className="hover:bg-black/5 transition-colors">
+                      <td className="px-4 py-3 font-medium text-[#1E6FD9]">
                         {profile?.account_number || 'AWAITING-METER'}
                       </td>
-                      <td className="px-4 py-3 font-bold text-black">
+                      <td className="px-4 py-3 text-black font-normal">
                         {cust.name || (profile ? `${profile.first_name} ${profile.last_name}` : 'Unknown')}
                       </td>
                       <td className="px-4 py-3 text-black/80">
@@ -151,7 +147,7 @@ export function AdminCustomersView() {
                       </td>
                       <td className="px-4 py-3">
                         {profile?.meter ? (
-                          <span className="font-bold text-black">
+                          <span className="text-black font-normal">
                             {profile.meter.meter_number}
                           </span>
                         ) : (
@@ -204,25 +200,25 @@ export function AdminCustomersView() {
             <div className="flex items-center justify-between border-b border-black/15 pb-2">
               <div className="flex items-center gap-2">
                 <IconUsers size={14} className="text-[#1E6FD9]" />
-                <span className="font-bold text-black uppercase tracking-wider">
+                <h2 className="text-sm font-bold text-black">
                   Consumer Account Details
-                </span>
+                </h2>
               </div>
               <button
                 onClick={() => setSelectedCustomer(null)}
-                className="text-black hover:text-[#1E6FD9] p-1 font-bold"
+                className="text-black hover:text-[#1E6FD9] p-1 font-normal"
               >
                 <IconX size={14} />
               </button>
             </div>
 
-            <div className="space-y-3 bg-[#F0F6FD] p-3 rounded border border-black/10">
+            <div className="space-y-3 bg-white p-3 rounded border border-black/15">
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <span className="text-[14px] text-black/60 uppercase font-bold block">
+                  <span className="text-xs text-black/60 font-medium block">
                     Full Name
                   </span>
-                  <span className="text-[14px] font-bold text-black">
+                  <span className="text-sm font-normal text-black">
                     {selectedCustomer.name ||
                       (selectedCustomer.customer_profile
                         ? `${selectedCustomer.customer_profile.first_name} ${selectedCustomer.customer_profile.last_name}`
@@ -230,10 +226,10 @@ export function AdminCustomersView() {
                   </span>
                 </div>
                 <div>
-                  <span className="text-[14px] text-black/60 uppercase font-bold block">
+                  <span className="text-xs text-black/60 font-medium block">
                     Account Reference
                   </span>
-                  <span className="text-[14px] font-bold text-[#1E6FD9]">
+                  <span className="text-sm font-medium text-[#1E6FD9]">
                     {selectedCustomer.customer_profile?.account_number || 'AWAITING-VERIFICATION'}
                   </span>
                 </div>
@@ -241,19 +237,19 @@ export function AdminCustomersView() {
 
               <div className="grid grid-cols-2 gap-2 border-t border-black/10 pt-2">
                 <div>
-                  <span className="text-[14px] text-black/60 uppercase font-bold block">
+                  <span className="text-xs text-black/60 font-medium block">
                     Email Address
                   </span>
-                  <span className="text-[14px] text-black flex items-center gap-1">
+                  <span className="text-sm text-black flex items-center gap-1 font-normal">
                     <IconMail size={10} className="text-black/50" />
                     {selectedCustomer.email || 'N/A'}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[14px] text-black/60 uppercase font-bold block">
+                  <span className="text-xs text-black/60 font-medium block">
                     Mobile Phone
                   </span>
-                  <span className="text-[14px] text-black flex items-center gap-1">
+                  <span className="text-sm text-black flex items-center gap-1 font-normal">
                     <IconPhone size={10} className="text-black/50" />
                     {selectedCustomer.mobile_number || selectedCustomer.customer_profile?.mobile_number || 'N/A'}
                   </span>
@@ -261,10 +257,10 @@ export function AdminCustomersView() {
               </div>
 
               <div className="border-t border-black/10 pt-2">
-                <span className="text-[14px] text-black/60 uppercase font-bold block">
+                <span className="text-xs text-black/60 font-medium block">
                   Installation Address
                 </span>
-                <span className="text-[14px] text-black flex items-center gap-1">
+                <span className="text-sm text-black flex items-center gap-1 font-normal">
                   <IconMapPin size={10} className="text-black/50 shrink-0" />
                   {selectedCustomer.customer_profile?.address || 'N/A'},{' '}
                   {selectedCustomer.customer_profile?.barangay?.name || 'Sinacaban'}
@@ -273,10 +269,10 @@ export function AdminCustomersView() {
             </div>
 
             {/* Meter Connection Info */}
-            <div className="border border-black/15 p-3 rounded space-y-2">
-              <span className="text-[14px] font-bold text-black uppercase tracking-wider block">
+            <div className="border border-black/15 p-3 rounded space-y-2 bg-white">
+              <h3 className="text-xs font-bold text-black block">
                 Physical Meter Connection
-              </span>
+              </h3>
               {selectedCustomer.customer_profile?.meter ? (
                 <div className="grid grid-cols-2 gap-2 text-[14px]">
                   <div>
@@ -299,7 +295,7 @@ export function AdminCustomersView() {
                   </div>
                 </div>
               ) : (
-                <div className="text-[14px] text-black/60 italic p-2 bg-[#F0F6FD] rounded">
+                <div className="text-[14px] text-black/60 italic p-2 bg-white border border-black/10 rounded">
                   No meter assigned.
                 </div>
               )}

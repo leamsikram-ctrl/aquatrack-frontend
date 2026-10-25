@@ -6,6 +6,7 @@ import { Button } from '../../components/atoms/Button';
 import { Badge } from '../../components/atoms/Badge';
 import { EmptyState } from '../../components/molecules/EmptyState';
 import { StatusTimeline } from '../../components/organisms/StatusTimeline';
+import { SystemModal } from '../../components/molecules/SystemModal';
 import { requestsApi, adminApi } from '../../api';
 import type { ServiceRequest, User, Urgency } from '../../types';
 import {
@@ -38,6 +39,19 @@ export function AdminRequestsView() {
   const [selectedStaffId, setSelectedStaffId] = useState<number | null>(null);
   const [assignmentNotes, setAssignmentNotes] = useState('');
   const [isSubmittingAssign, setIsSubmittingAssign] = useState(false);
+
+  // Modern System Alert Modal
+  const [systemModal, setSystemModal] = useState<{
+    isOpen: boolean;
+    type: 'info' | 'success' | 'warning' | 'error';
+    title: string;
+    message: string;
+  }>({
+    isOpen: false,
+    type: 'info',
+    title: '',
+    message: '',
+  });
 
   const fetchRequests = async () => {
     setIsLoading(true);
@@ -119,7 +133,12 @@ export function AdminRequestsView() {
       fetchRequests();
     } catch (err: unknown) {
       const errObj = err as { response?: { data?: { message?: string } } };
-      alert(errObj?.response?.data?.message || 'Failed to dispatch staff.');
+      setSystemModal({
+        isOpen: true,
+        type: 'error',
+        title: 'Dispatch Failed',
+        message: errObj?.response?.data?.message || 'Failed to dispatch staff.',
+      });
     } finally {
       setIsSubmittingAssign(false);
     }
@@ -155,50 +174,47 @@ export function AdminRequestsView() {
       onNavigate={(path) => navigate(path)}
     >
       <div className="space-y-4 text-[14px]">
-        {/* Wireframe A2 Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/15 pb-4">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-black">
-              Service Requests
-            </h1>
-          </div>
-
-          <div className="flex items-center gap-1.5">
-            <Badge variant="blue">{filteredRequests.length} Requests</Badge>
-          </div>
+        {/* Header */}
+        <div className="border-b border-black/10 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h1 className="text-xl sm:text-2xl font-bold text-black tracking-tight">
+            Service Requests
+          </h1>
         </div>
 
-        {/* Wireframe A2 Tabs & Search Bar */}
-        <div className="space-y-2.5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            {/* Active vs History Tab */}
-            <div className="flex items-center gap-1 border border-black rounded p-0.5 bg-white">
-              <button
-                onClick={() => {
-                  setActiveTab('active');
-                  setStatusFilter('all');
-                }}
-                className={`px-3 py-1 rounded text-[14px] font-bold transition-colors ${
-                  activeTab === 'active'
-                    ? 'bg-[#1E6FD9] text-white'
-                    : 'text-black hover:bg-[#F0F6FD]'
-                }`}
-              >
-                Active Requests
-              </button>
-              <button
-                onClick={() => {
-                  setActiveTab('history');
-                  setStatusFilter('all');
-                }}
-                className={`px-3 py-1 rounded text-[14px] font-bold transition-colors ${
-                  activeTab === 'history'
-                    ? 'bg-[#1E6FD9] text-white'
-                    : 'text-black hover:bg-[#F0F6FD]'
-                }`}
-              >
-                History (Resolved / Cancelled)
-              </button>
+        {/* Filter & Controls Card */}
+        <Card className="p-4 bg-white shadow-[0_10px_25px_-5px_rgba(0,0,0,0.14),0_6px_10px_-4px_rgba(0,0,0,0.08)] rounded-md border border-black/10 space-y-3.5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            {/* Active vs History Tab & Badge */}
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 border border-black/15 rounded p-0.5 bg-black/5">
+                <button
+                  onClick={() => {
+                    setActiveTab('active');
+                    setStatusFilter('all');
+                  }}
+                  className={`px-3 py-1 rounded text-[14px] transition-colors ${
+                    activeTab === 'active'
+                      ? 'bg-[#1E6FD9] text-white font-medium'
+                      : 'text-black hover:bg-black/5 font-normal'
+                  }`}
+                >
+                  Active Requests
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveTab('history');
+                    setStatusFilter('all');
+                  }}
+                  className={`px-3 py-1 rounded text-[14px] transition-colors ${
+                    activeTab === 'history'
+                      ? 'bg-[#1E6FD9] text-white font-medium'
+                      : 'text-black hover:bg-black/5 font-normal'
+                  }`}
+                >
+                  History
+                </button>
+              </div>
+              <Badge variant="blue">{filteredRequests.length} Requests</Badge>
             </div>
 
             {/* Search Input */}
@@ -215,8 +231,8 @@ export function AdminRequestsView() {
           </div>
 
           {/* Filter Pills based on active tab */}
-          <div className="flex flex-wrap items-center gap-1.5 pt-1">
-            <span className="text-xs font-semibold text-black/60 mr-1">Filter:</span>
+          <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-black/10">
+            <span className="text-xs font-medium text-black/60 mr-1">Filter:</span>
             {(activeTab === 'active'
               ? ['all', 'submitted', 'assigned', 'in_progress']
               : ['all', 'resolved', 'cancelled']
@@ -224,23 +240,23 @@ export function AdminRequestsView() {
               <button
                 key={st}
                 onClick={() => setStatusFilter(st)}
-                className={`px-2.5 py-0.5 rounded text-[14px] capitalize font-bold transition-colors border border-black ${
+                className={`px-2.5 py-0.5 rounded text-[14px] capitalize transition-colors border border-black ${
                   statusFilter === st
-                    ? 'bg-[#1E6FD9] text-white'
-                    : 'bg-white text-black hover:bg-[#F0F6FD]'
+                    ? 'bg-[#1E6FD9] text-white font-medium'
+                    : 'bg-white text-black hover:bg-black/5 font-normal'
                 }`}
               >
                 {st.replace('_', ' ')}
               </button>
             ))}
           </div>
-        </div>
+        </Card>
 
         {/* Table of Requests */}
-        <Card className="overflow-hidden border border-black/15 p-0">
+        <Card className="overflow-hidden border border-black/10 rounded-md shadow-[0_10px_25px_-5px_rgba(0,0,0,0.14),0_6px_10px_-4px_rgba(0,0,0,0.08)] p-0 bg-white">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-[14px]">
-              <thead className="bg-[#F0F6FD] border-b border-black/15 text-black">
+              <thead className="bg-white border-b border-black/15 text-black">
                 <tr>
                   <th className="px-4 py-2 text-xs font-semibold text-black/60">Reference</th>
                   <th className="px-4 py-2 text-xs font-semibold text-black/60">Customer</th>
@@ -273,9 +289,9 @@ export function AdminRequestsView() {
                     <tr
                       key={r.id}
                       onClick={() => handleOpenDrawer(r)}
-                      className="hover:bg-[#F0F6FD]/60 cursor-pointer transition-colors"
+                      className="hover:bg-black/5 cursor-pointer transition-colors"
                     >
-                      <td className="px-4 py-2.5 font-bold text-[#1E6FD9]">
+                      <td className="px-4 py-2.5 font-medium text-[#1E6FD9]">
                         {r.reference_no || r.reference}
                       </td>
                       <td className="px-4 py-2.5 font-normal text-black">
@@ -307,7 +323,7 @@ export function AdminRequestsView() {
                       </td>
                       <td className="px-4 py-2.5 text-black">
                         {r.assigned_staff?.name ? (
-                          <span className="font-bold text-black">{r.assigned_staff.name}</span>
+                          <span className="font-medium text-black">{r.assigned_staff.name}</span>
                         ) : (
                           <span className="text-black/40 italic font-normal">Unassigned</span>
                         )}
@@ -351,52 +367,52 @@ export function AdminRequestsView() {
               {/* Drawer Top Header */}
               <div className="flex items-center justify-between border-b border-black/15 pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-black uppercase tracking-wider text-[14px]">
+                  <h2 className="text-base font-bold text-black">
                     {drawerReq.reference_no || drawerReq.reference}
-                  </span>
+                  </h2>
                   <Badge variant="blue">
                     {drawerReq.status.replace('_', ' ').toUpperCase()}
                   </Badge>
                 </div>
                 <button
                   onClick={() => setDrawerReq(null)}
-                  className="p-1 text-black hover:text-[#1E6FD9] font-bold"
+                  className="p-1 text-black hover:text-[#1E6FD9]"
                 >
                   <IconX size={16} />
                 </button>
               </div>
 
               {/* Reported Problem */}
-              <div className="p-3 bg-[#F0F6FD] rounded border border-black/10 space-y-1">
-                <span className="font-bold text-black block uppercase tracking-wider text-[9px]">
+              <div className="p-3 bg-white rounded border border-black/15 space-y-1">
+                <span className="text-xs font-medium text-black/60 block">
                   Reported Issue Description
                 </span>
                 <p className="text-black leading-relaxed">{drawerReq.description}</p>
-                <div className="text-[9px] text-black/60 pt-1">
+                <div className="text-xs text-black/60 pt-1">
                   Submitted: {new Date(drawerReq.created_at).toLocaleString()}
                 </div>
               </div>
 
               {/* Customer Details Box */}
               <div className="p-3 border border-black/15 rounded space-y-1.5 bg-white">
-                <span className="font-bold text-black uppercase tracking-wider text-[9px] block">
+                <span className="text-xs font-medium text-black/60 block">
                   Customer & Geographic Location
                 </span>
                 <div className="space-y-1 text-black">
                   <div>
-                    <strong>Name:</strong> {drawerReq.customer?.full_name ?? 'Resident'}
+                    <span className="text-black/60 font-medium">Name:</span> {drawerReq.customer?.full_name ?? 'Resident'}
                   </div>
                   <div>
-                    <strong>Account No:</strong>{' '}
-                    <span className="font-bold text-[#1E6FD9]">
+                    <span className="text-black/60 font-medium">Account No:</span>{' '}
+                    <span className="font-medium text-[#1E6FD9]">
                       {drawerReq.customer?.account_number ?? 'ACC-2026-0001'}
                     </span>
                   </div>
                   <div>
-                    <strong>Barangay:</strong> {drawerReq.customer?.barangay ?? 'Sinacaban'}
+                    <span className="text-black/60 font-medium">Barangay:</span> {drawerReq.customer?.barangay ?? 'Sinacaban'}
                   </div>
                   <div>
-                    <strong>Street Address:</strong>{' '}
+                    <span className="text-black/60 font-medium">Street Address:</span>{' '}
                     {drawerReq.customer?.address ?? 'Customer Residence'}
                   </div>
                 </div>
@@ -405,7 +421,7 @@ export function AdminRequestsView() {
               {/* Wireframe A3: Urgency Derivation Card */}
               <div className="p-3 bg-white border border-black/15 rounded space-y-2">
                 <div className="flex items-center justify-between border-b border-black/10 pb-1.5">
-                  <span className="font-bold text-black uppercase tracking-wider text-[9px]">
+                  <span className="text-xs font-medium text-black/60">
                     Urgency Engine Derivation
                   </span>
                   <Badge variant={drawerReq.urgency === 'high' ? 'outline' : 'blue'}>
@@ -416,24 +432,24 @@ export function AdminRequestsView() {
                 <div className="space-y-1 text-black/80">
                   <div className="flex justify-between">
                     <span>Issue Type Baseline Default:</span>
-                    <strong className="text-black">MEDIUM</strong>
+                    <span className="font-medium text-black">MEDIUM</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Customer Input Urgency:</span>
-                    <strong className="text-black">
+                    <span className="font-medium text-black">
                       {(drawerReq.customer_urgency || 'can_wait').replace('_', ' ').toUpperCase()}
-                    </strong>
+                    </span>
                   </div>
                   <div className="flex justify-between border-t border-black/10 pt-1">
                     <span>Engine Output:</span>
-                    <strong className="text-[#1E6FD9]">{drawerReq.urgency.toUpperCase()}</strong>
+                    <span className="font-medium text-[#1E6FD9]">{drawerReq.urgency.toUpperCase()}</span>
                   </div>
                 </div>
               </div>
 
               {/* Wireframe A3: Adjust Urgency Control */}
-              <div className="p-3 bg-[#F0F6FD] border border-black/15 rounded space-y-2">
-                <span className="font-bold text-black uppercase tracking-wider text-[9px] block">
+              <div className="p-3 bg-white border border-black/15 rounded space-y-2">
+                <span className="text-xs font-medium text-black/60 block">
                   Administrative Urgency Override
                 </span>
 
@@ -467,7 +483,7 @@ export function AdminRequestsView() {
                     Apply Urgency Override
                   </Button>
                   {urgencySavedNotice && (
-                    <span className="text-[#1E6FD9] font-bold text-[9px]">
+                    <span className="text-[#1E6FD9] font-medium text-xs">
                       ✓ Override saved & logged
                     </span>
                   )}
@@ -476,7 +492,7 @@ export function AdminRequestsView() {
 
               {/* Status Stepper Timeline */}
               <div className="space-y-1.5 pt-1">
-                <span className="font-bold text-black uppercase tracking-wider text-[9px] block">
+                <span className="text-xs font-medium text-black/60 block">
                   Service Request Lifecycle
                 </span>
                 <StatusTimeline status={drawerReq.status} />
@@ -486,13 +502,13 @@ export function AdminRequestsView() {
               {drawerReq.assigned_staff ? (
                 <div className="p-2.5 bg-white border border-black/15 rounded text-black space-y-1">
                   <div className="flex justify-between">
-                    <span className="text-black/60 font-bold uppercase text-[9px]">
+                    <span className="text-black/60 text-xs font-medium">
                       Assigned Field Technician:
                     </span>
-                    <strong className="text-[#1E6FD9]">{drawerReq.assigned_staff.name}</strong>
+                    <span className="font-medium text-[#1E6FD9]">{drawerReq.assigned_staff.name}</span>
                   </div>
                   {drawerReq.assignment_notes && (
-                    <p className="text-black/70 italic text-[9px]">
+                    <p className="text-black/70 italic text-xs">
                       Notes: {drawerReq.assignment_notes}
                     </p>
                   )}
@@ -526,21 +542,21 @@ export function AdminRequestsView() {
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <div className="flex items-center gap-2">
                   <IconUserPlus size={14} className="text-[#1E6FD9]" />
-                  <h3 className="font-bold text-black uppercase tracking-wider text-[14px]">
+                  <h3 className="text-base font-bold text-black">
                     Assign Staff
                   </h3>
                 </div>
                 <button
                   onClick={() => setAssigningReq(null)}
-                  className="text-black hover:text-[#1E6FD9] font-bold"
+                  className="text-black hover:text-[#1E6FD9]"
                 >
                   <IconX size={14} />
                 </button>
               </div>
 
               {/* Request Summary per Wireframe A4 */}
-              <div className="p-3 bg-[#F0F6FD] rounded border border-black/10 text-black space-y-1">
-                <div className="font-bold">
+              <div className="p-3 bg-white rounded border border-black/15 text-black space-y-1">
+                <div className="font-medium">
                   {assigningReq.reference_no || assigningReq.reference} ·{' '}
                   {assigningReq.issue_type?.name || 'Water Issue'} ·{' '}
                   {assigningReq.customer?.barangay ?? 'Sinacaban'}
@@ -550,11 +566,11 @@ export function AdminRequestsView() {
 
               <div className="space-y-3">
                 <div>
-                  <label className="block font-bold uppercase text-black mb-1">
+                  <label className="block text-xs font-medium text-black/70 mb-1">
                     Select Staff
                   </label>
                   {staffList.length === 0 ? (
-                    <div className="p-2 border border-black/20 text-black/60 rounded">
+                    <div className="p-2 border border-black/20 text-black/60 rounded text-xs">
                       Loading available field staff...
                     </div>
                   ) : (
@@ -573,7 +589,7 @@ export function AdminRequestsView() {
                 </div>
 
                 <div>
-                  <label className="block font-bold uppercase text-black mb-1">
+                  <label className="block text-xs font-medium text-black/70 mb-1">
                     Assignment Notes
                   </label>
                   <textarea
@@ -606,6 +622,15 @@ export function AdminRequestsView() {
             </div>
           </div>
         )}
+
+        {/* Modern System Alert Modal */}
+        <SystemModal
+          isOpen={systemModal.isOpen}
+          onClose={() => setSystemModal((m) => ({ ...m, isOpen: false }))}
+          type={systemModal.type}
+          title={systemModal.title}
+          message={systemModal.message}
+        />
       </div>
     </AdminLayout>
   );

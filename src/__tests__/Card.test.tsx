@@ -8,19 +8,16 @@ describe('Card Component', () => {
     expect(screen.getByText('Card Content')).toBeInTheDocument();
   });
 
-  it('applies default border style when not active', () => {
+  it('applies faint gray border and 3D hard shadow when not active', () => {
     const { container } = render(<Card>Normal Card</Card>);
-    expect(container.firstChild).toHaveClass('border-black/20');
+    expect(container.firstChild).toHaveClass('border-black/10');
+    expect(container.firstChild).toHaveClass('shadow-[0_4px_0_0_rgba(0,0,0,0.08)]');
   });
 
-  it('applies active highlight style when active is true', () => {
+  it('applies active highlight border and shadow when active is true', () => {
     const { container } = render(<Card active>Active Card</Card>);
     expect(container.firstChild).toHaveClass('border-[#1E6FD9]');
-  });
-
-  it('applies hard shadow style', () => {
-    const { container } = render(<Card>Shadow Card</Card>);
-    expect(container.firstChild).toHaveClass('shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)]');
+    expect(container.firstChild).toHaveClass('shadow-[0_4px_0_0_#1E6FD9]');
   });
 });
 
