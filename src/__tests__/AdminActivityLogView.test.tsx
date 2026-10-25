@@ -59,9 +59,8 @@ describe('AdminActivityLogView (Audit Trail & Workflow Operations)', () => {
   it('renders Activity Log header, metric compartments, and audit records', async () => {
     await renderComponent();
 
-    expect(screen.getByText(/Activity Log & Audit Trail/i)).toBeInTheDocument();
-    expect(screen.getByText(/Immutable Ledger/i)).toBeInTheDocument();
-    expect(screen.getAllByText('Total Audit Events').length).toBeGreaterThan(0);
+    expect(screen.getByRole('heading', { level: 1, name: /Activity Log/i })).toBeInTheDocument();
+    expect(screen.getAllByText('Total Events').length).toBeGreaterThan(0);
     expect(screen.getByText('Repairs & Dispatch')).toBeInTheDocument();
   });
 

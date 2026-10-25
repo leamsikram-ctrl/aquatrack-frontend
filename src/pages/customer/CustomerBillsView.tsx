@@ -163,7 +163,7 @@ export function CustomerBillsView() {
               value={selectedMeterNumber}
               onChange={(e) => setSelectedMeterNumber(e.target.value)}
               aria-label="Switch Customer Account Preview"
-              className="px-3 py-1.5 bg-white border border-black/20 rounded-lg text-xs font-semibold text-black outline-none focus:border-[#1E6FD9] shadow-sm"
+              className="px-3 py-1.5 bg-white border border-black/20 rounded-lg text-xs font-semibold text-black outline-none focus:border-brand-blue shadow-sm"
             >
               {DEFAULT_SINACABAN_CUSTOMERS.filter((c) => c.is_active).map((c) => (
                 <option key={c.meter_number} value={c.meter_number}>
@@ -178,7 +178,7 @@ export function CustomerBillsView() {
         <Card className="p-4 sm:p-5 border border-black/10 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.06)]">
           <div className="flex items-center justify-between border-b border-black/10 pb-3 mb-3">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-[#F0F6FD] text-[#1E6FD9] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-blue-tint text-brand-blue flex items-center justify-center">
                 <IconUser size={18} />
               </div>
               <span className="text-xs font-bold uppercase tracking-wider text-black/60">
@@ -189,30 +189,30 @@ export function CustomerBillsView() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-[13px]">
-            <div className="p-3 rounded-lg bg-[#F0F6FD]/50 border border-black/10">
+            <div className="p-3 rounded-lg bg-blue-tint/50 border border-black/10">
               <div className="text-[11px] font-bold uppercase tracking-wider text-black/50">
                 Name
               </div>
               <div className="font-bold text-black mt-0.5">{activeCustomer.name}</div>
             </div>
 
-            <div className="p-3 rounded-lg bg-[#F0F6FD]/50 border border-black/10">
+            <div className="p-3 rounded-lg bg-blue-tint/50 border border-black/10">
               <div className="text-[11px] font-bold uppercase tracking-wider text-black/50 flex items-center gap-1">
-                <IconGauge size={13} className="text-[#1E6FD9]" />
+                <IconGauge size={13} className="text-brand-blue" />
                 <span>Meter Number</span>
               </div>
-              <div className="font-bold text-[#1E6FD9] mt-0.5">{activeCustomer.meter_number}</div>
+              <div className="font-bold text-brand-blue mt-0.5">{activeCustomer.meter_number}</div>
             </div>
 
-            <div className="p-3 rounded-lg bg-[#F0F6FD]/50 border border-black/10">
+            <div className="p-3 rounded-lg bg-blue-tint/50 border border-black/10">
               <div className="text-[11px] font-bold uppercase tracking-wider text-black/50 flex items-center gap-1">
-                <IconMapPin size={13} className="text-[#1E6FD9]" />
+                <IconMapPin size={13} className="text-brand-blue" />
                 <span>Barangay</span>
               </div>
               <div className="font-semibold text-black mt-0.5">{activeCustomer.barangay}</div>
             </div>
 
-            <div className="p-3 rounded-lg bg-[#F0F6FD]/50 border border-black/10">
+            <div className="p-3 rounded-lg bg-blue-tint/50 border border-black/10">
               <div className="text-[11px] font-bold uppercase tracking-wider text-black/50">
                 Address
               </div>
@@ -226,7 +226,7 @@ export function CustomerBillsView() {
         {/* Latest Period Record */}
         {!latestRecord ? (
           <Card className="p-8 border border-black/10 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.06)] text-center space-y-2">
-            <div className="w-10 h-10 rounded-full bg-[#F0F6FD] text-black/40 flex items-center justify-center mx-auto">
+            <div className="w-10 h-10 rounded-full bg-blue-tint text-black/40 flex items-center justify-center mx-auto">
               <IconAlertCircle size={22} />
             </div>
             <div className="text-base font-bold text-black">
@@ -253,7 +253,7 @@ export function CustomerBillsView() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-              <div className="p-4 rounded-xl bg-[#1E6FD9] text-white flex flex-col justify-between shadow-sm">
+              <div className="p-4 rounded-xl bg-brand-blue text-white flex flex-col justify-between shadow-sm">
                 <div className="text-[11px] font-bold uppercase tracking-wider text-white/80">
                   Total Balance Due
                 </div>
@@ -262,12 +262,12 @@ export function CustomerBillsView() {
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl bg-[#F0F6FD]/60 border border-black/10 flex flex-col justify-between">
+              <div className="p-4 rounded-xl bg-blue-tint/60 border border-black/10 flex flex-col justify-between">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-black/60">
                     Current Balance
                   </span>
-                  <span className="text-[11px] font-semibold text-[#1E6FD9] flex items-center gap-1">
+                  <span className="text-[11px] font-semibold text-brand-blue flex items-center gap-1">
                     <IconCalendar size={13} />
                     Due {latestRecord.due_date}
                   </span>
@@ -277,7 +277,7 @@ export function CustomerBillsView() {
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl bg-[#F0F6FD]/60 border border-black/10 flex flex-col justify-between">
+              <div className="p-4 rounded-xl bg-blue-tint/60 border border-black/10 flex flex-col justify-between">
                 <div className="text-[11px] font-bold uppercase tracking-wider text-black/60">
                   Previous Balance
                 </div>
@@ -289,7 +289,7 @@ export function CustomerBillsView() {
 
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-black/10">
               <div className="text-xs text-black/60 flex items-center gap-1.5">
-                <IconClock size={15} className="text-[#1E6FD9]" />
+                <IconClock size={15} className="text-brand-blue" />
                 <span>Last Updated:</span>
                 <span className="font-bold text-black">{latestRecord.last_updated}</span>
               </div>
@@ -311,7 +311,7 @@ export function CustomerBillsView() {
         <Card className="p-4 sm:p-5 border border-black/10 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.06)] space-y-3">
           <div className="flex items-center justify-between border-b border-black/10 pb-3">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-[#F0F6FD] text-[#1E6FD9] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-blue-tint text-brand-blue flex items-center justify-center">
                 <IconCash size={18} />
               </div>
               <div>
@@ -331,7 +331,7 @@ export function CustomerBillsView() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-[#F0F6FD] text-black/70 border-b border-black/10">
+                <thead className="bg-blue-tint text-black/70 border-b border-black/10">
                   <tr>
                     <th className="px-3 py-2.5 font-bold uppercase tracking-wider">Date</th>
                     <th className="px-3 py-2.5 font-bold uppercase tracking-wider">Period</th>
@@ -352,7 +352,7 @@ export function CustomerBillsView() {
                       <tr
                         key={entry.id}
                         className={`${
-                          isReversal ? 'bg-black/5' : 'hover:bg-[#F0F6FD]/50'
+                          isReversal ? 'bg-black/5' : 'hover:bg-blue-tint/50'
                         } transition-colors`}
                       >
                         <td className="px-3 py-2.5 font-medium text-black whitespace-nowrap">
@@ -368,7 +368,7 @@ export function CustomerBillsView() {
                               Reversal
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-[#F0F6FD] text-[#1E6FD9] border border-[#1E6FD9]/20">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-blue-tint text-brand-blue border border-brand-blue/20">
                               Payment
                             </span>
                           )}
@@ -380,7 +380,7 @@ export function CustomerBillsView() {
                         </td>
                         <td
                           className={`px-3 py-2.5 text-right font-bold whitespace-nowrap ${
-                            isReversal ? 'text-black' : 'text-[#1E6FD9]'
+                            isReversal ? 'text-black' : 'text-brand-blue'
                           }`}
                         >
                           {isReversal ? '+' : '-'}₱{entry.amount.toFixed(2)}
@@ -404,7 +404,7 @@ export function CustomerBillsView() {
         <Card className="p-4 sm:p-5 border border-black/10 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.06)] space-y-3">
           <div className="flex items-center justify-between border-b border-black/10 pb-3">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-[#F0F6FD] text-[#1E6FD9] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-blue-tint text-brand-blue flex items-center justify-center">
                 <IconHistory size={18} />
               </div>
               <div>
@@ -429,7 +429,7 @@ export function CustomerBillsView() {
                   <div
                     key={rec.id}
                     onClick={() => setSelectedStatement(rec)}
-                    className="py-3 px-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-[#F0F6FD]/50 cursor-pointer rounded-lg transition-colors"
+                    className="py-3 px-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-blue-tint/50 cursor-pointer rounded-lg transition-colors"
                   >
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-2">
@@ -460,7 +460,7 @@ export function CustomerBillsView() {
                       </div>
                       <div className="text-right min-w-[80px]">
                         <div className="text-black/50">Total</div>
-                        <div className="font-extrabold text-[14px] text-[#1E6FD9]">
+                        <div className="font-extrabold text-[14px] text-brand-blue">
                           ₱{rec.total_balance.toFixed(2)}
                         </div>
                       </div>
@@ -480,7 +480,7 @@ export function CustomerBillsView() {
             <div className="w-full max-w-md bg-white rounded-xl border border-black/15 p-5 space-y-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] text-[14px] max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-black/10 pb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-md bg-[#F0F6FD] text-[#1E6FD9] flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-md bg-blue-tint text-brand-blue flex items-center justify-center">
                     <IconReceipt size={16} />
                   </div>
                   <h2 className="text-[14px] font-bold text-black">Statement of Account</h2>
@@ -493,12 +493,12 @@ export function CustomerBillsView() {
                 </button>
               </div>
 
-              <div className="border border-black/10 p-4 rounded-xl space-y-3 bg-[#F0F6FD]/50">
+              <div className="border border-black/10 p-4 rounded-xl space-y-3 bg-blue-tint/50">
                 <div className="text-center border-b border-black/10 pb-2.5">
                   <div className="font-bold text-black text-[14px]">
                     Municipality of Sinacaban
                   </div>
-                  <div className="text-[#1E6FD9] mt-0.5 font-bold text-xs">
+                  <div className="text-brand-blue mt-0.5 font-bold text-xs">
                     {selectedStatement.period_label}
                   </div>
                 </div>
@@ -518,7 +518,7 @@ export function CustomerBillsView() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-black/60">Meter #:</span>
-                    <span className="text-[#1E6FD9] font-bold">
+                    <span className="text-brand-blue font-bold">
                       {selectedStatement.meter_number}
                     </span>
                   </div>
@@ -552,7 +552,7 @@ export function CustomerBillsView() {
 
                   <div className="flex justify-between items-baseline border-t border-black/15 pt-2.5">
                     <span className="font-bold text-black uppercase">Total Balance:</span>
-                    <span className="font-extrabold text-lg text-[#1E6FD9]">
+                    <span className="font-extrabold text-lg text-brand-blue">
                       ₱{selectedStatement.total_balance.toFixed(2)}
                     </span>
                   </div>

@@ -80,12 +80,12 @@ export const SystemModal: React.FC<SystemModalProps> = ({
       case 'warning':
         return <IconAlertTriangle size={22} className="text-amber-600" stroke={2.2} />;
       case 'credentials':
-        return <IconCheck size={22} className="text-[#1E6FD9]" stroke={2.5} />;
+        return <IconCheck size={22} className="text-brand-blue" stroke={2.5} />;
       case 'confirm':
-        return <IconHelpCircle size={22} className={isDestructive ? 'text-rose-600' : 'text-[#1E6FD9]'} stroke={2.2} />;
+        return <IconHelpCircle size={22} className={isDestructive ? 'text-rose-600' : 'text-brand-blue'} stroke={2.2} />;
       case 'info':
       default:
-        return <IconInfoCircle size={22} className="text-[#1E6FD9]" stroke={2.2} />;
+        return <IconInfoCircle size={22} className="text-brand-blue" stroke={2.2} />;
     }
   };
 
@@ -176,7 +176,7 @@ export const SystemModal: React.FC<SystemModalProps> = ({
             {credentials.tempPassword && (
               <div className="flex justify-between items-center py-1 border-b border-black/5">
                 <span className="text-black/60 font-medium">Temporary Password:</span>
-                <span className="font-mono font-bold text-[#1E6FD9] bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                <span className="font-mono font-bold text-brand-blue bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
                   {credentials.tempPassword}
                 </span>
               </div>
@@ -199,7 +199,7 @@ export const SystemModal: React.FC<SystemModalProps> = ({
               onClick={handleCopyCredentials}
               className="w-full mt-2 py-1.5 px-3 rounded-lg border border-black/20 bg-white hover:bg-slate-100 text-black font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
             >
-              <IconCopy size={14} className="text-[#1E6FD9]" />
+              <IconCopy size={14} className="text-brand-blue" />
               <span>{copied ? 'Copied to Clipboard!' : 'Copy Login Credentials'}</span>
             </button>
           </div>

@@ -82,6 +82,19 @@ vi.mock('../api', () => ({
     staffList: vi.fn().mockImplementation(() => Promise.resolve(mockStaff)),
     registerStaff: vi.fn().mockResolvedValue({ user: { id: 11, name: 'New Staff' } }),
     availableMeters: vi.fn().mockResolvedValue([{ id: 101, meter_number: 'MTR-101', status: 'unassigned' }]),
+    createCustomer: vi.fn().mockResolvedValue({
+      message: 'Consumer Account Registered Successfully!',
+      temporary_password: 'CustomerSecret123!',
+      user: {
+        id: 99,
+        name: 'Corazon Aquino',
+        mobile_number: '09178888888',
+        customer_profile: {
+          account_number: 'ACC-2026-0099',
+          meter_number: 'MTR-SIN-8888',
+        },
+      },
+    }),
     verifyRegistration: vi.fn().mockResolvedValue({
       message: 'Verified',
       user: { id: 2, name: 'Maria Clara', status: 'active', is_verified: true },

@@ -78,8 +78,8 @@ export function MeterTagModal({ customer, onClose }: Props) {
           width: 200,
           margin: 1,
           color: {
-            dark: '#000000',
-            light: '#FFFFFF',
+            dark: 'black',
+            light: 'white',
           },
           errorCorrectionLevel: 'H',
         },
@@ -155,14 +155,14 @@ export function MeterTagModal({ customer, onClose }: Props) {
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-black/15 pb-2">
           <div className="flex items-center gap-2">
-            <IconQrcode size={18} className="text-[#1E6FD9]" />
+            <IconQrcode size={18} className="text-brand-blue" />
             <h2 className="text-sm font-bold text-black">
               Meter Tag & QR Code Generator
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="text-black hover:text-[#1E6FD9] p-1"
+            className="text-black hover:text-brand-blue p-1"
             title="Close"
           >
             <IconX size={16} />
@@ -172,14 +172,14 @@ export function MeterTagModal({ customer, onClose }: Props) {
         {/* Loading State */}
         {isLoading && (
           <div className="py-12 text-center space-y-2 text-black/60">
-            <div className="w-6 h-6 border-2 border-[#1E6FD9] border-t-transparent rounded-full animate-spin mx-auto" />
+            <div className="w-6 h-6 border-2 border-brand-blue border-t-transparent rounded-full animate-spin mx-auto" />
             <p>Generating hardware meter tag...</p>
           </div>
         )}
 
         {/* Error / No Meter State */}
         {!isLoading && errorMessage && (
-          <div className="p-4 bg-[#FFF2F2] border border-black/30 rounded-lg space-y-3 text-black">
+          <div className="p-4 bg-danger-subtle border border-black/30 rounded-lg space-y-3 text-black">
             <div className="flex items-center gap-2 font-medium text-black">
               <IconAlertCircle size={18} className="text-black" />
               <span>Unassigned Water Meter</span>
@@ -207,14 +207,14 @@ export function MeterTagModal({ customer, onClose }: Props) {
               {/* Tag Header */}
               <div className="w-full flex items-center justify-between border-b border-black/15 pb-2 mb-2">
                 <div className="flex items-center gap-1.5">
-                  <div className="w-5 h-5 rounded-full bg-[#1E6FD9] text-white flex items-center justify-center font-medium text-[10px]">
+                  <div className="w-5 h-5 rounded-full bg-brand-blue text-white flex items-center justify-center font-medium text-[10px]">
                     <IconDroplet size={12} />
                   </div>
                   <div className="text-left leading-tight">
                     <span className="font-semibold text-[10px] text-black uppercase tracking-wider block">
                       LGU Sinacaban
                     </span>
-                    <span className="font-semibold text-[11px] text-[#1E6FD9] uppercase block">
+                    <span className="font-semibold text-[11px] text-brand-blue uppercase block">
                       AquaTrack Meter Tag
                     </span>
                   </div>
@@ -225,7 +225,7 @@ export function MeterTagModal({ customer, onClose }: Props) {
               </div>
 
               {/* QR Code Container */}
-              <div className="p-2 bg-white border-2 border-[#1E6FD9] rounded-lg my-1 flex flex-col items-center justify-center shadow-inner">
+              <div className="p-2 bg-white border-2 border-brand-blue rounded-lg my-1 flex flex-col items-center justify-center shadow-inner">
                 <canvas ref={canvasRef} className="block" />
                 <span className="text-[10px] font-mono font-medium text-black/70 tracking-widest mt-1">
                   TOKEN: {tagData.qr_token.substring(0, 16)}...
@@ -241,7 +241,7 @@ export function MeterTagModal({ customer, onClose }: Props) {
                   </tr>
                   <tr className="border-b border-dashed border-black/15">
                     <td className="py-1 text-black/60 font-medium">Account No:</td>
-                    <td className="py-1 font-mono font-medium text-right text-[#1E6FD9]">{tagData.account_number}</td>
+                    <td className="py-1 font-mono font-medium text-right text-brand-blue">{tagData.account_number}</td>
                   </tr>
                   <tr className="border-b border-dashed border-black/15">
                     <td className="py-1 text-black/60 font-medium">Meter Serial:</td>
@@ -276,7 +276,7 @@ export function MeterTagModal({ customer, onClose }: Props) {
                 <Button variant="ghost" onClick={handleCopyToken} className="w-full text-[12px]">
                   {isCopied ? (
                     <>
-                      <IconCheck size={14} className="mr-1 inline text-[#1E6FD9]" /> Copied
+                      <IconCheck size={14} className="mr-1 inline text-brand-blue" /> Copied
                     </>
                   ) : (
                     <>

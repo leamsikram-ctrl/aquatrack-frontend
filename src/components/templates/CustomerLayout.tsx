@@ -33,27 +33,27 @@ export const CustomerLayout: React.FC<CustomerLayoutProps> = ({
   ];
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] flex flex-col text-black pb-20 md:pb-6 text-[14px]">
+    <div className="min-h-screen bg-canvas-light flex flex-col text-black pb-20 md:pb-6 text-[14px]">
       <Topbar
-        title="Consumer"
+        title="Customer"
         subtitle={accountNumber}
         userName={userName}
-        userRole="Consumer"
+        userRole="Customer"
       />
 
       <div className="flex flex-1 max-w-[1440px] w-full mx-auto">
         {/* Desktop Sidebar (>= 768px) */}
         <aside className="hidden md:flex w-60 shrink-0 flex-col border-r border-black/10 bg-white p-4 justify-between">
           <div className="space-y-4">
-            {/* Consumer Account Pill */}
-            <div className="p-3 rounded-lg border border-black/10 bg-[#F0F6FD] space-y-1">
+            {/* Customer Account Pill */}
+            <div className="p-3 rounded-lg border border-black/10 bg-blue-tint space-y-1">
               <div className="text-[11px] font-semibold tracking-wider text-black/60 uppercase">
-                Active Consumer
+                Active Customer
               </div>
               <div className="text-[14px] font-bold text-black truncate" title={userName}>
                 {userName}
               </div>
-              <div className="text-[12px] font-medium text-[#1E6FD9] truncate">
+              <div className="text-[12px] font-medium text-brand-blue truncate">
                 {accountNumber}
               </div>
             </div>
@@ -69,8 +69,8 @@ export const CustomerLayout: React.FC<CustomerLayoutProps> = ({
                     onClick={() => onNavigate?.(item.path)}
                     className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-[14px] transition-all text-left ${
                       isActive
-                        ? 'bg-[#1E6FD9] text-white font-semibold shadow-[2px_2px_0px_0px_rgba(0,0,0,0.2)]'
-                        : 'text-black hover:bg-[#F0F6FD] hover:text-[#1E6FD9] font-medium border border-transparent'
+                        ? 'bg-brand-blue text-white font-semibold shadow-[2px_2px_0px_0px_rgba(0,0,0,0.2)]'
+                        : 'text-black hover:bg-blue-tint hover:text-brand-blue font-medium border border-transparent'
                     }`}
                   >
                     <div className="flex items-center gap-3">

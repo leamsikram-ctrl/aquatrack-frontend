@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { AdminLayout } from '../../components/templates/AdminLayout';
 import { Card } from '../../components/atoms/Card';
 import { Badge } from '../../components/atoms/Badge';
@@ -15,12 +17,12 @@ import {
   IconDownload,
   IconCalendar,
   IconFilter,
-  IconCheck,
-  IconPrinter,
   IconFileSpreadsheet,
   IconTools,
   IconAlertCircle,
-  IconBuildingCommunity,
+  IconAlertTriangle,
+  IconCheck,
+  IconFileText,
 } from '@tabler/icons-react';
 
 export type ReportType =
@@ -151,7 +153,10 @@ export function AdminReportsView() {
   const [toDate, setToDate] = useState<string>(defaultDates.to);
   const [selectedBarangay, setSelectedBarangay] = useState<string>('all');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [reportGenerated, setReportGenerated] = useState(false);
+
+  // Output Status States (Part D Revised: Short "Report ready" confirmation and error with "Try again")
+  const [reportReadyMessage, setReportReadyMessage] = useState<string | null>(null);
+  const [pdfError, setPdfError] = useState<string | null>(null);
 
   // Modern System Modal State
   const [modalState, setModalState] = useState<{
@@ -204,7 +209,8 @@ export function AdminReportsView() {
       setFromDate(`${yyyy}-01-01`);
       setToDate(today);
     }
-    setReportGenerated(false);
+    setReportReadyMessage(null);
+    setPdfError(null);
   };
 
   useEffect(() => {
@@ -212,7 +218,7 @@ export function AdminReportsView() {
       setIsLoading(true);
       try {
         const [reqRes, bgRes, staffRes, intRes] = await Promise.all([
-          requestsApi.list({ per_page: 250 }).catch(() => ({ data: [] })),
+          requestsApi.list({ per_page: 500 }).catch(() => ({ data: [] })),
           referenceApi.getBarangays().catch(() => []),
           adminApi.staffList().catch(() => []),
           interruptionsApi.list().catch(() => ({ data: [] })),
@@ -387,7 +393,7 @@ export function AdminReportsView() {
     return Object.entries(map).sort((a, b) => b[1] - a[1]);
   }, [filteredRequests]);
 
-  // Type 3: Requests by Barangay (Total, Resolved, Still Open, Most Common Issue Type - Sorted highest total first)
+  // Type 3: Requests by Barangay (Sorted by highest total first)
   const barangayReportData = useMemo(() => {
     const map: Record<
       string,
@@ -451,7 +457,7 @@ export function AdminReportsView() {
       .sort((a, b) => b.total - a.total);
   }, [filteredRequests, barangays, selectedBarangay]);
 
-  // Type 4: Staff Task Report (Tasks assigned in period, in progress, resolved, avg time from Assigned to Resolved)
+  // Type 4: Staff Task Report
   const staffTaskReportData = useMemo(() => {
     const map: Record<
       number,
@@ -508,31 +514,31 @@ export function AdminReportsView() {
 
   // Type 5: Water Advisory Report
   const advisoryReportData = useMemo(() => {
-    return filteredAdvisories.map((a) => {
+    return filteredAdvisories.map((a: any) => {
       const parts = (a.message || '').split(' — ');
       const rawTitle = a.title || parts[0] || 'Water Service Interruption';
-      const rawType = (a as any).type || (a.is_emergency ? 'Emergency' : 'Scheduled');
+      const rawType = a.type || (a.is_emergency ? 'Emergency' : 'Scheduled');
       const titleWithType = `${rawType}: ${rawTitle}`;
 
       const brgyNames =
-        a.barangays?.map((b) => b.name).join(', ') ||
-        (a as any).barangay_names?.join(', ') ||
+        a.barangays?.map((b: any) => b.name).join(', ') ||
+        a.barangay_names?.join(', ') ||
         'Poblacion';
 
-      const actualEnd = (a as any).actual_restored_at
-        ? formatPhilippineDateTime((a as any).actual_restored_at)
-        : a.status === 'ended' || (a as any).status === 'completed' || (a as any).is_restored
+      const actualEnd = a.actual_restored_at
+        ? formatPhilippineDateTime(a.actual_restored_at)
+        : a.status === 'ended' || a.status === 'completed' || a.is_restored
         ? formatPhilippineDateTime(a.ends_at)
         : '—';
 
       const notifiedCount =
         a.affected_customers_count ??
-        (a as any).recipient_count ??
+        a.recipient_count ??
         advisoriesStore.computeRecipientPreview(
-          a.barangays?.map((b) => b.id) || (a as any).barangay_ids || []
+          a.barangays?.map((b: any) => b.id) || a.barangay_ids || []
         ).totalAffected;
 
-      const liveStatus = (a as any).status || (a.is_published ? 'ongoing' : 'scheduled');
+      const liveStatus = a.status || (a.is_published ? 'ongoing' : 'scheduled');
 
       return {
         id: a.id,
@@ -560,23 +566,342 @@ export function AdminReportsView() {
     return filteredRequests.length;
   }, [reportType, filteredAdvisories.length, staffPeriodRequests.length, filteredRequests.length]);
 
-  // Handle Generate Report action
-  const handleGenerateReport = (e: React.FormEvent) => {
-    e.preventDefault();
+  // D. Size limit: the request log PDF holds up to 500 rows.
+  const isRequestLogOverLimit = useMemo(() => {
+    return reportType === 'request_log' && filteredRequests.length > 500;
+  }, [reportType, filteredRequests.length]);
+
+  // -------------------------------------------------------------
+  // D. Revised Output: Build PDF in the browser with jsPDF + autoTable
+  // -------------------------------------------------------------
+  const handleGeneratePdf = async () => {
     if (activeRecordsCount === 0 || dateError) return;
+    if (isRequestLogOverLimit) {
+      setModalState({
+        isOpen: true,
+        type: 'warning',
+        title: 'Request Log Limit Exceeded',
+        message: `The request log PDF holds up to 500 rows (currently ${filteredRequests.length} matching records). Please narrow the date range or use Export CSV to download the complete ledger.`,
+      });
+      return;
+    }
+
     setIsGenerating(true);
+    setPdfError(null);
+    setReportReadyMessage(null);
 
-    const scopeText =
-      selectedBarangay === 'all'
-        ? 'All barangays (Sinacaban Municipal Wide)'
-        : selectedBarangay;
-    const actionMsg = `Generated ${REPORT_TITLES[reportType]} Report on screen (Period: ${fromDate} to ${toDate}, Barangay: ${scopeText}, Format: On-screen)`;
-    advisoriesStore.appendAuditLog(actionMsg, generatedByName);
+    try {
+      // Determine orientation per Section D specifications:
+      // Portrait for Maintenance summary, Requests by barangay, and Water advisory report.
+      // Landscape for Maintenance request log and Staff task report.
+      const isLandscape = reportType === 'request_log' || reportType === 'staff_tasks';
+      const doc = new jsPDF({
+        orientation: isLandscape ? 'landscape' : 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
 
-    setTimeout(() => {
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const scopeText =
+        selectedBarangay === 'all'
+          ? 'All barangays (Sinacaban Municipal Wide)'
+          : `Barangay ${selectedBarangay}`;
+      const generatedDateTime = `${formatPhilippineDateTime(new Date().toISOString())} (PHT)`;
+
+      // 1. Header (AquaTrack logo, “SIWASS, Sinacaban”, report name, period, barangay, who generated it, date and time)
+      doc.setFillColor(30, 111, 217); // brand-blue
+      doc.rect(0, 0, pageWidth, 4, 'F');
+
+      const logoX = 14;
+      const logoY = 11;
+
+      // Stylized AquaTrack Logo Mark
+      doc.setFillColor(30, 111, 217);
+      doc.circle(logoX + 3.5, logoY + 3.5, 3.5, 'F');
+      doc.setFillColor(255, 255, 255);
+      doc.circle(logoX + 4.5, logoY + 2.5, 1, 'F');
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(15);
+      doc.setTextColor(30, 111, 217);
+      doc.text('AquaTrack', logoX + 10, logoY + 5.5);
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8.5);
+      doc.setTextColor(70, 70, 70);
+      doc.text('SIWASS, Sinacaban', logoX + 10, logoY + 9.5);
+
+      // Report Header Metadata on Top-Right
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(13);
+      doc.setTextColor(20, 20, 20);
+      doc.text(`${REPORT_TITLES[reportType]} Report`, pageWidth - 14, logoY + 4, { align: 'right' });
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(80, 80, 80);
+      doc.text(`Period: ${fromDate} to ${toDate}  |  Scope: ${scopeText}`, pageWidth - 14, logoY + 8.5, { align: 'right' });
+      doc.text(`Generated by: ${generatedByName}  |  ${generatedDateTime}`, pageWidth - 14, logoY + 12.5, { align: 'right' });
+
+      // Divider line
+      doc.setDrawColor(215, 215, 215);
+      doc.setLineWidth(0.4);
+      doc.line(14, logoY + 16, pageWidth - 14, logoY + 16);
+
+      let currentY = logoY + 22;
+
+      // 2. Body: Summary Figures First, Then Table
+      if (reportType === 'maintenance_summary') {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.setTextColor(30, 111, 217);
+        doc.text('Executive Summary Figures & Metrics', 14, currentY);
+        currentY += 3;
+
+        autoTable(doc, {
+          startY: currentY,
+          head: [['Maintenance Metric', 'Count / Value', 'Category Scope']],
+          body: [
+            ['Total Service Requests', String(filteredRequests.length), 'Overall Requests'],
+            ['Submitted (Unassigned)', String(countsByStatus.submitted), 'Status Breakdown'],
+            ['Assigned to Field Technician', String(countsByStatus.assigned), 'Status Breakdown'],
+            ['In Progress Jobs', String(countsByStatus.in_progress), 'Status Breakdown'],
+            ['Resolved Repairs', String(countsByStatus.resolved), 'Status Breakdown'],
+            ['Cancelled Requests', String(countsByStatus.cancelled), 'Status Breakdown'],
+            ['High Urgency Repairs', String(countsByUrgency.high), 'Urgency Breakdown'],
+            ['Medium Urgency Repairs', String(countsByUrgency.medium), 'Urgency Breakdown'],
+            ['Low Urgency Repairs', String(countsByUrgency.low), 'Urgency Breakdown'],
+            ['Average Resolution Time (Submitted to Resolved)', averageResolutionTime, 'SLA Performance'],
+          ],
+          showHead: 'everyPage',
+          theme: 'striped',
+          headStyles: { fillColor: [30, 111, 217], textColor: 255, fontStyle: 'bold', fontSize: 8 },
+          bodyStyles: { fontSize: 7.5 },
+          margin: { left: 14, right: 14, bottom: 16 },
+        });
+
+        currentY = (doc as any).lastAutoTable.finalY + 8;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.setTextColor(30, 111, 217);
+        doc.text('Requests by Issue Category', 14, currentY);
+        currentY += 3;
+
+        autoTable(doc, {
+          startY: currentY,
+          head: [['Issue Type', 'Reported Incidents']],
+          body:
+            issueTypesDistribution.length > 0
+              ? issueTypesDistribution.map(([type, cnt]) => [type, String(cnt)])
+              : [['No issues recorded', '0']],
+          showHead: 'everyPage',
+          theme: 'striped',
+          headStyles: { fillColor: [30, 111, 217], textColor: 255, fontStyle: 'bold', fontSize: 8 },
+          bodyStyles: { fontSize: 7.5 },
+          margin: { left: 14, right: 14, bottom: 16 },
+        });
+
+        currentY = (doc as any).lastAutoTable.finalY + 8;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.setTextColor(30, 111, 217);
+        doc.text('Requests by Barangay Distribution', 14, currentY);
+        currentY += 3;
+
+        autoTable(doc, {
+          startY: currentY,
+          head: [['Barangay', 'Total Requests', 'Resolved', 'Still Open', 'Most Common Issue']],
+          body: barangayReportData.map((b) => [
+            b.barangay,
+            String(b.total),
+            String(b.resolved),
+            String(b.stillOpen),
+            b.topIssue,
+          ]),
+          showHead: 'everyPage',
+          theme: 'striped',
+          headStyles: { fillColor: [30, 111, 217], textColor: 255, fontStyle: 'bold', fontSize: 8 },
+          bodyStyles: { fontSize: 7.5 },
+          margin: { left: 14, right: 14, bottom: 16 },
+        });
+      } else if (reportType === 'request_log') {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8.5);
+        doc.setTextColor(60, 60, 60);
+        doc.text(
+          `Summary: Total Requests: ${filteredRequests.length}  |  Submitted: ${countsByStatus.submitted}  |  Assigned: ${countsByStatus.assigned}  |  In Progress: ${countsByStatus.in_progress}  |  Resolved: ${countsByStatus.resolved}  |  Cancelled: ${countsByStatus.cancelled}`,
+          14,
+          currentY
+        );
+        currentY += 5;
+
+        autoTable(doc, {
+          startY: currentY,
+          head: [[
+            'Request ID',
+            'Date Submitted',
+            'Customer',
+            'Barangay',
+            'Issue Type',
+            'Urgency',
+            'Status',
+            'Assigned Staff',
+            'Date Resolved',
+          ]],
+          body: filteredRequests.map((r) => {
+            const custName =
+              (r.customer as any)?.name ||
+              r.customer?.full_name ||
+              (r.customer_profile
+                ? `${r.customer_profile.first_name || ''} ${r.customer_profile.last_name || ''}`.trim()
+                : '') ||
+              (r as any).customer_name ||
+              'Resident Consumer';
+            const dateSub = formatPhilippineDate(r.created_at);
+            const dateRes =
+              r.status === 'resolved'
+                ? formatPhilippineDate(r.resolved_at || r.updated_at)
+                : '—';
+            const staffName = r.assigned_staff?.name || 'Unassigned';
+
+            return [
+              r.reference_number || r.reference_no || r.reference || `AT-${r.id}`,
+              dateSub,
+              custName,
+              r.customer?.barangay || r.customer_profile?.barangay?.name || 'Poblacion',
+              r.issue_type?.name || (typeof r.issue_type === 'string' ? r.issue_type : 'General Leak'),
+              r.urgency || 'low',
+              r.status === 'cancelled' ? 'Cancelled' : r.status,
+              staffName,
+              dateRes,
+            ];
+          }),
+          showHead: 'everyPage',
+          theme: 'striped',
+          headStyles: { fillColor: [30, 111, 217], textColor: 255, fontStyle: 'bold', fontSize: 7.5 },
+          bodyStyles: { fontSize: 7 },
+          margin: { left: 14, right: 14, bottom: 16 },
+        });
+      } else if (reportType === 'by_barangay') {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8.5);
+        doc.setTextColor(60, 60, 60);
+        doc.text(
+          `Summary: Total Barangays: ${barangayReportData.filter((b) => b.total > 0).length}  |  Total Requests: ${filteredRequests.length}  |  Overall Resolved: ${countsByStatus.resolved} (${filteredRequests.length > 0 ? Math.round((countsByStatus.resolved / filteredRequests.length) * 100) : 0}%)`,
+          14,
+          currentY
+        );
+        currentY += 5;
+
+        autoTable(doc, {
+          startY: currentY,
+          head: [['Barangay', 'Total Requests', 'Resolved', 'Still Open', 'Most Common Issue Type']],
+          body: barangayReportData.map((b) => [
+            b.barangay,
+            String(b.total),
+            String(b.resolved),
+            String(b.stillOpen),
+            b.topIssue,
+          ]),
+          showHead: 'everyPage',
+          theme: 'striped',
+          headStyles: { fillColor: [30, 111, 217], textColor: 255, fontStyle: 'bold', fontSize: 8 },
+          bodyStyles: { fontSize: 7.5 },
+          margin: { left: 14, right: 14, bottom: 16 },
+        });
+      } else if (reportType === 'staff_tasks') {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8.5);
+        doc.setTextColor(60, 60, 60);
+        doc.text(
+          `Summary: Active Field Staff: ${staffTaskReportData.length}  |  Tasks Assigned in Period: ${staffPeriodRequests.length}  |  In Progress: ${staffTaskReportData.reduce((acc, s) => acc + s.inProgressCount, 0)}  |  Resolved: ${staffTaskReportData.reduce((acc, s) => acc + s.resolvedCount, 0)}`,
+          14,
+          currentY
+        );
+        currentY += 5;
+
+        autoTable(doc, {
+          startY: currentY,
+          head: [['Staff Member', 'Assigned Sector', 'Tasks Assigned in Period', 'In Progress', 'Resolved', 'Avg Time (Assigned to Resolved)']],
+          body: staffTaskReportData.map((s) => [
+            s.name,
+            s.assignedBarangay,
+            String(s.assignedCount),
+            String(s.inProgressCount),
+            String(s.resolvedCount),
+            s.avgTime,
+          ]),
+          showHead: 'everyPage',
+          theme: 'striped',
+          headStyles: { fillColor: [30, 111, 217], textColor: 255, fontStyle: 'bold', fontSize: 7.5 },
+          bodyStyles: { fontSize: 7 },
+          margin: { left: 14, right: 14, bottom: 16 },
+        });
+      } else if (reportType === 'water_advisories') {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8.5);
+        doc.setTextColor(60, 60, 60);
+        doc.text(
+          `Summary: Total Advisories: ${filteredAdvisories.length}  |  Ongoing: ${filteredAdvisories.filter((a) => a.status === 'ongoing' || (!a.status && a.is_published)).length}  |  Scheduled: ${filteredAdvisories.filter((a) => a.status === 'scheduled').length}  |  Completed: ${filteredAdvisories.filter((a) => a.status === 'ended' || (a as any).status === 'completed' || (a as any).is_restored).length}`,
+          14,
+          currentY
+        );
+        currentY += 5;
+
+        autoTable(doc, {
+          startY: currentY,
+          head: [['Advisory Type and Title', 'Affected Barangays', 'Start (PHT)', 'Expected End (PHT)', 'Actual End (PHT)', 'Status', 'Customers Notified']],
+          body: advisoryReportData.map((a) => [
+            a.title,
+            a.affectedBarangays,
+            a.startsAt,
+            a.expectedEndsAt,
+            a.actualEndsAt,
+            a.status,
+            String(a.customersNotified),
+          ]),
+          showHead: 'everyPage',
+          theme: 'striped',
+          headStyles: { fillColor: [30, 111, 217], textColor: 255, fontStyle: 'bold', fontSize: 7.5 },
+          bodyStyles: { fontSize: 7 },
+          margin: { left: 14, right: 14, bottom: 16 },
+        });
+      }
+
+      // 3. Footer: "Page x of y" and "Generated by AquaTrack" repeating on every page
+      const pageCount = (doc.internal as any).getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7.5);
+        doc.setTextColor(120, 120, 120);
+
+        const pWidth = doc.internal.pageSize.getWidth();
+        const pHeight = doc.internal.pageSize.getHeight();
+
+        doc.setDrawColor(225, 225, 225);
+        doc.setLineWidth(0.3);
+        doc.line(14, pHeight - 11, pWidth - 14, pHeight - 11);
+
+        doc.text('Generated by AquaTrack · SIWASS, Sinacaban', 14, pHeight - 6);
+        doc.text(`Page ${i} of ${pageCount}`, pWidth - 14, pHeight - 6, { align: 'right' });
+      }
+
+      // 4. Download PDF with standardized name: aquatrack-<type>-<from>-<to>.pdf
+      const fileName = `aquatrack-${REPORT_CSV_SLUGS[reportType]}-${fromDate}-${toDate}.pdf`;
+      doc.save(fileName);
+
+      // 5. Activity Log recording (admin, type, period, barangay, and format: PDF)
+      const actionMsg = `Generated PDF: ${REPORT_TITLES[reportType]} Report | Period: ${fromDate} to ${toDate} | Barangay: ${scopeText} | Format: PDF`;
+      advisoriesStore.appendAuditLog(actionMsg, generatedByName);
+
+      // 6. Confirmation message
+      setReportReadyMessage(`Report ready: "${fileName}" has been generated and downloaded.`);
+    } catch {
+      setPdfError('Failed to build PDF report. Please try again.');
+    } finally {
       setIsGenerating(false);
-      setReportGenerated(true);
-    }, 300);
+    }
   };
 
   // Handle Export CSV action tailored to Section C columns and naming convention
@@ -618,7 +943,7 @@ export function AdminReportsView() {
       ];
       rows = filteredRequests.map((r) => {
         const custName =
-          r.customer?.name ||
+          (r.customer as any)?.name ||
           r.customer?.full_name ||
           (r.customer_profile
             ? `${r.customer_profile.first_name || ''} ${r.customer_profile.last_name || ''}`.trim()
@@ -742,68 +1067,81 @@ export function AdminReportsView() {
     }
   }, [reportType]);
 
-  const generatedAtFormatted = useMemo(() => {
-    return new Date().toLocaleString('en-PH', {
-      timeZone: 'Asia/Manila',
-      year: 'numeric',
-      month: 'short',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
-    });
-  }, []);
-
   return (
     <AdminLayout currentPath="/admin/reports" onNavigate={(path) => navigate(path)}>
-      <div className="space-y-4 text-[14px] text-black">
-        {/* Header */}
-        <div className="border-b border-black/10 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 print:hidden">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-black tracking-tight">
-              Maintenance Reports
-            </h1>
-            <p className="text-xs text-black/50 mt-0.5">
-              SIWASS Municipal Utility · Operations, maintenance resolution, and ledger exports
-            </p>
-          </div>
-          {reportGenerated && (
-            <Button
-              type="button"
-              variant="secondary"
-              leftIcon={<IconPrinter size={14} />}
-              onClick={() => window.print()}
-              className="text-xs font-semibold self-start sm:self-auto"
-            >
-              Print or Save as PDF
-            </Button>
-          )}
+      <div className="space-y-6 text-[14px] text-black">
+        {/* Header - Direct & Clean, Minimal Text */}
+        <div className="border-b border-black/10 pb-3">
+          <h1 className="text-xl sm:text-2xl font-bold text-black tracking-tight">
+            Maintenance Reports
+          </h1>
         </div>
 
         {/* Configuration Card */}
-        <Card className="p-5 border border-black/10 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.14),0_6px_10px_-4px_rgba(0,0,0,0.08)] space-y-4 bg-white rounded-md print:hidden">
-          {reportGenerated && (
-            <div className="p-3 bg-[#F0F6FD] border border-[#1E6FD9]/20 rounded-lg text-xs text-black flex items-center justify-between gap-2">
+        <Card className="p-5 border border-black/10 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.14),0_6px_10px_-4px_rgba(0,0,0,0.08)] space-y-4 bg-white rounded-md">
+          {/* Feedback: Short "Report ready" message */}
+          {reportReadyMessage && (
+            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-800 flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <IconCheck size={16} className="text-[#1E6FD9] shrink-0" />
-                <span className="font-semibold text-black">
-                  Report compiled successfully from municipal records
-                </span>
+                <IconCheck size={16} className="text-emerald-600 shrink-0" />
+                <span className="font-semibold">{reportReadyMessage}</span>
               </div>
-              <Badge variant="blue" className="text-[11px]">
-                {activeRecordsCount} records
-              </Badge>
+              <button
+                type="button"
+                onClick={() => setReportReadyMessage(null)}
+                className="text-emerald-700 hover:text-emerald-900 text-xs font-bold cursor-pointer"
+              >
+                Dismiss
+              </button>
             </div>
           )}
 
-          <form onSubmit={handleGenerateReport} className="space-y-4">
+          {/* Feedback: Error message with Try again */}
+          {pdfError && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-800 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <IconAlertCircle size={16} className="text-red-600 shrink-0" />
+                <span>{pdfError}</span>
+              </div>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleGeneratePdf}
+                className="text-xs px-2.5 py-1"
+              >
+                Try again
+              </Button>
+            </div>
+          )}
+
+          {/* Size Limit Warning: Request log holds up to 500 rows */}
+          {isRequestLogOverLimit && (
+            <div className="p-3 rounded-lg bg-urgency-medium/10 border border-urgency-medium/30 text-xs text-black flex items-start gap-2.5">
+              <IconAlertTriangle size={17} className="text-urgency-medium shrink-0 mt-0.5" />
+              <div>
+                <span className="font-bold block text-black">Request Log PDF Limit Exceeded</span>
+                <span className="text-black/80">
+                  The request log PDF holds up to 500 rows (currently {filteredRequests.length} matching records).
+                  Please narrow the date range or use <strong>Export CSV</strong> to download the complete ledger.
+                </span>
+              </div>
+            </div>
+          )}
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleGeneratePdf();
+            }}
+            className="space-y-4"
+          >
             {/* 1. Report Type Selector */}
             <div>
               <label
                 htmlFor="report-type-select"
                 className="block text-xs font-semibold text-black/70 mb-1 flex items-center gap-1.5"
               >
-                <IconTools size={14} className="text-[#1E6FD9]" />
+                <IconTools size={14} className="text-brand-blue" />
                 <span>Report Type</span>
               </label>
               <select
@@ -812,9 +1150,10 @@ export function AdminReportsView() {
                 value={reportType}
                 onChange={(e) => {
                   setReportType(e.target.value as ReportType);
-                  setReportGenerated(false);
+                  setReportReadyMessage(null);
+                  setPdfError(null);
                 }}
-                className="w-full p-2.5 bg-white text-black border border-black/15 rounded-lg text-xs outline-none focus:border-[#1E6FD9]"
+                className="w-full p-2.5 bg-white text-black border border-black/15 rounded-lg text-xs outline-none focus:border-brand-blue"
               >
                 <option value="maintenance_summary">Maintenance summary</option>
                 <option value="request_log">Maintenance request log</option>
@@ -830,28 +1169,28 @@ export function AdminReportsView() {
               <button
                 type="button"
                 onClick={() => handleApplyDatePreset('this_month')}
-                className="px-2.5 py-1 text-xs rounded border border-black/15 bg-slate-50 hover:bg-black/5 text-black font-medium transition-colors"
+                className="px-2.5 py-1 text-xs rounded border border-black/15 bg-slate-50 hover:bg-black/5 text-black font-medium transition-colors cursor-pointer"
               >
                 This Month
               </button>
               <button
                 type="button"
                 onClick={() => handleApplyDatePreset('last_month')}
-                className="px-2.5 py-1 text-xs rounded border border-black/15 bg-slate-50 hover:bg-black/5 text-black font-medium transition-colors"
+                className="px-2.5 py-1 text-xs rounded border border-black/15 bg-slate-50 hover:bg-black/5 text-black font-medium transition-colors cursor-pointer"
               >
                 Last Month
               </button>
               <button
                 type="button"
                 onClick={() => handleApplyDatePreset('last_30_days')}
-                className="px-2.5 py-1 text-xs rounded border border-black/15 bg-slate-50 hover:bg-black/5 text-black font-medium transition-colors"
+                className="px-2.5 py-1 text-xs rounded border border-black/15 bg-slate-50 hover:bg-black/5 text-black font-medium transition-colors cursor-pointer"
               >
                 Last 30 Days
               </button>
               <button
                 type="button"
                 onClick={() => handleApplyDatePreset('year_to_date')}
-                className="px-2.5 py-1 text-xs rounded border border-black/15 bg-slate-50 hover:bg-black/5 text-black font-medium transition-colors"
+                className="px-2.5 py-1 text-xs rounded border border-black/15 bg-slate-50 hover:bg-black/5 text-black font-medium transition-colors cursor-pointer"
               >
                 Year to Date
               </button>
@@ -864,7 +1203,7 @@ export function AdminReportsView() {
                   htmlFor="from-date-input"
                   className="block text-xs font-semibold text-black/70 mb-1 flex items-center gap-1"
                 >
-                  <IconCalendar size={13} className="text-[#1E6FD9]" />
+                  <IconCalendar size={13} className="text-brand-blue" />
                   <span>From</span>
                 </label>
                 <input
@@ -874,10 +1213,11 @@ export function AdminReportsView() {
                   value={fromDate}
                   onChange={(e) => {
                     setFromDate(e.target.value);
-                    setReportGenerated(false);
+                    setReportReadyMessage(null);
+                    setPdfError(null);
                   }}
                   className={`w-full p-2 bg-white text-black border rounded text-xs outline-none font-normal ${
-                    dateError ? 'border-[#E53935] focus:border-[#E53935]' : 'border-black/20 focus:border-[#1E6FD9]'
+                    dateError ? 'border-urgency-high focus:border-urgency-high' : 'border-black/20 focus:border-brand-blue'
                   }`}
                   required
                 />
@@ -888,7 +1228,7 @@ export function AdminReportsView() {
                   htmlFor="to-date-input"
                   className="block text-xs font-semibold text-black/70 mb-1 flex items-center gap-1"
                 >
-                  <IconCalendar size={13} className="text-[#1E6FD9]" />
+                  <IconCalendar size={13} className="text-brand-blue" />
                   <span>To</span>
                 </label>
                 <input
@@ -898,10 +1238,11 @@ export function AdminReportsView() {
                   value={toDate}
                   onChange={(e) => {
                     setToDate(e.target.value);
-                    setReportGenerated(false);
+                    setReportReadyMessage(null);
+                    setPdfError(null);
                   }}
                   className={`w-full p-2 bg-white text-black border rounded text-xs outline-none font-normal ${
-                    dateError ? 'border-[#E53935] focus:border-[#E53935]' : 'border-black/20 focus:border-[#1E6FD9]'
+                    dateError ? 'border-urgency-high focus:border-urgency-high' : 'border-black/20 focus:border-brand-blue'
                   }`}
                   required
                 />
@@ -910,7 +1251,7 @@ export function AdminReportsView() {
 
             {/* Date Validation Alert Banner */}
             {dateError && (
-              <div className="p-2.5 rounded-md bg-[#E53935]/10 border border-[#E53935]/30 text-xs text-[#E53935] font-semibold flex items-center gap-2">
+              <div className="p-2.5 rounded-md bg-urgency-high/10 border border-urgency-high/30 text-xs text-urgency-high font-semibold flex items-center gap-2">
                 <IconAlertCircle size={15} className="shrink-0" />
                 <span>{dateError}</span>
               </div>
@@ -922,7 +1263,7 @@ export function AdminReportsView() {
                 htmlFor="barangay-filter-select"
                 className="block text-xs font-semibold text-black/70 mb-1 flex items-center gap-1"
               >
-                <IconFilter size={13} className="text-[#1E6FD9]" />
+                <IconFilter size={13} className="text-brand-blue" />
                 <span>Barangay</span>
               </label>
               <select
@@ -930,9 +1271,10 @@ export function AdminReportsView() {
                 value={selectedBarangay}
                 onChange={(e) => {
                   setSelectedBarangay(e.target.value);
-                  setReportGenerated(false);
+                  setReportReadyMessage(null);
+                  setPdfError(null);
                 }}
-                className="w-full p-2 bg-white text-black border border-black/20 rounded text-xs outline-none focus:border-[#1E6FD9]"
+                className="w-full p-2 bg-white text-black border border-black/20 rounded text-xs outline-none focus:border-brand-blue"
               >
                 <option value="all">All barangays (Sinacaban Municipal Wide)</option>
                 {barangays.map((b) => (
@@ -947,7 +1289,7 @@ export function AdminReportsView() {
             <div className="border border-black/15 rounded p-4 bg-white space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-bold text-black flex items-center gap-1.5">
-                  <IconFileSpreadsheet size={16} className="text-[#1E6FD9]" />
+                  <IconFileSpreadsheet size={16} className="text-brand-blue" />
                   <span>{previewHeaderTitle}</span>
                 </span>
                 <Badge variant={activeRecordsCount > 0 ? 'blue' : 'outline'}>
@@ -978,7 +1320,7 @@ export function AdminReportsView() {
                       </div>
                       <div className="bg-white p-3 border border-black/15 rounded">
                         <span className="text-xs font-semibold text-black/60 block">Resolved</span>
-                        <strong className="text-2xl font-bold text-[#1E6FD9] block mt-1">
+                        <strong className="text-2xl font-bold text-brand-blue block mt-1">
                           {countsByStatus.resolved}
                         </strong>
                       </div>
@@ -1020,7 +1362,7 @@ export function AdminReportsView() {
                       </div>
                       <div className="bg-white p-3 border border-black/15 rounded">
                         <span className="text-xs font-semibold text-black/60 block">Assigned</span>
-                        <strong className="text-2xl font-bold text-[#1E6FD9] block mt-1">
+                        <strong className="text-2xl font-bold text-brand-blue block mt-1">
                           {countsByStatus.assigned}
                         </strong>
                       </div>
@@ -1032,7 +1374,7 @@ export function AdminReportsView() {
                       </div>
                       <div className="bg-white p-3 border border-black/15 rounded">
                         <span className="text-xs font-semibold text-black/60 block">Resolved</span>
-                        <strong className="text-2xl font-bold text-[#1E6FD9] block mt-1">
+                        <strong className="text-2xl font-bold text-brand-blue block mt-1">
                           {countsByStatus.resolved}
                         </strong>
                       </div>
@@ -1044,7 +1386,7 @@ export function AdminReportsView() {
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[14px]">
                       <div className="bg-white p-3 border border-black/15 rounded">
                         <span className="text-xs font-semibold text-black/60 block">Barangays with Requests</span>
-                        <strong className="text-2xl font-bold text-[#1E6FD9] block mt-1">
+                        <strong className="text-2xl font-bold text-brand-blue block mt-1">
                           {barangayReportData.filter((b) => b.total > 0).length}
                         </strong>
                       </div>
@@ -1077,7 +1419,7 @@ export function AdminReportsView() {
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[14px]">
                       <div className="bg-white p-3 border border-black/15 rounded">
                         <span className="text-xs font-semibold text-black/60 block">Active Field Staff</span>
-                        <strong className="text-2xl font-bold text-[#1E6FD9] block mt-1">
+                        <strong className="text-2xl font-bold text-brand-blue block mt-1">
                           {staffTaskReportData.length}
                         </strong>
                       </div>
@@ -1095,7 +1437,7 @@ export function AdminReportsView() {
                       </div>
                       <div className="bg-white p-3 border border-black/15 rounded">
                         <span className="text-xs font-semibold text-black/60 block">Resolved</span>
-                        <strong className="text-2xl font-bold text-[#1E6FD9] block mt-1">
+                        <strong className="text-2xl font-bold text-brand-blue block mt-1">
                           {staffTaskReportData.reduce((acc, s) => acc + s.resolvedCount, 0)}
                         </strong>
                       </div>
@@ -1107,7 +1449,7 @@ export function AdminReportsView() {
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[14px]">
                       <div className="bg-white p-3 border border-black/15 rounded">
                         <span className="text-xs font-semibold text-black/60 block">Total Advisories</span>
-                        <strong className="text-2xl font-bold text-[#1E6FD9] block mt-1">
+                        <strong className="text-2xl font-bold text-brand-blue block mt-1">
                           {filteredAdvisories.length}
                         </strong>
                       </div>
@@ -1140,7 +1482,7 @@ export function AdminReportsView() {
                       </div>
                       <div className="bg-white p-3 border border-black/15 rounded">
                         <span className="text-xs font-semibold text-black/60 block">Completed / Restored</span>
-                        <strong className="text-2xl font-bold text-[#1E6FD9] block mt-1">
+                        <strong className="text-2xl font-bold text-brand-blue block mt-1">
                           {
                             filteredAdvisories.filter(
                               (a) =>
@@ -1157,7 +1499,7 @@ export function AdminReportsView() {
               )}
             </div>
 
-            {/* 5. Actions: Export CSV & Generate Report */}
+            {/* 5. Actions: Export CSV & Generate Report (PDF) */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-2 border-t border-black/10">
               <Button
                 type="button"
@@ -1173,9 +1515,9 @@ export function AdminReportsView() {
               <Button
                 type="submit"
                 variant="primary"
-                disabled={activeRecordsCount === 0 || !!dateError}
+                disabled={activeRecordsCount === 0 || !!dateError || isRequestLogOverLimit}
                 isLoading={isGenerating}
-                leftIcon={<IconCheck size={15} />}
+                leftIcon={<IconFileText size={15} />}
                 className="w-full sm:w-auto"
               >
                 Generate report
@@ -1183,480 +1525,6 @@ export function AdminReportsView() {
             </div>
           </form>
         </Card>
-
-        {/* 6. COMPILED REPORT VIEW (Printable page rendered when Generate Report is clicked) */}
-        {reportGenerated && (
-          <div
-            id="aquatrack-report-print-area"
-            className="p-6 border border-black/10 rounded-md shadow-[0_10px_25px_-5px_rgba(0,0,0,0.14),0_6px_10px_-4px_rgba(0,0,0,0.08)] space-y-6 bg-white animate-hero-entrance print:border-none print:shadow-none print:p-0"
-          >
-            {/* Report Document Header */}
-            <div className="border-b border-black/10 pb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <IconBuildingCommunity size={16} className="text-[#1E6FD9]" />
-                  <span className="text-[11px] uppercase tracking-wider font-bold text-[#1E6FD9] block">
-                    Official Municipal Ledger Report · SIWASS Water District
-                  </span>
-                </div>
-                <h2 className="text-lg sm:text-xl font-bold text-black mt-0.5">
-                  {REPORT_TITLES[reportType]} Report
-                </h2>
-                <div className="text-xs text-black/65 mt-1.5 flex flex-wrap items-center gap-x-5 gap-y-1">
-                  <span>
-                    <strong>Period:</strong> {fromDate} to {toDate}
-                  </span>
-                  <span>
-                    <strong>Barangay Scope:</strong>{' '}
-                    {selectedBarangay === 'all'
-                      ? 'All barangays (Sinacaban Municipal Wide)'
-                      : `Barangay ${selectedBarangay}`}
-                  </span>
-                  <span>
-                    <strong>Generated By:</strong> {generatedByName}
-                  </span>
-                  <span>
-                    <strong>Date Generated:</strong> {generatedAtFormatted} (PHT)
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 print:hidden">
-                <Badge variant="blue" className="text-xs shrink-0">
-                  {activeRecordsCount} records included
-                </Badge>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  leftIcon={<IconPrinter size={14} />}
-                  onClick={() => window.print()}
-                  className="text-xs font-semibold"
-                >
-                  Print or Save as PDF
-                </Button>
-              </div>
-            </div>
-
-            {/* REPORT 1: MAINTENANCE SUMMARY */}
-            {reportType === 'maintenance_summary' && (
-              <div className="space-y-6">
-                {/* Executive Summary Metrics */}
-                <div className="grid grid-cols-2 sm:grid-cols-6 gap-2.5">
-                  <div className="bg-slate-50 p-3 border border-black/10 rounded">
-                    <span className="text-xs text-black/60 font-semibold block">Total Requests</span>
-                    <strong className="text-xl font-bold text-black block mt-1">
-                      {filteredRequests.length}
-                    </strong>
-                  </div>
-                  <div className="bg-slate-50 p-3 border border-black/10 rounded">
-                    <span className="text-xs text-black/60 font-semibold block">Submitted</span>
-                    <strong className="text-xl font-bold text-black block mt-1">
-                      {countsByStatus.submitted}
-                    </strong>
-                  </div>
-                  <div className="bg-slate-50 p-3 border border-black/10 rounded">
-                    <span className="text-xs text-black/60 font-semibold block">Assigned</span>
-                    <strong className="text-xl font-bold text-[#1E6FD9] block mt-1">
-                      {countsByStatus.assigned}
-                    </strong>
-                  </div>
-                  <div className="bg-slate-50 p-3 border border-black/10 rounded">
-                    <span className="text-xs text-black/60 font-semibold block">In Progress</span>
-                    <strong className="text-xl font-bold text-black block mt-1">
-                      {countsByStatus.in_progress}
-                    </strong>
-                  </div>
-                  <div className="bg-slate-50 p-3 border border-black/10 rounded">
-                    <span className="text-xs text-black/60 font-semibold block">Resolved</span>
-                    <strong className="text-xl font-bold text-[#1E6FD9] block mt-1">
-                      {countsByStatus.resolved}
-                    </strong>
-                  </div>
-                  <div className="bg-slate-50 p-3 border border-black/10 rounded">
-                    <span className="text-xs text-black/60 font-semibold block">Cancelled</span>
-                    <strong className="text-xl font-bold text-black/60 block mt-1">
-                      {countsByStatus.cancelled}
-                    </strong>
-                  </div>
-                </div>
-
-                {/* Status & Urgency Breakdown Tables */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* By Status */}
-                  <div className="border border-black/15 rounded overflow-hidden">
-                    <div className="bg-black/5 px-3.5 py-2 font-bold text-xs uppercase tracking-wider text-black border-b border-black/15">
-                      Status Distribution
-                    </div>
-                    <table className="w-full text-left text-xs">
-                      <tbody>
-                        <tr className="border-b border-black/5">
-                          <td className="px-3.5 py-2 font-medium">Submitted</td>
-                          <td className="px-3.5 py-2 text-right font-bold text-black">
-                            {countsByStatus.submitted}
-                          </td>
-                        </tr>
-                        <tr className="border-b border-black/5">
-                          <td className="px-3.5 py-2 font-medium">Assigned</td>
-                          <td className="px-3.5 py-2 text-right font-bold text-[#1E6FD9]">
-                            {countsByStatus.assigned}
-                          </td>
-                        </tr>
-                        <tr className="border-b border-black/5">
-                          <td className="px-3.5 py-2 font-medium">In Progress</td>
-                          <td className="px-3.5 py-2 text-right font-bold text-black">
-                            {countsByStatus.in_progress}
-                          </td>
-                        </tr>
-                        <tr className="border-b border-black/5">
-                          <td className="px-3.5 py-2 font-medium">Resolved</td>
-                          <td className="px-3.5 py-2 text-right font-bold text-[#1E6FD9]">
-                            {countsByStatus.resolved}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td className="px-3.5 py-2 font-medium">Cancelled</td>
-                          <td className="px-3.5 py-2 text-right font-bold text-black/50">
-                            {countsByStatus.cancelled}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-
-                  {/* By Urgency */}
-                  <div className="border border-black/15 rounded overflow-hidden">
-                    <div className="bg-black/5 px-3.5 py-2 font-bold text-xs uppercase tracking-wider text-black border-b border-black/15">
-                      Urgency Distribution
-                    </div>
-                    <table className="w-full text-left text-xs">
-                      <tbody>
-                        <tr className="border-b border-black/5">
-                          <td className="px-3.5 py-2 font-medium text-black flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-[#E53935]" />
-                            <span>High Urgency</span>
-                          </td>
-                          <td className="px-3.5 py-2 text-right font-bold text-black">
-                            {countsByUrgency.high}
-                          </td>
-                        </tr>
-                        <tr className="border-b border-black/5">
-                          <td className="px-3.5 py-2 font-medium text-black flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-[#FB8C00]" />
-                            <span>Medium Urgency</span>
-                          </td>
-                          <td className="px-3.5 py-2 text-right font-bold text-black">
-                            {countsByUrgency.medium}
-                          </td>
-                        </tr>
-                        <tr className="border-b border-black/5">
-                          <td className="px-3.5 py-2 font-medium text-black flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-[#EAB308]" />
-                            <span>Low Urgency</span>
-                          </td>
-                          <td className="px-3.5 py-2 text-right font-bold text-black/60">
-                            {countsByUrgency.low}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td className="px-3.5 py-2 font-medium text-black/70">
-                            Avg Resolution Time (Submitted to Resolved)
-                          </td>
-                          <td className="px-3.5 py-2 text-right font-bold text-[#1E6FD9]">
-                            {averageResolutionTime}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-
-                {/* Issue Type Frequency & Barangay Distribution */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="border border-black/15 rounded overflow-hidden">
-                    <div className="bg-black/5 px-3.5 py-2 font-bold text-xs uppercase tracking-wider text-black border-b border-black/15">
-                      Requests by Issue Type
-                    </div>
-                    {issueTypesDistribution.length === 0 ? (
-                      <div className="p-4 text-center text-xs text-black/50">No issues recorded in period.</div>
-                    ) : (
-                      <div className="divide-y divide-black/5 max-h-64 overflow-y-auto">
-                        {issueTypesDistribution.map(([type, cnt]) => (
-                          <div key={type} className="px-3.5 py-2 text-xs flex items-center justify-between">
-                            <span className="font-medium text-black">{type}</span>
-                            <span className="font-bold text-black bg-black/5 px-2 py-0.5 rounded">
-                              {cnt} {cnt === 1 ? 'request' : 'requests'}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="border border-black/15 rounded overflow-hidden">
-                    <div className="bg-black/5 px-3.5 py-2 font-bold text-xs uppercase tracking-wider text-black border-b border-black/15">
-                      Requests by Barangay
-                    </div>
-                    {barangayReportData.filter((b) => b.total > 0).length === 0 ? (
-                      <div className="p-4 text-center text-xs text-black/50">No barangay requests recorded.</div>
-                    ) : (
-                      <div className="divide-y divide-black/5 max-h-64 overflow-y-auto">
-                        {barangayReportData.map((b) => (
-                          <div key={b.barangay} className="px-3.5 py-2 text-xs flex items-center justify-between">
-                            <span className="font-medium text-black">{b.barangay}</span>
-                            <span className="font-bold text-black bg-black/5 px-2 py-0.5 rounded">
-                              {b.total} {b.total === 1 ? 'request' : 'requests'}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* REPORT 2: MAINTENANCE REQUEST LOG */}
-            {reportType === 'request_log' && (
-              <div className="space-y-3">
-                <div className="overflow-x-auto border border-black/15 rounded">
-                  <table className="w-full text-left text-xs border-collapse">
-                    <thead>
-                      <tr className="bg-black/5 border-b border-black/15 text-black font-bold">
-                        <th className="p-2.5">Request ID</th>
-                        <th className="p-2.5">Date Submitted</th>
-                        <th className="p-2.5">Customer</th>
-                        <th className="p-2.5">Barangay</th>
-                        <th className="p-2.5">Issue Type</th>
-                        <th className="p-2.5">Urgency</th>
-                        <th className="p-2.5">Status</th>
-                        <th className="p-2.5">Assigned Staff</th>
-                        <th className="p-2.5">Date Resolved</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-black/10">
-                      {filteredRequests.length === 0 ? (
-                        <tr>
-                          <td colSpan={9} className="p-6 text-center text-black/50">
-                            No requests found matching the period and barangay filter.
-                          </td>
-                        </tr>
-                      ) : (
-                        filteredRequests.map((r) => {
-                          const custName =
-                            r.customer?.name ||
-                            r.customer?.full_name ||
-                            (r.customer_profile
-                              ? `${r.customer_profile.first_name || ''} ${r.customer_profile.last_name || ''}`.trim()
-                              : '') ||
-                            (r as any).customer_name ||
-                            'Resident Consumer';
-                          const isCancelled = r.status === 'cancelled';
-
-                          return (
-                            <tr
-                              key={r.id}
-                              className={`transition-colors ${
-                                isCancelled ? 'bg-red-50/50 hover:bg-red-50' : 'hover:bg-black/[0.02]'
-                              }`}
-                            >
-                              <td className="p-2.5 font-bold font-mono text-black">
-                                {r.reference_number || r.reference_no || r.reference || `AT-${r.id}`}
-                              </td>
-                              <td className="p-2.5 whitespace-nowrap text-black/75">
-                                {formatPhilippineDate(r.created_at)}
-                              </td>
-                              <td className="p-2.5 font-medium text-black">{custName}</td>
-                              <td className="p-2.5 text-black/80">
-                                {r.customer?.barangay || r.customer_profile?.barangay?.name || 'Poblacion'}
-                              </td>
-                              <td className="p-2.5 font-medium text-black">
-                                {r.issue_type?.name ||
-                                  (typeof r.issue_type === 'string' ? r.issue_type : 'General Leak')}
-                              </td>
-                              <td className="p-2.5">
-                                <Badge
-                                  variant={r.urgency === 'high' ? 'blue' : 'outline'}
-                                  className="text-[10px] capitalize font-bold"
-                                >
-                                  {r.urgency}
-                                </Badge>
-                              </td>
-                              <td className="p-2.5">
-                                {isCancelled ? (
-                                  <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-red-100 text-red-700 border border-red-200">
-                                    Cancelled
-                                  </span>
-                                ) : (
-                                  <Badge
-                                    variant={
-                                      r.status === 'resolved' || r.status === 'in_progress'
-                                        ? 'blue'
-                                        : 'outline'
-                                    }
-                                    className="text-[10px] uppercase font-bold"
-                                  >
-                                    {r.status}
-                                  </Badge>
-                                )}
-                              </td>
-                              <td className="p-2.5 font-medium text-black/80">
-                                {r.assigned_staff?.name || 'Unassigned'}
-                              </td>
-                              <td className="p-2.5 whitespace-nowrap text-black/70">
-                                {r.status === 'resolved'
-                                  ? formatPhilippineDate(r.resolved_at || r.updated_at)
-                                  : '—'}
-                              </td>
-                            </tr>
-                          );
-                        })
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* REPORT 3: REQUESTS BY BARANGAY */}
-            {reportType === 'by_barangay' && (
-              <div className="space-y-4">
-                <div className="overflow-x-auto border border-black/15 rounded">
-                  <table className="w-full text-left text-xs border-collapse">
-                    <thead>
-                      <tr className="bg-black/5 border-b border-black/15 text-black font-bold">
-                        <th className="p-2.5">Barangay</th>
-                        <th className="p-2.5 text-center">Total Requests</th>
-                        <th className="p-2.5 text-center">Resolved</th>
-                        <th className="p-2.5 text-center">Still Open</th>
-                        <th className="p-2.5">Most Common Issue Type</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-black/10">
-                      {barangayReportData.map((b) => (
-                        <tr key={b.barangay} className="hover:bg-black/[0.02] transition-colors">
-                          <td className="p-2.5 font-bold text-black">{b.barangay}</td>
-                          <td className="p-2.5 text-center font-bold text-black">{b.total}</td>
-                          <td className="p-2.5 text-center font-semibold text-[#1E6FD9]">{b.resolved}</td>
-                          <td className="p-2.5 text-center font-semibold text-black">{b.stillOpen}</td>
-                          <td className="p-2.5 text-black/85 font-medium">{b.topIssue}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* REPORT 4: STAFF TASK REPORT */}
-            {reportType === 'staff_tasks' && (
-              <div className="space-y-4">
-                <div className="overflow-x-auto border border-black/15 rounded">
-                  <table className="w-full text-left text-xs border-collapse">
-                    <thead>
-                      <tr className="bg-black/5 border-b border-black/15 text-black font-bold">
-                        <th className="p-2.5">Staff Member</th>
-                        <th className="p-2.5 text-center">Tasks Assigned in Period</th>
-                        <th className="p-2.5 text-center">In Progress</th>
-                        <th className="p-2.5 text-center">Resolved</th>
-                        <th className="p-2.5 text-right">Avg Time (Assigned to Resolved)</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-black/10">
-                      {staffTaskReportData.length === 0 ? (
-                        <tr>
-                          <td colSpan={5} className="p-6 text-center text-black/50">
-                            No field technicians recorded.
-                          </td>
-                        </tr>
-                      ) : (
-                        staffTaskReportData.map((s) => (
-                          <tr key={s.id} className="hover:bg-black/[0.02] transition-colors">
-                            <td className="p-2.5 font-bold text-black">
-                              <div>{s.name}</div>
-                              <div className="text-[10px] text-black/50 font-normal">{s.assignedBarangay}</div>
-                            </td>
-                            <td className="p-2.5 text-center font-bold text-[#1E6FD9]">
-                              {s.assignedCount}
-                            </td>
-                            <td className="p-2.5 text-center font-semibold text-black">
-                              {s.inProgressCount}
-                            </td>
-                            <td className="p-2.5 text-center font-semibold text-[#1E6FD9]">
-                              {s.resolvedCount}
-                            </td>
-                            <td className="p-2.5 text-right font-bold text-black">
-                              {s.avgTime}
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* REPORT 5: WATER ADVISORY REPORT */}
-            {reportType === 'water_advisories' && (
-              <div className="space-y-4">
-                <div className="overflow-x-auto border border-black/15 rounded">
-                  <table className="w-full text-left text-xs border-collapse">
-                    <thead>
-                      <tr className="bg-black/5 border-b border-black/15 text-black font-bold">
-                        <th className="p-2.5">Advisory Type and Title</th>
-                        <th className="p-2.5">Affected Barangays</th>
-                        <th className="p-2.5">Start</th>
-                        <th className="p-2.5">Expected End</th>
-                        <th className="p-2.5">Actual End</th>
-                        <th className="p-2.5 text-center">Status</th>
-                        <th className="p-2.5 text-right">Customers Notified</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-black/10">
-                      {advisoryReportData.length === 0 ? (
-                        <tr>
-                          <td colSpan={7} className="p-6 text-center text-black/50">
-                            No water advisories recorded within this period and barangay filter.
-                          </td>
-                        </tr>
-                      ) : (
-                        advisoryReportData.map((a) => (
-                          <tr key={a.id} className="hover:bg-black/[0.02] transition-colors">
-                            <td className="p-2.5 font-bold text-black">{a.title}</td>
-                            <td className="p-2.5 text-black/75 font-medium">{a.affectedBarangays}</td>
-                            <td className="p-2.5 whitespace-nowrap font-mono text-black/80">
-                              {a.startsAt}
-                            </td>
-                            <td className="p-2.5 whitespace-nowrap font-mono text-black/80">
-                              {a.expectedEndsAt}
-                            </td>
-                            <td className="p-2.5 whitespace-nowrap font-mono text-black/80">
-                              {a.actualEndsAt}
-                            </td>
-                            <td className="p-2.5 text-center">
-                              <Badge
-                                variant={
-                                  a.status === 'ongoing' || (!a.status && (a as any).is_published)
-                                    ? 'blue'
-                                    : 'outline'
-                                }
-                                className="text-[10px] uppercase font-bold"
-                              >
-                                {a.status}
-                              </Badge>
-                            </td>
-                            <td className="p-2.5 text-right font-bold text-[#1E6FD9]">
-                              {a.customersNotified}
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
 
         {/* Modern System Notification & Confirmation Modal */}
         <SystemModal

@@ -914,7 +914,7 @@ export function AdminBillingImportView() {
                 setActiveTab('periods');
               }
             }}
-            className="bg-[#1E6FD9] rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
+            className="bg-brand-blue rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
           >
             <div className="w-16 sm:w-20 bg-black/10 flex items-center justify-center border-r border-white/15 shrink-0">
               <IconCalendar size={32} stroke={1.75} className="text-white" />
@@ -934,7 +934,7 @@ export function AdminBillingImportView() {
               setActiveTab('records');
               setBalanceFilter('unpaid');
             }}
-            className="bg-[#E53935] rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
+            className="bg-urgency-high rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
           >
             <div className="w-16 sm:w-20 bg-black/10 flex items-center justify-center border-r border-white/15 shrink-0">
               <IconReceipt size={32} stroke={1.75} className="text-white" />
@@ -951,7 +951,7 @@ export function AdminBillingImportView() {
 
           <div
             onClick={() => setActiveTab('payments')}
-            className="bg-[#43A047] rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
+            className="bg-urgency-low rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
           >
             <div className="w-16 sm:w-20 bg-black/10 flex items-center justify-center border-r border-white/15 shrink-0">
               <IconCash size={32} stroke={1.75} className="text-white" />
@@ -968,7 +968,7 @@ export function AdminBillingImportView() {
 
           <div
             onClick={() => setActiveTab('periods')}
-            className="bg-[#7C3AED] rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
+            className="bg-purple-600 rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
           >
             <div className="w-16 sm:w-20 bg-black/10 flex items-center justify-center border-r border-white/15 shrink-0">
               <IconBellRinging size={32} stroke={1.75} className="text-white" />
@@ -992,7 +992,7 @@ export function AdminBillingImportView() {
                 onClick={() => setActiveTab('records')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-all cursor-pointer ${
                   activeTab === 'records'
-                    ? 'bg-[#1E6FD9] text-white shadow-sm'
+                    ? 'bg-brand-blue text-white shadow-sm'
                     : 'text-black/70 hover:text-black hover:bg-black/5'
                 }`}
               >
@@ -1010,7 +1010,7 @@ export function AdminBillingImportView() {
                 onClick={() => setActiveTab('periods')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-all cursor-pointer ${
                   activeTab === 'periods'
-                    ? 'bg-[#1E6FD9] text-white shadow-sm'
+                    ? 'bg-brand-blue text-white shadow-sm'
                     : 'text-black/70 hover:text-black hover:bg-black/5'
                 }`}
               >
@@ -1028,7 +1028,7 @@ export function AdminBillingImportView() {
                 onClick={() => setActiveTab('payments')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-all cursor-pointer ${
                   activeTab === 'payments'
-                    ? 'bg-[#1E6FD9] text-white shadow-sm'
+                    ? 'bg-brand-blue text-white shadow-sm'
                     : 'text-black/70 hover:text-black hover:bg-black/5'
                 }`}
               >
@@ -1052,10 +1052,10 @@ export function AdminBillingImportView() {
                     className={`px-2.5 py-1 rounded text-xs font-bold capitalize transition-all cursor-pointer ${
                       balanceFilter === bf
                         ? bf === 'settled'
-                          ? 'bg-[#43A047] text-white shadow-xs'
+                          ? 'bg-urgency-low text-white shadow-xs'
                           : bf === 'unpaid'
-                          ? 'bg-[#FB8C00] text-white shadow-xs'
-                          : 'bg-[#1E6FD9] text-white shadow-xs'
+                          ? 'bg-urgency-medium text-white shadow-xs'
+                          : 'bg-brand-blue text-white shadow-xs'
                         : 'bg-black/5 text-black/70 hover:bg-black/10'
                     }`}
                   >
@@ -1068,7 +1068,7 @@ export function AdminBillingImportView() {
             {activeTab === 'periods' && (
               <div className="flex items-center gap-2 text-xs">
                 {openPeriod ? (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#43A047]/15 text-[#43A047] font-bold">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-urgency-low/15 text-urgency-low font-bold">
                     <IconLockOpen size={13} />
                     <span>Open: {openPeriod.label}</span>
                   </span>
@@ -1090,7 +1090,7 @@ export function AdminBillingImportView() {
                   placeholder="Search customer, meter #, or account #..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-8 pr-3 py-1.5 text-xs bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                  className="w-full pl-8 pr-3 py-1.5 text-xs bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue"
                 />
                 <IconSearch size={14} className="absolute left-2.5 top-2.5 text-black/40" />
               </div>
@@ -1100,7 +1100,7 @@ export function AdminBillingImportView() {
                   value={selectedPeriodId}
                   onChange={(e) => setSelectedPeriodId(e.target.value)}
                   aria-label="Filter by Billing Period"
-                  className="w-full px-2.5 py-1.5 text-xs bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9] font-semibold"
+                  className="w-full px-2.5 py-1.5 text-xs bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue font-semibold"
                 >
                   <option value="all">All Periods</option>
                   {periods.map((p) => (
@@ -1116,7 +1116,7 @@ export function AdminBillingImportView() {
                   value={selectedBarangay}
                   onChange={(e) => setSelectedBarangay(e.target.value)}
                   aria-label="Filter by Barangay"
-                  className="w-full px-2.5 py-1.5 text-xs bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                  className="w-full px-2.5 py-1.5 text-xs bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue"
                 >
                   <option value="all">All Barangays</option>
                   {(barangays.length > 0
@@ -1185,13 +1185,13 @@ export function AdminBillingImportView() {
                         >
                           <td className="py-3 px-3">
                             <div className="flex items-center gap-2.5">
-                              <div className="w-8 h-8 rounded-full bg-[#1E6FD9]/15 text-[#1E6FD9] border border-[#1E6FD9]/30 font-extrabold text-xs flex items-center justify-center shrink-0">
+                              <div className="w-8 h-8 rounded-full bg-brand-blue/15 text-brand-blue border border-brand-blue/30 font-extrabold text-xs flex items-center justify-center shrink-0">
                                 {getAvatarInitials(rec.customer_name)}
                               </div>
                               <div className="min-w-0">
-                                <div className="font-extrabold text-black group-hover:text-[#1E6FD9] transition-colors truncate flex items-center gap-1.5">
+                                <div className="font-extrabold text-black group-hover:text-brand-blue transition-colors truncate flex items-center gap-1.5">
                                   <span>{rec.customer_name}</span>
-                                  <span className="font-mono text-[11px] font-bold text-[#1E6FD9] bg-[#1E6FD9]/10 px-1.5 py-0.2 rounded border border-[#1E6FD9]/20">
+                                  <span className="font-mono text-[11px] font-bold text-brand-blue bg-brand-blue/10 px-1.5 py-0.2 rounded border border-brand-blue/20">
                                     {rec.meter_number}
                                   </span>
                                 </div>
@@ -1219,7 +1219,7 @@ export function AdminBillingImportView() {
                             <div className="flex items-center gap-2">
                               <span
                                 className={`font-extrabold text-sm ${
-                                  isSettled ? 'text-[#43A047]' : 'text-[#E53935]'
+                                  isSettled ? 'text-urgency-low' : 'text-urgency-high'
                                 }`}
                               >
                                 ₱{rec.total_balance.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
@@ -1228,7 +1228,7 @@ export function AdminBillingImportView() {
                                 variant={isSettled ? 'blue' : 'outline'}
                                 className={
                                   isSettled
-                                    ? 'bg-[#43A047] text-white border-[#43A047] font-bold'
+                                    ? 'bg-urgency-low text-white border-urgency-low font-bold'
                                     : 'bg-amber-50 text-amber-800 border-amber-300 font-bold'
                                 }
                               >
@@ -1250,7 +1250,7 @@ export function AdminBillingImportView() {
                                 <button
                                   type="button"
                                   onClick={() => handleOpenRecordPaymentModal(rec)}
-                                  className="px-2.5 py-1 text-xs font-bold rounded bg-[#43A047] hover:bg-emerald-700 text-white transition-all flex items-center gap-1 cursor-pointer shadow-xs"
+                                  className="px-2.5 py-1 text-xs font-bold rounded bg-urgency-low hover:bg-emerald-700 text-white transition-all flex items-center gap-1 cursor-pointer shadow-xs"
                                 >
                                   <IconCash size={13} />
                                   <span>Pay</span>
@@ -1261,7 +1261,7 @@ export function AdminBillingImportView() {
                                 onClick={() => setSelectedRecordDetail(rec)}
                                 className="px-2 py-1 text-xs font-bold rounded border border-black/20 hover:border-black/40 text-black hover:bg-black/5 transition-all flex items-center gap-1 cursor-pointer"
                               >
-                                <IconEye size={13} className="text-[#1E6FD9]" />
+                                <IconEye size={13} className="text-brand-blue" />
                                 <span>View</span>
                               </button>
                             </div>
@@ -1292,7 +1292,7 @@ export function AdminBillingImportView() {
                       onClick={() => setCurrentPage(pageNum)}
                       className={`w-7 h-7 rounded text-xs font-bold transition-all cursor-pointer ${
                         currentPage === pageNum
-                          ? 'bg-[#1E6FD9] text-white shadow-xs'
+                          ? 'bg-brand-blue text-white shadow-xs'
                           : 'text-black/70 hover:bg-black/5 hover:text-black'
                       }`}
                     >
@@ -1353,13 +1353,13 @@ export function AdminBillingImportView() {
                             <div
                               className={`w-8 h-8 rounded flex items-center justify-center font-bold shrink-0 ${
                                 isOpen
-                                  ? 'bg-[#43A047]/15 text-[#43A047] border border-[#43A047]/30'
+                                  ? 'bg-urgency-low/15 text-urgency-low border border-urgency-low/30'
                                   : 'bg-black/5 text-black/60 border border-black/15'
                               }`}
                             >
                               <IconCalendar size={16} />
                             </div>
-                            <span className="font-extrabold text-black group-hover:text-[#1E6FD9] transition-colors">
+                            <span className="font-extrabold text-black group-hover:text-brand-blue transition-colors">
                               {period.label}
                             </span>
                           </div>
@@ -1372,7 +1372,7 @@ export function AdminBillingImportView() {
                             variant={isOpen ? 'blue' : 'outline'}
                             className={
                               isOpen
-                                ? 'bg-[#43A047] text-white border-[#43A047] font-bold'
+                                ? 'bg-urgency-low text-white border-urgency-low font-bold'
                                 : 'bg-slate-200 text-slate-800 border-slate-300 font-bold'
                             }
                           >
@@ -1382,7 +1382,7 @@ export function AdminBillingImportView() {
 
                         <td className="py-3 px-3 font-bold text-black">{liveRecCount}</td>
 
-                        <td className="py-3 px-3 font-bold text-[#1E6FD9]">{liveNoticesCount}</td>
+                        <td className="py-3 px-3 font-bold text-brand-blue">{liveNoticesCount}</td>
 
                         <td
                           className="py-3 px-3 text-right"
@@ -1397,7 +1397,7 @@ export function AdminBillingImportView() {
                               }}
                               className="px-2 py-1 text-xs font-bold rounded border border-black/20 hover:border-black/40 text-black hover:bg-black/5 transition-all flex items-center gap-1 cursor-pointer"
                             >
-                              <IconEye size={13} className="text-[#1E6FD9]" />
+                              <IconEye size={13} className="text-brand-blue" />
                               <span>Records</span>
                             </button>
 
@@ -1408,7 +1408,7 @@ export function AdminBillingImportView() {
                               }
                               className="px-2 py-1 text-xs font-bold rounded border border-black/20 hover:border-black/40 text-black hover:bg-black/5 transition-all flex items-center gap-1 cursor-pointer"
                             >
-                              <IconPencil size={13} className="text-[#1E6FD9]" />
+                              <IconPencil size={13} className="text-brand-blue" />
                               <span>Edit</span>
                             </button>
 
@@ -1416,7 +1416,7 @@ export function AdminBillingImportView() {
                               <button
                                 type="button"
                                 onClick={() => handleTogglePeriodStatus(period)}
-                                className="px-2.5 py-1 text-xs font-bold rounded bg-[#FB8C00] hover:bg-amber-600 text-white transition-all flex items-center gap-1 cursor-pointer shadow-xs"
+                                className="px-2.5 py-1 text-xs font-bold rounded bg-urgency-medium hover:bg-amber-600 text-white transition-all flex items-center gap-1 cursor-pointer shadow-xs"
                               >
                                 <IconLock size={13} />
                                 <span>Close</span>
@@ -1428,7 +1428,7 @@ export function AdminBillingImportView() {
                                 disabled={!canReopen}
                                 className="px-2.5 py-1 text-xs font-bold rounded border border-black/20 text-black hover:bg-black/5 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1 cursor-pointer"
                               >
-                                <IconLockOpen size={13} className="text-[#43A047]" />
+                                <IconLockOpen size={13} className="text-urgency-low" />
                                 <span>Reopen</span>
                               </button>
                             )}
@@ -1439,7 +1439,7 @@ export function AdminBillingImportView() {
                                 setPeriodToDelete({ ...period, records_count: liveRecCount })
                               }
                               disabled={!canDelete}
-                              className="px-2 py-1 text-xs font-bold rounded border border-black/20 hover:border-[#E53935] text-[#E53935] hover:bg-red-50 disabled:opacity-35 disabled:cursor-not-allowed transition-all flex items-center gap-1 cursor-pointer"
+                              className="px-2 py-1 text-xs font-bold rounded border border-black/20 hover:border-urgency-high text-urgency-high hover:bg-red-50 disabled:opacity-35 disabled:cursor-not-allowed transition-all flex items-center gap-1 cursor-pointer"
                             >
                               <IconTrash size={13} />
                               <span>Delete</span>
@@ -1494,7 +1494,7 @@ export function AdminBillingImportView() {
                         >
                           <td className="py-3 px-3">
                             <div className="font-bold text-black">{pay.payment_date}</div>
-                            <div className="font-mono text-[11px] text-[#1E6FD9]">
+                            <div className="font-mono text-[11px] text-brand-blue">
                               {pay.or_number || pay.id}
                             </div>
                           </td>
@@ -1510,7 +1510,7 @@ export function AdminBillingImportView() {
                             {isReversal ? (
                               <Badge
                                 variant="outline"
-                                className="bg-[#E53935] text-white border-[#E53935] font-bold"
+                                className="bg-urgency-high text-white border-urgency-high font-bold"
                               >
                                 REVERSAL
                               </Badge>
@@ -1524,7 +1524,7 @@ export function AdminBillingImportView() {
                             ) : (
                               <Badge
                                 variant="blue"
-                                className="bg-[#43A047] text-white border-[#43A047] font-bold"
+                                className="bg-urgency-low text-white border-urgency-low font-bold"
                               >
                                 PAYMENT
                               </Badge>
@@ -1535,10 +1535,10 @@ export function AdminBillingImportView() {
                             <span
                               className={`font-extrabold text-sm ${
                                 isReversal
-                                  ? 'text-[#E53935]'
+                                  ? 'text-urgency-high'
                                   : pay.is_reversed
                                   ? 'text-black/45 line-through'
-                                  : 'text-[#43A047]'
+                                  : 'text-urgency-low'
                               }`}
                             >
                               {isReversal ? '+' : '₱'}
@@ -1560,7 +1560,7 @@ export function AdminBillingImportView() {
                               <button
                                 type="button"
                                 onClick={() => setPaymentToReverse(pay)}
-                                className="px-2.5 py-1 text-xs font-bold rounded border border-[#E53935]/40 text-[#E53935] hover:bg-red-50 transition-all inline-flex items-center gap-1 cursor-pointer"
+                                className="px-2.5 py-1 text-xs font-bold rounded border border-urgency-high/40 text-urgency-high hover:bg-red-50 transition-all inline-flex items-center gap-1 cursor-pointer"
                               >
                                 <IconRotate2 size={13} />
                                 <span>Reverse</span>
@@ -1581,7 +1581,7 @@ export function AdminBillingImportView() {
 
         {/* Floating Toast Notification */}
         {toast && (
-          <div className="fixed bottom-6 right-6 z-[99999] bg-[#0F172A] text-white px-4 py-3 rounded-md shadow-2xl border border-black/30 flex items-center gap-3 animate-in slide-in-from-bottom-5 text-xs max-w-md">
+          <div className="fixed bottom-6 right-6 z-[99999] bg-slate-900 text-white px-4 py-3 rounded-md shadow-2xl border border-black/30 flex items-center gap-3 animate-in slide-in-from-bottom-5 text-xs max-w-md">
             <span className="w-5 h-5 rounded-full border border-emerald-400 bg-emerald-500/15 flex items-center justify-center text-emerald-400 shrink-0">
               <IconCheck size={12} stroke={3} />
             </span>
@@ -1632,7 +1632,7 @@ export function AdminBillingImportView() {
               {!openPeriod ? (
                 <div className="p-6 space-y-4 text-xs">
                   <div className="p-3.5 rounded-md bg-amber-50 border border-amber-300 text-amber-900 flex items-center gap-2.5">
-                    <IconAlertTriangle size={18} className="text-[#FB8C00] shrink-0" />
+                    <IconAlertTriangle size={18} className="text-urgency-medium shrink-0" />
                     <span className="font-bold text-black">
                       No open billing period. Add or reopen a period first.
                     </span>
@@ -1643,9 +1643,9 @@ export function AdminBillingImportView() {
                       <svg viewBox="0 0 48 56" className="w-11 h-13 fill-slate-300">
                         <path d="M6 0h24l14 14v36a6 6 0 01-6 6H6a6 6 0 01-6-6V6a6 6 0 016-6z" />
                         <path d="M30 0v14h14L30 0z" className="fill-slate-400/50" />
-                        <rect x="10" y="22" width="16" height="3" rx="1.5" fill="#fff" />
-                        <rect x="10" y="29" width="22" height="3" rx="1.5" fill="#fff" />
-                        <rect x="10" y="36" width="14" height="3" rx="1.5" fill="#fff" />
+                        <rect x="10" y="22" width="16" height="3" rx="1.5" fill="white" />
+                        <rect x="10" y="29" width="22" height="3" rx="1.5" fill="white" />
+                        <rect x="10" y="36" width="14" height="3" rx="1.5" fill="white" />
                       </svg>
                       <span className="w-5 h-5 rounded-full bg-slate-400 text-white flex items-center justify-center absolute -bottom-0.5 -right-0.5 text-xs font-bold shadow-xs">
                         +
@@ -1701,7 +1701,7 @@ export function AdminBillingImportView() {
                             cx={ringSize / 2}
                             cy={ringSize / 2}
                             r={ringRadius}
-                            stroke="#1E6FD9"
+                            stroke="var(--color-brand-blue)"
                             strokeWidth={ringStroke}
                             strokeDasharray={ringCircumference}
                             strokeDashoffset={ringDashOffset}
@@ -1742,29 +1742,29 @@ export function AdminBillingImportView() {
                         uploadStep === 'uploading'
                           ? 'border-black/15 bg-slate-50/40 opacity-50 pointer-events-none'
                           : isDragOver
-                          ? 'border-[#1E6FD9] bg-[#1E6FD9]/5'
-                          : 'border-black/20 hover:border-[#1E6FD9] bg-slate-50/40 hover:bg-[#1E6FD9]/5'
+                          ? 'border-brand-blue bg-brand-blue/5'
+                          : 'border-black/20 hover:border-brand-blue bg-slate-50/40 hover:bg-brand-blue/5'
                       }`}
                     >
                       <div className="w-12 h-14 mx-auto mb-3 relative flex items-center justify-center">
                         <svg
                           viewBox="0 0 48 56"
                           className={`w-11 h-13 transition-colors ${
-                            isDragOver ? 'fill-[#1E6FD9]/30' : 'fill-slate-300/80'
+                            isDragOver ? 'fill-brand-blue/30' : 'fill-slate-300/80'
                           }`}
                         >
                           <path d="M6 0h24l14 14v36a6 6 0 01-6 6H6a6 6 0 01-6-6V6a6 6 0 016-6z" />
                           <path
                             d="M30 0v14h14L30 0z"
-                            className={isDragOver ? 'fill-[#1E6FD9]/50' : 'fill-slate-400/60'}
+                            className={isDragOver ? 'fill-brand-blue/50' : 'fill-slate-400/60'}
                           />
-                          <rect x="10" y="22" width="16" height="3" rx="1.5" fill="#fff" />
-                          <rect x="10" y="29" width="22" height="3" rx="1.5" fill="#fff" />
-                          <rect x="10" y="36" width="14" height="3" rx="1.5" fill="#fff" />
+                          <rect x="10" y="22" width="16" height="3" rx="1.5" fill="white" />
+                          <rect x="10" y="29" width="22" height="3" rx="1.5" fill="white" />
+                          <rect x="10" y="36" width="14" height="3" rx="1.5" fill="white" />
                         </svg>
                         <span
                           className={`w-5 h-5 rounded-full text-white flex items-center justify-center absolute -bottom-0.5 -right-0.5 text-xs font-bold shadow-xs transition-colors ${
-                            isDragOver ? 'bg-[#1E6FD9]' : 'bg-[#0F172A]'
+                            isDragOver ? 'bg-brand-blue' : 'bg-slate-900'
                           }`}
                         >
                           +
@@ -1773,7 +1773,7 @@ export function AdminBillingImportView() {
 
                       <div
                         className={`text-sm font-bold transition-colors ${
-                          isDragOver ? 'text-[#1E6FD9]' : 'text-black hover:text-[#1E6FD9]'
+                          isDragOver ? 'text-brand-blue' : 'text-black hover:text-brand-blue'
                         }`}
                       >
                         Select a CSV file to upload
@@ -1787,7 +1787,7 @@ export function AdminBillingImportView() {
                     <label className="block text-xs font-bold text-black">
                       Or upload from a URL
                     </label>
-                    <div className="flex items-stretch border border-black/20 rounded-md overflow-hidden bg-slate-50/50 focus-within:border-[#1E6FD9] focus-within:bg-white transition-colors">
+                    <div className="flex items-stretch border border-black/20 rounded-md overflow-hidden bg-slate-50/50 focus-within:border-brand-blue focus-within:bg-white transition-colors">
                       <input
                         type="text"
                         placeholder="Add file URL"
@@ -1802,7 +1802,7 @@ export function AdminBillingImportView() {
                         onClick={handleUploadFromUrl}
                         className={`px-4 py-1.5 m-1 rounded text-xs font-bold border transition-all cursor-pointer ${
                           csvUrlInput.trim() && uploadStep !== 'uploading'
-                            ? 'border-[#1E6FD9] text-[#1E6FD9] bg-white hover:bg-[#1E6FD9] hover:text-white'
+                            ? 'border-brand-blue text-brand-blue bg-white hover:bg-brand-blue hover:text-white'
                             : 'border-black/15 text-black/40 bg-black/5 cursor-not-allowed'
                         }`}
                       >
@@ -1816,7 +1816,7 @@ export function AdminBillingImportView() {
                       <span className="text-xs font-bold text-black w-9">{uploadProgress}%</span>
                       <div className="flex-1 h-2 bg-black/10 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-[#1E6FD9] rounded-full transition-all duration-200"
+                          className="h-full bg-brand-blue rounded-full transition-all duration-200"
                           style={{ width: `${uploadProgress}%` }}
                         />
                       </div>
@@ -1835,7 +1835,7 @@ export function AdminBillingImportView() {
                     <button
                       type="button"
                       onClick={handleLoadSampleCsv}
-                      className="text-[#1E6FD9] font-bold hover:underline cursor-pointer"
+                      className="text-brand-blue font-bold hover:underline cursor-pointer"
                     >
                       Load sample CSV
                     </button>
@@ -1846,7 +1846,7 @@ export function AdminBillingImportView() {
                 <div className="p-6 space-y-4 text-xs max-h-[80vh] overflow-y-auto">
                   <div className="p-3 rounded-md bg-black/5 border border-black/10 flex flex-wrap items-center justify-between gap-2">
                     <div className="font-extrabold text-black flex items-center gap-2">
-                      <IconFileSpreadsheet size={16} className="text-[#1E6FD9]" />
+                      <IconFileSpreadsheet size={16} className="text-brand-blue" />
                       <span>
                         {openPeriod.label} · {selectedCsvFileName}
                       </span>
@@ -1855,14 +1855,14 @@ export function AdminBillingImportView() {
                     <div className="flex items-center gap-2">
                       <Badge
                         variant="blue"
-                        className="bg-[#43A047] text-white border-[#43A047] font-bold"
+                        className="bg-urgency-low text-white border-urgency-low font-bold"
                       >
                         {previewValidRows.length} Valid
                       </Badge>
                       {previewInvalidRows.length > 0 && (
                         <Badge
                           variant="outline"
-                          className="bg-[#E53935] text-white border-[#E53935] font-bold"
+                          className="bg-urgency-high text-white border-urgency-high font-bold"
                         >
                           {previewInvalidRows.length} Skipped
                         </Badge>
@@ -1892,7 +1892,7 @@ export function AdminBillingImportView() {
                           {previewValidRows.map((r) => (
                             <tr key={r.row_number} className="hover:bg-black/5">
                               <td className="py-2 px-2.5 text-black/50">#{r.row_number}</td>
-                              <td className="py-2 px-2.5 font-mono font-bold text-[#1E6FD9]">
+                              <td className="py-2 px-2.5 font-mono font-bold text-brand-blue">
                                 {r.meter_number}
                               </td>
                               <td className="py-2 px-2.5 font-bold text-black">
@@ -1904,7 +1904,7 @@ export function AdminBillingImportView() {
                               <td className="py-2 px-2.5 font-semibold text-black/70">
                                 ₱{r.previous_balance.toFixed(2)}
                               </td>
-                              <td className="py-2 px-2.5 font-extrabold text-[#1E6FD9]">
+                              <td className="py-2 px-2.5 font-extrabold text-brand-blue">
                                 ₱{r.total_balance.toFixed(2)}
                               </td>
                               <td className="py-2 px-2.5 text-black">{r.due_date}</td>
@@ -1917,14 +1917,14 @@ export function AdminBillingImportView() {
 
                   {previewInvalidRows.length > 0 && (
                     <div className="space-y-1.5">
-                      <div className="font-extrabold text-[#E53935] uppercase tracking-wider text-[11px] flex items-center gap-1">
+                      <div className="font-extrabold text-urgency-high uppercase tracking-wider text-[11px] flex items-center gap-1">
                         <IconAlertCircle size={14} />
                         <span>Skipped Rows ({previewInvalidRows.length})</span>
                       </div>
-                      <div className="border border-[#E53935]/30 bg-red-50/40 rounded p-3 space-y-1.5 max-h-32 overflow-y-auto">
+                      <div className="border border-urgency-high/30 bg-red-50/40 rounded p-3 space-y-1.5 max-h-32 overflow-y-auto">
                         {previewInvalidRows.map((inv, idx) => (
                           <div key={idx} className="flex items-start gap-2 text-xs text-black">
-                            <span className="font-mono font-bold text-[#E53935] shrink-0">
+                            <span className="font-mono font-bold text-urgency-high shrink-0">
                               Row {inv.row_number} ({inv.raw_meter_number}):
                             </span>
                             <span className="text-black/80">{inv.reason}</span>
@@ -1976,7 +1976,7 @@ export function AdminBillingImportView() {
             >
               <div className="flex items-center justify-between border-b border-black/10 pb-3">
                 <div className="flex items-center gap-2">
-                  <IconCalendar size={18} className="text-[#1E6FD9]" />
+                  <IconCalendar size={18} className="text-brand-blue" />
                   <h3 className="text-base font-bold text-black">
                     {editingPeriod ? `Edit ${editingPeriod.label}` : 'Add Billing Period'}
                   </h3>
@@ -1990,7 +1990,7 @@ export function AdminBillingImportView() {
               </div>
 
               {periodFormError && (
-                <div className="p-2.5 rounded bg-red-50 border border-[#E53935]/40 text-xs text-[#E53935] font-semibold flex items-center gap-2">
+                <div className="p-2.5 rounded bg-red-50 border border-urgency-high/40 text-xs text-urgency-high font-semibold flex items-center gap-2">
                   <IconAlertCircle size={15} className="shrink-0" />
                   <span>{periodFormError}</span>
                 </div>
@@ -2004,7 +2004,7 @@ export function AdminBillingImportView() {
                       value={periodMonth}
                       disabled={Boolean(editingPeriod && editingPeriod.records_count > 0)}
                       onChange={(e) => setPeriodMonth(Number(e.target.value))}
-                      className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9] disabled:bg-black/5 disabled:text-black/45"
+                      className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue disabled:bg-black/5 disabled:text-black/45"
                     >
                       {MONTH_NAMES.map((mName, idx) => (
                         <option key={mName} value={idx + 1}>
@@ -2024,7 +2024,7 @@ export function AdminBillingImportView() {
                       disabled={Boolean(editingPeriod && editingPeriod.records_count > 0)}
                       value={periodYear}
                       onChange={(e) => setPeriodYear(Number(e.target.value))}
-                      className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9] disabled:bg-black/5 disabled:text-black/45"
+                      className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue disabled:bg-black/5 disabled:text-black/45"
                     />
                   </div>
                 </div>
@@ -2036,7 +2036,7 @@ export function AdminBillingImportView() {
                     required
                     value={periodDueDate}
                     onChange={(e) => setPeriodDueDate(e.target.value)}
-                    className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                    className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue"
                   />
                 </div>
 
@@ -2071,7 +2071,7 @@ export function AdminBillingImportView() {
               className="w-full max-w-sm bg-white p-5 rounded-md shadow-2xl border border-black/15 space-y-4 text-xs"
             >
               <div className="flex items-center justify-between border-b border-black/10 pb-3">
-                <div className="flex items-center gap-2 text-[#E53935]">
+                <div className="flex items-center gap-2 text-urgency-high">
                   <IconTrash size={18} />
                   <h3 className="text-base font-bold text-black">Delete Period</h3>
                 </div>
@@ -2094,7 +2094,7 @@ export function AdminBillingImportView() {
                 <button
                   type="button"
                   onClick={handleConfirmDeletePeriod}
-                  className="px-4 py-2 rounded bg-[#E53935] hover:bg-red-700 text-white font-bold text-xs cursor-pointer transition-colors"
+                  className="px-4 py-2 rounded bg-urgency-high hover:bg-red-700 text-white font-bold text-xs cursor-pointer transition-colors"
                 >
                   Delete
                 </button>
@@ -2118,7 +2118,7 @@ export function AdminBillingImportView() {
             >
               <div className="flex items-center justify-between px-5 py-3.5 border-b border-black/10 bg-slate-50/70 shrink-0">
                 <div className="flex items-center gap-2">
-                  <IconReceipt size={18} className="text-[#1E6FD9]" />
+                  <IconReceipt size={18} className="text-brand-blue" />
                   <h3 className="text-base font-extrabold text-black tracking-tight">
                     {selectedRecordDetail.customer_name} · {selectedRecordDetail.period_label}
                   </h3>
@@ -2142,7 +2142,7 @@ export function AdminBillingImportView() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-bold text-[#1E6FD9] bg-[#1E6FD9]/10 px-2 py-0.5 rounded border border-[#1E6FD9]/20">
+                    <span className="font-mono text-xs font-bold text-brand-blue bg-brand-blue/10 px-2 py-0.5 rounded border border-brand-blue/20">
                       {selectedRecordDetail.meter_number}
                     </span>
                     <span className="font-mono text-xs font-semibold text-black/60">
@@ -2173,11 +2173,11 @@ export function AdminBillingImportView() {
                     </div>
                   </div>
 
-                  <div className="p-3 rounded-md border-2 border-[#1E6FD9] bg-[#1E6FD9]/5">
-                    <div className="text-[10px] font-bold text-[#1E6FD9] uppercase">
+                  <div className="p-3 rounded-md border-2 border-brand-blue bg-brand-blue/5">
+                    <div className="text-[10px] font-bold text-brand-blue uppercase">
                       Total Balance
                     </div>
-                    <div className="text-xl font-black text-[#1E6FD9] mt-1">
+                    <div className="text-xl font-black text-brand-blue mt-1">
                       ₱{selectedRecordDetail.total_balance.toFixed(2)}
                     </div>
                   </div>
@@ -2221,11 +2221,11 @@ export function AdminBillingImportView() {
                                 </td>
                                 <td className="py-2 px-2.5">
                                   {p.type === 'reversal' ? (
-                                    <span className="font-bold text-[#E53935]">Reversal</span>
+                                    <span className="font-bold text-urgency-high">Reversal</span>
                                   ) : p.is_reversed ? (
                                     <span className="font-bold text-amber-700">Reversed</span>
                                   ) : (
-                                    <span className="font-bold text-[#43A047]">Payment</span>
+                                    <span className="font-bold text-urgency-low">Payment</span>
                                   )}
                                 </td>
                                 <td className="py-2 px-2.5 font-bold">₱{p.amount.toFixed(2)}</td>
@@ -2238,7 +2238,7 @@ export function AdminBillingImportView() {
                                     <button
                                       type="button"
                                       onClick={() => setPaymentToReverse(p)}
-                                      className="px-2 py-0.5 text-[11px] font-bold rounded border border-[#E53935]/40 text-[#E53935] hover:bg-red-50 cursor-pointer"
+                                      className="px-2 py-0.5 text-[11px] font-bold rounded border border-urgency-high/40 text-urgency-high hover:bg-red-50 cursor-pointer"
                                     >
                                       Reverse
                                     </button>
@@ -2291,7 +2291,7 @@ export function AdminBillingImportView() {
             >
               <div className="flex items-center justify-between border-b border-black/10 pb-3">
                 <div className="flex items-center gap-2">
-                  <IconCash size={18} className="text-[#43A047]" />
+                  <IconCash size={18} className="text-urgency-low" />
                   <h3 className="text-base font-bold text-black">
                     Record Payment · {recordForPayment.customer_name}
                   </h3>
@@ -2318,15 +2318,15 @@ export function AdminBillingImportView() {
                   </div>
                 </div>
                 <div>
-                  <div className="text-[10px] font-bold text-[#1E6FD9] uppercase">Total Due</div>
-                  <div className="font-black text-[#1E6FD9] text-sm">
+                  <div className="text-[10px] font-bold text-brand-blue uppercase">Total Due</div>
+                  <div className="font-black text-brand-blue text-sm">
                     ₱{recordForPayment.total_balance.toFixed(2)}
                   </div>
                 </div>
               </div>
 
               {paymentError && (
-                <div className="p-2.5 rounded bg-red-50 border border-[#E53935]/40 text-[#E53935] font-semibold flex items-center gap-2">
+                <div className="p-2.5 rounded bg-red-50 border border-urgency-high/40 text-urgency-high font-semibold flex items-center gap-2">
                   <IconAlertCircle size={15} className="shrink-0" />
                   <span>{paymentError}</span>
                 </div>
@@ -2347,7 +2347,7 @@ export function AdminBillingImportView() {
                         setPaymentAmount(e.target.value);
                         setPaymentError(null);
                       }}
-                      className="w-full px-3 py-2 bg-white text-black font-bold border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                      className="w-full px-3 py-2 bg-white text-black font-bold border border-black/20 rounded outline-none focus:border-brand-blue"
                     />
                   </div>
 
@@ -2358,7 +2358,7 @@ export function AdminBillingImportView() {
                       required
                       value={paymentDate}
                       onChange={(e) => setPaymentDate(e.target.value)}
-                      className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                      className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue"
                     />
                   </div>
                 </div>
@@ -2371,7 +2371,7 @@ export function AdminBillingImportView() {
                       placeholder="OR-2026-0001"
                       value={paymentOrNumber}
                       onChange={(e) => setPaymentOrNumber(e.target.value)}
-                      className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                      className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue"
                     />
                   </div>
 
@@ -2382,18 +2382,18 @@ export function AdminBillingImportView() {
                       placeholder="Optional"
                       value={paymentRemark}
                       onChange={(e) => setPaymentRemark(e.target.value)}
-                      className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                      className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue"
                     />
                   </div>
                 </div>
 
                 {paymentAllocationPreview && Number(paymentAmount) > 0 && (
-                  <div className="p-2.5 rounded bg-[#43A047]/10 border border-[#43A047]/30 flex items-center justify-between text-[11px]">
+                  <div className="p-2.5 rounded bg-urgency-low/10 border border-urgency-low/30 flex items-center justify-between text-[11px]">
                     <span>
                       Current: <strong>-₱{paymentAllocationPreview.appliedToCurrent.toFixed(2)}</strong> · Prev:{' '}
                       <strong>-₱{paymentAllocationPreview.appliedToPrevious.toFixed(2)}</strong>
                     </span>
-                    <span className="font-extrabold text-[#1E6FD9]">
+                    <span className="font-extrabold text-brand-blue">
                       Remaining: ₱{paymentAllocationPreview.newTotal.toFixed(2)}
                     </span>
                   </div>
@@ -2430,7 +2430,7 @@ export function AdminBillingImportView() {
               className="w-full max-w-sm bg-white p-5 rounded-md shadow-2xl border border-black/15 space-y-4 text-xs"
             >
               <div className="flex items-center justify-between border-b border-black/10 pb-3">
-                <div className="flex items-center gap-2 text-[#E53935]">
+                <div className="flex items-center gap-2 text-urgency-high">
                   <IconRotate2 size={18} />
                   <h3 className="text-base font-bold text-black">Reverse Payment</h3>
                 </div>
@@ -2465,7 +2465,7 @@ export function AdminBillingImportView() {
                 <button
                   type="button"
                   onClick={handleConfirmReversePayment}
-                  className="px-4 py-2 rounded bg-[#E53935] hover:bg-red-700 text-white font-bold text-xs cursor-pointer transition-colors"
+                  className="px-4 py-2 rounded bg-urgency-high hover:bg-red-700 text-white font-bold text-xs cursor-pointer transition-colors"
                 >
                   Confirm Reversal
                 </button>

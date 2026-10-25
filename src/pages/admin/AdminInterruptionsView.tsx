@@ -596,11 +596,11 @@ export function AdminInterruptionsView() {
   const getStatusPillClass = (status: AdvisoryStatus) => {
     switch (status) {
       case 'ongoing':
-        return 'bg-[#E53935] text-white';
+        return 'bg-urgency-high text-white';
       case 'scheduled':
-        return 'bg-[#1E6FD9] text-white';
+        return 'bg-brand-blue text-white';
       case 'completed':
-        return 'bg-[#43A047] text-white';
+        return 'bg-urgency-low text-white';
       case 'cancelled':
         return 'bg-slate-400 text-white line-through';
     }
@@ -644,8 +644,8 @@ export function AdminInterruptionsView() {
                 onClick={() => setViewMode(mode)}
                 className={`px-5 py-2 rounded-lg text-xs font-semibold capitalize transition-all cursor-pointer ${
                   viewMode === mode
-                    ? 'bg-[#1E6FD9] text-white shadow-sm'
-                    : 'bg-[#EEF1F8] text-slate-500 hover:text-slate-800'
+                    ? 'bg-brand-blue text-white shadow-sm'
+                    : 'bg-slate-100 text-slate-500 hover:text-slate-800'
                 }`}
               >
                 {mode}
@@ -663,7 +663,7 @@ export function AdminInterruptionsView() {
               <button
                 type="button"
                 onClick={handleOpenAddModal}
-                className="w-full py-3 px-4 rounded-lg bg-[#1E6FD9] hover:bg-blue-700 text-white font-semibold text-xs shadow-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className="w-full py-3 px-4 rounded-lg bg-brand-blue hover:bg-blue-700 text-white font-semibold text-xs shadow-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
                 <IconPlus size={15} stroke={2.5} />
                 <span>Add Advisory</span>
@@ -728,7 +728,7 @@ export function AdminInterruptionsView() {
                         }}
                         className={`w-6 h-6 mx-auto rounded-full flex items-center justify-center transition-colors relative cursor-pointer ${
                           isSelected
-                            ? 'bg-[#1E6FD9] text-white font-bold shadow-xs'
+                            ? 'bg-brand-blue text-white font-bold shadow-xs'
                             : cell.isCurrentMonth
                             ? 'text-slate-700 hover:bg-slate-100 font-medium'
                             : 'text-slate-300 hover:bg-slate-50 font-normal'
@@ -736,7 +736,7 @@ export function AdminInterruptionsView() {
                       >
                         <span>{cell.dayNumber}</span>
                         {dayAdvs.length > 0 && !isSelected && (
-                          <span className="w-1 h-1 rounded-full bg-[#1E6FD9] absolute -bottom-0.5" />
+                          <span className="w-1 h-1 rounded-full bg-brand-blue absolute -bottom-0.5" />
                         )}
                       </button>
                     );
@@ -753,7 +753,7 @@ export function AdminInterruptionsView() {
                   placeholder="Search for Barangay"
                   value={barangaySearch}
                   onChange={(e) => setBarangaySearch(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-[#F4F5FA] text-[11px] text-slate-700 placeholder:text-slate-400 text-center focus:text-left outline-none focus:ring-1 focus:ring-[#1E6FD9]/40"
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 text-[11px] text-slate-700 placeholder:text-slate-400 text-center focus:text-left outline-none focus:ring-1 focus:ring-brand-blue/40"
                 />
 
                 <div className="space-y-2 max-h-48 overflow-y-auto pr-1 pt-1">
@@ -765,10 +765,10 @@ export function AdminInterruptionsView() {
                         (a.status === 'ongoing' || a.status === 'scheduled')
                     ).length;
                     const avatarColors = [
-                      'bg-[#1E6FD9]/15 text-[#1E6FD9]',
-                      'bg-[#7C3AED]/15 text-[#7C3AED]',
-                      'bg-[#E53935]/15 text-[#E53935]',
-                      'bg-[#43A047]/15 text-[#43A047]',
+                      'bg-brand-blue/15 text-brand-blue',
+                      'bg-purple-600/15 text-purple-600',
+                      'bg-urgency-high/15 text-urgency-high',
+                      'bg-urgency-low/15 text-urgency-low',
                     ];
 
                     return (
@@ -779,7 +779,7 @@ export function AdminInterruptionsView() {
                           setSelectedBarangayFilter(isSelected ? 'all' : bg.id)
                         }
                         className={`w-full flex items-center gap-3 p-1.5 rounded-lg text-left transition-colors cursor-pointer ${
-                          isSelected ? 'bg-[#1E6FD9]/10' : 'hover:bg-slate-50'
+                          isSelected ? 'bg-brand-blue/10' : 'hover:bg-slate-50'
                         }`}
                       >
                         <div
@@ -792,7 +792,7 @@ export function AdminInterruptionsView() {
                         <div className="min-w-0 flex-1">
                           <div
                             className={`text-xs font-bold truncate ${
-                              isSelected ? 'text-[#1E6FD9]' : 'text-slate-800'
+                              isSelected ? 'text-brand-blue' : 'text-slate-800'
                             }`}
                           >
                             {bg.name}
@@ -818,7 +818,7 @@ export function AdminInterruptionsView() {
                 setStatusFilter('all');
                 setViewMode('month');
               }}
-              className="w-full py-2.5 px-4 rounded-lg border border-slate-100 hover:border-[#1E6FD9]/30 text-xs font-semibold text-[#1E6FD9] bg-white hover:bg-slate-50 transition-colors cursor-pointer"
+              className="w-full py-2.5 px-4 rounded-lg border border-slate-100 hover:border-brand-blue/30 text-xs font-semibold text-brand-blue bg-white hover:bg-slate-50 transition-colors cursor-pointer"
             >
               All Schedule
             </button>
@@ -887,7 +887,7 @@ export function AdminInterruptionsView() {
                           isSelected || hasMultipleAdvisories ? 'justify-start' : 'justify-center'
                         } ${
                           isSelected
-                            ? 'border-t-[3px] border-t-[#1E6FD9] bg-white'
+                            ? 'border-t-[3px] border-t-brand-blue bg-white'
                             : 'hover:bg-slate-50/60'
                         }`}
                       >
@@ -897,7 +897,7 @@ export function AdminInterruptionsView() {
                             cellAdvisories.length > 0 ? 'mb-1.5' : ''
                           } ${
                             isSelected
-                              ? 'text-[#1E6FD9] font-bold'
+                              ? 'text-brand-blue font-bold'
                               : cell.isCurrentMonth
                               ? 'text-slate-800'
                               : 'text-slate-300'
@@ -933,7 +933,7 @@ export function AdminInterruptionsView() {
                                   setSelectedDate(cell.date);
                                   setViewMode('list');
                                 }}
-                                className="w-full py-0.5 rounded border border-slate-100 bg-slate-50/70 text-center text-[9px] font-semibold text-[#1E6FD9] hover:bg-slate-100 cursor-pointer"
+                                className="w-full py-0.5 rounded border border-slate-100 bg-slate-50/70 text-center text-[9px] font-semibold text-brand-blue hover:bg-slate-100 cursor-pointer"
                               >
                                 More
                               </button>
@@ -1031,7 +1031,7 @@ export function AdminInterruptionsView() {
                                       setAdvisoryToRestore(adv);
                                       setRestorationRemarkInput('');
                                     }}
-                                    className="px-2.5 py-1 rounded bg-[#43A047] hover:bg-emerald-700 text-white font-bold text-xs inline-flex items-center gap-1 cursor-pointer"
+                                    className="px-2.5 py-1 rounded bg-urgency-low hover:bg-emerald-700 text-white font-bold text-xs inline-flex items-center gap-1 cursor-pointer"
                                   >
                                     <IconDropletFilled size={12} />
                                     <span>Mark as Restored</span>
@@ -1045,14 +1045,14 @@ export function AdminInterruptionsView() {
                                       onClick={() => handleOpenEditModal(adv)}
                                       className="px-2 py-1 rounded border border-black/20 hover:bg-black/5 text-black font-bold text-xs inline-flex items-center gap-1 cursor-pointer"
                                     >
-                                      <IconPencil size={12} className="text-[#1E6FD9]" />
+                                      <IconPencil size={12} className="text-brand-blue" />
                                       <span>Edit</span>
                                     </button>
 
                                     <button
                                       type="button"
                                       onClick={() => setAdvisoryToCancel(adv)}
-                                      className="px-2 py-1 rounded border border-[#E53935]/40 text-[#E53935] hover:bg-red-50 font-bold text-xs inline-flex items-center gap-1 cursor-pointer"
+                                      className="px-2 py-1 rounded border border-urgency-high/40 text-urgency-high hover:bg-red-50 font-bold text-xs inline-flex items-center gap-1 cursor-pointer"
                                     >
                                       <IconBan size={12} />
                                       <span>Cancel</span>
@@ -1065,7 +1065,7 @@ export function AdminInterruptionsView() {
                                   onClick={() => setSelectedAdvisoryDetail(adv)}
                                   className="px-2 py-1 rounded border border-black/20 hover:bg-black/5 text-black font-bold text-xs inline-flex items-center gap-1 cursor-pointer"
                                 >
-                                  <IconEye size={12} className="text-[#1E6FD9]" />
+                                  <IconEye size={12} className="text-brand-blue" />
                                   <span>View</span>
                                 </button>
                               </div>
@@ -1083,7 +1083,7 @@ export function AdminInterruptionsView() {
 
         {/* Floating Toast Notification */}
         {toast && (
-          <div className="fixed bottom-6 right-6 z-[99999] bg-[#0F172A] text-white px-4 py-3 rounded-md shadow-2xl border border-black/30 flex items-center gap-3 animate-in slide-in-from-bottom-5 text-xs max-w-md">
+          <div className="fixed bottom-6 right-6 z-[99999] bg-slate-900 text-white px-4 py-3 rounded-md shadow-2xl border border-black/30 flex items-center gap-3 animate-in slide-in-from-bottom-5 text-xs max-w-md">
             <span className="w-5 h-5 rounded-full border border-emerald-400 bg-emerald-500/15 flex items-center justify-center text-emerald-400 shrink-0">
               <IconCheck size={12} stroke={3} />
             </span>
@@ -1125,7 +1125,7 @@ export function AdminInterruptionsView() {
               </div>
 
               {formError && (
-                <div className="p-2.5 rounded bg-red-50 border border-[#E53935]/40 text-[#E53935] font-semibold flex items-center gap-2">
+                <div className="p-2.5 rounded bg-red-50 border border-urgency-high/40 text-urgency-high font-semibold flex items-center gap-2">
                   <IconAlertTriangle size={15} className="shrink-0" />
                   <span>{formError}</span>
                 </div>
@@ -1141,7 +1141,7 @@ export function AdminInterruptionsView() {
                       value={titleInput}
                       onChange={(e) => setTitleInput(e.target.value)}
                       required
-                      className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                      className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue"
                     />
                   </div>
 
@@ -1153,7 +1153,7 @@ export function AdminInterruptionsView() {
                       value={reasonInput}
                       onChange={(e) => setReasonInput(e.target.value)}
                       required
-                      className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                      className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue"
                     />
                   </div>
 
@@ -1165,7 +1165,7 @@ export function AdminInterruptionsView() {
                         value={startsAtInput}
                         onChange={(e) => setStartsAtInput(e.target.value)}
                         required
-                        className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                        className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue"
                       />
                     </div>
                     <div>
@@ -1175,7 +1175,7 @@ export function AdminInterruptionsView() {
                         value={endsAtInput}
                         onChange={(e) => setEndsAtInput(e.target.value)}
                         required
-                        className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                        className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue"
                       />
                     </div>
                   </div>
@@ -1188,7 +1188,7 @@ export function AdminInterruptionsView() {
                       <button
                         type="button"
                         onClick={handleSelectAllBarangays}
-                        className="text-[#1E6FD9] font-bold hover:underline cursor-pointer"
+                        className="text-brand-blue font-bold hover:underline cursor-pointer"
                       >
                         {selectedBarangayIds.length === barangays.length
                           ? 'Deselect All'
@@ -1205,7 +1205,7 @@ export function AdminInterruptionsView() {
                             onClick={() => handleToggleBarangaySelection(b.id)}
                             className={`px-2.5 py-1.5 rounded text-left text-xs border transition-colors cursor-pointer truncate ${
                               isChecked
-                                ? 'bg-[#1E6FD9] text-white border-[#1E6FD9] font-bold'
+                                ? 'bg-brand-blue text-white border-brand-blue font-bold'
                                 : 'bg-white text-black border-black/15 hover:border-black/40'
                             }`}
                           >
@@ -1224,7 +1224,7 @@ export function AdminInterruptionsView() {
                       placeholder="e.g. Water tanker stationed at Barangay Hall"
                       value={remarksInput}
                       onChange={(e) => setRemarksInput(e.target.value)}
-                      className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                      className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue"
                     />
                   </div>
 
@@ -1254,11 +1254,11 @@ export function AdminInterruptionsView() {
                       </div>
                     </div>
 
-                    <div className="p-3 rounded border border-[#1E6FD9]/30 bg-[#1E6FD9]/5">
-                      <div className="text-[10px] font-bold uppercase text-[#1E6FD9]">
+                    <div className="p-3 rounded border border-brand-blue/30 bg-brand-blue/5">
+                      <div className="text-[10px] font-bold uppercase text-brand-blue">
                         SMS + In-App
                       </div>
-                      <div className="text-xl font-extrabold text-[#1E6FD9] mt-1">
+                      <div className="text-xl font-extrabold text-brand-blue mt-1">
                         {recipientPreview.smsCount}
                       </div>
                     </div>
@@ -1383,7 +1383,7 @@ export function AdminInterruptionsView() {
                         {selectedAdvisoryDetail.barangay_names.map((bName) => (
                           <span
                             key={bName}
-                            className="px-2 py-0.5 rounded bg-[#1E6FD9]/10 text-[#1E6FD9] font-bold text-[11px]"
+                            className="px-2 py-0.5 rounded bg-brand-blue/10 text-brand-blue font-bold text-[11px]"
                           >
                             {bName}
                           </span>
@@ -1442,7 +1442,7 @@ export function AdminInterruptionsView() {
                       </div>
                       <div className="p-2 rounded border border-black/10">
                         <div className="text-[10px] text-black/50 font-bold">SMS Sent</div>
-                        <div className="font-extrabold text-[#1E6FD9]">
+                        <div className="font-extrabold text-brand-blue">
                           {selectedAdvisoryDetail.sms_sent_count}
                         </div>
                       </div>
@@ -1464,7 +1464,7 @@ export function AdminInterruptionsView() {
                             setAdvisoryToRestore(selectedAdvisoryDetail);
                             setRestorationRemarkInput('');
                           }}
-                          className="px-3 py-1.5 rounded bg-[#43A047] hover:bg-emerald-700 text-white font-bold text-xs inline-flex items-center gap-1 cursor-pointer"
+                          className="px-3 py-1.5 rounded bg-urgency-low hover:bg-emerald-700 text-white font-bold text-xs inline-flex items-center gap-1 cursor-pointer"
                         >
                           <IconDropletFilled size={13} />
                           <span>Mark as Restored</span>
@@ -1477,13 +1477,13 @@ export function AdminInterruptionsView() {
                             onClick={() => handleOpenEditModal(selectedAdvisoryDetail)}
                             className="px-2.5 py-1.5 rounded border border-black/20 hover:bg-black/5 text-black font-bold text-xs inline-flex items-center gap-1 cursor-pointer"
                           >
-                            <IconPencil size={13} className="text-[#1E6FD9]" />
+                            <IconPencil size={13} className="text-brand-blue" />
                             <span>Edit</span>
                           </button>
                           <button
                             type="button"
                             onClick={() => setAdvisoryToCancel(selectedAdvisoryDetail)}
-                            className="px-2.5 py-1.5 rounded border border-[#E53935]/40 text-[#E53935] hover:bg-red-50 font-bold text-xs inline-flex items-center gap-1 cursor-pointer"
+                            className="px-2.5 py-1.5 rounded border border-urgency-high/40 text-urgency-high hover:bg-red-50 font-bold text-xs inline-flex items-center gap-1 cursor-pointer"
                           >
                             <IconBan size={13} />
                             <span>Cancel</span>
@@ -1519,7 +1519,7 @@ export function AdminInterruptionsView() {
               className="w-full max-w-sm bg-white p-5 rounded-md shadow-2xl border border-black/15 space-y-4 text-xs"
             >
               <div className="flex items-center justify-between border-b border-black/10 pb-3">
-                <div className="flex items-center gap-2 text-[#43A047]">
+                <div className="flex items-center gap-2 text-urgency-low">
                   <IconDropletFilled size={18} />
                   <h3 className="text-base font-bold text-black">Mark as Restored</h3>
                 </div>
@@ -1545,7 +1545,7 @@ export function AdminInterruptionsView() {
                     placeholder="e.g. Normal water pressure restored"
                     value={restorationRemarkInput}
                     onChange={(e) => setRestorationRemarkInput(e.target.value)}
-                    className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                    className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue"
                   />
                 </div>
               </div>
@@ -1557,7 +1557,7 @@ export function AdminInterruptionsView() {
                 <button
                   type="button"
                   onClick={handleConfirmRestore}
-                  className="px-4 py-2 rounded bg-[#43A047] hover:bg-emerald-700 text-white font-bold text-xs cursor-pointer transition-colors"
+                  className="px-4 py-2 rounded bg-urgency-low hover:bg-emerald-700 text-white font-bold text-xs cursor-pointer transition-colors"
                 >
                   Confirm Restored
                 </button>
@@ -1580,7 +1580,7 @@ export function AdminInterruptionsView() {
               className="w-full max-w-sm bg-white p-5 rounded-md shadow-2xl border border-black/15 space-y-4 text-xs"
             >
               <div className="flex items-center justify-between border-b border-black/10 pb-3">
-                <div className="flex items-center gap-2 text-[#E53935]">
+                <div className="flex items-center gap-2 text-urgency-high">
                   <IconBan size={18} />
                   <h3 className="text-base font-bold text-black">Cancel Advisory</h3>
                 </div>
@@ -1604,7 +1604,7 @@ export function AdminInterruptionsView() {
                 <button
                   type="button"
                   onClick={handleConfirmCancelAdvisory}
-                  className="px-4 py-2 rounded bg-[#E53935] hover:bg-red-700 text-white font-bold text-xs cursor-pointer transition-colors"
+                  className="px-4 py-2 rounded bg-urgency-high hover:bg-red-700 text-white font-bold text-xs cursor-pointer transition-colors"
                 >
                   Cancel Advisory
                 </button>

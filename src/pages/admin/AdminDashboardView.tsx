@@ -72,11 +72,11 @@ function CurvedLineGraph({
   return (
     <div className="bg-white rounded-md border border-black/10 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.14),0_6px_10px_-4px_rgba(0,0,0,0.08)] hover:shadow-[0_16px_32px_-6px_rgba(0,0,0,0.18),0_8px_14px_-4px_rgba(0,0,0,0.1)] hover:-translate-y-0.5 p-5 h-[370px] flex flex-col justify-between hover:border-black/20 transition-all duration-200">
       <div className="flex items-center justify-between border-b border-black/10 pb-3 h-10">
-        <h2 className="text-base font-bold text-[#1E6FD9] tracking-tight">
+        <h2 className="text-base font-bold text-brand-blue tracking-tight">
           {title}
         </h2>
         {hoveredIndex !== null && data[hoveredIndex] && (
-          <span className="text-xs font-bold bg-[#1E6FD9]/10 text-[#1E6FD9] px-2 py-0.5 rounded">
+          <span className="text-xs font-bold bg-brand-blue/10 text-brand-blue px-2 py-0.5 rounded">
             {data[hoveredIndex].label}: {yFormat ? yFormat(data[hoveredIndex].value) : `${unitPrefix}${data[hoveredIndex].value}`}
           </span>
         )}
@@ -89,8 +89,8 @@ function CurvedLineGraph({
         >
           <defs>
             <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#1E6FD9" stopOpacity="0.18" />
-              <stop offset="100%" stopColor="#1E6FD9" stopOpacity="0.0" />
+              <stop offset="0%" stopColor="var(--color-brand-blue)" stopOpacity="0.18" />
+              <stop offset="100%" stopColor="var(--color-brand-blue)" stopOpacity="0.0" />
             </linearGradient>
           </defs>
 
@@ -133,7 +133,7 @@ function CurvedLineGraph({
             <path
               d={linePath}
               fill="none"
-              stroke="#1E6FD9"
+              stroke="var(--color-brand-blue)"
               strokeWidth="2.75"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -160,8 +160,8 @@ function CurvedLineGraph({
                 cx={pt.x}
                 cy={pt.y}
                 r={hoveredIndex === idx ? '5.5' : '4'}
-                fill="#1E6FD9"
-                stroke="#FFFFFF"
+                fill="var(--color-brand-blue)"
+                stroke="white"
                 strokeWidth="2"
                 className="transition-all duration-150"
               />
@@ -171,7 +171,7 @@ function CurvedLineGraph({
                 y={height - 8}
                 textAnchor="middle"
                 className={`text-[11px] transition-colors font-medium ${
-                  hoveredIndex === idx ? 'fill-[#1E6FD9] font-bold' : 'fill-black/60'
+                  hoveredIndex === idx ? 'fill-brand-blue font-bold' : 'fill-black/60'
                 }`}
               >
                 {pt.label}
@@ -228,7 +228,7 @@ function RequestsDonutCard({
             cx={size / 2}
             cy={size / 2}
             r={radius}
-            stroke="#1E6FD9"
+            stroke="var(--color-brand-blue)"
             strokeWidth={strokeWidth}
             strokeDasharray={`${resolvedDash} ${circumference}`}
             strokeDashoffset="0"
@@ -240,7 +240,7 @@ function RequestsDonutCard({
             cx={size / 2}
             cy={size / 2}
             r={radius}
-            stroke="#334155"
+            stroke="var(--color-assigned)"
             strokeWidth={strokeWidth}
             strokeDasharray={`${ongoingDash} ${circumference}`}
             strokeDashoffset={ongoingOffset}
@@ -264,7 +264,7 @@ function RequestsDonutCard({
       <div className="border-t border-black/10 pt-3 grid grid-cols-3 gap-2 text-center text-xs">
         <div className="flex flex-col items-center">
           <div className="flex items-center gap-1.5 font-bold text-black">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#1E6FD9]" />
+            <span className="w-2.5 h-2.5 rounded-full bg-brand-blue" />
             <span>{resolvedRequests}</span>
           </div>
           <span className="text-[11px] text-black/60 font-medium">
@@ -274,7 +274,7 @@ function RequestsDonutCard({
 
         <div className="flex flex-col items-center">
           <div className="flex items-center gap-1.5 font-bold text-black">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#334155]" />
+            <span className="w-2.5 h-2.5 rounded-full bg-assigned" />
             <span>{ongoingRequests}</span>
           </div>
           <span className="text-[11px] text-black/60 font-medium">
@@ -298,7 +298,7 @@ function RequestsDonutCard({
         onClick={() => onNavigate('/admin/maintenance')}
         title="View All Requests"
         aria-label="View All Requests"
-        className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-[#E53935] text-white flex items-center justify-center hover:bg-[#D32F2F] shadow-[0_6px_16px_rgba(229,57,53,0.45)] hover:shadow-[0_8px_22px_rgba(229,57,53,0.6)] transition-all duration-200 hover:scale-105 cursor-pointer"
+        className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-urgency-high text-white flex items-center justify-center hover:bg-red-700 shadow-[0_6px_16px_rgba(229,57,53,0.45)] hover:shadow-[0_8px_22px_rgba(229,57,53,0.6)] transition-all duration-200 hover:scale-105 cursor-pointer"
       >
         <IconMenu2 size={18} />
       </button>
@@ -408,10 +408,10 @@ export function AdminDashboardView() {
 
         {/* 1. Top Row: 4 Metric Cards (Exact Solid Layout from Sample Admin Dashboard) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-          {/* Card 1: Revenue (Red #E53935) */}
+          {/* Card 1: Revenue */}
           <div
             onClick={() => navigate('/admin/billing')}
-            className="bg-[#E53935] rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
+            className="bg-urgency-high rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
           >
             <div className="w-20 bg-black/10 flex items-center justify-center border-r border-white/15 shrink-0">
               <IconReceipt size={32} stroke={1.75} className="text-white" />
@@ -427,10 +427,10 @@ export function AdminDashboardView() {
             </div>
           </div>
 
-          {/* Card 2: Requests (Orange #FB8C00) */}
+          {/* Card 2: Requests */}
           <div
             onClick={() => navigate('/admin/maintenance')}
-            className="bg-[#FB8C00] rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
+            className="bg-urgency-medium rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
           >
             <div className="w-20 bg-black/10 flex items-center justify-center border-r border-white/15 shrink-0">
               <IconTool size={32} stroke={1.75} className="text-white" />
@@ -446,10 +446,10 @@ export function AdminDashboardView() {
             </div>
           </div>
 
-          {/* Card 3: Users (Blue #1E6FD9) */}
+          {/* Card 3: Users */}
           <div
             onClick={() => navigate('/admin/users')}
-            className="bg-[#1E6FD9] rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
+            className="bg-brand-blue rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
           >
             <div className="w-20 bg-black/10 flex items-center justify-center border-r border-white/15 shrink-0">
               <IconUsers size={32} stroke={1.75} className="text-white" />
@@ -465,10 +465,10 @@ export function AdminDashboardView() {
             </div>
           </div>
 
-          {/* Card 4: Advisories (Green #43A047) */}
+          {/* Card 4: Advisories */}
           <div
             onClick={() => navigate('/admin/interruptions')}
-            className="bg-[#43A047] rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
+            className="bg-urgency-low rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
           >
             <div className="w-20 bg-black/10 flex items-center justify-center border-r border-white/15 shrink-0">
               <IconBell size={32} stroke={1.75} className="text-white" />
@@ -487,10 +487,10 @@ export function AdminDashboardView() {
 
         {/* 2. Operational Queue & Action Cards (Same Solid Design as Metric Cards Above) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-          {/* Card 1: Unassigned (Amber #D97706) */}
+          {/* Card 1: Unassigned */}
           <div
             onClick={() => navigate('/admin/maintenance?staff=unassigned')}
-            className="bg-[#D97706] rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
+            className="bg-amber-600 rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
           >
             <div className="w-20 bg-black/10 flex items-center justify-center border-r border-white/15 shrink-0">
               <IconClipboardList size={32} stroke={1.75} className="text-white" />
@@ -506,10 +506,10 @@ export function AdminDashboardView() {
             </div>
           </div>
 
-          {/* Card 2: Verifications (Purple #7C3AED) */}
+          {/* Card 2: Verifications */}
           <div
             onClick={() => navigate('/admin/users?role=consumer&verification=pending')}
-            className="bg-[#7C3AED] rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
+            className="bg-purple-600 rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
           >
             <div className="w-20 bg-black/10 flex items-center justify-center border-r border-white/15 shrink-0">
               <IconUserCheck size={32} stroke={1.75} className="text-white" />
@@ -525,10 +525,10 @@ export function AdminDashboardView() {
             </div>
           </div>
 
-          {/* Card 3: Unpublished (Slate #475569) */}
+          {/* Card 3: Unpublished */}
           <div
             onClick={() => navigate('/admin/billing')}
-            className="bg-[#475569] rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
+            className="bg-slate-600 rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
           >
             <div className="w-20 bg-black/10 flex items-center justify-center border-r border-white/15 shrink-0">
               <IconFileSpreadsheet size={32} stroke={1.75} className="text-white" />

@@ -204,16 +204,16 @@ export function getProgressInfo(status?: string): { label: string; dotBg: string
   const s = (status || 'submitted').toLowerCase();
   switch (s) {
     case 'in_progress':
-      return { label: 'In progress', dotBg: '#38BDF8' };
+      return { label: 'In progress', dotBg: 'var(--color-brand-blue)' };
     case 'assigned':
-      return { label: 'Assigned', dotBg: '#FBBF24' };
+      return { label: 'Assigned', dotBg: 'var(--color-urgency-medium)' };
     case 'resolved':
-      return { label: 'Resolved', dotBg: '#4ADE80' };
+      return { label: 'Resolved', dotBg: 'var(--color-urgency-low)' };
     case 'cancelled':
-      return { label: 'Cancelled', dotBg: '#F87171' };
+      return { label: 'Cancelled', dotBg: 'var(--color-assigned)' };
     case 'submitted':
     default:
-      return { label: 'Submitted', dotBg: '#A78BFA' };
+      return { label: 'Submitted', dotBg: 'var(--color-brand-blue)' };
   }
 }
 
@@ -228,18 +228,18 @@ export function getUrgencyPinColor(urgency?: string, customColor?: string, statu
   if (customColor) return customColor;
   const st = (status || '').toLowerCase();
   if (st === 'resolved' || st === 'cancelled') {
-    return '#64748B'; // Grey for Resolved and Cancelled requests
+    return 'var(--color-assigned)'; // Assigned/Resolved tone for inactive requests
   }
   switch ((urgency || '').toLowerCase()) {
     case 'critical':
     case 'high':
-      return '#E53935'; // Red for High/Critical
+      return 'var(--color-urgency-high)'; // Red for High/Critical
     case 'medium':
-      return '#FB8C00'; // Orange for Medium
+      return 'var(--color-urgency-medium)'; // Orange for Medium
     case 'low':
-      return '#EAB308'; // Yellow for Low
+      return 'var(--color-urgency-low)'; // Low urgency token
     default:
-      return '#1E6FD9'; // Municipal Blue default
+      return 'var(--color-brand-blue)'; // Municipal Blue default
   }
 }
 
@@ -265,7 +265,7 @@ export function formatSubtleId(id?: string | number, label?: string): string {
 }
 
 // Simplified, compact map pin design for Requests (22x30px teardrop with clean white border and center dot)
-export function createPinIcon(options: CreatePinIconOptions | string = '#1E6FD9', legacyLabel?: string) {
+export function createPinIcon(options: CreatePinIconOptions | string = 'var(--color-brand-blue)', legacyLabel?: string) {
   const opts: CreatePinIconOptions =
     typeof options === 'string'
       ? { color: options, label: legacyLabel }
@@ -302,11 +302,11 @@ export function createPinIcon(options: CreatePinIconOptions | string = '#1E6FD9'
           <path
             d="M11 28C11 28 20 18.2 20 10.5C20 5.52944 15.9706 1.5 11 1.5C6.02944 1.5 2 5.52944 2 10.5C2 18.2 11 28 11 28Z"
             fill="${pinColor}"
-            stroke="${isHighlighted ? '#0F172A' : '#FFFFFF'}"
+            stroke="${isHighlighted ? 'var(--color-brand-black)' : 'var(--color-brand-white)'}"
             stroke-width="${isHighlighted ? '2' : '1.75'}"
             stroke-linejoin="round"
           />
-          <circle cx="11" cy="10.5" r="3.5" fill="#FFFFFF" />
+          <circle cx="11" cy="10.5" r="3.5" fill="var(--color-brand-white)" />
         </svg>
       </div>
     `,
@@ -325,10 +325,10 @@ export function createCustomerHomeIcon(isHighlighted = false, rawScale = 1.0) {
   return L.divIcon({
     className: `custom-leaflet-marker customer-home-marker ${isHighlighted ? 'marker-highlighted' : ''}`,
     html: `
-      <div style="width: 24px; height: 24px; transform: scale(${scale}); transform-origin: 0 0; border-radius: 50%; background: #1E6FD9; border: ${
-        isHighlighted ? '2px solid #0F172A' : '1.75px solid #FFFFFF'
+      <div style="width: 24px; height: 24px; transform: scale(${scale}); transform-origin: 0 0; border-radius: 50%; background: var(--color-brand-blue); border: ${
+        isHighlighted ? '2px solid var(--color-brand-black)' : '1.75px solid var(--color-brand-white)'
       }; box-shadow: 0 2px 5px rgba(0,0,0,0.28); display: flex; align-items: center; justify-content: center; cursor: pointer;">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand-white)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 10.5L12 3l9 7.5" />
           <path d="M5 9.5V19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5" />
           <path d="M9 20v-6h6v6" />
@@ -349,23 +349,23 @@ export function createGroupMarkerIcon(items: MapMarker[], isHighlighted = false,
 
   // Determine badge accent color: if group contains requests, use highest urgency color; otherwise customer blue
   const reqItems = items.filter((i) => i.markerType !== 'customer');
-  let bgColor = '#1E6FD9';
+  let bgColor = 'var(--color-brand-blue)';
   if (reqItems.length > 0) {
     if (reqItems.some((r) => r.urgency === 'high' && r.status !== 'resolved' && r.status !== 'cancelled')) {
-      bgColor = '#E53935';
+      bgColor = 'var(--color-urgency-high)';
     } else if (reqItems.some((r) => r.urgency === 'medium' && r.status !== 'resolved' && r.status !== 'cancelled')) {
-      bgColor = '#FB8C00';
+      bgColor = 'var(--color-urgency-medium)';
     } else if (reqItems.some((r) => r.urgency === 'low' && r.status !== 'resolved' && r.status !== 'cancelled')) {
-      bgColor = '#EAB308';
+      bgColor = 'var(--color-urgency-low)';
     } else {
-      bgColor = '#64748B';
+      bgColor = 'var(--color-assigned)';
     }
   }
 
   return L.divIcon({
     className: `custom-leaflet-marker grouped-marker ${isHighlighted ? 'marker-highlighted' : ''}`,
     html: `
-      <div style="width: 28px; height: 28px; transform: scale(${scale}); transform-origin: 0 0; border-radius: 50%; background: ${bgColor}; border: 2px solid #FFFFFF; box-shadow: 0 0 0 2px rgba(15,23,42,0.22), 0 3px 8px rgba(0,0,0,0.32); display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-size: 11px; font-weight: 800; font-family: sans-serif; cursor: pointer;">
+      <div style="width: 28px; height: 28px; transform: scale(${scale}); transform-origin: 0 0; border-radius: 50%; background: ${bgColor}; border: 2px solid var(--color-brand-white); box-shadow: 0 0 0 2px rgba(15,23,42,0.22), 0 3px 8px rgba(0,0,0,0.32); display: flex; align-items: center; justify-content: center; color: var(--color-brand-white); font-size: 11px; font-weight: 800; font-family: sans-serif; cursor: pointer;">
         ${items.length}
       </div>
     `,
@@ -381,7 +381,7 @@ export function createHomeIcon(options?: { isHighlighted?: boolean; scale?: numb
 
 function createPickerIcon() {
   return createPinIcon({
-    color: '#1E6FD9',
+    color: 'var(--color-brand-blue)',
     scale: 1.0,
   });
 }
@@ -459,7 +459,7 @@ export function MunicipalMap({
                 e.stopPropagation();
                 onBackToGroup();
               }}
-              className="text-[11px] font-semibold text-[#1E6FD9] hover:underline cursor-pointer block mb-1"
+              className="text-[11px] font-semibold text-brand-blue hover:underline cursor-pointer block mb-1"
             >
               ← Back to group list
             </button>
@@ -475,7 +475,7 @@ export function MunicipalMap({
               )}
               <span className="font-bold text-black truncate">{m.customerName || m.title}</span>
             </div>
-            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-50 text-[#1E6FD9] border border-blue-200 shrink-0">
+            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-50 text-brand-blue border border-blue-200 shrink-0">
               HOME
             </span>
           </div>
@@ -501,7 +501,7 @@ export function MunicipalMap({
                   e.stopPropagation();
                   if (m.onOpenRecord) m.onOpenRecord();
                 }}
-                className="w-full py-1 px-2.5 rounded bg-[#1E6FD9] hover:bg-[#1557B0] text-white text-[11px] font-semibold transition-colors cursor-pointer"
+                className="w-full py-1 px-2.5 rounded bg-brand-blue hover:bg-brand-blue-hover text-white text-[11px] font-semibold transition-colors cursor-pointer"
               >
                 Open Customer Record
               </button>
@@ -521,7 +521,7 @@ export function MunicipalMap({
               e.stopPropagation();
               onBackToGroup();
             }}
-            className="text-[11px] font-semibold text-[#1E6FD9] hover:underline cursor-pointer block mb-1"
+            className="text-[11px] font-semibold text-brand-blue hover:underline cursor-pointer block mb-1"
           >
             ← Back to group list
           </button>
@@ -535,7 +535,7 @@ export function MunicipalMap({
                   ? 'bg-rose-50 text-rose-700 border border-rose-200'
                   : m.urgency.toLowerCase() === 'medium'
                   ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                  : 'bg-blue-50 text-[#1E6FD9] border border-blue-200'
+                  : 'bg-blue-50 text-brand-blue border border-blue-200'
               }`}
             >
               {m.urgency}
@@ -576,7 +576,7 @@ export function MunicipalMap({
                   e.stopPropagation();
                   if (m.onAssignStaff) m.onAssignStaff();
                 }}
-                className="flex-1 py-1 px-2 rounded bg-[#1E6FD9] hover:bg-[#1557B0] text-white text-[11px] font-semibold transition-colors cursor-pointer"
+                className="flex-1 py-1 px-2 rounded bg-brand-blue hover:bg-brand-blue-hover text-white text-[11px] font-semibold transition-colors cursor-pointer"
               >
                 Assign Staff
               </button>
@@ -611,7 +611,7 @@ export function MunicipalMap({
 
         {/* Hotspots / Maintenance Intensity Zones */}
         {hotspots.map((h) => {
-          const zoneColor = h.color || h.fillColor || '#1E6FD9';
+          const zoneColor = h.color || h.fillColor || 'var(--color-brand-blue)';
           const fillOpacity = h.fillOpacity ?? 0.28;
 
           const content = (
@@ -795,7 +795,7 @@ export function MunicipalMap({
                           <span
                             className={`px-1.5 py-0.5 rounded text-[9px] font-bold shrink-0 uppercase ${
                               item.markerType === 'customer'
-                                ? 'bg-blue-50 text-[#1E6FD9]'
+                                ? 'bg-blue-50 text-brand-blue'
                                 : 'bg-slate-100 text-slate-700'
                             }`}
                           >
@@ -828,7 +828,7 @@ export function MunicipalMap({
           >
             <Popup>
               <div className="text-[13px] font-sans p-1">
-                <strong className="text-[#1E6FD9] block font-medium">Selected Location</strong>
+                <strong className="text-brand-blue block font-medium">Selected Location</strong>
                 <span className="text-black/80 font-normal text-xs">
                   {selectedCoords[0].toFixed(5)}, {selectedCoords[1].toFixed(5)}
                 </span>

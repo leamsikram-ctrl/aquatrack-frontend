@@ -141,7 +141,7 @@ export function AdminStaffView() {
             <input
               type="text"
               placeholder="Search staff name, mobile, or assigned sector..."
-              className="w-full pl-8 pr-3 py-1.5 text-[14px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+              className="w-full pl-8 pr-3 py-1.5 text-[14px] bg-white text-black border border-black rounded outline-none focus:border-brand-blue"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -208,7 +208,7 @@ export function AdminStaffView() {
                         </td>
                         <td className="px-4 py-3 text-black">
                           <div className="flex items-center gap-1">
-                            <IconMapPin size={12} className="text-[#1E6FD9] shrink-0" />
+                            <IconMapPin size={12} className="text-brand-blue shrink-0" />
                             <span>{assignedArea}</span>
                           </div>
                         </td>
@@ -256,7 +256,7 @@ export function AdminStaffView() {
                 </div>
                 <button
                   onClick={() => setSelectedStaff(null)}
-                  className="text-black hover:text-[#1E6FD9] p-1 text-[14px]"
+                  className="text-black hover:text-brand-blue p-1 text-[14px]"
                 >
                   <IconX size={14} />
                 </button>
@@ -334,7 +334,7 @@ export function AdminStaffView() {
                 </span>
                 <button
                   onClick={() => setShowAddModal(false)}
-                  className="text-black hover:text-[#1E6FD9] p-1 text-[14px]"
+                  className="text-black hover:text-brand-blue p-1 text-[14px]"
                 >
                   <IconX size={14} />
                 </button>
@@ -342,7 +342,7 @@ export function AdminStaffView() {
 
               {addSuccess && (
                 <div className="p-2.5 bg-white border border-black rounded text-[14px] text-black flex items-center gap-2">
-                  <IconCheck size={14} className="text-[#1E6FD9] shrink-0" />
+                  <IconCheck size={14} className="text-brand-blue shrink-0" />
                   <span>{addSuccess}</span>
                 </div>
               )}
@@ -355,7 +355,7 @@ export function AdminStaffView() {
                   <input
                     type="text"
                     placeholder="e.g. Pedro Cruz"
-                    className="w-full p-2 bg-white text-black border border-black rounded text-[14px] outline-none focus:border-[#1E6FD9]"
+                    className="w-full p-2 bg-white text-black border border-black rounded text-[14px] outline-none focus:border-brand-blue"
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
                     required
@@ -370,7 +370,7 @@ export function AdminStaffView() {
                     <input
                       type="tel"
                       placeholder="0917 123 4567"
-                      className="w-full pl-7 pr-3 py-2 bg-white text-black border border-black rounded text-[14px] outline-none font-normal focus:border-[#1E6FD9]"
+                      className="w-full pl-7 pr-3 py-2 bg-white text-black border border-black rounded text-[14px] outline-none font-normal focus:border-brand-blue"
                       value={newMobile}
                       onChange={(e) => setNewMobile(e.target.value)}
                       required
@@ -386,7 +386,7 @@ export function AdminStaffView() {
                   <input
                     type="email"
                     placeholder="pedro@sinacaban.gov.ph"
-                    className="w-full p-2 bg-white text-black border border-black rounded text-[14px] outline-none focus:border-[#1E6FD9]"
+                    className="w-full p-2 bg-white text-black border border-black rounded text-[14px] outline-none focus:border-brand-blue"
                     value={newEmail}
                     onChange={(e) => setNewEmail(e.target.value)}
                   />

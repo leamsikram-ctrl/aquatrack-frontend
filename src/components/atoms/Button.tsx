@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost';
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -28,7 +28,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     // Global button styling matching the Untitled UI design system with strict horizontal icon placement
     const baseStyles =
-      'inline-flex flex-row items-center justify-center gap-1.5 font-semibold rounded-lg transition-all cursor-pointer select-none border whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900';
+      'inline-flex flex-row items-center justify-center gap-1.5 font-semibold rounded-lg transition-all cursor-pointer select-none border whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2';
 
     const sizeStyles = {
       sm: 'text-xs px-2.5 py-1',
@@ -38,17 +38,20 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variantStyles = {
       primary:
-        'bg-[#0F172A] hover:bg-slate-800 text-white border-slate-900 shadow-sm active:translate-y-0.5',
+        'bg-slate-900 hover:bg-slate-800 text-white border-slate-900 shadow-sm active:translate-y-0.5',
       secondary:
         'bg-white text-black border-slate-300 shadow-2xs hover:bg-slate-50 hover:border-slate-400 active:translate-y-0.5',
       ghost:
-        'bg-white text-black border-slate-300 shadow-2xs hover:bg-slate-50 hover:border-slate-400 active:translate-y-0.5',
+        'bg-transparent text-black hover:bg-black/5 border-transparent shadow-none active:translate-y-0.5',
+      destructive:
+        'bg-urgency-high hover:bg-red-700 text-white border-transparent shadow-sm active:translate-y-0.5',
     }[variant];
 
     return (
       <button
         ref={ref}
         disabled={disabled || isLoading}
+        aria-busy={isLoading}
         className={`${baseStyles} ${sizeStyles} ${variantStyles} ${className}`}
         {...props}
       >

@@ -26,7 +26,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
   } = useAdminUI();
 
   return (
-    <div className="min-h-screen bg-[#E0E8F5] flex text-black text-[14px]">
+    <div className="min-h-screen bg-admin-bg flex text-black text-[14px]">
       {/* Desktop Sidebar (Permanent, Left Column >= md) */}
       <div className="hidden md:flex shrink-0">
         <AdminSidebar
@@ -59,7 +59,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
       )}
 
       {/* Right Column: Topnav (White) + Page Content (Gray) */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-screen bg-[#E0E8F5]">
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen bg-admin-bg">
         <AdminTopbar
           title={title}
           subtitle={subtitle}

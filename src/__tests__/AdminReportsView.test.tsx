@@ -87,7 +87,46 @@ vi.mock('../api', () => ({
   },
 }));
 
-describe('AdminReportsView (Section 10 & Updated Reports Workflow)', () => {
+const mockSave = vi.fn();
+
+// Mock jsPDF and jspdf-autotable
+vi.mock('jspdf', () => {
+  class MockJsPDF {
+    internal: any;
+    setFillColor = vi.fn();
+    rect = vi.fn();
+    circle = vi.fn();
+    setFont = vi.fn();
+    setFontSize = vi.fn();
+    setTextColor = vi.fn();
+    text = vi.fn();
+    setDrawColor = vi.fn();
+    setLineWidth = vi.fn();
+    line = vi.fn();
+    setPage = vi.fn();
+    save = (...args: any[]) => mockSave(...args);
+
+    constructor(options?: any) {
+      this.internal = {
+        pageSize: {
+          getWidth: () => (options?.orientation === 'landscape' ? 297 : 210),
+          getHeight: () => (options?.orientation === 'landscape' ? 210 : 297),
+        },
+        getNumberOfPages: () => 1,
+      };
+    }
+  }
+
+  return { jsPDF: MockJsPDF, default: MockJsPDF };
+});
+
+vi.mock('jspdf-autotable', () => ({
+  default: vi.fn((doc: any) => {
+    doc.lastAutoTable = { finalY: 60 };
+  }),
+}));
+
+describe('AdminReportsView (Section 10 & Revised PDF Output Workflow)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -109,22 +148,18 @@ describe('AdminReportsView (Section 10 & Updated Reports Workflow)', () => {
   it('renders reports view with all 5 workflow report types and default current month date range', async () => {
     await renderComponent();
 
-    // Check header
     expect(screen.getByText(/Maintenance Reports/i)).toBeInTheDocument();
 
-    // Check report type select options
     const reportSelect = screen.getByLabelText(/Report Type/i) as HTMLSelectElement;
     expect(reportSelect).toBeInTheDocument();
     expect(reportSelect.value).toBe('maintenance_summary');
 
-    // Verify all 5 workflow options exist
     expect(screen.getByText(/Maintenance summary/i)).toBeInTheDocument();
     expect(screen.getByText(/Maintenance request log/i)).toBeInTheDocument();
     expect(screen.getByText(/Requests by barangay/i)).toBeInTheDocument();
     expect(screen.getByText(/Staff task report/i)).toBeInTheDocument();
     expect(screen.getByText(/Water advisory report/i)).toBeInTheDocument();
 
-    // Verify default date range is current month in Philippine Time
     const fromInput = screen.getByLabelText(/From/i) as HTMLInputElement;
     const toInput = screen.getByLabelText(/To/i) as HTMLInputElement;
     const todayStr = getPhilippineToday();
@@ -134,6 +169,9 @@ describe('AdminReportsView (Section 10 & Updated Reports Workflow)', () => {
     expect(toInput.value).toBe(todayStr);
     expect(fromInput.max).toBe(todayStr);
     expect(toInput.max).toBe(todayStr);
+
+    // Rule change verification: printable page and "Print or Save as PDF" button are removed
+    expect(screen.queryByRole('button', { name: /Print or Save as PDF/i })).not.toBeInTheDocument();
   });
 
   it('displays Maintenance summary preview metrics with High Urgency and Avg Resolution time', async () => {
@@ -198,8 +236,9 @@ describe('AdminReportsView (Section 10 & Updated Reports Workflow)', () => {
     });
   });
 
-  it('records Activity Log when generating report on screen', async () => {
+  it('builds PDF and saves to Activity Log with Report ready confirmation', async () => {
     const auditSpy = vi.spyOn(advisoriesStore, 'appendAuditLog');
+
     await renderComponent();
 
     const generateBtn = screen.getByRole('button', { name: /Generate report/i });
@@ -207,13 +246,16 @@ describe('AdminReportsView (Section 10 & Updated Reports Workflow)', () => {
 
     await act(async () => {
       fireEvent.click(generateBtn);
-      await new Promise((resolve) => setTimeout(resolve, 350));
     });
 
-    expect(auditSpy).toHaveBeenCalledWith(
-      expect.stringContaining('Generated Maintenance Summary Report on screen'),
-      'SIWASS Administrator'
-    );
+    await waitFor(() => {
+      expect(mockSave).toHaveBeenCalledWith(expect.stringMatching(/^aquatrack-maintenance-summary-.*\.pdf$/));
+      expect(auditSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Generated PDF: Maintenance Summary Report'),
+        'SIWASS Administrator'
+      );
+      expect(screen.getByText(/Report ready/i)).toBeInTheDocument();
+    });
   });
 
   it('records Activity Log and downloads formatted CSV when clicking Export CSV', async () => {
@@ -254,7 +296,7 @@ describe('AdminReportsView (Section 10 & Updated Reports Workflow)', () => {
     expect(downloadedFileName).toMatch(/^aquatrack-maintenance-summary-.*\.csv$/);
   });
 
-  it('renders Type 2: Maintenance Request Log with Customer name and marked Cancelled requests', async () => {
+  it('generates Landscape PDF for Type 2: Maintenance Request Log', async () => {
     await renderComponent();
 
     const reportSelect = screen.getByLabelText(/Report Type/i);
@@ -265,20 +307,17 @@ describe('AdminReportsView (Section 10 & Updated Reports Workflow)', () => {
     const generateBtn = screen.getByRole('button', { name: /Generate report/i });
     await act(async () => {
       fireEvent.click(generateBtn);
-      await new Promise((resolve) => setTimeout(resolve, 350));
     });
 
     await waitFor(() => {
-      expect(screen.getByText(/Maintenance Request Log Report/i)).toBeInTheDocument();
-      // Check customer names are rendered
-      expect(screen.getByText('Juan Dela Cruz')).toBeInTheDocument();
-      expect(screen.getByText('Elena Ramos')).toBeInTheDocument();
-      // Check cancelled status is rendered and marked
-      expect(screen.getByText('Cancelled')).toBeInTheDocument();
+      expect(mockSave).toHaveBeenCalledWith(
+        expect.stringMatching(/^aquatrack-maintenance-request-log-.*\.pdf$/)
+      );
+      expect(screen.getByText(/Report ready/i)).toBeInTheDocument();
     });
   });
 
-  it('renders Type 3: Requests by Barangay sorted by highest total first with still open count', async () => {
+  it('generates Portrait PDF for Type 3: Requests by Barangay', async () => {
     await renderComponent();
 
     const reportSelect = screen.getByLabelText(/Report Type/i);
@@ -289,17 +328,17 @@ describe('AdminReportsView (Section 10 & Updated Reports Workflow)', () => {
     const generateBtn = screen.getByRole('button', { name: /Generate report/i });
     await act(async () => {
       fireEvent.click(generateBtn);
-      await new Promise((resolve) => setTimeout(resolve, 350));
     });
 
     await waitFor(() => {
-      expect(screen.getByText(/Requests by Barangay Report/i)).toBeInTheDocument();
-      expect(screen.getByText('Still Open')).toBeInTheDocument();
-      expect(screen.getByText('Most Common Issue Type')).toBeInTheDocument();
+      expect(mockSave).toHaveBeenCalledWith(
+        expect.stringMatching(/^aquatrack-requests-by-barangay-.*\.pdf$/)
+      );
+      expect(screen.getByText(/Report ready/i)).toBeInTheDocument();
     });
   });
 
-  it('renders Type 4: Staff Task Report with tasks assigned in period and average resolution time', async () => {
+  it('generates Landscape PDF for Type 4: Staff Task Report', async () => {
     await renderComponent();
 
     const reportSelect = screen.getByLabelText(/Report Type/i);
@@ -310,18 +349,17 @@ describe('AdminReportsView (Section 10 & Updated Reports Workflow)', () => {
     const generateBtn = screen.getByRole('button', { name: /Generate report/i });
     await act(async () => {
       fireEvent.click(generateBtn);
-      await new Promise((resolve) => setTimeout(resolve, 350));
     });
 
     await waitFor(() => {
-      expect(screen.getByText(/Staff Task Report Report/i)).toBeInTheDocument();
-      expect(screen.getByText('Tasks Assigned in Period')).toBeInTheDocument();
-      expect(screen.getByText('Avg Time (Assigned to Resolved)')).toBeInTheDocument();
-      expect(screen.getByText('Pedro Penduko')).toBeInTheDocument();
+      expect(mockSave).toHaveBeenCalledWith(
+        expect.stringMatching(/^aquatrack-staff-task-report-.*\.pdf$/)
+      );
+      expect(screen.getByText(/Report ready/i)).toBeInTheDocument();
     });
   });
 
-  it('renders Type 5: Water Advisory Report with affected barangays and customers notified count', async () => {
+  it('generates Portrait PDF for Type 5: Water Advisory Report', async () => {
     await renderComponent();
 
     const reportSelect = screen.getByLabelText(/Report Type/i);
@@ -332,13 +370,62 @@ describe('AdminReportsView (Section 10 & Updated Reports Workflow)', () => {
     const generateBtn = screen.getByRole('button', { name: /Generate report/i });
     await act(async () => {
       fireEvent.click(generateBtn);
-      await new Promise((resolve) => setTimeout(resolve, 350));
     });
 
     await waitFor(() => {
-      expect(screen.getByText(/Water Advisory Report Report/i)).toBeInTheDocument();
-      expect(screen.getByText('Customers Notified')).toBeInTheDocument();
-      expect(screen.getByText('42')).toBeInTheDocument();
+      expect(mockSave).toHaveBeenCalledWith(
+        expect.stringMatching(/^aquatrack-water-advisory-report-.*\.pdf$/)
+      );
+      expect(screen.getByText(/Report ready/i)).toBeInTheDocument();
+    });
+  });
+
+  it('displays size limit warning and disables Generate report when Request Log exceeds 500 rows', async () => {
+    // Generate over 500 mock requests
+    const largeMockRequests = Array.from({ length: 505 }, (_, i) => ({
+      id: i + 1,
+      reference_number: `REQ-2026-${String(i + 1).padStart(4, '0')}`,
+      issue_type: 'Pipe Leak',
+      urgency: 'low',
+      status: 'submitted',
+      customer: { name: `Customer ${i + 1}`, barangay: 'Poblacion' },
+      created_at: new Date().toISOString(),
+    }));
+
+    const { requestsApi } = await import('../api');
+    vi.mocked(requestsApi.list).mockResolvedValueOnce({ data: largeMockRequests } as any);
+
+    await renderComponent();
+
+    const reportSelect = screen.getByLabelText(/Report Type/i);
+    await act(async () => {
+      fireEvent.change(reportSelect, { target: { value: 'request_log' } });
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText(/Request Log PDF Limit Exceeded/i)).toBeInTheDocument();
+      expect(screen.getByText(/The request log PDF holds up to 500 rows/i)).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Generate report/i })).toBeDisabled();
+      // Export CSV must remain enabled!
+      expect(screen.getByRole('button', { name: /Export CSV/i })).not.toBeDisabled();
+    });
+  });
+
+  it('displays error message with Try again when PDF building throws an exception', async () => {
+    mockSave.mockImplementationOnce(() => {
+      throw new Error('Simulated PDF disk failure');
+    });
+
+    await renderComponent();
+
+    const generateBtn = screen.getByRole('button', { name: /Generate report/i });
+    await act(async () => {
+      fireEvent.click(generateBtn);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText(/Failed to build PDF report\. Please try again\./i)).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Try again/i })).toBeInTheDocument();
     });
   });
 });

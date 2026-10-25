@@ -194,7 +194,7 @@ export function AdminRequestsView() {
                   }}
                   className={`px-3 py-1 rounded text-[14px] transition-colors ${
                     activeTab === 'active'
-                      ? 'bg-[#1E6FD9] text-white font-medium'
+                      ? 'bg-brand-blue text-white font-medium'
                       : 'text-black hover:bg-black/5 font-normal'
                   }`}
                 >
@@ -207,7 +207,7 @@ export function AdminRequestsView() {
                   }}
                   className={`px-3 py-1 rounded text-[14px] transition-colors ${
                     activeTab === 'history'
-                      ? 'bg-[#1E6FD9] text-white font-medium'
+                      ? 'bg-brand-blue text-white font-medium'
                       : 'text-black hover:bg-black/5 font-normal'
                   }`}
                 >
@@ -224,7 +224,7 @@ export function AdminRequestsView() {
                 placeholder="Search reference or barangay..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-7 pr-3 py-1 text-[14px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+                className="w-full pl-7 pr-3 py-1 text-[14px] bg-white text-black border border-black rounded outline-none focus:border-brand-blue"
               />
               <IconSearch size={12} className="absolute left-2.5 top-2 text-black/50" />
             </div>
@@ -242,7 +242,7 @@ export function AdminRequestsView() {
                 onClick={() => setStatusFilter(st)}
                 className={`px-2.5 py-0.5 rounded text-[14px] capitalize transition-colors border border-black ${
                   statusFilter === st
-                    ? 'bg-[#1E6FD9] text-white font-medium'
+                    ? 'bg-brand-blue text-white font-medium'
                     : 'bg-white text-black hover:bg-black/5 font-normal'
                 }`}
               >
@@ -291,7 +291,7 @@ export function AdminRequestsView() {
                       onClick={() => handleOpenDrawer(r)}
                       className="hover:bg-black/5 cursor-pointer transition-colors"
                     >
-                      <td className="px-4 py-2.5 font-medium text-[#1E6FD9]">
+                      <td className="px-4 py-2.5 font-medium text-brand-blue">
                         {r.reference_no || r.reference}
                       </td>
                       <td className="px-4 py-2.5 font-normal text-black">
@@ -376,7 +376,7 @@ export function AdminRequestsView() {
                 </div>
                 <button
                   onClick={() => setDrawerReq(null)}
-                  className="p-1 text-black hover:text-[#1E6FD9]"
+                  className="p-1 text-black hover:text-brand-blue"
                 >
                   <IconX size={16} />
                 </button>
@@ -404,7 +404,7 @@ export function AdminRequestsView() {
                   </div>
                   <div>
                     <span className="text-black/60 font-medium">Account No:</span>{' '}
-                    <span className="font-medium text-[#1E6FD9]">
+                    <span className="font-medium text-brand-blue">
                       {drawerReq.customer?.account_number ?? 'ACC-2026-0001'}
                     </span>
                   </div>
@@ -442,7 +442,7 @@ export function AdminRequestsView() {
                   </div>
                   <div className="flex justify-between border-t border-black/10 pt-1">
                     <span>Engine Output:</span>
-                    <span className="font-medium text-[#1E6FD9]">{drawerReq.urgency.toUpperCase()}</span>
+                    <span className="font-medium text-brand-blue">{drawerReq.urgency.toUpperCase()}</span>
                   </div>
                 </div>
               </div>
@@ -455,7 +455,7 @@ export function AdminRequestsView() {
 
                 <div className="flex gap-2">
                   <select
-                    className="p-1.5 bg-white text-black border border-black rounded text-[14px] outline-none focus:border-[#1E6FD9]"
+                    className="p-1.5 bg-white text-black border border-black rounded text-[14px] outline-none focus:border-brand-blue"
                     value={adjustedUrgency}
                     onChange={(e) => setAdjustedUrgency(e.target.value as Urgency)}
                   >
@@ -467,7 +467,7 @@ export function AdminRequestsView() {
                   <input
                     type="text"
                     placeholder="Reason for change (optional)"
-                    className="flex-1 p-1.5 bg-white text-black border border-black rounded text-[14px] outline-none focus:border-[#1E6FD9]"
+                    className="flex-1 p-1.5 bg-white text-black border border-black rounded text-[14px] outline-none focus:border-brand-blue"
                     value={urgencyReason}
                     onChange={(e) => setUrgencyReason(e.target.value)}
                   />
@@ -483,7 +483,7 @@ export function AdminRequestsView() {
                     Apply Urgency Override
                   </Button>
                   {urgencySavedNotice && (
-                    <span className="text-[#1E6FD9] font-medium text-xs">
+                    <span className="text-brand-blue font-medium text-xs">
                       ✓ Override saved & logged
                     </span>
                   )}
@@ -505,7 +505,7 @@ export function AdminRequestsView() {
                     <span className="text-black/60 text-xs font-medium">
                       Assigned Field Technician:
                     </span>
-                    <span className="font-medium text-[#1E6FD9]">{drawerReq.assigned_staff.name}</span>
+                    <span className="font-medium text-brand-blue">{drawerReq.assigned_staff.name}</span>
                   </div>
                   {drawerReq.assignment_notes && (
                     <p className="text-black/70 italic text-xs">
@@ -541,14 +541,14 @@ export function AdminRequestsView() {
             <div className="bg-white border-2 border-black rounded-lg max-w-md w-full p-5 space-y-4 shadow-xl text-[14px] max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <div className="flex items-center gap-2">
-                  <IconUserPlus size={14} className="text-[#1E6FD9]" />
+                  <IconUserPlus size={14} className="text-brand-blue" />
                   <h3 className="text-base font-bold text-black">
                     Assign Staff
                   </h3>
                 </div>
                 <button
                   onClick={() => setAssigningReq(null)}
-                  className="text-black hover:text-[#1E6FD9]"
+                  className="text-black hover:text-brand-blue"
                 >
                   <IconX size={14} />
                 </button>
@@ -575,7 +575,7 @@ export function AdminRequestsView() {
                     </div>
                   ) : (
                     <select
-                      className="w-full p-2 bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9] text-[14px]"
+                      className="w-full p-2 bg-white text-black border border-black rounded outline-none focus:border-brand-blue text-[14px]"
                       value={selectedStaffId || ''}
                       onChange={(e) => setSelectedStaffId(Number(e.target.value))}
                     >
@@ -593,7 +593,7 @@ export function AdminRequestsView() {
                     Assignment Notes
                   </label>
                   <textarea
-                    className="w-full p-2 bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9] text-[14px]"
+                    className="w-full p-2 bg-white text-black border border-black rounded outline-none focus:border-brand-blue text-[14px]"
                     rows={3}
                     placeholder="Instructions for the technician..."
                     value={assignmentNotes}

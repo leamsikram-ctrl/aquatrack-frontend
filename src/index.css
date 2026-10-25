@@ -8,9 +8,22 @@
   */
   --color-brand-blue: #1E6FD9;
   --color-brand-blue-hover: #1557AB;
+  --color-brand-blue-shadow: #104382;
 
   --color-brand-white: #FFFFFF;
   --color-brand-black: #000000;
+
+  /* Urgency & Assignment Tokens */
+  --color-urgency-high: #E53935;
+  --color-urgency-medium: #FB8C00;
+  --color-urgency-low: #43A047;
+  --color-assigned: #64748B;
+
+  /* Surface & Tint Tokens */
+  --color-admin-bg: #E0E8F5;
+  --color-blue-tint: #F0F6FD;
+  --color-canvas-light: #FAFAFA;
+  --color-danger-subtle: #FFF2F2;
 
   /* Single Clean Font: Inter */
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;

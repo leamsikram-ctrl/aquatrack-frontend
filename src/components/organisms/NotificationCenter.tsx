@@ -160,11 +160,11 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
   const renderIcon = (type: AppNotification['type']) => {
     switch (type) {
       case 'request':
-        return <IconTool size={13} className="text-[#1E6FD9] shrink-0" />;
+        return <IconTool size={13} className="text-brand-blue shrink-0" />;
       case 'bill':
         return <IconReceipt size={13} className="text-black shrink-0" />;
       case 'advisory':
-        return <IconVolume size={13} className="text-[#1E6FD9] shrink-0" />;
+        return <IconVolume size={13} className="text-brand-blue shrink-0" />;
       case 'cancellation':
         return <IconX size={13} className="text-black shrink-0" />;
       default:
@@ -182,13 +182,13 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
           <div className="flex items-center gap-1.5">
             <button
               onClick={onClose}
-              className="p-1 hover:text-[#1E6FD9] text-black font-medium flex items-center gap-1"
+              className="p-1 hover:text-brand-blue text-black font-medium flex items-center gap-1"
               title="Close notifications"
             >
               ← <span className="uppercase tracking-wider text-[14px]">Notifications</span>
             </button>
             {unreadCount > 0 && (
-              <span className="px-1.5 py-0.5 bg-[#1E6FD9] text-white rounded font-medium text-xs">
+              <span className="px-1.5 py-0.5 bg-brand-blue text-white rounded font-medium text-xs">
                 {unreadCount} new
               </span>
             )}
@@ -196,14 +196,14 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={markAllRead}
-              className="text-[#1E6FD9] hover:underline font-medium text-[14px] flex items-center gap-1"
+              className="text-brand-blue hover:underline font-medium text-[14px] flex items-center gap-1"
             >
               <IconCheck size={13} />
               Mark all read
             </button>
             <button
               onClick={onClose}
-              className="p-1 hover:text-[#1E6FD9] font-normal text-black"
+              className="p-1 hover:text-brand-blue font-normal text-black"
             >
               ✕
             </button>
@@ -242,7 +242,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                     <div className="text-[14px] font-normal text-black/50 flex items-center gap-2">
                       <span>{n.time}</span>
                       {!n.read && (
-                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#1E6FD9]" />
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-brand-blue" />
                       )}
                     </div>
                   </div>

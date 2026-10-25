@@ -65,7 +65,7 @@ export function StaffHistoryView() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <Card className="p-4 border border-black/15 bg-white">
             <div className="text-xs font-semibold text-black/60">Total Resolved</div>
-            <div className="text-3xl sm:text-4xl font-bold text-[#1E6FD9] leading-none mt-2">
+            <div className="text-3xl sm:text-4xl font-bold text-brand-blue leading-none mt-2">
               {completedTasks.length}
             </div>
           </Card>
@@ -116,7 +116,7 @@ export function StaffHistoryView() {
                 ) : (
                   completedTasks.map((task) => (
                     <tr key={task.id} className="hover:bg-black/5 transition-colors">
-                      <td className="px-4 py-3 font-medium text-[#1E6FD9]">
+                      <td className="px-4 py-3 font-medium text-brand-blue">
                         {task.reference_no || task.reference}
                       </td>
                       <td className="px-4 py-3 font-normal text-black">
@@ -154,14 +154,14 @@ export function StaffHistoryView() {
             <div className="w-full max-w-md bg-white rounded-lg border border-black p-5 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <div className="flex items-center gap-2">
-                  <IconCheck size={14} className="text-[#1E6FD9]" />
+                  <IconCheck size={14} className="text-brand-blue" />
                   <h2 className="text-sm font-bold text-black">
                     Resolution Report ({selectedTask.reference_no || selectedTask.reference})
                   </h2>
                 </div>
                 <button
                   onClick={() => setSelectedTask(null)}
-                  className="text-black hover:text-[#1E6FD9] p-1"
+                  className="text-black hover:text-brand-blue p-1"
                 >
                   ✕
                 </button>

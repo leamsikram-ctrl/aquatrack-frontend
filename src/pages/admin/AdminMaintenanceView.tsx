@@ -200,18 +200,18 @@ function getMaintenanceIntensity(count: number): {
   level: string;
 } {
   if (count >= 18) {
-    return { color: '#EF4444', level: 'High Hotspot' };
+    return { color: 'var(--color-urgency-high)', level: 'High Hotspot' };
   }
   if (count >= 13) {
-    return { color: '#F97316', level: 'Moderate-High' };
+    return { color: 'var(--color-urgency-medium)', level: 'Moderate-High' };
   }
   if (count >= 9) {
-    return { color: '#FBBF24', level: 'Moderate' };
+    return { color: 'var(--color-urgency-medium)', level: 'Moderate' };
   }
   if (count >= 5) {
-    return { color: '#84CC16', level: 'Low-Moderate' };
+    return { color: 'var(--color-urgency-low)', level: 'Low-Moderate' };
   }
-  return { color: '#10B981', level: 'Low Maintenance' };
+  return { color: 'var(--color-urgency-low)', level: 'Low Maintenance' };
 }
 
 function getBarangayCoordinates(barangayName?: string | null): [number, number] {
@@ -887,7 +887,7 @@ export function AdminMaintenanceView() {
   };
 
   const getStatusDot = (status: string) => {
-    if (status === 'in_progress') return 'bg-[#1E6FD9]';
+    if (status === 'in_progress') return 'bg-brand-blue';
     if (status === 'assigned') return 'bg-amber-500';
     if (status === 'resolved') return 'bg-emerald-500';
     return 'bg-slate-400';
@@ -898,7 +898,7 @@ export function AdminMaintenanceView() {
     if (status === 'resolved' || status === 'cancelled') {
       return {
         bg: 'bg-slate-500',
-        accentColor: '#64748B',
+        accentColor: 'var(--color-assigned)',
         badgeBg: 'bg-slate-100 text-slate-700 border-slate-300',
         label: status === 'resolved' ? 'Resolved' : 'Cancelled',
       };
@@ -908,23 +908,23 @@ export function AdminMaintenanceView() {
       case 'critical':
       case 'high':
         return {
-          bg: 'bg-[#E53935]',
-          accentColor: '#E53935',
+          bg: 'bg-urgency-high',
+          accentColor: 'var(--color-urgency-high)',
           badgeBg: 'bg-red-50 text-rose-700 border-rose-200',
           label: 'High Urgency',
         };
       case 'medium':
         return {
-          bg: 'bg-[#FB8C00]',
-          accentColor: '#FB8C00',
+          bg: 'bg-urgency-medium',
+          accentColor: 'var(--color-urgency-medium)',
           badgeBg: 'bg-amber-50 text-amber-700 border-amber-200',
           label: 'Medium Urgency',
         };
       case 'low':
       default:
         return {
-          bg: 'bg-[#1E6FD9]',
-          accentColor: '#1E6FD9',
+          bg: 'bg-brand-blue',
+          accentColor: 'var(--color-brand-blue)',
           badgeBg: 'bg-blue-50 text-blue-700 border-blue-200',
           label: 'Low Urgency',
         };
@@ -1023,7 +1023,7 @@ export function AdminMaintenanceView() {
       <div
         key={c.id}
         onClick={() => handleFocusCustomerOnMap(c)}
-        className={`rounded-xl overflow-hidden flex items-stretch text-white transition-all duration-200 cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.18)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.25)] hover:-translate-y-0.5 border border-white/20 bg-[#1E6FD9] ${
+        className={`rounded-xl overflow-hidden flex items-stretch text-white transition-all duration-200 cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.18)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.25)] hover:-translate-y-0.5 border border-white/20 bg-brand-blue ${
           isSelected
             ? 'ring-2 ring-white ring-offset-2 ring-offset-black/40 shadow-xl scale-[1.01]'
             : ''
@@ -1079,20 +1079,20 @@ export function AdminMaintenanceView() {
       onNavigate={(path) => navigate(path)}
     >
       <div
-        className={`space-y-4 text-[13px] font-normal text-black transition-all duration-300 ${
+        className={`space-y-6 text-[14px] font-normal text-black transition-all duration-300 ${
           isModalOpen ? 'filter blur-[4px] pointer-events-none select-none opacity-50' : ''
         }`}
       >
-        {/* Header */}
-        <div className="border-b border-black/10 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        {/* Header - Direct & Clean, Minimal Text */}
+        <div className="border-b border-black/10 pb-3">
           <h1 className="text-xl sm:text-2xl font-bold text-black tracking-tight">
-            Maintenance Requests & GIS Map
+            Maintenance Requests
           </h1>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-5 h-auto lg:h-[calc(100vh-10rem)] min-h-[620px]">
         {/* LEFT COLUMN: Grouped into a Single Unified Card */}
-        <div className="w-full lg:w-[410px] xl:w-[450px] bg-[#43A047] rounded-md border border-black/10 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.14),0_6px_10px_-4px_rgba(0,0,0,0.08)] p-4 flex flex-col gap-3 shrink-0 h-full overflow-hidden text-white">
+        <div className="w-full lg:w-[410px] xl:w-[450px] bg-urgency-low rounded-md border border-black/10 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.14),0_6px_10px_-4px_rgba(0,0,0,0.08)] p-4 flex flex-col gap-3 shrink-0 h-full overflow-hidden text-white">
           {/* Top Inset Search & Barangay Filter Bar */}
           <div className="bg-black/15 rounded-xl border border-white/20 p-2.5 space-y-2 shrink-0 shadow-[inset_0_2px_4px_rgba(0,0,0,0.12)]">
             <div className="flex items-center gap-2">
@@ -1115,7 +1115,7 @@ export function AdminMaintenanceView() {
                   title="Toggle filters (Status, Urgency, Issue Type, Date)"
                   className={`p-1 rounded-lg border transition-colors cursor-pointer shrink-0 ${
                     showFiltersPanel || statusFilter !== 'active' || urgencyFilter !== 'all' || issueTypeFilter !== 'all' || startDateFilter || endDateFilter
-                      ? 'bg-white text-[#2E7D32] border-white'
+                      ? 'bg-white text-emerald-800 border-white'
                       : 'bg-white/15 text-white border-white/25 hover:bg-white/25'
                   }`}
                 >
@@ -1132,9 +1132,9 @@ export function AdminMaintenanceView() {
                   aria-label="Filter by barangay"
                   className="flex-1 min-w-0 text-xs font-semibold text-white bg-white/20 rounded-lg px-2 py-1 outline-none border border-white/25 cursor-pointer shadow-xs hover:bg-white/30 transition-colors"
                 >
-                  <option className="bg-[#2E7D32] text-white" value="all">All</option>
+                  <option className="bg-emerald-800 text-white" value="all">All</option>
                   {barangays.map((b) => (
-                    <option key={b.id} value={b.name} className="bg-[#2E7D32] text-white">
+                    <option key={b.id} value={b.name} className="bg-emerald-800 text-white">
                       {b.name}
                     </option>
                   ))}
@@ -1153,14 +1153,14 @@ export function AdminMaintenanceView() {
                     title="Show Request Pins on map"
                     className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-bold transition-all cursor-pointer ${
                       showRequestsLayer
-                        ? 'bg-white text-[#2E7D32] shadow-sm'
+                        ? 'bg-white text-emerald-800 shadow-sm'
                         : 'text-white/80 hover:text-white hover:bg-white/10'
                     }`}
                   >
                     <span>Pins</span>
                     <span
                       className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
-                        showRequestsLayer ? 'bg-[#2E7D32]/15 text-[#2E7D32]' : 'bg-white/20 text-white'
+                        showRequestsLayer ? 'bg-emerald-800/15 text-emerald-800' : 'bg-white/20 text-white'
                       }`}
                     >
                       {filteredRequests.length}
@@ -1177,14 +1177,14 @@ export function AdminMaintenanceView() {
                     title="Show Customer Homes on map"
                     className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-bold transition-all cursor-pointer ${
                       showCustomersLayer
-                        ? 'bg-white text-[#2E7D32] shadow-sm'
+                        ? 'bg-white text-emerald-800 shadow-sm'
                         : 'text-white/80 hover:text-white hover:bg-white/10'
                     }`}
                   >
                     <span>Homes</span>
                     <span
                       className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
-                        showCustomersLayer ? 'bg-[#2E7D32]/15 text-[#2E7D32]' : 'bg-white/20 text-white'
+                        showCustomersLayer ? 'bg-emerald-800/15 text-emerald-800' : 'bg-white/20 text-white'
                       }`}
                     >
                       {activeCustomersForMap.length}
@@ -1205,13 +1205,13 @@ export function AdminMaintenanceView() {
                   onChange={(e) => setStatusFilter(e.target.value)}
                   className="w-full bg-white/15 text-white border border-white/25 rounded-lg px-2 py-1 text-xs outline-none"
                 >
-                  <option className="bg-[#2E7D32] text-white" value="active">Active Only</option>
-                  <option className="bg-[#2E7D32] text-white" value="all">All (+ Grey History)</option>
-                  <option className="bg-[#2E7D32] text-white" value="submitted">Submitted</option>
-                  <option className="bg-[#2E7D32] text-white" value="assigned">Assigned</option>
-                  <option className="bg-[#2E7D32] text-white" value="in_progress">In progress</option>
-                  <option className="bg-[#2E7D32] text-white" value="resolved">Resolved</option>
-                  <option className="bg-[#2E7D32] text-white" value="cancelled">Cancelled</option>
+                  <option className="bg-emerald-800 text-white" value="active">Active Only</option>
+                  <option className="bg-emerald-800 text-white" value="all">All (+ Grey History)</option>
+                  <option className="bg-emerald-800 text-white" value="submitted">Submitted</option>
+                  <option className="bg-emerald-800 text-white" value="assigned">Assigned</option>
+                  <option className="bg-emerald-800 text-white" value="in_progress">In progress</option>
+                  <option className="bg-emerald-800 text-white" value="resolved">Resolved</option>
+                  <option className="bg-emerald-800 text-white" value="cancelled">Cancelled</option>
                 </select>
               </div>
               <div>
@@ -1221,10 +1221,10 @@ export function AdminMaintenanceView() {
                   onChange={(e) => setUrgencyFilter(e.target.value)}
                   className="w-full bg-white/15 text-white border border-white/25 rounded-lg px-2 py-1 text-xs outline-none"
                 >
-                  <option className="bg-[#2E7D32] text-white" value="all">All Urgencies</option>
-                  <option className="bg-[#2E7D32] text-white" value="high">High</option>
-                  <option className="bg-[#2E7D32] text-white" value="medium">Medium</option>
-                  <option className="bg-[#2E7D32] text-white" value="low">Low</option>
+                  <option className="bg-emerald-800 text-white" value="all">All Urgencies</option>
+                  <option className="bg-emerald-800 text-white" value="high">High</option>
+                  <option className="bg-emerald-800 text-white" value="medium">Medium</option>
+                  <option className="bg-emerald-800 text-white" value="low">Low</option>
                 </select>
               </div>
               <div className="col-span-2">
@@ -1234,9 +1234,9 @@ export function AdminMaintenanceView() {
                   onChange={(e) => setIssueTypeFilter(e.target.value)}
                   className="w-full bg-white/15 text-white border border-white/25 rounded-lg px-2 py-1 text-xs outline-none"
                 >
-                  <option className="bg-[#2E7D32] text-white" value="all">All Issue Types</option>
+                  <option className="bg-emerald-800 text-white" value="all">All Issue Types</option>
                   {FIXED_ISSUE_TYPES.map((t) => (
-                    <option key={t.id} value={String(t.id)} className="bg-[#2E7D32] text-white">
+                    <option key={t.id} value={String(t.id)} className="bg-emerald-800 text-white">
                       {t.name}
                     </option>
                   ))}
@@ -1293,7 +1293,7 @@ export function AdminMaintenanceView() {
                     selectedCustomer.customer_profile?.account_number || `ACC-${selectedCustomer.id}`;
 
                   return (
-                    <div className="rounded-xl p-3 space-y-2.5 shrink-0 text-white bg-[#1E6FD9] transition-all shadow-[0_8px_24px_rgba(0,0,0,0.22)] border border-white/25">
+                    <div className="rounded-xl p-3 space-y-2.5 shrink-0 text-white bg-brand-blue transition-all shadow-[0_8px_24px_rgba(0,0,0,0.22)] border border-white/25">
                       <div className="flex items-center justify-between gap-2.5">
                         <div className="flex items-center gap-2.5 min-w-0">
                           <img
@@ -1378,7 +1378,6 @@ export function AdminMaintenanceView() {
                         <span className="w-2 h-2 rounded-full bg-white shadow-xs" />
                         Active Customers ({activeCustomersForMap.length})
                       </span>
-                      <span className="text-[10px] text-white/75 font-normal">Registered homes</span>
                     </div>
 
                     {activeCustomersForMap.map((c) => renderCustomerCard(c))}
@@ -1588,17 +1587,17 @@ export function AdminMaintenanceView() {
           <div className="absolute top-4 left-16 z-[400] hidden sm:flex items-center gap-2.5 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-xl border border-black/10 shadow-[0_8px_20px_rgba(0,0,0,0.15)] text-[11px] text-black/70">
             <span className="text-black/50">Urgency:</span>
             <span className="inline-flex items-center gap-1 text-black">
-              <span className="w-2 h-2 rounded-full bg-[#E53935]" /> High
+              <span className="w-2 h-2 rounded-full bg-urgency-high" /> High
             </span>
             <span className="inline-flex items-center gap-1 text-black">
-              <span className="w-2 h-2 rounded-full bg-[#FB8C00]" /> Medium
+              <span className="w-2 h-2 rounded-full bg-urgency-medium" /> Medium
             </span>
             <span className="inline-flex items-center gap-1 text-black">
-              <span className="w-2 h-2 rounded-full bg-[#EAB308]" /> Low
+              <span className="w-2 h-2 rounded-full bg-urgency-low" /> Low
             </span>
             {statusFilter !== 'active' && (
               <span className="inline-flex items-center gap-1 text-black">
-                <span className="w-2 h-2 rounded-full bg-[#64748B]" /> Closed
+                <span className="w-2 h-2 rounded-full bg-assigned" /> Closed
               </span>
             )}
           </div>
@@ -1621,7 +1620,7 @@ export function AdminMaintenanceView() {
               onClick={() => setShowHotspots((prev) => !prev)}
               className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-normal border transition-colors cursor-pointer ${
                 showHotspots
-                  ? 'bg-[#EA580C] text-white border-[#EA580C]'
+                  ? 'bg-orange-600 text-white border-orange-600'
                   : 'bg-white text-black/70 border-black/10 hover:border-black/20'
               }`}
             >
@@ -1632,7 +1631,7 @@ export function AdminMaintenanceView() {
               type="button"
               onClick={handleResetView}
               title="Reset map view to whole Sinacaban"
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-normal bg-white text-black/70 border border-black/10 hover:border-black/20 hover:text-[#1E6FD9] transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-normal bg-white text-black/70 border border-black/10 hover:border-black/20 hover:text-brand-blue transition-colors cursor-pointer"
             >
               <IconZoomReset size={14} className="shrink-0" />
               <span>Reset View</span>
@@ -1644,7 +1643,7 @@ export function AdminMaintenanceView() {
             <div className="absolute bottom-4 left-4 z-[400] bg-white/95 backdrop-blur-md rounded-2xl border border-black/10 shadow-[0_16px_36px_rgba(0,0,0,0.22)] p-3 space-y-2 max-w-[290px] text-black animate-hero-entrance">
               <div className="flex items-center justify-between gap-2 border-b border-black/10 pb-1.5">
                 <div className="flex items-center gap-1.5 min-w-0">
-                  <IconFlame size={15} className="text-[#EA580C] shrink-0" />
+                  <IconFlame size={15} className="text-orange-600 shrink-0" />
                   <span className="text-xs font-medium text-black truncate">
                     Maintenance Hotspots
                   </span>
@@ -1663,7 +1662,7 @@ export function AdminMaintenanceView() {
                   className="h-2.5 w-full rounded-full shadow-inner"
                   style={{
                     background:
-                      'linear-gradient(to right, #10B981 0%, #84CC16 25%, #FBBF24 50%, #F97316 75%, #EF4444 100%)',
+                      'linear-gradient(to right, var(--color-urgency-low) 0%, var(--color-urgency-medium) 50%, var(--color-urgency-high) 100%)',
                   }}
                 />
                 <div className="flex items-center justify-between text-[9px] font-normal text-black/45 pt-0.5">
@@ -1730,7 +1729,7 @@ export function AdminMaintenanceView() {
                   <select
                     value={selectedStaffId || ''}
                     onChange={(e) => setSelectedStaffId(Number(e.target.value))}
-                    className="w-full px-3 py-2 text-xs font-normal bg-white text-black border border-black/20 rounded-xl outline-none focus:border-[#1E6FD9]"
+                    className="w-full px-3 py-2 text-xs font-normal bg-white text-black border border-black/20 rounded-xl outline-none focus:border-brand-blue"
                   >
                     {activeStaffList.map((s) => (
                       <option key={s.id} value={s.id}>
@@ -1749,7 +1748,7 @@ export function AdminMaintenanceView() {
                     placeholder="Provide specific pipe junction instructions or notes..."
                     value={assignmentNotes}
                     onChange={(e) => setAssignmentNotes(e.target.value)}
-                    className="w-full p-2.5 text-xs font-normal bg-white text-black border border-black/20 rounded-xl outline-none focus:border-[#1E6FD9]"
+                    className="w-full p-2.5 text-xs font-normal bg-white text-black border border-black/20 rounded-xl outline-none focus:border-brand-blue"
                   />
                 </div>
               </div>
@@ -1767,7 +1766,7 @@ export function AdminMaintenanceView() {
                   type="button"
                   onClick={handleConfirmAssign}
                   disabled={isSubmittingAssign || activeStaffList.length === 0}
-                  className="px-3.5 py-1.5 text-xs font-semibold rounded-xl bg-[#0F172A] text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                  className="px-3.5 py-1.5 text-xs font-semibold rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition-colors cursor-pointer"
                 >
                   {isSubmittingAssign ? 'Assigning...' : 'Confirm Assignment'}
                 </button>
@@ -1892,7 +1891,7 @@ export function AdminMaintenanceView() {
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-medium text-black">Urgency Level</span>
                       {urgencySavedNotice && (
-                        <span className="text-xs text-[#43A047]">Updated</span>
+                        <span className="text-xs text-urgency-low">Updated</span>
                       )}
                     </div>
                     <div className="grid grid-cols-3 gap-2">
@@ -1904,10 +1903,10 @@ export function AdminMaintenanceView() {
                           className={`py-1.5 rounded-lg text-xs font-normal capitalize border transition-all cursor-pointer ${
                             adjustedUrgency === lvl
                               ? lvl === 'high'
-                                ? 'bg-[#E53935] text-white border-[#E53935]'
+                                ? 'bg-urgency-high text-white border-urgency-high'
                                 : lvl === 'medium'
-                                ? 'bg-[#FB8C00] text-white border-[#FB8C00]'
-                                : 'bg-[#D97706] text-white border-[#D97706]'
+                                ? 'bg-urgency-medium text-white border-urgency-medium'
+                                : 'bg-urgency-low text-white border-urgency-low'
                               : 'bg-white text-black/70 border-black/20 hover:border-black/40'
                           }`}
                         >
@@ -1921,7 +1920,7 @@ export function AdminMaintenanceView() {
                         placeholder="Reason for adjustment (optional)..."
                         value={urgencyReason}
                         onChange={(e) => setUrgencyReason(e.target.value)}
-                        className="w-full px-2.5 py-1.5 text-xs font-normal bg-white text-black border border-black/20 rounded-lg outline-none focus:border-[#1E6FD9]"
+                        className="w-full px-2.5 py-1.5 text-xs font-normal bg-white text-black border border-black/20 rounded-lg outline-none focus:border-brand-blue"
                       />
                     </div>
                     <button
@@ -1964,7 +1963,7 @@ export function AdminMaintenanceView() {
                             setDrawerReq(null);
                             handleOpenAssignModal(target);
                           }}
-                          className="px-3.5 py-1.5 text-xs font-normal rounded-xl bg-[#1E6FD9] hover:bg-[#1557B0] text-white shadow-xs transition-colors cursor-pointer"
+                          className="px-3.5 py-1.5 text-xs font-normal rounded-xl bg-brand-blue hover:bg-brand-blue-hover text-white shadow-xs transition-colors cursor-pointer"
                         >
                           Assign Staff
                         </button>
@@ -1977,7 +1976,7 @@ export function AdminMaintenanceView() {
                               setDrawerReq(null);
                               handleOpenAssignModal(target);
                             }}
-                            className="px-3 py-1.5 text-xs font-normal rounded-xl bg-[#1E6FD9] hover:bg-[#1557B0] text-white shadow-xs transition-colors cursor-pointer"
+                            className="px-3 py-1.5 text-xs font-normal rounded-xl bg-brand-blue hover:bg-brand-blue-hover text-white shadow-xs transition-colors cursor-pointer"
                           >
                             Reassign
                           </button>
@@ -2063,7 +2062,7 @@ export function AdminMaintenanceView() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-black/60">Meter Number:</span>
-                  <span className="font-bold text-[#1E6FD9]">
+                  <span className="font-bold text-brand-blue">
                     {customerRecordModal.customer_profile?.meter?.meter_number || 'MTR-UNASSIGNED'}
                   </span>
                 </div>
@@ -2115,7 +2114,7 @@ export function AdminMaintenanceView() {
                     setCustomerRecordModal(null);
                     navigate('/admin/users?role=consumer');
                   }}
-                  className="px-3.5 py-1.5 text-xs font-semibold rounded-xl bg-[#1E6FD9] text-white hover:bg-[#1557B0] transition-colors cursor-pointer"
+                  className="px-3.5 py-1.5 text-xs font-semibold rounded-xl bg-brand-blue text-white hover:bg-brand-blue-hover transition-colors cursor-pointer"
                 >
                   Open in User Management
                 </button>

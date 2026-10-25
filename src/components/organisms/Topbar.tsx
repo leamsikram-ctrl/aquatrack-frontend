@@ -101,7 +101,7 @@ export const Topbar: React.FC<TopbarProps> = ({
                   className="w-6 h-6 rounded-full object-cover border border-black/20 shrink-0"
                 />
               ) : (
-                <div className="w-6 h-6 rounded-full bg-[#1E6FD9] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                <div className="w-6 h-6 rounded-full bg-brand-blue text-white flex items-center justify-center font-bold text-xs shrink-0">
                   {firstLetter}
                 </div>
               )}
@@ -116,13 +116,17 @@ export const Topbar: React.FC<TopbarProps> = ({
               aria-label={unreadCount > 0 ? `Notifications (${unreadCount} unread)` : 'Notifications'}
               className="relative p-2 rounded border border-black text-black hover:bg-black/5 hover:text-black transition-colors cursor-pointer"
             >
-              <IconBell size={16} />
-              {unreadCount > 0 && (
-                <span
-                  data-testid="notification-badge"
-                  className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#1E6FD9] rounded-full border border-white"
-                />
-              )}
+              <div className="relative flex items-center justify-center">
+                <IconBell size={16} />
+                {unreadCount > 0 && (
+                  <span
+                    data-testid="notification-badge"
+                    className="absolute -top-2.5 -right-3 min-w-[17px] h-[17px] px-1 bg-red-600 text-white text-[10px] font-bold rounded-full border-2 border-white flex items-center justify-center leading-none shadow-xs pointer-events-none"
+                  >
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
+              </div>
             </button>
 
             <button

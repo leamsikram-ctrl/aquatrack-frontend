@@ -105,7 +105,7 @@ describe('AdminLayout & Persistent Sidebar State', () => {
     const mainContainer = container.querySelector('main');
     expect(mainContainer).toBeInTheDocument();
     const rightCol = mainContainer?.parentElement;
-    expect(rightCol).toHaveClass('bg-[#E0E8F5]');
+    expect(rightCol).toHaveClass('bg-admin-bg');
 
     const sidebar = screen.getByRole('complementary');
     expect(sidebar).toHaveClass('bg-white');

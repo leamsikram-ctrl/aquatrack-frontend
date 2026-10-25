@@ -56,7 +56,7 @@ export const StaffLayout: React.FC<StaffLayoutProps> = ({
                   onClick={() => onNavigate?.(item.path)}
                   className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded text-[14px] transition-colors text-left ${
                     isActive
-                      ? 'bg-[#1E6FD9] text-white font-medium'
+                      ? 'bg-brand-blue text-white font-medium'
                       : 'text-black hover:bg-black/5 hover:text-black font-normal'
                   }`}
                 >

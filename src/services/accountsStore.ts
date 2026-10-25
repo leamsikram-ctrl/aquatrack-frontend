@@ -439,6 +439,36 @@ export const accountsStore = {
   },
 
   /**
+   * Sync a single user authenticated from backend API into local store.
+   */
+  syncUser(user: User, password?: string): User {
+    const users = loadUsers();
+    const existingIndex = users.findIndex(
+      (u) =>
+        u.id === user.id ||
+        String(u.id) === String(user.id) ||
+        (user.email && u.email && u.email.toLowerCase().trim() === user.email.toLowerCase().trim()) ||
+        (user.mobile_number && u.mobile_number === user.mobile_number)
+    );
+
+    let nextUsers: User[];
+    if (existingIndex >= 0) {
+      nextUsers = users.map((u, i) => (i === existingIndex ? { ...u, ...user } : u));
+    } else {
+      nextUsers = [user, ...users];
+    }
+    saveUsers(nextUsers);
+
+    if (password) {
+      const passwords = loadPasswords();
+      passwords[user.id] = password;
+      savePasswords(passwords);
+    }
+
+    return user;
+  },
+
+  /**
    * Section 2.1: Customer Registration (Single Form)
    * Checks required fields and uniqueness of email, mobile number, and meter number.
    * Address is NOT checked for uniqueness because customers can share the same address.
@@ -458,7 +488,7 @@ export const accountsStore = {
     longitude: number;
     consentTerms: boolean;
     consentPrivacy: boolean;
-  }): { success: boolean; user?: User; error?: string } {
+  }): { success: boolean; user?: User; error?: string; fieldErrors?: Record<string, string> } {
     const fullName = payload.fullName.trim();
     const meterNumber = payload.meterNumber.trim().toUpperCase();
     const address = payload.address.trim();
@@ -471,13 +501,14 @@ export const accountsStore = {
     }
 
     if (!isValidEmailFormat(email)) {
-      return { success: false, error: 'Please enter a valid email address.' };
+      return { success: false, error: 'Please enter a valid email address.', fieldErrors: { email: 'Please enter a valid email address.' } };
     }
 
     if (!isValidPhilippineMobile(mobileNumber)) {
       return {
         success: false,
         error: 'Please enter a valid Philippine mobile number (e.g. 09171234567).',
+        fieldErrors: { mobile_number: 'Please enter a valid Philippine mobile number (e.g. 09171234567).' },
       };
     }
 
@@ -531,6 +562,7 @@ export const accountsStore = {
         return {
           success: false,
           error: 'This email address is already used by another account.',
+          fieldErrors: { email: 'This email address is already used by another account.' },
         };
       }
 
@@ -541,18 +573,22 @@ export const accountsStore = {
         return {
           success: false,
           error: 'This mobile number is already used by another account.',
+          fieldErrors: { mobile_number: 'This mobile number is already used by another account.' },
         };
       }
 
       const meterUsed = users.some(
         (u) =>
-          u.customer_profile?.meter?.meter_number &&
-          u.customer_profile.meter.meter_number.toUpperCase() === meterNumber
+          (u.customer_profile?.meter?.meter_number &&
+            u.customer_profile.meter.meter_number.toUpperCase() === meterNumber) ||
+          (u.customer_profile?.meter_number &&
+            u.customer_profile.meter_number.toUpperCase() === meterNumber)
       );
       if (meterUsed) {
         return {
           success: false,
           error: 'This meter number is already registered to another account.',
+          fieldErrors: { meter_number: 'This meter number is already registered to another account.' },
         };
       }
     }
@@ -855,16 +891,35 @@ export const accountsStore = {
   /**
    * Section 3 Step 3: Admin and staff accept the terms of use once, at their first login.
    */
-  acceptFirstLoginTerms(userId: number): User | null {
+  acceptFirstLoginTerms(userId: number | string, userContext?: User): User | null {
     const users = loadUsers();
     let updated: User | null = null;
+    let found = false;
+
     const nextUsers = users.map((u) => {
-      if (u.id === userId) {
+      const match =
+        u.id === Number(userId) ||
+        String(u.id) === String(userId) ||
+        (userContext?.email && u.email && u.email.toLowerCase() === userContext.email.toLowerCase()) ||
+        (userContext?.mobile_number && u.mobile_number === userContext.mobile_number);
+
+      if (match) {
+        found = true;
         updated = { ...u, terms_accepted: true };
         return updated;
       }
       return u;
     });
+
+    if (!found && userContext) {
+      updated = {
+        ...userContext,
+        id: Number(userId) || userContext.id || Date.now(),
+        terms_accepted: true,
+      };
+      nextUsers.unshift(updated);
+    }
+
     saveUsers(nextUsers);
     if (updated) {
       const u = updated as User;
@@ -882,20 +937,36 @@ export const accountsStore = {
    * Checks current password and password rules before saving.
    */
   changePassword(
-    userId: number,
+    userId: number | string,
     currentPassword: string,
     newPassword: string,
     confirmPassword: string,
-    skipCurrentCheck = false
+    skipCurrentCheck = false,
+    userContext?: User
   ): { success: boolean; user?: User; error?: string } {
     const users = loadUsers();
-    const target = users.find((u) => u.id === userId);
+    let target = users.find(
+      (u) =>
+        u.id === Number(userId) ||
+        String(u.id) === String(userId) ||
+        (userContext?.email && u.email && u.email.toLowerCase() === userContext.email.toLowerCase()) ||
+        (userContext?.mobile_number && u.mobile_number === userContext.mobile_number)
+    );
+
+    if (!target && userContext) {
+      target = {
+        ...userContext,
+        id: Number(userId) || userContext.id || Date.now(),
+      };
+      users.unshift(target);
+    }
+
     if (!target) {
       return { success: false, error: 'Account not found.' };
     }
 
     const passwords = loadPasswords();
-    const existingPass = passwords[userId] || 'password123';
+    const existingPass = passwords[target.id] || passwords[Number(userId)] || 'password123';
 
     if (!skipCurrentCheck && currentPassword !== existingPass && currentPassword !== 'password123') {
       return { success: false, error: 'Current password is incorrect.' };
@@ -915,14 +986,17 @@ export const accountsStore = {
       };
     }
 
-    passwords[userId] = newPassword;
+    passwords[target.id] = newPassword;
+    if (userId) {
+      passwords[Number(userId)] = newPassword;
+    }
     savePasswords(passwords);
 
     const updatedUser: User = {
       ...target,
       must_change_password: false,
     };
-    saveUsers(users.map((u) => (u.id === userId ? updatedUser : u)));
+    saveUsers(users.map((u) => (u.id === target?.id ? updatedUser : u)));
 
     appendAuditLog(
       `Changed account password`,
@@ -1578,12 +1652,127 @@ export const accountsStore = {
   },
 
   /**
+   * Section 2 & 7: Add Customer Account by Admin (Walk-in / In-Office Registration)
+   */
+  addCustomerByAdmin(payload: {
+    id?: number;
+    name: string;
+    email?: string;
+    mobileNumber: string;
+    meterNumber: string;
+    barangayId: number;
+    barangayName: string;
+    address: string;
+    temporaryPassword?: string;
+  }): { success: boolean; user?: User; temporaryPassword?: string; error?: string } {
+    const name = payload.name.trim();
+    const email = payload.email?.trim().toLowerCase() || undefined;
+    const mobileNumber = normalizeMobileNumber(payload.mobileNumber);
+    const meterNumber = payload.meterNumber.trim().toUpperCase();
+    const address = payload.address.trim();
+
+    if (!name || !mobileNumber || !meterNumber) {
+      return { success: false, error: 'Name, mobile number, and meter number are required.' };
+    }
+
+    const users = loadUsers();
+    if (email) {
+      const emailConflict = users.some(
+        (u) => (!payload.id || u.id !== payload.id) && u.email && u.email.toLowerCase() === email
+      );
+      if (emailConflict) {
+        return { success: false, error: 'This email address is already used by another account.' };
+      }
+    }
+
+    const mobileConflict = users.some(
+      (u) =>
+        (!payload.id || u.id !== payload.id) &&
+        normalizeMobileNumber(u.mobile_number || '') === mobileNumber
+    );
+    if (mobileConflict) {
+      return { success: false, error: 'This mobile number is already used by another account.' };
+    }
+
+    const meterConflict = users.some(
+      (u) =>
+        (!payload.id || u.id !== payload.id) &&
+        ((u.customer_profile?.meter?.meter_number &&
+          u.customer_profile.meter.meter_number.toUpperCase() === meterNumber) ||
+          (u.customer_profile?.meter_number &&
+            u.customer_profile.meter_number.toUpperCase() === meterNumber))
+    );
+    if (meterConflict) {
+      return { success: false, error: 'This meter number is already registered to another account.' };
+    }
+
+    const tempPassword = payload.temporaryPassword?.trim() || generateTemporaryPassword();
+    const newId = payload.id || Date.now();
+    const parts = name.split(/\s+/);
+    const seqNum = String((users.length + 1) % 10000).padStart(4, '0');
+
+    const newCustomer: User = {
+      id: newId,
+      role: 'customer',
+      status: 'active',
+      name,
+      full_name: name,
+      avatar: '/default-avatar.svg',
+      email: email || undefined,
+      mobile_number: mobileNumber,
+      is_verified: true,
+      verification_status: 'verified',
+      terms_accepted: false,
+      must_change_password: true,
+      created_at: new Date().toISOString(),
+      last_active_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      customer_profile: {
+        id: newId,
+        user_id: newId,
+        account_number: `ACC-2026-${seqNum}`,
+        first_name: parts[0] || name,
+        last_name: parts.slice(1).join(' ') || 'Customer',
+        mobile_number: mobileNumber,
+        address,
+        barangay_id: payload.barangayId,
+        barangay: { id: payload.barangayId, name: payload.barangayName },
+        meter_number: meterNumber,
+        meter: {
+          id: newId,
+          meter_number: meterNumber,
+          qr_token: `AQ-${meterNumber}`,
+          status: 'assigned',
+        },
+      },
+    };
+
+    const nextUsers = [newCustomer, ...users.filter((u) => u.id !== newId)];
+    saveUsers(nextUsers);
+
+    const passwords = loadPasswords();
+    passwords[newId] = tempPassword;
+    savePasswords(passwords);
+
+    appendAuditLog(
+      `Created customer account for ${name} (${meterNumber}, ${payload.barangayName}) as Active with temporary password`
+    );
+
+    return {
+      success: true,
+      user: newCustomer,
+      temporaryPassword: tempPassword,
+    };
+  },
+
+  /**
    * Section 7.2: Add Staff (Admin)
    * Admin enters name, email, and mobile number.
    * System creates the account as Active with a temporary password, which the admin gives to the staff member.
    * The staff member must change it at the first login (must_change_password: true).
    */
   addStaff(payload: {
+    id?: number;
     name: string;
     email: string;
     mobileNumber: string;
@@ -1602,20 +1791,24 @@ export const accountsStore = {
     }
 
     const users = loadUsers();
-    const emailConflict = users.some((u) => u.email && u.email.toLowerCase() === email);
+    const emailConflict = users.some(
+      (u) => (!payload.id || u.id !== payload.id) && u.email && u.email.toLowerCase() === email
+    );
     if (emailConflict) {
       return { success: false, error: 'This email address is already used by another account.' };
     }
 
     const mobileConflict = users.some(
-      (u) => normalizeMobileNumber(u.mobile_number || '') === mobileNumber
+      (u) =>
+        (!payload.id || u.id !== payload.id) &&
+        normalizeMobileNumber(u.mobile_number || '') === mobileNumber
     );
     if (mobileConflict) {
       return { success: false, error: 'This mobile number is already used by another account.' };
     }
 
     const tempPassword = payload.temporaryPassword?.trim() || generateTemporaryPassword();
-    const newId = Date.now();
+    const newId = payload.id || Date.now();
     const parts = name.split(/\s+/);
 
     const newStaff: User = {
@@ -1647,7 +1840,8 @@ export const accountsStore = {
       },
     };
 
-    saveUsers([newStaff, ...users]);
+    const nextUsers = [newStaff, ...users.filter((u) => u.id !== newId)];
+    saveUsers(nextUsers);
 
     const passwords = loadPasswords();
     passwords[newId] = tempPassword;
@@ -1660,108 +1854,6 @@ export const accountsStore = {
     return {
       success: true,
       user: newStaff,
-      temporaryPassword: tempPassword,
-    };
-  },
-
-  /**
-   * Provision Customer Account by Administrator
-   */
-  addCustomerByAdmin(payload: {
-    name: string;
-    email?: string;
-    mobileNumber: string;
-    meterNumber: string;
-    barangayId: number;
-    barangayName: string;
-    address: string;
-    temporaryPassword?: string;
-  }): { success: boolean; user?: User; temporaryPassword?: string; error?: string } {
-    const name = payload.name.trim();
-    const email =
-      payload.email?.trim().toLowerCase() ||
-      `${name.toLowerCase().replace(/\s+/g, '.')}@sinacaban.gov.ph`;
-    const mobileNumber = normalizeMobileNumber(payload.mobileNumber);
-    const meterNumber = payload.meterNumber.trim().toUpperCase();
-    const address = payload.address.trim();
-
-    if (!name || !mobileNumber || !meterNumber || !address) {
-      return { success: false, error: 'Name, mobile number, meter number, and address are required.' };
-    }
-
-    const users = loadUsers();
-    const emailConflict = users.some((u) => u.email && u.email.toLowerCase() === email);
-    if (emailConflict) {
-      return { success: false, error: 'This email address is already used by another account.' };
-    }
-
-    const mobileConflict = users.some(
-      (u) => normalizeMobileNumber(u.mobile_number || '') === mobileNumber
-    );
-    if (mobileConflict) {
-      return { success: false, error: 'This mobile number is already used by another account.' };
-    }
-
-    const meterConflict = users.some(
-      (u) => u.customer_profile?.meter?.meter_number?.toUpperCase() === meterNumber
-    );
-    if (meterConflict) {
-      return { success: false, error: `Meter #${meterNumber} is already registered to another consumer.` };
-    }
-
-    const tempPassword = payload.temporaryPassword?.trim() || generateTemporaryPassword();
-    const newId = Date.now();
-    const seqNum = String((users.length + 1) % 10000).padStart(4, '0');
-    const accountNumber = `ACC-2026-${seqNum}`;
-
-    const newCustomer: User = {
-      id: newId,
-      role: 'customer',
-      status: 'active',
-      is_verified: true,
-      verification_status: 'verified',
-      name,
-      full_name: name,
-      avatar: '/default-avatar.svg',
-      email,
-      mobile_number: mobileNumber,
-      terms_accepted: true,
-      must_change_password: true,
-      created_at: new Date().toISOString(),
-      last_active_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      customer_profile: {
-        id: newId,
-        user_id: newId,
-        account_number: accountNumber,
-        meter_number: meterNumber,
-        address,
-        barangay_id: payload.barangayId,
-        barangay: { id: payload.barangayId, name: payload.barangayName },
-        latitude: 8.2833,
-        longitude: 123.8333,
-        meter: {
-          id: newId,
-          meter_number: meterNumber,
-          qr_token: `AQ-${meterNumber}`,
-          status: 'active',
-        },
-      },
-    };
-
-    saveUsers([newCustomer, ...users]);
-
-    const passwords = loadPasswords();
-    passwords[newId] = tempPassword;
-    savePasswords(passwords);
-
-    appendAuditLog(
-      `Registered consumer account for ${name} (Meter: ${meterNumber}, Mobile: ${mobileNumber}) as Active with temporary password`
-    );
-
-    return {
-      success: true,
-      user: newCustomer,
       temporaryPassword: tempPassword,
     };
   },
@@ -1892,21 +1984,29 @@ export const accountsStore = {
    * Fallback for a user who can no longer reach the registered mobile number or email.
    * Admin issues a temporary password, and the user must change it at the next login.
    */
-  issueTemporaryPassword(userId: number): {
+  issueTemporaryPassword(
+    userId: number | string,
+    explicitPassword?: string
+  ): {
     success: boolean;
     user?: User;
     temporaryPassword?: string;
     error?: string;
   } {
     const users = loadUsers();
-    const target = users.find((u) => u.id === userId);
+    const target = users.find(
+      (u) => u.id === Number(userId) || String(u.id) === String(userId)
+    );
     if (!target) {
       return { success: false, error: 'Account not found.' };
     }
 
-    const tempPassword = generateTemporaryPassword();
+    const tempPassword = explicitPassword?.trim() || generateTemporaryPassword();
     const passwords = loadPasswords();
-    passwords[userId] = tempPassword;
+    passwords[target.id] = tempPassword;
+    if (userId) {
+      passwords[Number(userId)] = tempPassword;
+    }
     savePasswords(passwords);
 
     const updatedUser: User = {

@@ -44,7 +44,7 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({
       <div className="mx-auto max-w-7xl px-4 sm:px-6 h-13 flex items-center justify-between gap-4">
         {/* Brand & Workspace Indicator */}
         <div className="flex items-center gap-3">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#090A0F] text-white shadow-xs">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-black text-white shadow-xs">
             <IconDroplet size={15} />
           </div>
           <div className="flex items-center gap-2">
@@ -79,7 +79,7 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({
                   }
                 `}
               >
-                <Icon size={14} className={isActive ? 'text-[#1E6FD9]' : 'text-black/50'} />
+                <Icon size={14} className={isActive ? 'text-brand-blue' : 'text-black/50'} />
                 <span>{item.name}</span>
               </button>
             );
@@ -113,7 +113,7 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({
             {unreadCount > 0 && (
               <span
                 data-testid="notification-badge"
-                className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-[#1E6FD9]"
+                className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-brand-blue"
               />
             )}
           </button>
@@ -139,7 +139,7 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({
               key={item.path}
               onClick={() => onNavigate?.(item.path)}
               className={`whitespace-nowrap px-2.5 py-1 rounded text-sm font-normal ${
-                isActive ? 'bg-[#1E6FD9] text-white font-medium' : 'text-black/70 hover:bg-black/5'
+                isActive ? 'bg-brand-blue text-white font-medium' : 'text-black/70 hover:bg-black/5'
               }`}
             >
               {item.name}

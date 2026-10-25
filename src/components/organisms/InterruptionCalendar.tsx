@@ -111,7 +111,7 @@ export const InterruptionCalendar: React.FC<InterruptionCalendarProps> = ({
               onClick={() => handleDayClick(day)}
               className={`h-7 rounded flex flex-col items-center justify-center relative transition-colors border ${
                 isSelected
-                  ? 'bg-[#1E6FD9] text-white font-medium border-[#1E6FD9]'
+                  ? 'bg-brand-blue text-white font-medium border-brand-blue'
                   : 'hover:bg-black/5 text-black border-transparent'
               }`}
             >
@@ -119,7 +119,7 @@ export const InterruptionCalendar: React.FC<InterruptionCalendarProps> = ({
               {hasDisruption && (
                 <span
                   className={`w-1 h-1 rounded-full absolute bottom-0.5 ${
-                    isSelected ? 'bg-white' : 'bg-[#1E6FD9]'
+                    isSelected ? 'bg-white' : 'bg-brand-blue'
                   }`}
                 />
               )}
@@ -141,7 +141,7 @@ export const InterruptionCalendar: React.FC<InterruptionCalendarProps> = ({
                   key={item.id}
                   className="p-1.5 bg-white border border-black/15 rounded text-[9px] text-black"
                 >
-                  <strong className="block text-[#1E6FD9]">
+                  <strong className="block text-brand-blue">
                     {item.barangays?.map((b) => b.name).join(', ') || 'Coverage Area'}
                   </strong>
                   <span>{item.message || 'Scheduled pipeline maintenance.'}</span>

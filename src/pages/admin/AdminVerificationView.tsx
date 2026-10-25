@@ -216,7 +216,7 @@ export function AdminVerificationView() {
 
                     <div>
                       <span className="text-xs font-semibold text-black/60 block">Submitted Meter #</span>
-                      <span className="font-mono font-bold text-[#1E6FD9]">
+                      <span className="font-mono font-bold text-brand-blue">
                         {profile?.meter?.meter_number || profile?.meter_number || 'To be assigned'}
                       </span>
                     </div>
@@ -227,14 +227,14 @@ export function AdminVerificationView() {
                         <button
                           type="button"
                           onClick={() => setViewingMapUser(user)}
-                          className="text-black/80 flex items-center gap-1.5 font-mono text-xs hover:text-[#1E6FD9] hover:underline transition-colors mt-0.5 text-left"
+                          className="text-black/80 flex items-center gap-1.5 font-mono text-xs hover:text-brand-blue hover:underline transition-colors mt-0.5 text-left"
                           title="Click to view home location on municipal map"
                         >
-                          <IconMapPin size={13} className="text-[#1E6FD9] shrink-0" />
+                          <IconMapPin size={13} className="text-brand-blue shrink-0" />
                           <span>
                             {Number(profile.latitude).toFixed(4)}, {Number(profile.longitude).toFixed(4)}
                           </span>
-                          <span className="text-[10px] font-sans font-semibold text-[#1E6FD9] bg-[#1E6FD9]/10 px-1.5 py-0.5 rounded ml-1">
+                          <span className="text-[10px] font-sans font-semibold text-brand-blue bg-brand-blue/10 px-1.5 py-0.5 rounded ml-1">
                             Map
                           </span>
                         </button>
@@ -303,7 +303,7 @@ export function AdminVerificationView() {
                   </label>
                   <input
                     type="text"
-                    className="w-full p-2.5 text-xs font-mono font-bold text-black bg-white border border-black/30 rounded focus:border-[#1E6FD9] outline-none"
+                    className="w-full p-2.5 text-xs font-mono font-bold text-black bg-white border border-black/30 rounded focus:border-brand-blue outline-none"
                     placeholder="e.g. MTR-SIN-0004"
                     value={correctedMeterNumber}
                     onChange={(e) => setCorrectedMeterNumber(e.target.value)}
@@ -333,7 +333,7 @@ export function AdminVerificationView() {
                           }}
                           className={`w-full text-left p-2 rounded text-xs flex items-center justify-between border cursor-pointer ${
                             selectedMeterId === m.id || correctedMeterNumber === m.meter_number
-                              ? 'bg-[#1E6FD9] text-white border-black font-bold'
+                              ? 'bg-brand-blue text-white border-black font-bold'
                               : 'bg-white text-black border-black/15 hover:bg-black/5'
                           }`}
                         >
@@ -440,7 +440,7 @@ export function AdminVerificationView() {
             <div className="bg-white border border-black/15 rounded-md max-w-2xl w-full p-5 space-y-4 shadow-2xl max-h-[90vh] flex flex-col">
               <div className="flex items-center justify-between border-b border-black/10 pb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-[#1E6FD9]/10 flex items-center justify-center text-[#1E6FD9]">
+                  <div className="w-8 h-8 rounded-lg bg-brand-blue/10 flex items-center justify-center text-brand-blue">
                     <IconMapPin size={18} />
                   </div>
                   <div>

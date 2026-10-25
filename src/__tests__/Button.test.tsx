@@ -7,7 +7,7 @@ describe('Button Component', () => {
     render(<Button>Submit</Button>);
     const button = screen.getByRole('button', { name: /submit/i });
     expect(button).toBeInTheDocument();
-    expect(button).toHaveClass('bg-[#0F172A]');
+    expect(button).toHaveClass('bg-slate-900');
     expect(button).not.toBeDisabled();
   });
 
@@ -18,10 +18,10 @@ describe('Button Component', () => {
     expect(button).toHaveClass('text-black');
   });
 
-  it('aliases ghost variant to secondary for 2-variant design rule', () => {
+  it('renders ghost variant with transparent background', () => {
     render(<Button variant="ghost">Dismiss</Button>);
     const button = screen.getByRole('button', { name: /dismiss/i });
-    expect(button).toHaveClass('bg-white');
+    expect(button).toHaveClass('bg-transparent');
     expect(button).toHaveClass('text-black');
   });
 
@@ -32,11 +32,26 @@ describe('Button Component', () => {
     expect(button).toHaveClass('disabled:opacity-50');
   });
 
-  it('shows loading spinner and disables button when isLoading is true', () => {
+  it('shows loading spinner and disables button with aria-busy when isLoading is true', () => {
     render(<Button isLoading>Saving...</Button>);
     const button = screen.getByRole('button');
     expect(button).toBeDisabled();
+    expect(button).toHaveAttribute('aria-busy', 'true');
     expect(button.querySelector('.animate-spin')).toBeInTheDocument();
+  });
+
+  it('renders destructive variant with urgency-high token styling', () => {
+    render(<Button variant="destructive">Delete Item</Button>);
+    const button = screen.getByRole('button', { name: /delete item/i });
+    expect(button).toHaveClass('bg-urgency-high');
+    expect(button).toHaveClass('text-white');
+  });
+
+  it('includes blue focus ring with offset for accessible dark and light visibility', () => {
+    render(<Button>Focus Target</Button>);
+    const button = screen.getByRole('button', { name: /focus target/i });
+    expect(button).toHaveClass('focus-visible:ring-brand-blue');
+    expect(button).toHaveClass('focus-visible:ring-offset-2');
   });
 
   it('renders left and right icons horizontally next to text', () => {

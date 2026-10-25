@@ -244,7 +244,7 @@ export function AdminSettingsView() {
       });
     } catch (err: any) {
       const adminId = authUser?.id || 1;
-      const res = accountsStore.changePassword(adminId, currentPassword, newPassword, confirmPassword);
+      const res = accountsStore.changePassword(adminId, currentPassword, newPassword, confirmPassword, false, authUser || undefined);
       if (res.success) {
         setCurrentPassword('');
         setNewPassword('');
@@ -263,26 +263,16 @@ export function AdminSettingsView() {
 
   return (
     <AdminLayout currentPath="/admin/settings" onNavigate={(path) => navigate(path)}>
-      <div className="space-y-4 text-[14px] text-black">
-        {/* Header */}
-        <div className="border-b border-black/10 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-bold text-black tracking-tight">
-                System Settings & Configuration
-              </h1>
-              <span className="text-[10px] font-bold uppercase tracking-wider bg-black/5 text-black/70 px-2 py-0.5 rounded border border-black/10">
-                SIWASS Core
-              </span>
-            </div>
-            <p className="text-xs text-black/60 mt-0.5">
-              Institutional Parameters, Priority Rules, SMS Dispatch, Geographic Boundaries & Security
-            </p>
-          </div>
+      <div className="space-y-6 text-[14px] text-black">
+        {/* Header - Direct & Clean, Minimal Text */}
+        <div className="border-b border-black/10 pb-3">
+          <h1 className="text-xl sm:text-2xl font-bold text-black tracking-tight">
+            System Settings
+          </h1>
         </div>
 
         {/* Horizontal Navigation Pills */}
-        <Card className="p-1.5 bg-white border border-black/10 rounded-md shadow-[0_10px_25px_-5px_rgba(0,0,0,0.14),0_6px_10px_-4px_rgba(0,0,0,0.08)] max-w-4xl">
+        <div className="p-1.5 bg-white border border-black/10 rounded-md shadow-[0_10px_25px_-5px_rgba(0,0,0,0.14),0_6px_10px_-4px_rgba(0,0,0,0.08)] max-w-4xl">
           <div className="flex overflow-x-auto gap-1">
             {[
               { id: 'profile' as SettingsTab, label: 'Utility Profile', icon: IconBuilding },
@@ -297,10 +287,10 @@ export function AdminSettingsView() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`px-3 py-2 text-xs font-semibold rounded-lg transition-all whitespace-nowrap inline-flex flex-row items-center gap-2 cursor-pointer ${
+                  className={`px-3 py-1.5 text-xs font-bold rounded transition-all whitespace-nowrap inline-flex flex-row items-center gap-2 cursor-pointer ${
                     isActive
-                      ? 'bg-[#1E6FD9] text-white shadow-sm'
-                      : 'text-black hover:bg-black/5 font-normal'
+                      ? 'bg-brand-blue text-white shadow-sm'
+                      : 'text-black/70 hover:text-black hover:bg-black/5 font-normal'
                   }`}
                 >
                   <Icon size={15} />
@@ -309,7 +299,7 @@ export function AdminSettingsView() {
               );
             })}
           </div>
-        </Card>
+        </div>
 
         {/* ------------------------------------------------------------- */}
         {/* TAB 1: Utility Profile */}
@@ -319,12 +309,9 @@ export function AdminSettingsView() {
             <Card className="lg:col-span-2 p-5 border border-black/10 rounded-md shadow-[0_10px_25px_-5px_rgba(0,0,0,0.14),0_6px_10px_-4px_rgba(0,0,0,0.08)] space-y-4 bg-white">
               <div className="border-b border-black/10 pb-3">
                 <h2 className="text-sm font-bold text-black flex items-center gap-2">
-                  <IconBuilding size={16} className="text-[#1E6FD9]" />
+                  <IconBuilding size={16} className="text-brand-blue" />
                   <span>Municipal Water System Identity</span>
                 </h2>
-                <p className="text-xs text-black/60 mt-0.5">
-                  Official SIWASS contact credentials printed on water bills, advisory notices, and meter tags.
-                </p>
               </div>
 
               <form onSubmit={handleSaveProfile} className="space-y-3 text-xs">
@@ -334,7 +321,7 @@ export function AdminSettingsView() {
                   </label>
                   <input
                     type="text"
-                    className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-[#1E6FD9]"
+                    className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-brand-blue"
                     value={utilityName}
                     onChange={(e) => setUtilityName(e.target.value)}
                     required
@@ -347,7 +334,7 @@ export function AdminSettingsView() {
                   </label>
                   <input
                     type="text"
-                    className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-[#1E6FD9]"
+                    className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-brand-blue"
                     value={lguName}
                     onChange={(e) => setLguName(e.target.value)}
                     required
@@ -360,7 +347,7 @@ export function AdminSettingsView() {
                   </label>
                   <input
                     type="text"
-                    className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-[#1E6FD9]"
+                    className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-brand-blue"
                     value={utilityAddress}
                     onChange={(e) => setUtilityAddress(e.target.value)}
                     required
@@ -374,7 +361,7 @@ export function AdminSettingsView() {
                     </label>
                     <input
                       type="text"
-                      className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-[#1E6FD9]"
+                      className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-brand-blue"
                       value={contactNumber}
                       onChange={(e) => setContactNumber(e.target.value)}
                       required
@@ -387,7 +374,7 @@ export function AdminSettingsView() {
                     </label>
                     <input
                       type="text"
-                      className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-[#1E6FD9]"
+                      className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-brand-blue"
                       value={hotlineNumber}
                       onChange={(e) => setHotlineNumber(e.target.value)}
                     />
@@ -401,7 +388,7 @@ export function AdminSettingsView() {
                     </label>
                     <input
                       type="email"
-                      className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-[#1E6FD9]"
+                      className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-brand-blue"
                       value={supportEmail}
                       onChange={(e) => setSupportEmail(e.target.value)}
                       required
@@ -414,7 +401,7 @@ export function AdminSettingsView() {
                     </label>
                     <input
                       type="text"
-                      className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-[#1E6FD9]"
+                      className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-brand-blue"
                       value={officeHours}
                       onChange={(e) => setOfficeHours(e.target.value)}
                       required
@@ -444,21 +431,21 @@ export function AdminSettingsView() {
                   </div>
                   <div className="text-[11px] space-y-1 text-black/70 pt-1">
                     <div className="flex items-center gap-1.5">
-                      <IconPhoneCall size={12} className="text-[#1E6FD9]" />
+                      <IconPhoneCall size={12} className="text-brand-blue" />
                       <span>{contactNumber}</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <IconMail size={12} className="text-[#1E6FD9]" />
+                      <IconMail size={12} className="text-brand-blue" />
                       <span>{supportEmail}</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <IconClockHour4 size={12} className="text-[#1E6FD9]" />
+                      <IconClockHour4 size={12} className="text-brand-blue" />
                       <span className="text-[10px]">{officeHours}</span>
                     </div>
                   </div>
                 </div>
                 <p className="text-[11px] text-black/50 leading-relaxed">
-                  Official statement header printed on consumer water bills and communications.
+                  Official statement header printed on customer water bills and communications.
                 </p>
               </Card>
             </div>
@@ -471,9 +458,9 @@ export function AdminSettingsView() {
         {activeTab === 'issue_types' && (
           <div className="space-y-4 max-w-4xl">
             {/* Urgency Formula Manifesto Card */}
-            <Card className="p-4 bg-[#1E6FD9]/5 border border-[#1E6FD9]/20 rounded-md space-y-2">
+            <Card className="p-4 bg-brand-blue/5 border border-brand-blue/20 rounded-md space-y-2">
               <div className="flex items-center gap-2">
-                <IconFlame size={18} className="text-[#1E6FD9]" />
+                <IconFlame size={18} className="text-brand-blue" />
                 <h3 className="text-xs font-bold text-black uppercase tracking-wider">
                   Section 5.2 Urgency Derivation Engine
                 </h3>
@@ -488,15 +475,10 @@ export function AdminSettingsView() {
 
             <Card className="p-5 border border-black/10 rounded-md shadow-[0_10px_25px_-5px_rgba(0,0,0,0.14),0_6px_10px_-4px_rgba(0,0,0,0.08)] space-y-4 bg-white">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-black/10 pb-3">
-                <div>
-                  <h2 className="text-sm font-bold text-black flex items-center gap-2">
-                    <IconList size={16} className="text-[#1E6FD9]" />
-                    <span>Configured Issue Types</span>
-                  </h2>
-                  <p className="text-xs text-black/60 mt-0.5">
-                    Standard issue classifications used during resident reporting and field technician dispatch.
-                  </p>
-                </div>
+                <h2 className="text-sm font-bold text-black flex items-center gap-2">
+                  <IconList size={16} className="text-brand-blue" />
+                  <span>Configured Issue Types</span>
+                </h2>
 
                 <Button
                   variant="secondary"
@@ -532,7 +514,7 @@ export function AdminSettingsView() {
                           <select
                             value={it.default_urgency}
                             onChange={(e) => handleUrgencyChange(it.id, e.target.value as Urgency)}
-                            className="p-1.5 text-xs bg-white border border-black/20 rounded-lg font-bold uppercase outline-none focus:border-[#1E6FD9]"
+                            className="p-1.5 text-xs bg-white border border-black/20 rounded-lg font-bold uppercase outline-none focus:border-brand-blue"
                           >
                             <option value="high">HIGH</option>
                             <option value="medium">MEDIUM</option>
@@ -561,7 +543,7 @@ export function AdminSettingsView() {
                   onClick={handleSaveIssueTypes}
                   leftIcon={<IconDeviceFloppy size={14} />}
                 >
-                  Save Priority Rules
+                  Save Urgency Rules
                 </Button>
               </div>
             </Card>
@@ -574,17 +556,12 @@ export function AdminSettingsView() {
         {activeTab === 'sms' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 max-w-5xl">
             <Card className="lg:col-span-2 p-5 border border-black/10 rounded-md shadow-[0_10px_25px_-5px_rgba(0,0,0,0.14),0_6px_10px_-4px_rgba(0,0,0,0.08)] space-y-4 bg-white">
-              <div className="border-b border-black/10 pb-3">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-sm font-bold text-black flex items-center gap-2">
-                    <IconMessage size={16} className="text-[#1E6FD9]" />
-                    <span>SMS Gateway & Automatic Dispatch Triggers</span>
-                  </h2>
-                  <Badge variant="blue">Connected</Badge>
-                </div>
-                <p className="text-xs text-black/60 mt-0.5">
-                  Sends automated SMS alerts directly to consumer mobile phones for important service updates.
-                </p>
+              <div className="border-b border-black/10 pb-3 flex items-center justify-between">
+                <h2 className="text-sm font-bold text-black flex items-center gap-2">
+                  <IconMessage size={16} className="text-brand-blue" />
+                  <span>SMS Gateway & Automatic Dispatch Triggers</span>
+                </h2>
+                <Badge variant="blue">Connected</Badge>
               </div>
 
               <div className="space-y-4 text-xs">
@@ -594,7 +571,7 @@ export function AdminSettingsView() {
                   </label>
                   <input
                     type="text"
-                    className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs font-mono font-bold outline-none focus:border-[#1E6FD9]"
+                    className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs font-mono font-bold outline-none focus:border-brand-blue"
                     value={smsSenderId}
                     onChange={(e) => setSmsSenderId(e.target.value)}
                   />
@@ -613,7 +590,7 @@ export function AdminSettingsView() {
                       type="checkbox"
                       checked={notifyOnVerification}
                       onChange={(e) => setNotifyOnVerification(e.target.checked)}
-                      className="mt-0.5 accent-[#1E6FD9]"
+                      className="mt-0.5 accent-brand-blue"
                     />
                     <div>
                       <span className="font-bold text-black block">Customer Account Activation</span>
@@ -628,7 +605,7 @@ export function AdminSettingsView() {
                       type="checkbox"
                       checked={notifyOnAssign}
                       onChange={(e) => setNotifyOnAssign(e.target.checked)}
-                      className="mt-0.5 accent-[#1E6FD9]"
+                      className="mt-0.5 accent-brand-blue"
                     />
                     <div>
                       <span className="font-bold text-black block">Technician Dispatch & Assignment</span>
@@ -643,7 +620,7 @@ export function AdminSettingsView() {
                       type="checkbox"
                       checked={notifyOnStart}
                       onChange={(e) => setNotifyOnStart(e.target.checked)}
-                      className="mt-0.5 accent-[#1E6FD9]"
+                      className="mt-0.5 accent-brand-blue"
                     />
                     <div>
                       <span className="font-bold text-black block">Field Work Started</span>
@@ -658,7 +635,7 @@ export function AdminSettingsView() {
                       type="checkbox"
                       checked={notifyOnResolution}
                       onChange={(e) => setNotifyOnResolution(e.target.checked)}
-                      className="mt-0.5 accent-[#1E6FD9]"
+                      className="mt-0.5 accent-brand-blue"
                     />
                     <div>
                       <span className="font-bold text-black block">Issue Resolution & Remarks</span>
@@ -673,7 +650,7 @@ export function AdminSettingsView() {
                       type="checkbox"
                       checked={notifyOnAdvisory}
                       onChange={(e) => setNotifyOnAdvisory(e.target.checked)}
-                      className="mt-0.5 accent-[#1E6FD9]"
+                      className="mt-0.5 accent-brand-blue"
                     />
                     <div>
                       <span className="font-bold text-black block">Water Interruption Advisory Broadcast</span>
@@ -688,7 +665,7 @@ export function AdminSettingsView() {
                       type="checkbox"
                       checked={notifyOnBilling}
                       onChange={(e) => setNotifyOnBilling(e.target.checked)}
-                      className="mt-0.5 accent-[#1E6FD9]"
+                      className="mt-0.5 accent-brand-blue"
                     />
                     <div>
                       <span className="font-bold text-black block">Billing Statement Published</span>
@@ -754,7 +731,7 @@ export function AdminSettingsView() {
           <div className="space-y-4 max-w-4xl">
             <Card className="p-4 bg-white border border-black/10 rounded-md shadow-[0_10px_25px_-5px_rgba(0,0,0,0.14),0_6px_10px_-4px_rgba(0,0,0,0.08)] space-y-2">
               <div className="flex items-center gap-2">
-                <IconMapPin size={18} className="text-[#1E6FD9]" />
+                <IconMapPin size={18} className="text-brand-blue" />
                 <h3 className="text-xs font-bold text-black uppercase tracking-wider">
                   Sinacaban Municipal Geographic Bounds
                 </h3>
@@ -773,14 +750,9 @@ export function AdminSettingsView() {
 
             <Card className="p-5 border border-black/10 rounded-md shadow-[0_10px_25px_-5px_rgba(0,0,0,0.14),0_6px_10px_-4px_rgba(0,0,0,0.08)] space-y-3 bg-white">
               <div className="flex items-center justify-between border-b border-black/10 pb-2">
-                <div>
-                  <h2 className="text-sm font-bold text-black">
-                    Official 17 Sinacaban Barangays & Coordinates
-                  </h2>
-                  <p className="text-xs text-black/60">
-                    Official PhilAtlas GIS benchmark coordinates used for customer home pins and map centering.
-                  </p>
-                </div>
+                <h2 className="text-sm font-bold text-black">
+                  Official 17 Sinacaban Barangays & Coordinates
+                </h2>
                 <Badge variant="blue">17 Barangays</Badge>
               </div>
 
@@ -796,7 +768,7 @@ export function AdminSettingsView() {
                         {b.lat.toFixed(4)}°, {b.lng.toFixed(4)}°
                       </span>
                     </div>
-                    <span className="w-2 h-2 rounded-full bg-[#1E6FD9]" />
+                    <span className="w-2 h-2 rounded-full bg-brand-blue" />
                   </div>
                 ))}
               </div>
@@ -811,12 +783,9 @@ export function AdminSettingsView() {
           <Card className="p-5 border border-black/10 rounded-md shadow-[0_10px_25px_-5px_rgba(0,0,0,0.14),0_6px_10px_-4px_rgba(0,0,0,0.08)] space-y-4 max-w-xl bg-white">
             <div className="border-b border-black/10 pb-2">
               <h2 className="text-sm font-bold text-black flex items-center gap-2">
-                <IconShieldCheck size={16} className="text-[#1E6FD9]" />
+                <IconShieldCheck size={16} className="text-brand-blue" />
                 <span>Institutional Security & Access Credentials</span>
               </h2>
-              <p className="text-xs text-black/60 mt-0.5">
-                Administrative session settings and master password credentials.
-              </p>
             </div>
 
             {securityError && (
@@ -845,7 +814,7 @@ export function AdminSettingsView() {
                 <input
                   type="password"
                   placeholder="••••••••"
-                  className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-[#1E6FD9]"
+                  className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-brand-blue"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                 />
@@ -858,7 +827,7 @@ export function AdminSettingsView() {
                 <input
                   type="password"
                   placeholder="••••••••"
-                  className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-[#1E6FD9]"
+                  className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-brand-blue"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                 />
@@ -874,7 +843,7 @@ export function AdminSettingsView() {
                 <input
                   type="password"
                   placeholder="••••••••"
-                  className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-[#1E6FD9]"
+                  className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-brand-blue"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
@@ -888,7 +857,7 @@ export function AdminSettingsView() {
                   type="number"
                   min={15}
                   max={480}
-                  className="w-32 p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-[#1E6FD9]"
+                  className="w-32 p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-brand-blue"
                   value={sessionTimeoutMins}
                   onChange={(e) => setSessionTimeoutMins(Number(e.target.value))}
                 />
@@ -913,7 +882,7 @@ export function AdminSettingsView() {
                 </span>
                 <button
                   onClick={() => setShowAddIssueModal(false)}
-                  className="text-black hover:text-[#1E6FD9] p-1 text-[14px]"
+                  className="text-black hover:text-brand-blue p-1 text-[14px]"
                 >
                   ✕
                 </button>
@@ -927,7 +896,7 @@ export function AdminSettingsView() {
                   <input
                     type="text"
                     placeholder="e.g. Pump Station Surge"
-                    className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-[#1E6FD9]"
+                    className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-brand-blue"
                     value={newIssueName}
                     onChange={(e) => setNewIssueName(e.target.value)}
                     required
@@ -976,12 +945,12 @@ export function AdminSettingsView() {
             <div className="w-full max-w-sm bg-white rounded-xl border border-black p-5 space-y-4 shadow-xl">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <span className="text-sm font-bold text-black flex items-center gap-2">
-                  <IconSend size={16} className="text-[#1E6FD9]" />
+                  <IconSend size={16} className="text-brand-blue" />
                   <span>Send Test SMS Dispatch</span>
                 </span>
                 <button
                   onClick={() => setShowTestSmsModal(false)}
-                  className="text-black hover:text-[#1E6FD9] p-1"
+                  className="text-black hover:text-brand-blue p-1"
                 >
                   ✕
                 </button>
@@ -995,7 +964,7 @@ export function AdminSettingsView() {
                   <input
                     type="text"
                     placeholder="0917XXXXXXX"
-                    className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs font-mono outline-none focus:border-[#1E6FD9]"
+                    className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs font-mono outline-none focus:border-brand-blue"
                     value={testMobileNumber}
                     onChange={(e) => setTestMobileNumber(e.target.value)}
                     required

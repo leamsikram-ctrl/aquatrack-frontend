@@ -102,11 +102,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const data = await authApi.login(credentials);
       localStorage.setItem('aquatrack_token', data.token);
       setToken(data.token);
-      // Synchronize verified/active status to accountsStore for customers so local state is in sync
-      if (data.user?.role === 'customer' && data.user?.status === 'active') {
-        const existing = data.user.email ? accountsStore.getUserByEmail(data.user.email) : accountsStore.getUserById(data.user.id);
-        if (!existing || existing.status !== 'active' || !existing.is_verified) {
-          accountsStore.verifyCustomer(data.user.email || data.user.id);
+      // Synchronize authenticated user to accountsStore so local state and credentials are in sync
+      if (data.user) {
+        accountsStore.syncUser(data.user, credentials.password);
+        if (data.user?.role === 'customer' && data.user?.status === 'active') {
+          const existing = data.user.email ? accountsStore.getUserByEmail(data.user.email) : accountsStore.getUserById(data.user.id);
+          if (!existing || existing.status !== 'active' || !existing.is_verified) {
+            accountsStore.verifyCustomer(data.user.email || data.user.id);
+          }
         }
       }
       setUser(data.user);

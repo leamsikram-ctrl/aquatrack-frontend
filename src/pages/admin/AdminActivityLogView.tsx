@@ -250,7 +250,7 @@ export function AdminActivityLogView() {
         rawDate: '2026-10-21',
         user: 'Administrator (Admin User)',
         role: 'Admin',
-        action: 'Broadcasted Water Interruption Advisory #104 for Poblacion & San Isidro',
+        action: 'Broadcasted Water Interruption Advisory No. 104 for Poblacion & San Isidro',
         category: 'advisory',
         ipAddress: '192.168.1.5',
         newValues: { affected_barangays: ['Poblacion', 'San Isidro'], starts_at: '2026-10-22 08:00' },
@@ -368,22 +368,12 @@ export function AdminActivityLogView() {
 
   return (
     <AdminLayout currentPath="/admin/activity-log" onNavigate={(path) => navigate(path)}>
-      <div className="space-y-4 text-[14px] text-black">
-        {/* Top Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-bold text-black tracking-tight">
-                Activity Log & Audit Trail
-              </h1>
-              <span className="text-[10px] font-bold uppercase tracking-wider bg-black/5 text-black/70 px-2 py-0.5 rounded border border-black/10">
-                Immutable Ledger
-              </span>
-            </div>
-            <p className="text-xs text-black/60 mt-0.5">
-              SIWASS Sinacaban Municipal Water System · Comprehensive Administrative & Operations Audit Trail
-            </p>
-          </div>
+      <div className="space-y-6 text-[14px] text-black">
+        {/* Header - Direct & Clean, Minimal Text */}
+        <div className="border-b border-black/10 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <h1 className="text-xl sm:text-2xl font-bold text-black tracking-tight">
+            Activity Log
+          </h1>
 
           <div className="flex items-center gap-2 self-start sm:self-auto">
             <Button
@@ -411,10 +401,10 @@ export function AdminActivityLogView() {
 
         {/* 4 Metric Compartments (Matching Admin Dashboard Solid Cards) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-          {/* Card 1: Total Audit Events (Blue #1E6FD9) */}
+          {/* Card 1: Total Events (Blue brand-blue) */}
           <div
             onClick={() => setSelectedCategory('all')}
-            className="bg-[#1E6FD9] rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
+            className="bg-brand-blue rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
           >
             <div className="w-16 sm:w-20 bg-black/10 flex items-center justify-center border-r border-white/15 shrink-0">
               <IconClock size={32} stroke={1.75} className="text-white" />
@@ -424,15 +414,15 @@ export function AdminActivityLogView() {
                 {isLoading ? '...' : categoryCounts.all}
               </div>
               <div className="border-t border-white/20 mt-2 pt-1.5 text-xs font-bold tracking-wider text-white uppercase">
-                Total Audit Events
+                Total Events
               </div>
             </div>
           </div>
 
-          {/* Card 2: Repairs & Dispatch (Orange #FB8C00) */}
+          {/* Card 2: Repairs & Dispatch (Orange urgency-medium) */}
           <div
             onClick={() => setSelectedCategory('assignment')}
-            className="bg-[#FB8C00] rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
+            className="bg-urgency-medium rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
           >
             <div className="w-16 sm:w-20 bg-black/10 flex items-center justify-center border-r border-white/15 shrink-0">
               <IconTools size={32} stroke={1.75} className="text-white" />
@@ -447,10 +437,10 @@ export function AdminActivityLogView() {
             </div>
           </div>
 
-          {/* Card 3: Verifications & Users (Purple #7C3AED) */}
+          {/* Card 3: Verifications (Purple) */}
           <div
             onClick={() => setSelectedCategory('verification')}
-            className="bg-[#7C3AED] rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
+            className="bg-purple-600 rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
           >
             <div className="w-16 sm:w-20 bg-black/10 flex items-center justify-center border-r border-white/15 shrink-0">
               <IconUserCheck size={32} stroke={1.75} className="text-white" />
@@ -460,15 +450,15 @@ export function AdminActivityLogView() {
                 {isLoading ? '...' : categoryCounts.users}
               </div>
               <div className="border-t border-white/20 mt-2 pt-1.5 text-xs font-bold tracking-wider text-white uppercase">
-                Verifications & Users
+                Verifications
               </div>
             </div>
           </div>
 
-          {/* Card 4: Billing & Finance (Green #43A047) */}
+          {/* Card 4: Billing (Green urgency-low) */}
           <div
             onClick={() => setSelectedCategory('billing')}
-            className="bg-[#43A047] rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
+            className="bg-urgency-low rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
           >
             <div className="w-16 sm:w-20 bg-black/10 flex items-center justify-center border-r border-white/15 shrink-0">
               <IconReceipt size={32} stroke={1.75} className="text-white" />
@@ -478,7 +468,7 @@ export function AdminActivityLogView() {
                 {isLoading ? '...' : categoryCounts.billing}
               </div>
               <div className="border-t border-white/20 mt-2 pt-1.5 text-xs font-bold tracking-wider text-white uppercase">
-                Billing & Finance
+                Billing
               </div>
             </div>
           </div>
@@ -492,7 +482,7 @@ export function AdminActivityLogView() {
               <input
                 type="text"
                 placeholder="Search user, action, request # or IP address..."
-                className="w-full pl-9 pr-3 py-2 text-[14px] bg-white text-black border border-black/20 rounded-lg outline-none focus:border-[#1E6FD9] focus:ring-1 focus:ring-[#1E6FD9]"
+                className="w-full pl-9 pr-3 py-2 text-[14px] bg-white text-black border border-black/20 rounded-lg outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -504,7 +494,7 @@ export function AdminActivityLogView() {
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value as ActivityCategory)}
-                className="p-2 bg-white border border-black/20 rounded-lg text-xs font-semibold text-black outline-none focus:border-[#1E6FD9]"
+                className="p-2 bg-white border border-black/20 rounded-lg text-xs font-semibold text-black outline-none focus:border-brand-blue"
               >
                 <option value="all">Category ∨ (All)</option>
                 <option value="assignment">Dispatch & Assignment</option>
@@ -519,12 +509,12 @@ export function AdminActivityLogView() {
               <select
                 value={selectedRole}
                 onChange={(e) => setSelectedRole(e.target.value)}
-                className="p-2 bg-white border border-black/20 rounded-lg text-xs font-semibold text-black outline-none focus:border-[#1E6FD9]"
+                className="p-2 bg-white border border-black/20 rounded-lg text-xs font-semibold text-black outline-none focus:border-brand-blue"
               >
                 <option value="all">Role ∨ (All)</option>
                 <option value="admin">Administrators</option>
                 <option value="staff">Field Staff</option>
-                <option value="customer">Consumers</option>
+                <option value="customer">Customers</option>
                 <option value="system">System Automation</option>
               </select>
 
@@ -534,7 +524,7 @@ export function AdminActivityLogView() {
                 onClick={() => setShowDateRangeModal(true)}
                 className="flex items-center gap-1.5 text-xs font-semibold"
               >
-                <IconCalendar size={14} className="text-[#1E6FD9]" />
+                <IconCalendar size={14} className="text-brand-blue" />
                 <span>Date Range</span>
               </Button>
             </div>
@@ -554,7 +544,7 @@ export function AdminActivityLogView() {
                   setStartDate(d.toISOString().slice(0, 10));
                   setEndDate(d.toISOString().slice(0, 10));
                 }}
-                className="px-2 py-0.5 rounded hover:bg-black/5 font-medium text-[#1E6FD9]"
+                className="px-2 py-0.5 rounded hover:bg-black/5 font-medium text-brand-blue"
               >
                 Today
               </button>
@@ -566,7 +556,7 @@ export function AdminActivityLogView() {
                   setStartDate(d.toISOString().slice(0, 10));
                   setEndDate(new Date().toISOString().slice(0, 10));
                 }}
-                className="px-2 py-0.5 rounded hover:bg-black/5 font-medium text-[#1E6FD9]"
+                className="px-2 py-0.5 rounded hover:bg-black/5 font-medium text-brand-blue"
               >
                 Last 7 Days
               </button>
@@ -578,7 +568,7 @@ export function AdminActivityLogView() {
                   setStartDate(d.toISOString().slice(0, 10));
                   setEndDate(new Date().toISOString().slice(0, 10));
                 }}
-                className="px-2 py-0.5 rounded hover:bg-black/5 font-medium text-[#1E6FD9]"
+                className="px-2 py-0.5 rounded hover:bg-black/5 font-medium text-brand-blue"
               >
                 Last 30 Days
               </button>
@@ -632,7 +622,7 @@ export function AdminActivityLogView() {
                               log.role === 'Admin'
                                 ? 'bg-black text-white'
                                 : log.role === 'Staff'
-                                ? 'bg-[#1E6FD9] text-white'
+                                ? 'bg-brand-blue text-white'
                                 : 'bg-black/10 text-black'
                             }`}
                           >
@@ -682,12 +672,12 @@ export function AdminActivityLogView() {
             <div className="w-full max-w-sm bg-white rounded-xl border border-black p-5 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <span className="text-sm font-bold text-black flex items-center gap-2">
-                  <IconCalendar size={16} className="text-[#1E6FD9]" />
+                  <IconCalendar size={16} className="text-brand-blue" />
                   <span>Filter Activity Date Range</span>
                 </span>
                 <button
                   onClick={() => setShowDateRangeModal(false)}
-                  className="text-black hover:text-[#1E6FD9] p-1 text-[14px]"
+                  className="text-black hover:text-brand-blue p-1 text-[14px]"
                 >
                   <IconX size={16} />
                 </button>
@@ -702,7 +692,7 @@ export function AdminActivityLogView() {
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-[#1E6FD9]"
+                    className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-brand-blue"
                   />
                 </div>
 
@@ -714,7 +704,7 @@ export function AdminActivityLogView() {
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-[#1E6FD9]"
+                    className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-brand-blue"
                   />
                 </div>
               </div>
@@ -744,7 +734,7 @@ export function AdminActivityLogView() {
             <div className="w-full max-w-lg bg-white rounded-xl border-2 border-black p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-black/15 pb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-[#1E6FD9]/10 flex items-center justify-center text-[#1E6FD9]">
+                  <div className="w-8 h-8 rounded-lg bg-brand-blue/10 flex items-center justify-center text-brand-blue">
                     <IconShieldLock size={18} />
                   </div>
                   <div>
@@ -767,7 +757,7 @@ export function AdminActivityLogView() {
                   <div>
                     <span className="text-[11px] font-semibold text-black/60 block">Actor</span>
                     <span className="font-bold text-black">{selectedLogDetail.user}</span>
-                    <span className="text-[10px] text-[#1E6FD9] font-bold uppercase block mt-0.5">
+                    <span className="text-[10px] text-brand-blue font-bold uppercase block mt-0.5">
                       {selectedLogDetail.role}
                     </span>
                   </div>
@@ -805,7 +795,7 @@ export function AdminActivityLogView() {
                       )}
                       {selectedLogDetail.newValues && (
                         <div className="p-2.5 bg-slate-50 border border-black/15 rounded-lg">
-                          <span className="text-[10px] font-bold text-[#1E6FD9] block mb-1">Updated Values:</span>
+                          <span className="text-[10px] font-bold text-brand-blue block mb-1">Updated Values:</span>
                           <pre className="whitespace-pre-wrap text-black font-mono">
                             {JSON.stringify(selectedLogDetail.newValues, null, 2)}
                           </pre>

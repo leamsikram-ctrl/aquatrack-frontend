@@ -184,11 +184,11 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({
   const renderNotifIcon = (type: AdminNotificationItem['type']) => {
     switch (type) {
       case 'request':
-        return <IconTool size={15} className="text-[#1E6FD9] shrink-0 mt-0.5" />;
+        return <IconTool size={15} className="text-brand-blue shrink-0 mt-0.5" />;
       case 'system':
-        return <IconShieldCheck size={15} className="text-[#1E6FD9] shrink-0 mt-0.5" />;
+        return <IconShieldCheck size={15} className="text-brand-blue shrink-0 mt-0.5" />;
       case 'advisory':
-        return <IconAlertTriangle size={15} className="text-[#1E6FD9] shrink-0 mt-0.5" />;
+        return <IconAlertTriangle size={15} className="text-brand-blue shrink-0 mt-0.5" />;
       default:
         return <IconBell size={15} className="text-black/70 shrink-0 mt-0.5" />;
     }
@@ -282,7 +282,7 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({
             >
               <div className="relative">
                 <IconMail size={16} />
-                <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#1E6FD9] rounded-full" />
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-brand-blue rounded-full" />
               </div>
               <IconChevronDown size={12} className="text-black/60 hidden sm:inline" />
             </button>
@@ -291,7 +291,7 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({
               <div className="absolute right-0 mt-2 w-72 bg-white border border-black/10 rounded-lg shadow-[0_6px_0_0_rgba(0,0,0,0.1)] py-2 z-50 text-[13px] animate-hero-entrance">
                 <div className="px-3 py-1.5 border-b border-black/10 flex items-center justify-between font-semibold text-black">
                   <span>Communications</span>
-                  <span className="text-[11px] text-[#1E6FD9] font-medium bg-black/5 px-1.5 py-0.5 rounded">
+                  <span className="text-[11px] text-brand-blue font-medium bg-black/5 px-1.5 py-0.5 rounded">
                     Gateway active
                   </span>
                 </div>
@@ -300,7 +300,7 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({
                     onClick={() => handleNav('/admin/interruptions')}
                     className="w-full text-left p-2.5 hover:bg-black/5 transition-colors flex items-start gap-2 text-black"
                   >
-                    <IconAlertTriangle size={15} className="text-[#1E6FD9] shrink-0 mt-0.5" />
+                    <IconAlertTriangle size={15} className="text-brand-blue shrink-0 mt-0.5" />
                     <div>
                       <div className="font-medium text-black">Advisory Broadcast</div>
                       <div className="text-[12px] text-black/60">Publish water interruption notices</div>
@@ -335,7 +335,7 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({
             >
               <div className="relative">
                 <IconChecklist size={16} />
-                <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#1E6FD9] rounded-full" />
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-brand-blue rounded-full" />
               </div>
               <IconChevronDown size={12} className="text-black/60 hidden sm:inline" />
             </button>
@@ -351,7 +351,7 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({
                     onClick={() => handleNav('/admin/requests')}
                     className="w-full text-left p-2.5 hover:bg-black/5 transition-colors flex items-start gap-2 text-black"
                   >
-                    <IconClipboardList size={15} className="text-[#1E6FD9] shrink-0 mt-0.5" />
+                    <IconClipboardList size={15} className="text-brand-blue shrink-0 mt-0.5" />
                     <div>
                       <div className="font-medium text-black">Service Requests</div>
                       <div className="text-[12px] text-black/60">Review dispatch and repair queue</div>
@@ -361,9 +361,9 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({
                     onClick={() => handleNav('/admin/verification')}
                     className="w-full text-left p-2.5 hover:bg-black/5 transition-colors flex items-start gap-2 text-black"
                   >
-                    <IconShieldCheck size={15} className="text-[#1E6FD9] shrink-0 mt-0.5" />
+                    <IconShieldCheck size={15} className="text-brand-blue shrink-0 mt-0.5" />
                     <div>
-                      <div className="font-medium text-black">Consumer Verification</div>
+                      <div className="font-medium text-black">Customer Verification</div>
                       <div className="text-[12px] text-black/60">Pending meter accounts & QR tags</div>
                     </div>
                   </button>
@@ -391,7 +391,7 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({
                 {unreadCount > 0 && (
                   <span
                     data-testid="notification-badge"
-                    className="absolute -top-1 -right-1 w-2 h-2 bg-[#1E6FD9] rounded-full"
+                    className="absolute -top-1 -right-1 w-2 h-2 bg-brand-blue rounded-full"
                   />
                 )}
               </div>
@@ -404,7 +404,7 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({
                   <div className="flex items-center gap-1.5">
                     <span>Notifications</span>
                     {unreadCount > 0 && (
-                      <span className="text-[11px] text-[#1E6FD9] font-medium bg-black/5 px-1.5 py-0.5 rounded">
+                      <span className="text-[11px] text-brand-blue font-medium bg-black/5 px-1.5 py-0.5 rounded">
                         {unreadCount} new
                       </span>
                     )}
@@ -412,7 +412,7 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({
                   {unreadCount > 0 && (
                     <button
                       onClick={markAllRead}
-                      className="text-[11px] text-[#1E6FD9] hover:underline font-normal cursor-pointer"
+                      className="text-[11px] text-brand-blue hover:underline font-normal cursor-pointer"
                     >
                       Mark all read
                     </button>
@@ -430,7 +430,7 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({
                         key={notif.id}
                         onClick={() => handleNotifClick(notif.id, notif.link)}
                         className={`w-full text-left p-2.5 hover:bg-black/5 transition-colors flex items-start gap-2.5 cursor-pointer ${
-                          !notif.read ? 'bg-[#1E6FD9]/5' : ''
+                          !notif.read ? 'bg-brand-blue/5' : ''
                         }`}
                       >
                         <div className="shrink-0 mt-0.5">
@@ -447,7 +447,7 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({
                           <div className="text-[11px] text-black/50 mt-1 flex items-center gap-1.5">
                             <span>{notif.time}</span>
                             {!notif.read && (
-                              <span className="w-1.5 h-1.5 rounded-full bg-[#1E6FD9]" />
+                              <span className="w-1.5 h-1.5 rounded-full bg-brand-blue" />
                             )}
                           </div>
                         </div>
@@ -466,7 +466,7 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({
                 <div className="px-3 pt-2 mt-1 border-t border-black/10 text-center">
                   <button
                     onClick={() => handleNav('/admin/activity-log')}
-                    className="text-[12px] text-[#1E6FD9] hover:underline font-medium cursor-pointer"
+                    className="text-[12px] text-brand-blue hover:underline font-medium cursor-pointer"
                   >
                     View Activity Log →
                   </button>
@@ -511,7 +511,7 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({
                   <div className="text-[12px] text-black/60 truncate">
                     {user?.role === 'admin' ? 'admin@siwass.gov' : (user?.email || 'admin@siwass.gov')}
                   </div>
-                  <div className="text-[10px] uppercase font-semibold text-[#1E6FD9] mt-1">
+                  <div className="text-[10px] uppercase font-semibold text-brand-blue mt-1">
                     Municipal Administrator
                   </div>
                 </div>

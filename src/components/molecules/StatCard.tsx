@@ -21,7 +21,7 @@ export const StatCard: React.FC<StatCardProps> = ({
           {label}
         </span>
         {icon && (
-          <div className="text-[#1E6FD9]">
+          <div className="text-brand-blue">
             {icon}
           </div>
         )}

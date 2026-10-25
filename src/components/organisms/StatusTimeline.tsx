@@ -57,16 +57,16 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
                     idx === 0
                       ? 'invisible'
                       : state === 'completed' || state === 'current'
-                      ? 'bg-[#1E6FD9]'
+                      ? 'bg-brand-blue'
                       : 'bg-black/10'
                   }`}
                 />
                 <div
                   className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-bold ${
                     state === 'completed'
-                      ? 'border-[#1E6FD9] bg-[#1E6FD9] text-white'
+                      ? 'border-brand-blue bg-brand-blue text-white'
                       : state === 'current'
-                      ? 'border-[#1E6FD9] bg-white text-[#1E6FD9] ring-2 ring-[#1E6FD9]'
+                      ? 'border-brand-blue bg-white text-brand-blue ring-2 ring-brand-blue'
                       : 'border-black/25 bg-white text-black/40'
                   }`}
                 >
@@ -77,7 +77,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
                     idx === steps.length - 1
                       ? 'invisible'
                       : state === 'completed'
-                      ? 'bg-[#1E6FD9]'
+                      ? 'bg-brand-blue'
                       : 'bg-black/10'
                   }`}
                 />
@@ -87,7 +87,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
                 <div
                   className={`text-xs ${
                     state === 'current'
-                      ? 'font-bold text-[#1E6FD9]'
+                      ? 'font-bold text-brand-blue'
                       : state === 'completed'
                       ? 'font-bold text-black'
                       : 'font-normal text-black/45'

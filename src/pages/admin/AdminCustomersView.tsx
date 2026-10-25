@@ -75,7 +75,7 @@ export function AdminCustomersView() {
               onClick={() => setStatusFilter(filter)}
               className={`px-3 py-1 rounded text-xs capitalize transition-colors border border-black ${
                 statusFilter === filter
-                  ? 'bg-[#1E6FD9] text-white font-medium'
+                  ? 'bg-brand-blue text-white font-medium'
                   : 'bg-white text-black hover:bg-black/5 font-normal'
               }`}
             >
@@ -88,7 +88,7 @@ export function AdminCustomersView() {
         <div className="relative flex-1 sm:max-w-xs">
           <input
             type="text"
-            className="w-full pl-7 pr-3 py-1.5 text-[14px] bg-white text-black border border-black rounded outline-none focus:border-[#1E6FD9]"
+            className="w-full pl-7 pr-3 py-1.5 text-[14px] bg-white text-black border border-black rounded outline-none focus:border-brand-blue"
             placeholder="Search name, account, meter, email..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -135,7 +135,7 @@ export function AdminCustomersView() {
 
                   return (
                     <tr key={cust.id} className="hover:bg-black/5 transition-colors">
-                      <td className="px-4 py-3 font-medium text-[#1E6FD9]">
+                      <td className="px-4 py-3 font-medium text-brand-blue">
                         {profile?.account_number || 'AWAITING-METER'}
                       </td>
                       <td className="px-4 py-3 text-black font-normal">
@@ -199,14 +199,14 @@ export function AdminCustomersView() {
           <div className="w-full max-w-lg bg-white rounded-lg border border-black p-5 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-black/15 pb-2">
               <div className="flex items-center gap-2">
-                <IconUsers size={14} className="text-[#1E6FD9]" />
+                <IconUsers size={14} className="text-brand-blue" />
                 <h2 className="text-sm font-bold text-black">
                   Consumer Account Details
                 </h2>
               </div>
               <button
                 onClick={() => setSelectedCustomer(null)}
-                className="text-black hover:text-[#1E6FD9] p-1 font-normal"
+                className="text-black hover:text-brand-blue p-1 font-normal"
               >
                 <IconX size={14} />
               </button>
@@ -229,7 +229,7 @@ export function AdminCustomersView() {
                   <span className="text-xs text-black/60 font-medium block">
                     Account Reference
                   </span>
-                  <span className="text-sm font-medium text-[#1E6FD9]">
+                  <span className="text-sm font-medium text-brand-blue">
                     {selectedCustomer.customer_profile?.account_number || 'AWAITING-VERIFICATION'}
                   </span>
                 </div>

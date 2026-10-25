@@ -263,7 +263,9 @@ export function StaffProfileView() {
         user.id,
         currentPassword,
         newPassword,
-        confirmPassword
+        confirmPassword,
+        false,
+        user
       );
       setIsChangingPassword(false);
 
@@ -311,7 +313,7 @@ export function StaffProfileView() {
         {feedbackNotice && (
           <div className="p-3 bg-emerald-50 border border-emerald-300 rounded-lg text-[13px] text-emerald-900 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <IconCheck size={16} className="text-[#43A047] shrink-0" />
+              <IconCheck size={16} className="text-urgency-low shrink-0" />
               <span>{feedbackNotice}</span>
             </div>
             <button
@@ -371,7 +373,7 @@ export function StaffProfileView() {
                       type="button"
                       onClick={handleRemovePhoto}
                       leftIcon={<IconTrash size={14} />}
-                      className="text-xs text-[#E53935]"
+                      className="text-xs text-urgency-high"
                     >
                       Remove
                     </Button>
@@ -380,7 +382,7 @@ export function StaffProfileView() {
               </div>
 
               {photoError && (
-                <div className="p-2.5 bg-[#FFF2F2] border border-[#E53935]/40 rounded text-xs font-medium text-[#E53935] flex items-center gap-2">
+                <div className="p-2.5 bg-danger-subtle border border-urgency-high/40 rounded text-xs font-medium text-urgency-high flex items-center gap-2">
                   <IconAlertCircle size={15} className="shrink-0" />
                   <span>{photoError}</span>
                 </div>
@@ -493,7 +495,7 @@ export function StaffProfileView() {
               </div>
 
               {mobileError && (
-                <div className="p-2.5 bg-[#FFF2F2] border border-[#E53935]/40 rounded text-xs text-[#E53935] font-medium">
+                <div className="p-2.5 bg-danger-subtle border border-urgency-high/40 rounded text-xs text-urgency-high font-medium">
                   {mobileError}
                 </div>
               )}
@@ -509,7 +511,7 @@ export function StaffProfileView() {
                       value={newMobileInput}
                       onChange={(e) => setNewMobileInput(e.target.value)}
                       placeholder="09175559988"
-                      className="w-full p-2 text-[14px] bg-white text-black border border-black/30 rounded-lg outline-none focus:border-[#1E6FD9]"
+                      className="w-full p-2 text-[14px] bg-white text-black border border-black/30 rounded-lg outline-none focus:border-brand-blue"
                       required
                     />
                   </div>
@@ -528,12 +530,12 @@ export function StaffProfileView() {
                 </form>
               ) : (
                 <form onSubmit={handleConfirmMobilePin} className="space-y-3">
-                  <div className="p-2.5 bg-blue-50 border border-[#1E6FD9]/30 rounded text-xs text-black space-y-1">
+                  <div className="p-2.5 bg-blue-50 border border-brand-blue/30 rounded text-xs text-black space-y-1">
                     <div>
                       A 6-digit pin was sent by SMS to <strong>{newMobileInput}</strong> (valid 10 mins, max 5 wrong attempts).
                     </div>
                     {debugMobilePin && (
-                      <div className="font-mono text-[11px] text-[#1E6FD9] font-bold">
+                      <div className="font-mono text-[11px] text-brand-blue font-bold">
                         Simulated SMS Pin: {debugMobilePin}
                       </div>
                     )}
@@ -550,7 +552,7 @@ export function StaffProfileView() {
                         maxLength={6}
                         value={mobilePinInput}
                         onChange={(e) => setMobilePinInput(e.target.value)}
-                        className="w-full pl-8 pr-3 py-2 text-[14px] font-mono font-bold tracking-widest bg-white text-black border border-black/30 rounded-lg outline-none focus:border-[#1E6FD9]"
+                        className="w-full pl-8 pr-3 py-2 text-[14px] font-mono font-bold tracking-widest bg-white text-black border border-black/30 rounded-lg outline-none focus:border-brand-blue"
                         required
                       />
                     </div>
@@ -592,7 +594,7 @@ export function StaffProfileView() {
               </div>
 
               {emailError && (
-                <div className="p-2.5 bg-[#FFF2F2] border border-[#E53935]/40 rounded text-xs text-[#E53935] font-medium">
+                <div className="p-2.5 bg-danger-subtle border border-urgency-high/40 rounded text-xs text-urgency-high font-medium">
                   {emailError}
                 </div>
               )}
@@ -608,7 +610,7 @@ export function StaffProfileView() {
                       value={newEmailInput}
                       onChange={(e) => setNewEmailInput(e.target.value)}
                       placeholder="staff.new@sinacaban.gov.ph"
-                      className="w-full p-2 text-[14px] bg-white text-black border border-black/30 rounded-lg outline-none focus:border-[#1E6FD9]"
+                      className="w-full p-2 text-[14px] bg-white text-black border border-black/30 rounded-lg outline-none focus:border-brand-blue"
                       required
                     />
                   </div>
@@ -627,15 +629,15 @@ export function StaffProfileView() {
                 </form>
               ) : (
                 <div className="space-y-3 text-xs">
-                  <div className="p-3 bg-blue-50 border border-[#1E6FD9]/30 rounded-lg space-y-1.5 text-black">
-                    <div className="font-bold text-[#1E6FD9]">
+                  <div className="p-3 bg-blue-50 border border-brand-blue/30 rounded-lg space-y-1.5 text-black">
+                    <div className="font-bold text-brand-blue">
                       Confirmation Link Sent to {newEmailInput}
                     </div>
                     <p className="text-black/70">
                       Open the single-use confirmation link within 60 minutes to confirm your new email address.
                     </p>
                     {pendingEmailLinkUrl && (
-                      <div className="font-mono text-[10px] text-black/60 break-all pt-1 border-t border-[#1E6FD9]/20">
+                      <div className="font-mono text-[10px] text-black/60 break-all pt-1 border-t border-brand-blue/20">
                         {pendingEmailLinkUrl}
                       </div>
                     )}
@@ -662,12 +664,12 @@ export function StaffProfileView() {
             <div className="w-full max-w-sm bg-white rounded-xl border border-black/20 p-5 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <div className="flex items-center gap-2">
-                  <IconLock size={16} className="text-[#1E6FD9]" />
+                  <IconLock size={16} className="text-brand-blue" />
                   <h2 className="text-sm font-bold text-black">Change Password</h2>
                 </div>
                 <button
                   onClick={() => setShowPasswordModal(false)}
-                  className="text-black hover:text-[#1E6FD9] p-1 text-[14px]"
+                  className="text-black hover:text-brand-blue p-1 text-[14px]"
                 >
                   ✕
                 </button>
@@ -675,13 +677,13 @@ export function StaffProfileView() {
 
               {passwordSuccess && (
                 <div className="p-2.5 bg-emerald-50 border border-emerald-300 rounded text-xs text-emerald-900 flex items-center gap-2">
-                  <IconCheck size={16} className="text-[#43A047] shrink-0" />
+                  <IconCheck size={16} className="text-urgency-low shrink-0" />
                   <span>{passwordSuccess}</span>
                 </div>
               )}
 
               {passwordError && (
-                <div className="p-2.5 bg-[#FFF2F2] border border-[#E53935]/40 text-xs text-[#E53935] font-medium rounded">
+                <div className="p-2.5 bg-danger-subtle border border-urgency-high/40 text-xs text-urgency-high font-medium rounded">
                   {passwordError}
                 </div>
               )}

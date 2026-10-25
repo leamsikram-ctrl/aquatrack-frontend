@@ -230,8 +230,8 @@ export function StaffTasksView() {
                 }}
                 className={`px-3 py-1 text-[14px] rounded transition-colors ${
                   activeTab === 'active'
-                    ? 'bg-[#1E6FD9] text-white font-medium'
-                    : 'text-black hover:text-[#1E6FD9]'
+                    ? 'bg-brand-blue text-white font-medium'
+                    : 'text-black hover:text-brand-blue'
                 }`}
               >
                 Active
@@ -243,8 +243,8 @@ export function StaffTasksView() {
                 }}
                 className={`px-3 py-1 text-[14px] rounded transition-colors ${
                   activeTab === 'history'
-                    ? 'bg-[#1E6FD9] text-white font-medium'
-                    : 'text-black hover:text-[#1E6FD9]'
+                    ? 'bg-brand-blue text-white font-medium'
+                    : 'text-black hover:text-brand-blue'
                 }`}
               >
                 History
@@ -327,7 +327,7 @@ export function StaffTasksView() {
               return (
                 <Card
                   key={task.id}
-                  className="p-3.5 border border-black/15 hover:border-[#1E6FD9] transition-colors cursor-pointer space-y-2.5"
+                  className="p-3.5 border border-black/15 hover:border-brand-blue transition-colors cursor-pointer space-y-2.5"
                   onClick={() => setSelectedTask(task)}
                 >
                   {/* Top row: Reference & Urgency pill */}
@@ -411,7 +411,7 @@ export function StaffTasksView() {
               {/* Card 1: Customer */}
               <div className="p-3 bg-white border border-black/15 rounded space-y-1.5 text-[14px]">
                 <div className="flex items-center gap-1.5 text-xs font-medium text-black/60">
-                  <IconUser size={12} className="text-[#1E6FD9]" />
+                  <IconUser size={12} className="text-brand-blue" />
                   <span>Customer Details</span>
                 </div>
                 <div className="space-y-0.5 text-black">
@@ -450,7 +450,7 @@ export function StaffTasksView() {
                 </div>
                 <p className="text-black bg-white p-2 rounded border border-black/15">
                   {selectedTask.issue_type?.name && (
-                    <span className="block text-[#1E6FD9] font-medium mb-1">
+                    <span className="block text-brand-blue font-medium mb-1">
                       {selectedTask.issue_type.name}
                     </span>
                   )}
@@ -516,7 +516,7 @@ export function StaffTasksView() {
                       rows={3}
                       placeholder="e.g. Replaced 1-inch pipe fitting and tested household line pressure..."
                       className={`w-full p-2 bg-white text-black border rounded text-[14px] outline-none ${
-                        remarksError ? 'border-red-500 focus:border-red-600' : 'border-black focus:border-[#1E6FD9]'
+                        remarksError ? 'border-red-500 focus:border-red-600' : 'border-black focus:border-brand-blue'
                       }`}
                       value={remarks}
                       onChange={(e) => {
@@ -545,7 +545,7 @@ export function StaffTasksView() {
                         onClick={() => evidenceInputRef.current?.click()}
                         className={`px-3 py-1.5 border rounded text-[14px] font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
                           evidencePhotoAttached
-                            ? 'bg-[#1E6FD9] text-white border-[#1E6FD9]'
+                            ? 'bg-brand-blue text-white border-brand-blue'
                             : 'bg-white text-black border-black/30 hover:bg-black/5'
                         }`}
                       >
@@ -555,7 +555,7 @@ export function StaffTasksView() {
                         </span>
                       </button>
                       {evidencePhotoAttached && (
-                        <span className="text-[11px] text-[#1E6FD9] font-medium truncate max-w-[180px]">
+                        <span className="text-[11px] text-brand-blue font-medium truncate max-w-[180px]">
                           {evidencePhotoName || 'repair_proof_sinacaban.jpg'}
                         </span>
                       )}

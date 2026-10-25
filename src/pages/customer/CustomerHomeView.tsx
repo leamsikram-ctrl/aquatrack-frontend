@@ -185,7 +185,7 @@ export function CustomerHomeView() {
         <Card className="p-4 sm:p-5 border border-black/10 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.06)]">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-start sm:items-center gap-3.5">
-              <div className="w-11 h-11 rounded-lg bg-[#F0F6FD] text-[#1E6FD9] flex items-center justify-center shrink-0 border border-[#1E6FD9]/20">
+              <div className="w-11 h-11 rounded-lg bg-blue-tint text-brand-blue flex items-center justify-center shrink-0 border border-brand-blue/20">
                 <IconGauge size={22} />
               </div>
               <div className="space-y-0.5">
@@ -193,16 +193,16 @@ export function CustomerHomeView() {
                   <span className="text-xs font-bold text-black/50 uppercase tracking-wider">
                     Account & Meter
                   </span>
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#F0F6FD] text-[#1E6FD9] border border-[#1E6FD9]/20">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#1E6FD9] animate-pulse" />
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-tint text-brand-blue border border-brand-blue/20">
+                    <span className="w-1.5 h-1.5 rounded-full bg-brand-blue animate-pulse" />
                     Active Supply
                   </span>
                 </div>
                 <h2 className="text-[14px] sm:text-base font-bold text-black">
-                  {accountNumber} · <span className="text-[#1E6FD9] font-bold">{meterNumber}</span>
+                  {accountNumber} · <span className="text-brand-blue font-bold">{meterNumber}</span>
                 </h2>
                 <div className="text-[14px] text-black/70 flex items-center gap-1">
-                  <IconMapPin size={14} className="text-[#1E6FD9]" />
+                  <IconMapPin size={14} className="text-brand-blue" />
                   <span>{barangayName}, Sinacaban, Misamis Occidental</span>
                 </div>
               </div>
@@ -228,7 +228,7 @@ export function CustomerHomeView() {
             <div>
               <div className="flex items-center justify-between border-b border-black/10 pb-3 mb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-[#F0F6FD] text-[#1E6FD9] flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-blue-tint text-brand-blue flex items-center justify-center">
                     <IconReceipt size={18} />
                   </div>
                   <div>
@@ -252,7 +252,7 @@ export function CustomerHomeView() {
                   ₱{billAmount.toFixed(2)}
                 </div>
                 <div className="flex items-center gap-1.5 text-[14px] text-black/60 pt-0.5">
-                  <IconCalendar size={15} className="text-[#1E6FD9]" />
+                  <IconCalendar size={15} className="text-brand-blue" />
                   <span>
                     {currentBill?.due_date
                       ? `Due ${new Date(currentBill.due_date).toLocaleDateString('en-US', {
@@ -267,8 +267,8 @@ export function CustomerHomeView() {
             </div>
 
             <div className="space-y-3">
-              <div className="p-2.5 bg-[#F0F6FD] border border-[#1E6FD9]/20 rounded-lg text-xs text-black/80 flex items-start gap-2">
-                <IconBuildingCommunity size={16} className="text-[#1E6FD9] shrink-0 mt-0.5" />
+              <div className="p-2.5 bg-blue-tint border border-brand-blue/20 rounded-lg text-xs text-black/80 flex items-start gap-2">
+                <IconBuildingCommunity size={16} className="text-brand-blue shrink-0 mt-0.5" />
                 <span>
                   Official payments are received in person at the Sinacaban Municipal Treasury Office (Monday–Friday, 8:00 AM – 5:00 PM).
                 </span>
@@ -289,12 +289,12 @@ export function CustomerHomeView() {
 
           {/* Card 3: Active Service Request */}
           <Card
-            className="p-5 border border-black/10 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.06)] hover:border-[#1E6FD9] transition-all flex flex-col justify-between space-y-4"
+            className="p-5 border border-black/10 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.06)] hover:border-brand-blue transition-all flex flex-col justify-between space-y-4"
           >
             <div>
               <div className="flex items-center justify-between border-b border-black/10 pb-3 mb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-[#F0F6FD] text-[#1E6FD9] flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-blue-tint text-brand-blue flex items-center justify-center">
                     <IconTool size={18} />
                   </div>
                   <div>
@@ -320,7 +320,7 @@ export function CustomerHomeView() {
                     <h2 className="text-[14px] font-bold text-black flex items-center gap-2">
                       <span>{activeRequest.reference_no || activeRequest.reference || 'AT-2026-0012'}</span>
                       <span className="text-black/40">·</span>
-                      <span className="text-[#1E6FD9]">{activeRequest.issue_type?.name || 'Water Service Issue'}</span>
+                      <span className="text-brand-blue">{activeRequest.issue_type?.name || 'Water Service Issue'}</span>
                     </h2>
                     <p className="text-xs text-black/70 line-clamp-1 mt-0.5">
                       {activeRequest.description || 'Reported maintenance ticket for residential water line.'}
@@ -336,23 +336,23 @@ export function CustomerHomeView() {
                           <div
                             key={step}
                             className={`h-2 rounded-full transition-colors ${
-                              isPassed ? 'bg-[#1E6FD9]' : 'bg-black/10'
+                              isPassed ? 'bg-brand-blue' : 'bg-black/10'
                             }`}
                           />
                         );
                       })}
                     </div>
                     <div className="grid grid-cols-4 text-center text-[11px] font-medium text-black/70">
-                      <span className={currentStepIdx >= 0 ? 'text-[#1E6FD9] font-bold' : ''}>
+                      <span className={currentStepIdx >= 0 ? 'text-brand-blue font-bold' : ''}>
                         Submitted
                       </span>
-                      <span className={currentStepIdx >= 1 ? 'text-[#1E6FD9] font-bold' : ''}>
+                      <span className={currentStepIdx >= 1 ? 'text-brand-blue font-bold' : ''}>
                         Assigned
                       </span>
-                      <span className={currentStepIdx >= 2 ? 'text-[#1E6FD9] font-bold' : ''}>
+                      <span className={currentStepIdx >= 2 ? 'text-brand-blue font-bold' : ''}>
                         In progress
                       </span>
-                      <span className={currentStepIdx >= 3 ? 'text-[#1E6FD9] font-bold' : ''}>
+                      <span className={currentStepIdx >= 3 ? 'text-brand-blue font-bold' : ''}>
                         Resolved
                       </span>
                     </div>
@@ -360,7 +360,7 @@ export function CustomerHomeView() {
                 </div>
               ) : (
                 <div className="py-4 text-center space-y-2 text-black/60">
-                  <div className="w-10 h-10 rounded-full bg-[#F0F6FD] text-[#1E6FD9] flex items-center justify-center mx-auto">
+                  <div className="w-10 h-10 rounded-full bg-blue-tint text-brand-blue flex items-center justify-center mx-auto">
                     <IconCheck size={20} />
                   </div>
                   <div className="text-[14px] font-semibold text-black">
@@ -400,13 +400,13 @@ export function CustomerHomeView() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {/* Card 4: Latest Water Advisory */}
           <Card
-            className="p-5 border border-black/10 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.06)] hover:border-[#1E6FD9] transition-all flex flex-col justify-between space-y-3 cursor-pointer"
+            className="p-5 border border-black/10 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.06)] hover:border-brand-blue transition-all flex flex-col justify-between space-y-3 cursor-pointer"
             onClick={() => navigate('/customer/advisories')}
           >
             <div>
               <div className="flex items-center justify-between border-b border-black/10 pb-3 mb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-[#F0F6FD] text-[#1E6FD9] flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-blue-tint text-brand-blue flex items-center justify-center">
                     <IconVolume size={18} />
                   </div>
                   <div>
@@ -441,7 +441,7 @@ export function CustomerHomeView() {
 
             <div className="flex items-center justify-between pt-2 border-t border-black/10">
               <span className="text-xs text-black/50 font-medium">Public Information Unit</span>
-              <span className="text-xs font-semibold text-[#1E6FD9] hover:underline flex items-center gap-1">
+              <span className="text-xs font-semibold text-brand-blue hover:underline flex items-center gap-1">
                 All Advisories <IconChevronRight size={12} />
               </span>
             </div>
@@ -452,7 +452,7 @@ export function CustomerHomeView() {
             <div>
               <div className="flex items-center justify-between border-b border-black/10 pb-3 mb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-[#F0F6FD] text-[#1E6FD9] flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-blue-tint text-brand-blue flex items-center justify-center">
                     <IconBuildingCommunity size={18} />
                   </div>
                   <div>
@@ -469,15 +469,15 @@ export function CustomerHomeView() {
 
               <div className="space-y-2 text-xs text-black/80">
                 <div className="flex items-center gap-2">
-                  <IconPhone size={15} className="text-[#1E6FD9]" />
+                  <IconPhone size={15} className="text-brand-blue" />
                   <span>Municipal Emergency Hotline: <strong className="text-black">(088) 564-1234</strong></span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <IconClock size={15} className="text-[#1E6FD9]" />
+                  <IconClock size={15} className="text-brand-blue" />
                   <span>Office Hours: <strong className="text-black">Mon – Fri, 8:00 AM – 5:00 PM</strong></span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <IconMapPin size={15} className="text-[#1E6FD9]" />
+                  <IconMapPin size={15} className="text-brand-blue" />
                   <span>Location: <strong className="text-black">Municipal Hall, Sinacaban, Misamis Occ.</strong></span>
                 </div>
               </div>
@@ -486,25 +486,25 @@ export function CustomerHomeView() {
             <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-black/10">
               <button
                 onClick={() => navigate('/customer/bills')}
-                className="px-2.5 py-1 rounded bg-[#F0F6FD] text-[#1E6FD9] text-xs font-semibold hover:bg-[#1E6FD9] hover:text-white transition-colors"
+                className="px-2.5 py-1 rounded bg-blue-tint text-brand-blue text-xs font-semibold hover:bg-brand-blue hover:text-white transition-colors"
               >
                 My Bills
               </button>
               <button
                 onClick={() => navigate('/customer/requests')}
-                className="px-2.5 py-1 rounded bg-[#F0F6FD] text-[#1E6FD9] text-xs font-semibold hover:bg-[#1E6FD9] hover:text-white transition-colors"
+                className="px-2.5 py-1 rounded bg-blue-tint text-brand-blue text-xs font-semibold hover:bg-brand-blue hover:text-white transition-colors"
               >
                 Service Requests
               </button>
               <button
                 onClick={() => navigate('/customer/advisories')}
-                className="px-2.5 py-1 rounded bg-[#F0F6FD] text-[#1E6FD9] text-xs font-semibold hover:bg-[#1E6FD9] hover:text-white transition-colors"
+                className="px-2.5 py-1 rounded bg-blue-tint text-brand-blue text-xs font-semibold hover:bg-brand-blue hover:text-white transition-colors"
               >
                 Advisories
               </button>
               <button
                 onClick={() => navigate('/customer/profile')}
-                className="px-2.5 py-1 rounded bg-[#F0F6FD] text-[#1E6FD9] text-xs font-semibold hover:bg-[#1E6FD9] hover:text-white transition-colors"
+                className="px-2.5 py-1 rounded bg-blue-tint text-brand-blue text-xs font-semibold hover:bg-brand-blue hover:text-white transition-colors"
               >
                 Profile
               </button>
@@ -518,7 +518,7 @@ export function CustomerHomeView() {
             <div className="w-full max-w-md bg-white rounded-xl border border-black/15 p-5 space-y-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] text-[14px] max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-black/10 pb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-md bg-[#F0F6FD] text-[#1E6FD9] flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-md bg-blue-tint text-brand-blue flex items-center justify-center">
                     <IconTool size={16} />
                   </div>
                   <h2 className="text-[14px] font-bold text-black">
@@ -540,7 +540,7 @@ export function CustomerHomeView() {
                     Issue Category *
                   </label>
                   <select
-                    className="w-full p-2.5 text-[14px] font-medium text-black bg-white border border-black/20 rounded-lg outline-none focus:border-[#1E6FD9] focus:ring-1 focus:ring-[#1E6FD9]"
+                    className="w-full p-2.5 text-[14px] font-medium text-black bg-white border border-black/20 rounded-lg outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue"
                     value={issueTypeId}
                     onChange={(e) => setIssueTypeId(Number(e.target.value))}
                   >
@@ -560,13 +560,13 @@ export function CustomerHomeView() {
                     placeholder="Describe the issue (location, water pressure, leaks, etc.)..."
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="w-full p-2.5 text-[14px] font-normal bg-white text-black border border-black/20 rounded-lg outline-none focus:border-[#1E6FD9] focus:ring-1 focus:ring-[#1E6FD9] h-28 resize-none"
+                    className="w-full p-2.5 text-[14px] font-normal bg-white text-black border border-black/20 rounded-lg outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue h-28 resize-none"
                     required
                   />
                 </div>
 
-                <div className="p-2.5 rounded-lg bg-[#F0F6FD] border border-[#1E6FD9]/20 text-xs text-black/70 flex items-start gap-2">
-                  <IconAlertCircle size={16} className="text-[#1E6FD9] shrink-0 mt-0.5" />
+                <div className="p-2.5 rounded-lg bg-blue-tint border border-brand-blue/20 text-xs text-black/70 flex items-start gap-2">
+                  <IconAlertCircle size={16} className="text-brand-blue shrink-0 mt-0.5" />
                   <span>
                     Your meter number (<strong>{meterNumber}</strong>) and registered barangay (<strong>{barangayName}</strong>) are automatically attached to this dispatch ticket.
                   </span>

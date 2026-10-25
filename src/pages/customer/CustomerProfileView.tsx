@@ -327,7 +327,9 @@ export function CustomerProfileView() {
         user.id,
         currentPassword,
         newPassword,
-        confirmPassword
+        confirmPassword,
+        false,
+        user
       );
       if (!res.success || !res.user) {
         setPasswordError(err?.response?.data?.message || res.error || 'Failed to change password.');
@@ -381,9 +383,9 @@ export function CustomerProfileView() {
         </div>
 
         {feedbackNotice && (
-          <div className="p-3.5 bg-[#F0F6FD] border border-[#1E6FD9]/20 rounded-xl text-[13px] text-black flex items-center justify-between gap-2 shadow-sm">
+          <div className="p-3.5 bg-blue-tint border border-brand-blue/20 rounded-xl text-[13px] text-black flex items-center justify-between gap-2 shadow-sm">
             <div className="flex items-center gap-2.5">
-              <IconCheck size={16} className="text-[#1E6FD9] shrink-0" />
+              <IconCheck size={16} className="text-brand-blue shrink-0" />
               <span className="font-medium">{feedbackNotice}</span>
             </div>
             <button
@@ -403,11 +405,11 @@ export function CustomerProfileView() {
               <img
                 src={avatarUrl}
                 alt={customerName}
-                className="w-14 h-14 rounded-full object-cover border border-black/20 shrink-0 bg-[#F0F6FD]"
+                className="w-14 h-14 rounded-full object-cover border border-black/20 shrink-0 bg-blue-tint"
               />
               <div>
                 <div className="font-bold text-base text-black">{customerName}</div>
-                <div className="text-xs text-[#1E6FD9] font-mono font-bold">{accountNumber}</div>
+                <div className="text-xs text-brand-blue font-mono font-bold">{accountNumber}</div>
                 <div className="text-[11px] text-black/50 mt-0.5">
                   Accepted photo formats: JPG, PNG (Max 2 MB)
                 </div>
@@ -437,7 +439,7 @@ export function CustomerProfileView() {
                   type="button"
                   onClick={handleRemovePhoto}
                   leftIcon={<IconTrash size={14} />}
-                  className="text-xs text-black hover:text-[#1E6FD9]"
+                  className="text-xs text-black hover:text-brand-blue"
                 >
                   Remove
                 </Button>
@@ -447,7 +449,7 @@ export function CustomerProfileView() {
 
           {photoError && (
             <div className="p-2.5 bg-black/5 border border-black/20 rounded-lg text-xs font-semibold text-black flex items-center gap-2">
-              <IconAlertCircle size={15} className="text-[#1E6FD9] shrink-0" />
+              <IconAlertCircle size={15} className="text-brand-blue shrink-0" />
               <span>{photoError}</span>
             </div>
           )}
@@ -459,18 +461,18 @@ export function CustomerProfileView() {
                 Verified Consumer Record (Locked)
               </span>
               <Badge variant="outline" className="text-[10px] font-semibold">
-                <IconLock size={11} className="inline mr-1 text-[#1E6FD9]" />
+                <IconLock size={11} className="inline mr-1 text-brand-blue" />
                 Verified by Office
               </Badge>
             </div>
-            <div className="p-3.5 bg-[#F0F6FD]/50 border border-black/10 rounded-xl divide-y divide-black/10 text-[13px]">
+            <div className="p-3.5 bg-blue-tint/50 border border-black/10 rounded-xl divide-y divide-black/10 text-[13px]">
               <div className="flex justify-between py-2">
                 <span className="text-black/60">Full Name</span>
                 <span className="font-semibold text-black">{customerName}</span>
               </div>
               <div className="flex justify-between py-2">
                 <span className="text-black/60">Meter Number</span>
-                <span className="font-mono font-bold text-[#1E6FD9]">{meterNumber}</span>
+                <span className="font-mono font-bold text-brand-blue">{meterNumber}</span>
               </div>
               <div className="flex justify-between py-2">
                 <span className="text-black/60">Barangay</span>
@@ -617,7 +619,7 @@ export function CustomerProfileView() {
                     value={editAddress}
                     onChange={(e) => setEditAddress(e.target.value)}
                     placeholder="Purok 1, National Highway"
-                    className="w-full p-2.5 text-[14px] bg-white text-black border border-black/20 rounded-lg outline-none focus:border-[#1E6FD9]"
+                    className="w-full p-2.5 text-[14px] bg-white text-black border border-black/20 rounded-lg outline-none focus:border-brand-blue"
                     required
                   />
                   <span className="text-[11px] text-black/55 mt-1 block">
@@ -684,7 +686,7 @@ export function CustomerProfileView() {
                       value={newMobileInput}
                       onChange={(e) => setNewMobileInput(e.target.value)}
                       placeholder="09171234567"
-                      className="w-full p-2.5 text-[14px] bg-white text-black border border-black/20 rounded-lg outline-none focus:border-[#1E6FD9]"
+                      className="w-full p-2.5 text-[14px] bg-white text-black border border-black/20 rounded-lg outline-none focus:border-brand-blue"
                       required
                     />
                     <span className="text-[11px] text-black/55 mt-1 block">
@@ -707,12 +709,12 @@ export function CustomerProfileView() {
                 </form>
               ) : (
                 <form onSubmit={handleConfirmMobilePin} className="space-y-3.5">
-                  <div className="p-3 bg-[#F0F6FD] border border-[#1E6FD9]/20 rounded-lg text-xs text-black space-y-1">
+                  <div className="p-3 bg-blue-tint border border-brand-blue/20 rounded-lg text-xs text-black space-y-1">
                     <div>
                       A 6-digit pin was sent by SMS to <strong>{newMobileInput}</strong> (valid for 10 minutes, cancelled after 5 wrong attempts).
                     </div>
                     {debugMobilePin && (
-                      <div className="font-mono text-[11px] text-[#1E6FD9] font-bold">
+                      <div className="font-mono text-[11px] text-brand-blue font-bold">
                         Simulated SMS Pin: {debugMobilePin}
                       </div>
                     )}
@@ -730,7 +732,7 @@ export function CustomerProfileView() {
                         value={mobilePinInput}
                         onChange={(e) => setMobilePinInput(e.target.value)}
                         placeholder="123456"
-                        className="w-full pl-9 pr-3 py-2.5 text-[14px] font-mono font-bold tracking-widest bg-white text-black border border-black/20 rounded-lg outline-none focus:border-[#1E6FD9]"
+                        className="w-full pl-9 pr-3 py-2.5 text-[14px] font-mono font-bold tracking-widest bg-white text-black border border-black/20 rounded-lg outline-none focus:border-brand-blue"
                         required
                       />
                     </div>
@@ -788,7 +790,7 @@ export function CustomerProfileView() {
                       value={newEmailInput}
                       onChange={(e) => setNewEmailInput(e.target.value)}
                       placeholder="new.email@example.com"
-                      className="w-full p-2.5 text-[14px] bg-white text-black border border-black/20 rounded-lg outline-none focus:border-[#1E6FD9]"
+                      className="w-full p-2.5 text-[14px] bg-white text-black border border-black/20 rounded-lg outline-none focus:border-brand-blue"
                       required
                     />
                     <span className="text-[11px] text-black/55 mt-1 block">
@@ -811,15 +813,15 @@ export function CustomerProfileView() {
                 </form>
               ) : (
                 <div className="space-y-3.5 text-xs">
-                  <div className="p-3 bg-[#F0F6FD] border border-[#1E6FD9]/20 rounded-lg space-y-1.5 text-black">
-                    <div className="font-bold text-[#1E6FD9]">
+                  <div className="p-3 bg-blue-tint border border-brand-blue/20 rounded-lg space-y-1.5 text-black">
+                    <div className="font-bold text-brand-blue">
                       Confirmation Link Sent to {newEmailInput}
                     </div>
                     <p className="text-black/70">
                       Open the single-use confirmation link within 60 minutes to save your new email address. Until opened, <strong>{emailAddress}</strong> stays in use.
                     </p>
                     {pendingEmailLinkUrl && (
-                      <div className="font-mono text-[10px] text-black/60 break-all pt-1 border-t border-[#1E6FD9]/20">
+                      <div className="font-mono text-[10px] text-black/60 break-all pt-1 border-t border-brand-blue/20">
                         {pendingEmailLinkUrl}
                       </div>
                     )}
@@ -861,7 +863,7 @@ export function CustomerProfileView() {
               )}
 
               {passwordSuccess ? (
-                <div className="p-3 bg-[#F0F6FD] border border-[#1E6FD9]/30 rounded-lg text-center text-xs text-[#1E6FD9] font-bold">
+                <div className="p-3 bg-blue-tint border border-brand-blue/30 rounded-lg text-center text-xs text-brand-blue font-bold">
                   Password changed successfully!
                 </div>
               ) : (
@@ -874,7 +876,7 @@ export function CustomerProfileView() {
                       type="password"
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
-                      className="w-full p-2.5 text-[14px] bg-white text-black border border-black/20 rounded-lg outline-none focus:border-[#1E6FD9]"
+                      className="w-full p-2.5 text-[14px] bg-white text-black border border-black/20 rounded-lg outline-none focus:border-brand-blue"
                       required
                     />
                   </div>
@@ -887,7 +889,7 @@ export function CustomerProfileView() {
                       type="password"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      className="w-full p-2.5 text-[14px] bg-white text-black border border-black/20 rounded-lg outline-none focus:border-[#1E6FD9]"
+                      className="w-full p-2.5 text-[14px] bg-white text-black border border-black/20 rounded-lg outline-none focus:border-brand-blue"
                       required
                     />
                   </div>
@@ -900,7 +902,7 @@ export function CustomerProfileView() {
                       type="password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full p-2.5 text-[14px] bg-white text-black border border-black/20 rounded-lg outline-none focus:border-[#1E6FD9]"
+                      className="w-full p-2.5 text-[14px] bg-white text-black border border-black/20 rounded-lg outline-none focus:border-brand-blue"
                       required
                     />
                   </div>

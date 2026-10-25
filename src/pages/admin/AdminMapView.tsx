@@ -171,7 +171,7 @@ export function AdminMapView() {
           title: cust.name || 'Consumer Account',
           subtitle: `${cust.customer_profile?.account_number || 'Pending'} · ${cust.customer_profile?.barangay?.name || 'Poblacion'}`,
           label: cust.customer_profile?.account_number || `ACC-${cust.id}`,
-          color: '#000000',
+          color: 'black',
           status: cust.is_verified ? 'Active' : 'Pending',
           onClick: () => {
             setSelectedItem({
@@ -200,7 +200,7 @@ export function AdminMapView() {
         lng: 123.8351,
         radius: 280,
         label: 'Sector 1: High Pressure Main Junction',
-        color: '#1E6FD9',
+        color: 'var(--color-brand-blue)',
       },
       {
         id: 'hs-2',
@@ -208,7 +208,7 @@ export function AdminMapView() {
         lng: 123.8295,
         radius: 350,
         label: 'Sector 2: Cagayanan Low-Pressure Risk Area',
-        color: '#EA580C',
+        color: 'var(--color-urgency-medium)',
       },
     ];
   }, [showHotspots]);
@@ -264,7 +264,7 @@ export function AdminMapView() {
               onClick={() => setShowCustomers(!showCustomers)}
               className={`px-2.5 py-1 rounded text-[14px] flex items-center gap-1 border transition-colors ${
                 showCustomers
-                  ? 'bg-[#1E6FD9] text-white border-[#1E6FD9] font-medium'
+                  ? 'bg-brand-blue text-white border-brand-blue font-medium'
                   : 'bg-white text-black border-black/20 hover:bg-black/5 font-normal'
               }`}
             >
@@ -276,7 +276,7 @@ export function AdminMapView() {
               onClick={() => setShowRequests(!showRequests)}
               className={`px-2.5 py-1 rounded text-[14px] flex items-center gap-1 border transition-colors ${
                 showRequests
-                  ? 'bg-[#1E6FD9] text-white border-[#1E6FD9] font-medium'
+                  ? 'bg-brand-blue text-white border-brand-blue font-medium'
                   : 'bg-white text-black border-black/20 hover:bg-black/5 font-normal'
               }`}
             >
@@ -344,12 +344,12 @@ export function AdminMapView() {
           {/* Top Status Bar over Map */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 px-3 py-2 bg-white/95 border-b border-black/10 z-10">
             <div className="text-xs font-semibold text-black flex items-center gap-1.5">
-              <IconMapPin size={13} className="text-[#1E6FD9]" />
+              <IconMapPin size={13} className="text-brand-blue" />
               <span>Sinacaban Municipal GIS · Misamis Occidental (8.2835° N, 123.8340° E)</span>
             </div>
             {showHotspots && (
               <div className="bg-black text-white px-2 py-0.5 rounded text-[9px] font-medium flex items-center gap-1">
-                <IconFlame size={12} className="text-[#1E6FD9]" />
+                <IconFlame size={12} className="text-brand-blue" />
                 <span>Pipe Failure Pressure Sectors Active</span>
               </div>
             )}
@@ -436,7 +436,7 @@ export function AdminMapView() {
                 </span>
                 <button
                   onClick={() => setShowAssignModal(false)}
-                  className="text-black hover:text-[#1E6FD9] p-1 text-[14px]"
+                  className="text-black hover:text-brand-blue p-1 text-[14px]"
                 >
                   ✕
                 </button>

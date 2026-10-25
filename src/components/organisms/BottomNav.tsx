@@ -55,7 +55,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
             aria-label={item.title}
             className={`flex flex-row items-center justify-center gap-1.5 flex-1 h-full py-1 px-1 transition-all ${
               isActive
-                ? 'text-[#1E6FD9] font-bold'
+                ? 'text-brand-blue font-bold'
                 : 'text-black/60 hover:text-black font-medium'
             }`}
           >

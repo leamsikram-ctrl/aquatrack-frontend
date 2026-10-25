@@ -16,8 +16,8 @@ describe('Card Component', () => {
 
   it('applies active highlight border and shadow when active is true', () => {
     const { container } = render(<Card active>Active Card</Card>);
-    expect(container.firstChild).toHaveClass('border-[#1E6FD9]');
-    expect(container.firstChild).toHaveClass('shadow-[0_4px_0_0_#1E6FD9]');
+    expect(container.firstChild).toHaveClass('border-brand-blue');
+    expect(container.firstChild).toHaveClass('shadow-[0_4px_0_0_var(--color-brand-blue)]');
   });
 });
 

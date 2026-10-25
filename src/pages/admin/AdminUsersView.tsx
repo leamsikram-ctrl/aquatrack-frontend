@@ -451,6 +451,18 @@ export function AdminUsersView() {
           temporary_password: tempPassword,
         });
         createdUser = res.user;
+        // Keep accountsStore synchronized
+        accountsStore.addCustomerByAdmin({
+          id: createdUser.id,
+          name: newCustName.trim(),
+          email: newCustEmail.trim() || undefined,
+          mobileNumber: newCustMobile.trim(),
+          meterNumber: newCustMeter.trim().toUpperCase(),
+          barangayId: Number(selectedBg.id),
+          barangayName: selectedBg.name,
+          address: newCustAddress.trim(),
+          temporaryPassword: tempPassword,
+        });
       } catch {
         // Fallback to accountsStore
         const storeRes = accountsStore.addCustomerByAdmin({
@@ -526,6 +538,7 @@ export function AdminUsersView() {
         createdUser = res.user;
         // Keep accountsStore synchronized
         accountsStore.addStaff({
+          id: createdUser.id,
           name: newStaffName.trim(),
           email: createdUser.email || staffEmail,
           mobileNumber: newStaffMobile.trim(),
@@ -1000,8 +1013,21 @@ export function AdminUsersView() {
   const handleIssueTempPassword = async (user: User) => {
     const displayName = getUserDisplayName(user);
     try {
-      const res = await adminApi.issueTemporaryPassword(user.id);
-      const tempPass = res.temporary_password || 'Aqua2026!';
+      let tempPass = 'Aqua2026!';
+      try {
+        const res = await adminApi.issueTemporaryPassword(user.id);
+        tempPass = res.temporary_password || tempPass;
+      } catch (apiErr) {
+        const storeRes = accountsStore.issueTemporaryPassword(user.id);
+        if (storeRes.success && storeRes.temporaryPassword) {
+          tempPass = storeRes.temporaryPassword;
+        } else {
+          throw apiErr;
+        }
+      }
+      // Keep accountsStore synchronized
+      accountsStore.issueTemporaryPassword(user.id, tempPass);
+
       setSystemModal({
         isOpen: true,
         type: 'credentials',
@@ -1187,13 +1213,13 @@ export function AdminUsersView() {
 
         {/* 2. Top Summary Metric Cards (Exact Structure & Solid Colors matching Dashboard Photo) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-          {/* Card 1: Users / All Accounts (Blue #1E6FD9) */}
+          {/* Card 1: Users / All Accounts */}
           <div
             onClick={() => {
               setActiveRole('all');
               setVerificationFilter('all');
             }}
-            className="bg-[#1E6FD9] rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
+            className="bg-brand-blue rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
           >
             <div className="w-16 sm:w-20 bg-black/10 flex items-center justify-center border-r border-white/15 shrink-0">
               <IconUsers size={32} stroke={1.75} className="text-white" />
@@ -1209,13 +1235,13 @@ export function AdminUsersView() {
             </div>
           </div>
 
-          {/* Card 2: Consumers (Green #43A047) */}
+          {/* Card 2: Customers */}
           <div
             onClick={() => {
               setActiveRole('consumer');
               setVerificationFilter('all');
             }}
-            className="bg-[#43A047] rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
+            className="bg-urgency-low rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
           >
             <div className="w-16 sm:w-20 bg-black/10 flex items-center justify-center border-r border-white/15 shrink-0">
               <IconReceipt size={32} stroke={1.75} className="text-white" />
@@ -1225,16 +1251,16 @@ export function AdminUsersView() {
                 {isLoading ? '...' : customers.length}
               </div>
               <div className="border-t border-white/20 mt-2 pt-1.5 text-xs font-bold tracking-wider text-white uppercase">
-                Consumers
+                Customers
               </div>
-              <span className="sr-only">Registered Consumers</span>
+              <span className="sr-only">Registered Customers</span>
             </div>
           </div>
 
-          {/* Card 3: Field Staff (Orange #FB8C00) */}
+          {/* Card 3: Field Staff */}
           <div
             onClick={() => setActiveRole('staff')}
-            className="bg-[#FB8C00] rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
+            className="bg-urgency-medium rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
           >
             <div className="w-16 sm:w-20 bg-black/10 flex items-center justify-center border-r border-white/15 shrink-0">
               <IconTool size={32} stroke={1.75} className="text-white" />
@@ -1250,13 +1276,13 @@ export function AdminUsersView() {
             </div>
           </div>
 
-          {/* Card 4: Verifications (Purple #7C3AED) */}
+          {/* Card 4: Verifications */}
           <div
             onClick={() => {
               setActiveRole('consumer');
               setVerificationFilter('pending');
             }}
-            className="bg-[#7C3AED] rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
+            className="bg-purple-600 rounded-md shadow-[0_8px_20px_-3px_rgba(0,0,0,0.24),0_4px_8px_-2px_rgba(0,0,0,0.14)] hover:shadow-[0_14px_28px_-4px_rgba(0,0,0,0.3),0_8px_12px_-4px_rgba(0,0,0,0.18)] flex items-stretch overflow-hidden text-white transition-all duration-200 hover:-translate-y-1 cursor-pointer h-24 sm:h-28"
           >
             <div className="w-16 sm:w-20 bg-black/10 flex items-center justify-center border-r border-white/15 shrink-0">
               <IconUserCheck size={32} stroke={1.75} className="text-white" />
@@ -1283,7 +1309,7 @@ export function AdminUsersView() {
                 onClick={() => setActiveRole('all')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-all cursor-pointer ${
                   activeRole === 'all'
-                    ? 'bg-[#1E6FD9] text-white shadow-sm'
+                    ? 'bg-brand-blue text-white shadow-sm'
                     : 'text-black/70 hover:text-black hover:bg-black/5'
                 }`}
               >
@@ -1297,7 +1323,7 @@ export function AdminUsersView() {
                 onClick={() => setActiveRole('consumer')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-all cursor-pointer ${
                   activeRole === 'consumer'
-                    ? 'bg-[#1E6FD9] text-white shadow-sm'
+                    ? 'bg-brand-blue text-white shadow-sm'
                     : 'text-black/70 hover:text-black hover:bg-black/5'
                 }`}
               >
@@ -1311,7 +1337,7 @@ export function AdminUsersView() {
                 onClick={() => setActiveRole('staff')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-all cursor-pointer ${
                   activeRole === 'staff'
-                    ? 'bg-[#1E6FD9] text-white shadow-sm'
+                    ? 'bg-brand-blue text-white shadow-sm'
                     : 'text-black/70 hover:text-black hover:bg-black/5'
                 }`}
               >
@@ -1325,7 +1351,7 @@ export function AdminUsersView() {
                 onClick={() => setActiveRole('admin')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-all cursor-pointer ${
                   activeRole === 'admin'
-                    ? 'bg-[#1E6FD9] text-white shadow-sm'
+                    ? 'bg-brand-blue text-white shadow-sm'
                     : 'text-black/70 hover:text-black hover:bg-black/5'
                 }`}
               >
@@ -1347,10 +1373,10 @@ export function AdminUsersView() {
                     className={`px-2.5 py-1 rounded text-xs font-bold capitalize transition-all cursor-pointer ${
                       verificationFilter === v
                         ? v === 'verified'
-                          ? 'bg-[#43A047] text-white shadow-xs'
+                          ? 'bg-urgency-low text-white shadow-xs'
                           : v === 'pending'
-                          ? 'bg-[#FB8C00] text-white shadow-xs'
-                          : 'bg-[#1E6FD9] text-white shadow-xs'
+                          ? 'bg-urgency-medium text-white shadow-xs'
+                          : 'bg-brand-blue text-white shadow-xs'
                         : 'bg-black/5 text-black/70 hover:bg-black/10'
                     }`}
                   >
@@ -1370,7 +1396,7 @@ export function AdminUsersView() {
                 placeholder="Search account #, meter #, resident name, mobile, email..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-8 pr-3 py-1.5 text-xs bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                className="w-full pl-8 pr-3 py-1.5 text-xs bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue"
               />
               <IconSearch size={14} className="absolute left-2.5 top-2.5 text-black/40" />
             </div>
@@ -1380,7 +1406,7 @@ export function AdminUsersView() {
               <select
                 value={selectedBarangay}
                 onChange={(e) => setSelectedBarangay(e.target.value)}
-                className="w-full px-2.5 py-1.5 text-xs bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                className="w-full px-2.5 py-1.5 text-xs bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue"
               >
                 <option value="all">All Barangays</option>
                 {barangays.map((bg) => (
@@ -1395,7 +1421,7 @@ export function AdminUsersView() {
 
         {/* 4. Bulk Action Toolbar (Appears whenever rows are selected) */}
         {selectedUserIds.length > 0 && (
-          <div className="bg-[#0F172A] text-white p-3 px-4 rounded-md shadow-lg border border-black/15 flex flex-wrap items-center justify-between gap-3 animate-slide-down">
+          <div className="bg-slate-900 text-white p-3 px-4 rounded-md shadow-lg border border-black/15 flex flex-wrap items-center justify-between gap-3 animate-slide-down">
             <div className="flex items-center gap-2.5 text-xs font-bold">
               <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[11px]">
                 {selectedUserIds.length}
@@ -1408,7 +1434,7 @@ export function AdminUsersView() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => handleBulkVerify(true)}
-                className="px-3 py-1.5 text-xs font-bold rounded bg-[#43A047] hover:bg-emerald-700 text-white transition-colors cursor-pointer flex items-center gap-1.5 shadow-sm"
+                className="px-3 py-1.5 text-xs font-bold rounded bg-urgency-low hover:bg-emerald-700 text-white transition-colors cursor-pointer flex items-center gap-1.5 shadow-sm"
               >
                 <IconCheck size={14} />
                 <span>Verify Selected</span>
@@ -1416,7 +1442,7 @@ export function AdminUsersView() {
 
               <button
                 onClick={() => setShowBulkDeleteModal(true)}
-                className="px-3 py-1.5 text-xs font-bold rounded bg-[#E53935] hover:bg-red-700 text-white transition-colors cursor-pointer flex items-center gap-1.5 shadow-sm"
+                className="px-3 py-1.5 text-xs font-bold rounded bg-urgency-high hover:bg-red-700 text-white transition-colors cursor-pointer flex items-center gap-1.5 shadow-sm"
               >
                 <IconTrash size={14} />
                 <span>Bulk Delete ({selectedUserIds.length})</span>
@@ -1456,7 +1482,7 @@ export function AdminUsersView() {
                         type="checkbox"
                         checked={isAllCurrentSelected}
                         onChange={toggleSelectAll}
-                        className="w-4 h-4 rounded border-black/20 text-[#1E6FD9] focus:ring-[#1E6FD9] cursor-pointer"
+                        className="w-4 h-4 rounded border-black/20 text-brand-blue focus:ring-brand-blue cursor-pointer"
                       />
                     </th>
                     <th className="py-2.5 px-3">Account & Resident</th>
@@ -1507,7 +1533,7 @@ export function AdminUsersView() {
                               type="checkbox"
                               checked={isSelected}
                               onChange={() => toggleSelectUser(user.id)}
-                              className="w-4 h-4 rounded border-black/20 text-[#1E6FD9] focus:ring-[#1E6FD9] cursor-pointer"
+                              className="w-4 h-4 rounded border-black/20 text-brand-blue focus:ring-brand-blue cursor-pointer"
                             />
                           ) : (
                             <span className="w-4 h-4 block" />
@@ -1517,7 +1543,7 @@ export function AdminUsersView() {
                         {/* User name: Avatar + Name + Subtitle */}
                         <td className="py-3 px-3">
                           <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-full overflow-hidden border border-black/15 shrink-0 bg-[#1E6FD9]/15 flex items-center justify-center relative">
+                            <div className="w-8 h-8 rounded-full overflow-hidden border border-black/15 shrink-0 bg-brand-blue/15 flex items-center justify-center relative">
                               <img
                                 src={getUserPhoto(user)}
                                 alt={displayName}
@@ -1526,12 +1552,12 @@ export function AdminUsersView() {
                                   (e.target as HTMLElement).style.display = 'none';
                                 }}
                               />
-                              <span className="font-extrabold text-xs text-[#1E6FD9] absolute inset-0 -z-10 flex items-center justify-center">
+                              <span className="font-extrabold text-xs text-brand-blue absolute inset-0 -z-10 flex items-center justify-center">
                                 {getAvatarInitials(displayName)}
                               </span>
                             </div>
                             <div className="min-w-0">
-                              <div className="font-extrabold text-black group-hover:text-[#1E6FD9] transition-colors truncate">
+                              <div className="font-extrabold text-black group-hover:text-brand-blue transition-colors truncate">
                                 {displayName}
                               </div>
                               <div className="text-[11px] text-black/50 truncate">
@@ -1581,7 +1607,7 @@ export function AdminUsersView() {
                                 })()}
 
                                 {user.customer_profile?.meter?.meter_number && (
-                                  <span className="font-mono text-xs font-bold text-[#1E6FD9] bg-[#1E6FD9]/10 px-2 py-0.5 rounded border border-[#1E6FD9]/20">
+                                  <span className="font-mono text-xs font-bold text-brand-blue bg-brand-blue/10 px-2 py-0.5 rounded border border-brand-blue/20">
                                     {user.customer_profile.meter.meter_number}
                                   </span>
                                 )}
@@ -1600,8 +1626,8 @@ export function AdminUsersView() {
                                 <span
                                   className={`px-2 py-0.5 rounded font-bold text-xs ${
                                     openTaskCount > 0
-                                      ? 'bg-[#FB8C00]/15 text-[#D97706]'
-                                      : 'bg-[#43A047]/15 text-[#43A047]'
+                                      ? 'bg-urgency-medium/15 text-amber-600'
+                                      : 'bg-urgency-low/15 text-urgency-low'
                                   }`}
                                 >
                                   {openTaskCount} Active Task{openTaskCount !== 1 ? 's' : ''}
@@ -1645,7 +1671,7 @@ export function AdminUsersView() {
                               <button
                                 onClick={() => handleApproveUser(user)}
                                 title="Approve and Verify Account"
-                                className="px-2.5 py-1 text-xs font-bold rounded bg-[#43A047] hover:bg-emerald-700 text-white transition-all flex items-center gap-1 cursor-pointer shadow-xs"
+                                className="px-2.5 py-1 text-xs font-bold rounded bg-urgency-low hover:bg-emerald-700 text-white transition-all flex items-center gap-1 cursor-pointer shadow-xs"
                               >
                                 <IconCheck size={13} stroke={2.5} />
                                 <span>Approve</span>
@@ -1656,7 +1682,7 @@ export function AdminUsersView() {
                                 title="Update User Information"
                                 className="px-2 py-1 text-xs font-bold rounded border border-black/20 hover:border-black/40 text-black hover:bg-black/5 transition-all flex items-center gap-1 cursor-pointer"
                               >
-                                <IconPencil size={13} className="text-[#1E6FD9]" />
+                                <IconPencil size={13} className="text-brand-blue" />
                                 <span>Update</span>
                               </button>
                             )}
@@ -1678,7 +1704,7 @@ export function AdminUsersView() {
                               <button
                                 onClick={() => handleOpenDeleteModal(user)}
                                 title="Delete User Account"
-                                className="px-2 py-1 text-xs font-bold rounded border border-black/20 hover:border-[#E53935] text-[#E53935] hover:bg-red-50 transition-all flex items-center gap-1 cursor-pointer"
+                                className="px-2 py-1 text-xs font-bold rounded border border-black/20 hover:border-urgency-high text-urgency-high hover:bg-red-50 transition-all flex items-center gap-1 cursor-pointer"
                               >
                                 <IconTrash size={13} />
                                 <span>Delete</span>
@@ -1715,7 +1741,7 @@ export function AdminUsersView() {
                     onClick={() => setCurrentPage(pageNum)}
                     className={`w-7 h-7 rounded text-xs font-bold transition-all cursor-pointer ${
                       currentPage === pageNum
-                        ? 'bg-[#1E6FD9] text-white shadow-xs'
+                        ? 'bg-brand-blue text-white shadow-xs'
                         : 'text-black/70 hover:bg-black/5 hover:text-black'
                     }`}
                   >
@@ -1739,7 +1765,7 @@ export function AdminUsersView() {
 
         {/* Floating Toast Notification */}
         {toast && (
-          <div className="fixed bottom-6 right-6 z-[99999] bg-[#0F172A] text-white px-4 py-3 rounded-md shadow-2xl border border-black/30 flex items-center gap-3 animate-in slide-in-from-bottom-5 text-xs max-w-md">
+          <div className="fixed bottom-6 right-6 z-[99999] bg-slate-900 text-white px-4 py-3 rounded-md shadow-2xl border border-black/30 flex items-center gap-3 animate-in slide-in-from-bottom-5 text-xs max-w-md">
             <span className="w-5 h-5 rounded-full border border-emerald-400 bg-emerald-500/15 flex items-center justify-center text-emerald-400 shrink-0">
               <IconCheck size={12} stroke={3} />
             </span>
@@ -1758,7 +1784,7 @@ export function AdminUsersView() {
               {toast.viewAction && (
                 <button
                   onClick={toast.viewAction}
-                  className="text-xs font-bold text-[#1E6FD9] hover:underline cursor-pointer"
+                  className="text-xs font-bold text-brand-blue hover:underline cursor-pointer"
                 >
                   View profile
                 </button>
@@ -1794,7 +1820,7 @@ export function AdminUsersView() {
               {/* Modal Top Header */}
               <div className="flex items-center justify-between px-6 py-4 border-b border-black/10 bg-slate-50/70 shrink-0">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded bg-[#1E6FD9]/10 text-[#1E6FD9] flex items-center justify-center font-bold shrink-0">
+                  <div className="w-8 h-8 rounded bg-brand-blue/10 text-brand-blue flex items-center justify-center font-bold shrink-0">
                     <IconUsers size={18} />
                   </div>
                   <div>
@@ -1820,7 +1846,7 @@ export function AdminUsersView() {
                 {/* Hero Profile Banner */}
                 <div className="p-4 bg-black/5 rounded-md border border-black/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-3.5 min-w-0">
-                    <div className="w-13 h-13 rounded-full overflow-hidden border-2 border-black/15 shrink-0 bg-[#1E6FD9]/15 flex items-center justify-center shadow-xs relative">
+                    <div className="w-13 h-13 rounded-full overflow-hidden border-2 border-black/15 shrink-0 bg-brand-blue/15 flex items-center justify-center shadow-xs relative">
                       <img
                         src={getUserPhoto(selectedUserDetail)}
                         alt={getUserDisplayName(selectedUserDetail)}
@@ -1829,7 +1855,7 @@ export function AdminUsersView() {
                           (e.target as HTMLElement).style.display = 'none';
                         }}
                       />
-                      <span className="font-black text-lg text-[#1E6FD9] absolute inset-0 -z-10 flex items-center justify-center">
+                      <span className="font-black text-lg text-brand-blue absolute inset-0 -z-10 flex items-center justify-center">
                         {getAvatarInitials(getUserDisplayName(selectedUserDetail))}
                       </span>
                     </div>
@@ -1873,7 +1899,7 @@ export function AdminUsersView() {
                           variant={isVerified ? 'blue' : 'outline'}
                           className={
                             isVerified
-                              ? 'bg-[#43A047] text-white border-[#43A047] font-bold'
+                              ? 'bg-urgency-low text-white border-urgency-low font-bold'
                               : 'bg-amber-50 text-amber-800 border-amber-300 font-bold'
                           }
                         >
@@ -1923,7 +1949,7 @@ export function AdminUsersView() {
                   <div className="border border-black/10 rounded-md p-4 bg-white space-y-3">
                     <div className="text-[11px] font-extrabold uppercase tracking-wider text-black/60 flex items-center justify-between border-b border-black/10 pb-2">
                       <span>Utility Connection</span>
-                      <span className="font-mono text-[11px] font-bold text-[#1E6FD9] bg-[#1E6FD9]/10 px-2 py-0.5 rounded border border-[#1E6FD9]/20">
+                      <span className="font-mono text-[11px] font-bold text-brand-blue bg-brand-blue/10 px-2 py-0.5 rounded border border-brand-blue/20">
                         {selectedUserDetail.customer_profile.account_number || 'PENDING'}
                       </span>
                     </div>
@@ -1943,7 +1969,7 @@ export function AdminUsersView() {
                                 type="text"
                                 value={pendingMeterInput}
                                 onChange={(e) => setPendingMeterInput(e.target.value)}
-                                className="w-full px-2 py-1 text-xs font-mono font-bold border border-black/30 rounded focus:border-[#1E6FD9] outline-none"
+                                className="w-full px-2 py-1 text-xs font-mono font-bold border border-black/30 rounded focus:border-brand-blue outline-none"
                                 placeholder="e.g. MTR-SIN-0004"
                                 title="Admin can correct meter number before verifying"
                               />
@@ -1952,7 +1978,7 @@ export function AdminUsersView() {
                               </span>
                             </div>
                           ) : selectedUserDetail.customer_profile.meter ? (
-                            <span className="font-mono font-bold text-[#1E6FD9] bg-[#1E6FD9]/10 px-2 py-0.5 rounded border border-[#1E6FD9]/20 inline-block">
+                            <span className="font-mono font-bold text-brand-blue bg-brand-blue/10 px-2 py-0.5 rounded border border-brand-blue/20 inline-block">
                               {selectedUserDetail.customer_profile.meter.meter_number}
                             </span>
                           ) : (
@@ -1974,7 +2000,7 @@ export function AdminUsersView() {
                             Home Location Pin (Centered on Sinacaban)
                           </div>
                           <div className="p-2.5 bg-slate-50 border border-black/15 rounded flex items-center justify-between text-xs">
-                            <span className="font-mono font-bold text-[#1E6FD9] flex items-center gap-1.5">
+                            <span className="font-mono font-bold text-brand-blue flex items-center gap-1.5">
                               <span>📍</span>
                               <span>
                                 {Number(selectedUserDetail.customer_profile.latitude).toFixed(6)},{' '}
@@ -2013,8 +2039,8 @@ export function AdminUsersView() {
                           <span
                             className={`px-2 py-0.5 rounded font-bold text-xs inline-block ${
                               (staffOpenTasksCount[selectedUserDetail.id] || 0) > 0
-                                ? 'bg-[#FB8C00]/15 text-[#D97706]'
-                                : 'bg-[#43A047]/15 text-[#43A047]'
+                                ? 'bg-urgency-medium/15 text-amber-600'
+                                : 'bg-urgency-low/15 text-urgency-low'
                             }`}
                           >
                             {staffOpenTasksCount[selectedUserDetail.id] || 0} Open Task{(staffOpenTasksCount[selectedUserDetail.id] || 0) !== 1 ? 's' : ''}
@@ -2073,14 +2099,14 @@ export function AdminUsersView() {
                         variant="secondary"
                         onClick={() => handleDeclineUser(selectedUserDetail)}
                         leftIcon={<IconX size={15} />}
-                        className="text-[#E53935] hover:bg-red-50 border-[#E53935]/30 font-bold"
+                        className="text-urgency-high hover:bg-red-50 border-urgency-high/30 font-bold"
                       >
                         Decline
                       </Button>
                       <Button
                         onClick={() => handleApproveUser(selectedUserDetail, pendingMeterInput)}
                         leftIcon={<IconCheck size={15} stroke={2.5} />}
-                        className="bg-[#43A047] hover:bg-emerald-700 text-white font-bold"
+                        className="bg-urgency-low hover:bg-emerald-700 text-white font-bold"
                         aria-label="Approve Account"
                       >
                         Approve & Verify
@@ -2143,7 +2169,7 @@ export function AdminUsersView() {
             <Card className="w-full max-w-md bg-white p-5 rounded-md shadow-2xl border border-black/15 space-y-4 max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-black/10 pb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded bg-[#1E6FD9]/10 text-[#1E6FD9] flex items-center justify-center">
+                  <div className="w-7 h-7 rounded bg-brand-blue/10 text-brand-blue flex items-center justify-center">
                     <IconUsers size={16} />
                   </div>
                   <div>
@@ -2185,7 +2211,7 @@ export function AdminUsersView() {
                     </div>
                     <div className="flex justify-between items-center py-1 border-b border-black/5">
                       <span className="text-black/60 font-medium">Account Number:</span>
-                      <span className="font-mono font-bold text-[#1E6FD9]">
+                      <span className="font-mono font-bold text-brand-blue">
                         {custCreatedSuccess.user.customer_profile?.account_number || `ACC-2026-${String(custCreatedSuccess.user.id).slice(-4)}`}
                       </span>
                     </div>
@@ -2201,10 +2227,10 @@ export function AdminUsersView() {
                     </div>
                     <div className="flex justify-between items-center py-1.5 bg-white px-2.5 rounded border border-black/10 mt-1">
                       <span className="text-black/70 font-semibold flex items-center gap-1">
-                        <IconKey size={13} className="text-[#1E6FD9]" />
+                        <IconKey size={13} className="text-brand-blue" />
                         <span>Temporary Password:</span>
                       </span>
-                      <span className="font-mono font-bold text-sm text-[#1E6FD9] tracking-wider select-all">
+                      <span className="font-mono font-bold text-sm text-brand-blue tracking-wider select-all">
                         {custCreatedSuccess.tempPassword}
                       </span>
                     </div>
@@ -2246,7 +2272,7 @@ export function AdminUsersView() {
                 <form onSubmit={handleAddCustomerSubmit} className="space-y-3 text-xs">
                   <div>
                     <label className="block font-bold text-black mb-1">
-                      Full Name <span className="text-[#E53935]">*</span>
+                      Full Name <span className="text-urgency-high">*</span>
                     </label>
                     <input
                       type="text"
@@ -2254,14 +2280,14 @@ export function AdminUsersView() {
                       placeholder="e.g. Maria Santos"
                       value={newCustName}
                       onChange={(e) => setNewCustName(e.target.value)}
-                      className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                      className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue"
                     />
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="block font-bold text-black mb-1">
-                        Meter Number <span className="text-[#E53935]">*</span>
+                        Meter Number <span className="text-urgency-high">*</span>
                       </label>
                       <input
                         type="text"
@@ -2269,13 +2295,13 @@ export function AdminUsersView() {
                         placeholder="e.g. MTR-SIN-0004"
                         value={newCustMeter}
                         onChange={(e) => setNewCustMeter(e.target.value.toUpperCase())}
-                        className="w-full px-3 py-2 bg-white text-black font-mono font-medium border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                        className="w-full px-3 py-2 bg-white text-black font-mono font-medium border border-black/20 rounded outline-none focus:border-brand-blue"
                       />
                     </div>
 
                     <div>
                       <label className="block font-bold text-black mb-1">
-                        Mobile Number <span className="text-[#E53935]">*</span>
+                        Mobile Number <span className="text-urgency-high">*</span>
                       </label>
                       <input
                         type="tel"
@@ -2283,7 +2309,7 @@ export function AdminUsersView() {
                         placeholder="09171234567"
                         value={newCustMobile}
                         onChange={(e) => setNewCustMobile(e.target.value)}
-                        className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                        className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue"
                       />
                     </div>
                   </div>
@@ -2291,12 +2317,12 @@ export function AdminUsersView() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="block font-bold text-black mb-1">
-                        Barangay <span className="text-[#E53935]">*</span>
+                        Barangay <span className="text-urgency-high">*</span>
                       </label>
                       <select
                         value={newCustBarangayId}
                         onChange={(e) => setNewCustBarangayId(Number(e.target.value))}
-                        className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                        className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue"
                         required
                       >
                         {barangays.map((bg) => (
@@ -2314,14 +2340,14 @@ export function AdminUsersView() {
                         placeholder="maria@example.com"
                         value={newCustEmail}
                         onChange={(e) => setNewCustEmail(e.target.value)}
-                        className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                        className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue"
                       />
                     </div>
                   </div>
 
                   <div>
                     <label className="block font-bold text-black mb-1">
-                      Specific Address / Purok <span className="text-[#E53935]">*</span>
+                      Specific Address / Purok <span className="text-urgency-high">*</span>
                     </label>
                     <input
                       type="text"
@@ -2329,7 +2355,7 @@ export function AdminUsersView() {
                       placeholder="e.g. Purok 2, Near Chapel"
                       value={newCustAddress}
                       onChange={(e) => setNewCustAddress(e.target.value)}
-                      className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                      className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue"
                     />
                   </div>
 
@@ -2337,14 +2363,14 @@ export function AdminUsersView() {
                   <div className="pt-2 border-t border-black/10">
                     <div className="flex items-center justify-between mb-1">
                       <label className="font-bold text-black flex items-center gap-1.5">
-                        <IconKey size={14} className="text-[#1E6FD9]" />
+                        <IconKey size={14} className="text-brand-blue" />
                         <span>Temporary Password</span>
                         <span className="text-[10px] text-black/50 font-normal">(Initial login)</span>
                       </label>
                       <button
                         type="button"
                         onClick={() => setNewCustTempPassword('Aqua' + Math.floor(1000 + Math.random() * 9000) + '!')}
-                        className="text-[11px] font-semibold text-[#1E6FD9] hover:underline flex items-center gap-1 cursor-pointer"
+                        className="text-[11px] font-semibold text-brand-blue hover:underline flex items-center gap-1 cursor-pointer"
                         title="Generate random secure password"
                       >
                         <IconRefresh size={12} />
@@ -2357,7 +2383,7 @@ export function AdminUsersView() {
                         required
                         value={newCustTempPassword}
                         onChange={(e) => setNewCustTempPassword(e.target.value)}
-                        className="w-full pl-3 pr-10 py-2 bg-white text-black font-mono font-medium border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                        className="w-full pl-3 pr-10 py-2 bg-white text-black font-mono font-medium border border-black/20 rounded outline-none focus:border-brand-blue"
                         placeholder="e.g. Aqua2026!"
                       />
                       <button
@@ -2402,7 +2428,7 @@ export function AdminUsersView() {
             <Card className="w-full max-w-md bg-white p-5 rounded-md shadow-2xl border border-black/15 space-y-4">
               <div className="flex items-center justify-between border-b border-black/10 pb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded bg-[#1E6FD9]/10 text-[#1E6FD9] flex items-center justify-center">
+                  <div className="w-7 h-7 rounded bg-brand-blue/10 text-brand-blue flex items-center justify-center">
                     <IconUsers size={16} />
                   </div>
                   <div>
@@ -2463,10 +2489,10 @@ export function AdminUsersView() {
                     )}
                     <div className="flex justify-between items-center py-1.5 bg-white px-2.5 rounded border border-black/10 mt-1">
                       <span className="text-black/70 font-semibold flex items-center gap-1">
-                        <IconKey size={13} className="text-[#1E6FD9]" />
+                        <IconKey size={13} className="text-brand-blue" />
                         <span>Temporary Password:</span>
                       </span>
-                      <span className="font-mono font-bold text-sm text-[#1E6FD9] tracking-wider select-all">
+                      <span className="font-mono font-bold text-sm text-brand-blue tracking-wider select-all">
                         {staffCreatedSuccess.tempPassword}
                       </span>
                     </div>
@@ -2506,7 +2532,7 @@ export function AdminUsersView() {
                 <form onSubmit={handleAddStaffSubmit} className="space-y-3.5 text-xs">
                   <div>
                     <label className="block font-bold text-black mb-1">
-                      Full Name <span className="text-[#E53935]">*</span>
+                      Full Name <span className="text-urgency-high">*</span>
                     </label>
                     <input
                       type="text"
@@ -2514,13 +2540,13 @@ export function AdminUsersView() {
                       placeholder="e.g. Pedro Penduko"
                       value={newStaffName}
                       onChange={(e) => setNewStaffName(e.target.value)}
-                      className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                      className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue"
                     />
                   </div>
 
                   <div>
                     <label className="block font-bold text-black mb-1">
-                      Mobile Number <span className="text-[#E53935]">*</span>
+                      Mobile Number <span className="text-urgency-high">*</span>
                     </label>
                     <input
                       type="tel"
@@ -2528,7 +2554,7 @@ export function AdminUsersView() {
                       placeholder="09123456789"
                       value={newStaffMobile}
                       onChange={(e) => setNewStaffMobile(e.target.value)}
-                      className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                      className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue"
                     />
                   </div>
 
@@ -2539,7 +2565,7 @@ export function AdminUsersView() {
                       placeholder="pedro@sinacaban.gov.ph"
                       value={newStaffEmail}
                       onChange={(e) => setNewStaffEmail(e.target.value)}
-                      className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                      className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue"
                     />
                   </div>
 
@@ -2548,7 +2574,7 @@ export function AdminUsersView() {
                     <select
                       value={newStaffBarangayId}
                       onChange={(e) => setNewStaffBarangayId(Number(e.target.value))}
-                      className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                      className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue"
                     >
                       <option value="">General Municipal Utility (All Barangays)</option>
                       {barangays.map((bg) => (
@@ -2563,14 +2589,14 @@ export function AdminUsersView() {
                   <div className="pt-1 border-t border-black/10">
                     <div className="flex items-center justify-between mb-1">
                       <label className="font-bold text-black flex items-center gap-1.5">
-                        <IconKey size={14} className="text-[#1E6FD9]" />
+                        <IconKey size={14} className="text-brand-blue" />
                         <span>Temporary Password</span>
                         <span className="text-[10px] text-black/50 font-normal">(Initial login)</span>
                       </label>
                       <button
                         type="button"
                         onClick={() => setNewStaffTempPassword(generateStaffPassword())}
-                        className="text-[11px] font-semibold text-[#1E6FD9] hover:underline flex items-center gap-1 cursor-pointer"
+                        className="text-[11px] font-semibold text-brand-blue hover:underline flex items-center gap-1 cursor-pointer"
                         title="Generate random secure password"
                       >
                         <IconRefresh size={12} />
@@ -2583,7 +2609,7 @@ export function AdminUsersView() {
                         required
                         value={newStaffTempPassword}
                         onChange={(e) => setNewStaffTempPassword(e.target.value)}
-                        className="w-full pl-3 pr-10 py-2 bg-white text-black font-mono font-medium border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                        className="w-full pl-3 pr-10 py-2 bg-white text-black font-mono font-medium border border-black/20 rounded outline-none focus:border-brand-blue"
                         placeholder="e.g. Staff2026!"
                       />
                       <button
@@ -2628,7 +2654,7 @@ export function AdminUsersView() {
             <Card className="w-full max-w-md bg-white p-5 rounded-md shadow-2xl border border-black/15 space-y-4">
               <div className="flex items-center justify-between border-b border-black/10 pb-3">
                 <div className="flex items-center gap-2">
-                  <IconPencil size={18} className="text-[#1E6FD9]" />
+                  <IconPencil size={18} className="text-brand-blue" />
                   <h3 className="text-base font-bold text-black">
                     Update User Information
                   </h3>
@@ -2644,7 +2670,7 @@ export function AdminUsersView() {
               <form onSubmit={handleSaveEditUser} className="space-y-3 text-xs">
                 {/* Profile Photo Preview & Change */}
                 <div className="flex items-center gap-3 p-3 bg-black/5 rounded-md border border-black/10">
-                  <div className="w-12 h-12 rounded-full overflow-hidden border border-black/20 shrink-0 bg-[#1E6FD9]/15 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-full overflow-hidden border border-black/20 shrink-0 bg-brand-blue/15 flex items-center justify-center">
                     <img
                       src={editAvatar || getUserPhoto(userToEdit)}
                       alt={editName}
@@ -2654,7 +2680,7 @@ export function AdminUsersView() {
                   <div>
                     <span className="text-xs font-bold text-black block">Profile Photo</span>
                     <span className="text-[11px] text-black/50 block">JPG or PNG (max 2 MB)</span>
-                    <label className="mt-1 inline-block text-xs font-semibold text-[#1E6FD9] hover:underline cursor-pointer">
+                    <label className="mt-1 inline-block text-xs font-semibold text-brand-blue hover:underline cursor-pointer">
                       Change Photo
                       <input
                         type="file"
@@ -2691,7 +2717,7 @@ export function AdminUsersView() {
                     required
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
-                    className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                    className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue"
                   />
                 </div>
 
@@ -2702,7 +2728,7 @@ export function AdminUsersView() {
                     required
                     value={editMobile}
                     onChange={(e) => setEditMobile(e.target.value)}
-                    className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                    className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue"
                   />
                 </div>
 
@@ -2712,7 +2738,7 @@ export function AdminUsersView() {
                     type="email"
                     value={editEmail}
                     onChange={(e) => setEditEmail(e.target.value)}
-                    className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                    className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue"
                   />
                 </div>
 
@@ -2721,7 +2747,7 @@ export function AdminUsersView() {
                   <select
                     value={editBarangayId}
                     onChange={(e) => setEditBarangayId(Number(e.target.value))}
-                    className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-[#1E6FD9]"
+                    className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue"
                   >
                     <option value="">None / General Utility</option>
                     {barangays.map((bg) => (
@@ -2739,7 +2765,7 @@ export function AdminUsersView() {
                       id="edit-verified"
                       checked={editIsVerified}
                       onChange={(e) => setEditIsVerified(e.target.checked)}
-                      className="w-4 h-4 rounded border-black/20 text-[#1E6FD9] focus:ring-[#1E6FD9] cursor-pointer"
+                      className="w-4 h-4 rounded border-black/20 text-brand-blue focus:ring-brand-blue cursor-pointer"
                     />
                     <label htmlFor="edit-verified" className="text-xs font-bold text-black cursor-pointer">
                       Account Verified & Meter Assigned
@@ -2772,7 +2798,7 @@ export function AdminUsersView() {
         createPortal(
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[99999] flex items-center justify-center p-4">
             <Card className="w-full max-w-sm bg-white p-5 rounded-md shadow-2xl border border-black/15 space-y-4">
-              <div className="flex items-center gap-3 text-[#E53935]">
+              <div className="flex items-center gap-3 text-urgency-high">
                 <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center shrink-0">
                   <IconAlertTriangle size={22} />
                 </div>
@@ -2810,7 +2836,7 @@ export function AdminUsersView() {
                   type="button"
                   onClick={handleConfirmDelete}
                   disabled={userToDelete.role === 'staff' && (staffOpenTasksCount[userToDelete.id] || 0) > 0}
-                  className="px-3.5 py-1.5 text-xs font-bold rounded bg-[#E53935] hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-colors cursor-pointer"
+                  className="px-3.5 py-1.5 text-xs font-bold rounded bg-urgency-high hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-colors cursor-pointer"
                 >
                   Confirm Delete
                 </button>
@@ -2826,7 +2852,7 @@ export function AdminUsersView() {
         createPortal(
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[99999] flex items-center justify-center p-4">
             <Card className="w-full max-w-sm bg-white p-5 rounded-md shadow-2xl border border-black/15 space-y-4">
-              <div className="flex items-center gap-3 text-[#E53935]">
+              <div className="flex items-center gap-3 text-urgency-high">
                 <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center shrink-0">
                   <IconTrash size={22} />
                 </div>
@@ -2855,7 +2881,7 @@ export function AdminUsersView() {
                 <button
                   type="button"
                   onClick={handleConfirmBulkDelete}
-                  className="px-3.5 py-1.5 text-xs font-bold rounded bg-[#E53935] hover:bg-red-700 text-white transition-colors cursor-pointer"
+                  className="px-3.5 py-1.5 text-xs font-bold rounded bg-urgency-high hover:bg-red-700 text-white transition-colors cursor-pointer"
                 >
                   Delete {selectedUserIds.length} Users
                 </button>

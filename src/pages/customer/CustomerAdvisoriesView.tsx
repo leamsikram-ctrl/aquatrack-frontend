@@ -209,9 +209,9 @@ export function CustomerAdvisoriesView() {
       case 'ongoing':
         return 'bg-black text-white';
       case 'scheduled':
-        return 'bg-[#1E6FD9] text-white';
+        return 'bg-brand-blue text-white';
       case 'completed':
-        return 'bg-[#F0F6FD] text-[#1E6FD9] border border-[#1E6FD9]/20';
+        return 'bg-blue-tint text-brand-blue border border-brand-blue/20';
       case 'cancelled':
         return 'bg-white border border-black/20 text-black/50 line-through';
     }
@@ -244,7 +244,7 @@ export function CustomerAdvisoriesView() {
               value={selectedBarangayId}
               onChange={(e) => setSelectedBarangayId(Number(e.target.value))}
               aria-label="Select Customer Barangay"
-              className="px-3 py-1.5 bg-white border border-black/20 rounded-lg text-xs font-bold text-black outline-none focus:border-[#1E6FD9] shadow-sm"
+              className="px-3 py-1.5 bg-white border border-black/20 rounded-lg text-xs font-bold text-black outline-none focus:border-brand-blue shadow-sm"
             >
               {SINACABAN_BARANGAY_LIST.map((b) => (
                 <option key={b.id} value={b.id}>
@@ -261,7 +261,7 @@ export function CustomerAdvisoriesView() {
                   onClick={() => setViewMode(mode)}
                   className={`px-3 py-1 rounded text-xs font-bold capitalize transition-colors cursor-pointer ${
                     viewMode === mode
-                      ? 'bg-[#1E6FD9] text-white'
+                      ? 'bg-brand-blue text-white'
                       : 'text-black/60 hover:text-black'
                   }`}
                 >
@@ -279,7 +279,7 @@ export function CustomerAdvisoriesView() {
               <Card
                 key={adv.id}
                 onClick={() => setSelectedAdvisory(adv)}
-                className="p-4 sm:p-5 bg-white border border-black/10 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.06)] space-y-2 cursor-pointer hover:border-[#1E6FD9] hover:shadow-[3px_3px_0px_0px_#1E6FD9] transition-all"
+                className="p-4 sm:p-5 bg-white border border-black/10 rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.06)] space-y-2 cursor-pointer hover:border-brand-blue hover:shadow-[3px_3px_0px_0px_var(--color-brand-blue)] transition-all"
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-extrabold text-[14px] text-black">{adv.title}</span>
@@ -292,7 +292,7 @@ export function CustomerAdvisoriesView() {
                   </span>
                 </div>
                 <div className="text-xs text-black/70 leading-relaxed">{adv.reason}</div>
-                <div className="text-[12px] font-semibold text-[#1E6FD9] pt-1">
+                <div className="text-[12px] font-semibold text-brand-blue pt-1">
                   {formatReadableDateTime(adv.starts_at)} – {formatReadableDateTime(adv.ends_at)}
                 </div>
                 {adv.remarks && (
@@ -362,8 +362,8 @@ export function CustomerAdvisoriesView() {
                       isSelected || hasMultiple ? 'justify-start' : 'justify-center'
                     } ${
                       isSelected
-                        ? 'border-t-[3px] border-t-[#1E6FD9] bg-[#F0F6FD]/40'
-                        : 'hover:bg-[#F0F6FD]/20'
+                        ? 'border-t-[3px] border-t-brand-blue bg-blue-tint/40'
+                        : 'hover:bg-blue-tint/20'
                     }`}
                   >
                     <div
@@ -371,7 +371,7 @@ export function CustomerAdvisoriesView() {
                         cellAdvs.length > 0 ? 'mb-1.5' : ''
                       } ${
                         isSelected
-                          ? 'text-[#1E6FD9] font-bold'
+                          ? 'text-brand-blue font-bold'
                           : cell.isCurrentMonth
                           ? 'text-black'
                           : 'text-black/25'
@@ -398,7 +398,7 @@ export function CustomerAdvisoriesView() {
                           </button>
                         ))}
                         {cellAdvs.length > 2 && (
-                          <div className="w-full py-0.5 rounded border border-black/10 bg-[#F0F6FD] text-[9px] font-bold text-[#1E6FD9] text-center">
+                          <div className="w-full py-0.5 rounded border border-black/10 bg-blue-tint text-[9px] font-bold text-brand-blue text-center">
                             More
                           </div>
                         )}
@@ -426,7 +426,7 @@ export function CustomerAdvisoriesView() {
                   <div
                     key={adv.id}
                     onClick={() => setSelectedAdvisory(adv)}
-                    className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-[#F0F6FD]/40 cursor-pointer transition-colors"
+                    className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-blue-tint/40 cursor-pointer transition-colors"
                   >
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
@@ -470,7 +470,7 @@ export function CustomerAdvisoriesView() {
                 <div
                   key={adv.id}
                   onClick={() => setSelectedAdvisory(adv)}
-                  className="py-3 flex items-center justify-between gap-2 hover:bg-[#F0F6FD]/40 cursor-pointer rounded-lg px-2 transition-colors"
+                  className="py-3 flex items-center justify-between gap-2 hover:bg-blue-tint/40 cursor-pointer rounded-lg px-2 transition-colors"
                 >
                   <div>
                     <div className="font-bold text-xs text-black">{adv.title}</div>
@@ -542,13 +542,13 @@ export function CustomerAdvisoriesView() {
                       <span className="text-[11px] font-bold uppercase text-black/50 block">
                         Affected Barangays
                       </span>
-                      <span className="font-semibold text-[#1E6FD9] text-[13px]">
+                      <span className="font-semibold text-brand-blue text-[13px]">
                         {selectedAdvisory.barangay_names.join(', ')}
                       </span>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 pt-1">
-                      <div className="p-3 rounded-lg bg-[#F0F6FD]/50 border border-black/10">
+                      <div className="p-3 rounded-lg bg-blue-tint/50 border border-black/10">
                         <span className="text-[10px] font-bold uppercase text-black/50 block">
                           Start
                         </span>
@@ -556,7 +556,7 @@ export function CustomerAdvisoriesView() {
                           {formatReadableDateTime(selectedAdvisory.starts_at)}
                         </span>
                       </div>
-                      <div className="p-3 rounded-lg bg-[#F0F6FD]/50 border border-black/10">
+                      <div className="p-3 rounded-lg bg-blue-tint/50 border border-black/10">
                         <span className="text-[10px] font-bold uppercase text-black/50 block">
                           {selectedAdvisory.is_restored ? 'Restored At' : 'Expected End'}
                         </span>
@@ -569,7 +569,7 @@ export function CustomerAdvisoriesView() {
                     </div>
 
                     {selectedAdvisory.remarks && (
-                      <div className="p-3 rounded-lg bg-[#F0F6FD]/50 border border-black/10">
+                      <div className="p-3 rounded-lg bg-blue-tint/50 border border-black/10">
                         <span className="text-[10px] font-bold uppercase text-black/50 block">
                           Remarks
                         </span>
@@ -578,8 +578,8 @@ export function CustomerAdvisoriesView() {
                     )}
 
                     {selectedAdvisory.restoration_remark && (
-                      <div className="p-3 rounded-lg bg-[#F0F6FD] border border-[#1E6FD9]/20">
-                        <span className="text-[10px] font-bold uppercase text-[#1E6FD9] block">
+                      <div className="p-3 rounded-lg bg-blue-tint border border-brand-blue/20">
+                        <span className="text-[10px] font-bold uppercase text-brand-blue block">
                           Restoration Note
                         </span>
                         <span className="text-black font-medium">

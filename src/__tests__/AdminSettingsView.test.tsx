@@ -53,7 +53,7 @@ describe('AdminSettingsView (Workflow Parameters & System Configuration)', () =>
   it('renders settings view with Utility Profile tab by default', async () => {
     await renderComponent();
 
-    expect(screen.getByText(/System Settings & Configuration/i)).toBeInTheDocument();
+    expect(screen.getByText(/System Settings/i)).toBeInTheDocument();
     expect(screen.getByText(/Municipal Water System Identity/i)).toBeInTheDocument();
     expect(screen.getByDisplayValue(/Sinacaban Water Supply System/i)).toBeInTheDocument();
   });

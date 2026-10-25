@@ -5,6 +5,7 @@ import { Card } from '../../components/atoms/Card';
 import { Button } from '../../components/atoms/Button';
 import { Input } from '../../components/atoms/Input';
 import { AquaTrackLogo } from '../../components/atoms/AquaTrackLogo';
+import { authApi } from '../../api';
 import { accountsStore } from '../../services/accountsStore';
 import type { User } from '../../types';
 import {
@@ -172,7 +173,7 @@ export function LoginView() {
     }
   };
 
-  const handleCompleteFirstLogin = (e: React.FormEvent) => {
+  const handleCompleteFirstLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!firstLoginUser) return;
     setFirstLoginError(null);
@@ -186,30 +187,69 @@ export function LoginView() {
       return;
     }
 
-    let updatedUser = firstLoginUser;
-
     if (firstLoginUser.must_change_password) {
-      const passRes = accountsStore.changePassword(
-        firstLoginUser.id,
-        '',
-        tempNewPassword,
-        tempConfirmPassword,
-        true
-      );
-      if (!passRes.success || !passRes.user) {
-        setFirstLoginError(passRes.error || 'Failed to update temporary password.');
+      if (tempNewPassword.length < 8) {
+        setFirstLoginError('New password must be at least 8 characters long.');
         return;
       }
-      updatedUser = passRes.user;
+      if (tempNewPassword !== tempConfirmPassword) {
+        setFirstLoginError('New password and confirmation do not match.');
+        return;
+      }
+    }
+
+    setIsLoading(true);
+    let updatedUser: User = { ...firstLoginUser };
+
+    if (firstLoginUser.must_change_password) {
+      // 1. Update on backend API
+      try {
+        const apiRes = await authApi.changePassword({
+          current_password: password,
+          password: tempNewPassword,
+          password_confirmation: tempConfirmPassword,
+        });
+        if (apiRes?.user) {
+          updatedUser = { ...updatedUser, ...apiRes.user, must_change_password: false };
+        }
+      } catch (err: any) {
+        // If backend returned a specific validation error (e.g. 422), surface it to user
+        if (err?.response?.status === 422) {
+          const errMsg =
+            err.response?.data?.errors?.password?.[0] ||
+            err.response?.data?.errors?.current_password?.[0] ||
+            err.response?.data?.message ||
+            'Failed to update password. Please check your inputs.';
+          setIsLoading(false);
+          setFirstLoginError(errMsg);
+          return;
+        }
+      }
+
+      // 2. Synchronize to accountsStore with userContext fallback
+      const passRes = accountsStore.changePassword(
+        firstLoginUser.id,
+        password || '',
+        tempNewPassword,
+        tempConfirmPassword,
+        true,
+        firstLoginUser
+      );
+      if (passRes.user) {
+        updatedUser = { ...updatedUser, ...passRes.user, must_change_password: false };
+      }
     }
 
     if (needsTerms) {
-      const afterTerms = accountsStore.acceptFirstLoginTerms(updatedUser.id);
+      const afterTerms = accountsStore.acceptFirstLoginTerms(updatedUser.id, updatedUser);
       if (afterTerms) {
         updatedUser = afterTerms;
+      } else {
+        updatedUser = { ...updatedUser, terms_accepted: true };
       }
     }
 
+    setIsLoading(false);
     setUser(updatedUser);
     setFirstLoginUser(null);
     navigateByRole(updatedUser.role);
@@ -276,7 +316,7 @@ export function LoginView() {
 
           <Link
             to="/"
-            className="text-[14px] font-medium text-black/70 hover:text-[#1E6FD9] flex items-center gap-1.5 transition-colors"
+            className="text-[14px] font-medium text-black/70 hover:text-brand-blue flex items-center gap-1.5 transition-colors"
           >
             <IconArrowLeft size={16} />
             <span>Home</span>
@@ -297,7 +337,7 @@ export function LoginView() {
               /* Section 3.3 & Section 7.2/7.5: First-Login Terms Acceptance & Temporary Password Change */
               <form onSubmit={handleCompleteFirstLogin} className="space-y-4">
                 <div className="border-b border-black/10 pb-3 space-y-1">
-                  <div className="flex items-center gap-2 text-[#1E6FD9]">
+                  <div className="flex items-center gap-2 text-brand-blue">
                     <IconShieldCheck size={18} />
                     <h2 className="text-[16px] font-bold text-black">
                       Account Security Setup
@@ -309,7 +349,7 @@ export function LoginView() {
                 </div>
 
                 {firstLoginError && (
-                  <div className="p-3 bg-[#FFF2F2] border border-[#E53935]/40 rounded-lg text-[13px] font-medium text-[#E53935] flex items-center gap-2">
+                  <div className="p-3 bg-danger-subtle border border-urgency-high/40 rounded-lg text-[13px] font-medium text-urgency-high flex items-center gap-2">
                     <IconAlertCircle size={16} className="shrink-0" />
                     <span>{firstLoginError}</span>
                   </div>
@@ -355,7 +395,7 @@ export function LoginView() {
                           type="checkbox"
                           checked={acceptFirstLoginTerms}
                           onChange={(e) => setAcceptFirstLoginTerms(e.target.checked)}
-                          className="w-4 h-4 rounded border-black/30 text-[#1E6FD9] cursor-pointer"
+                          className="w-4 h-4 rounded border-black/30 text-brand-blue cursor-pointer"
                         />
                         <span>I accept the AquaTrack Terms of Use</span>
                       </label>
@@ -384,7 +424,7 @@ export function LoginView() {
                       setForgotSuccess(null);
                       setUniformNotice(null);
                     }}
-                    className="hover:text-[#1E6FD9] text-black flex items-center gap-1.5 font-medium text-[14px] cursor-pointer"
+                    className="hover:text-brand-blue text-black flex items-center gap-1.5 font-medium text-[14px] cursor-pointer"
                   >
                     <IconArrowLeft size={16} />
                     <span>Back to Sign In</span>
@@ -402,13 +442,13 @@ export function LoginView() {
 
                 {forgotSuccess && (
                   <div className="p-3 bg-emerald-50 border border-emerald-300 rounded-lg text-[13px] text-emerald-900 flex items-center gap-2.5">
-                    <IconCheck size={16} className="text-[#43A047] shrink-0" />
+                    <IconCheck size={16} className="text-urgency-low shrink-0" />
                     <span>{forgotSuccess}</span>
                   </div>
                 )}
 
                 {forgotError && (
-                  <div className="p-3 bg-[#FFF2F2] border border-[#E53935]/40 rounded-lg text-[13px] font-medium text-[#E53935] flex items-center gap-2.5">
+                  <div className="p-3 bg-danger-subtle border border-urgency-high/40 rounded-lg text-[13px] font-medium text-urgency-high flex items-center gap-2.5">
                     <IconAlertCircle size={16} className="shrink-0" />
                     <span>{forgotError}</span>
                   </div>
@@ -437,7 +477,7 @@ export function LoginView() {
                           onClick={() => setForgotMethod('sms')}
                           className={`p-2.5 rounded-lg border text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                             forgotMethod === 'sms'
-                              ? 'bg-[#1E6FD9] text-white border-[#1E6FD9]'
+                              ? 'bg-brand-blue text-white border-brand-blue'
                               : 'bg-white text-black border-black/20 hover:bg-black/5'
                           }`}
                         >
@@ -449,7 +489,7 @@ export function LoginView() {
                           onClick={() => setForgotMethod('email')}
                           className={`p-2.5 rounded-lg border text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                             forgotMethod === 'email'
-                              ? 'bg-[#1E6FD9] text-white border-[#1E6FD9]'
+                              ? 'bg-brand-blue text-white border-brand-blue'
                               : 'bg-white text-black border-black/20 hover:bg-black/5'
                           }`}
                         >
@@ -472,15 +512,15 @@ export function LoginView() {
                   <form onSubmit={handleConfirmReset} className="space-y-4">
                     {/* Section 6 Step 2: Uniform privacy-preserving message */}
                     {uniformNotice && (
-                      <div className="p-3 bg-blue-50 border border-[#1E6FD9]/30 rounded-lg text-xs text-black space-y-1.5">
-                        <div className="font-bold text-[#1E6FD9]">{uniformNotice}</div>
+                      <div className="p-3 bg-blue-50 border border-brand-blue/30 rounded-lg text-xs text-black space-y-1.5">
+                        <div className="font-bold text-brand-blue">{uniformNotice}</div>
                         <div className="text-black/65">
                           {forgotMethod === 'sms'
                             ? 'A 6-digit pin sent by SMS is valid for 10 minutes and can be used once (cancelled after 5 wrong attempts).'
                             : 'A single-use reset link sent by email is valid for 60 minutes.'}
                         </div>
                         {debugResetCredential && (
-                          <div className="pt-1.5 border-t border-[#1E6FD9]/20 font-mono text-[11px] text-black/80">
+                          <div className="pt-1.5 border-t border-brand-blue/20 font-mono text-[11px] text-black/80">
                             {forgotMethod === 'sms' ? (
                               <span>Simulated SMS Pin: <strong>{debugResetCredential}</strong></span>
                             ) : (
@@ -493,7 +533,7 @@ export function LoginView() {
                                       setLinkOpened(true);
                                       setResetCode(debugResetCredential);
                                     }}
-                                    className="px-2.5 py-1 rounded bg-[#1E6FD9] text-white font-sans font-bold text-xs cursor-pointer"
+                                    className="px-2.5 py-1 rounded bg-brand-blue text-white font-sans font-bold text-xs cursor-pointer"
                                   >
                                     Open Single-Use Reset Link
                                   </button>
@@ -608,7 +648,7 @@ export function LoginView() {
                 </div>
 
                 {errorMessage && (
-                  <div className="p-3 bg-[#FFF2F2] border border-[#E53935]/40 rounded-lg text-[13px] font-medium text-[#E53935] flex items-center gap-2.5">
+                  <div className="p-3 bg-danger-subtle border border-urgency-high/40 rounded-lg text-[13px] font-medium text-urgency-high flex items-center gap-2.5">
                     <IconAlertCircle size={16} className="shrink-0" />
                     <span>{errorMessage}</span>
                   </div>
@@ -656,7 +696,7 @@ export function LoginView() {
                           setForgotError(null);
                           setForgotSuccess(null);
                         }}
-                        className="text-[13px] text-[#1E6FD9] hover:underline font-medium cursor-pointer"
+                        className="text-[13px] text-brand-blue hover:underline font-medium cursor-pointer"
                       >
                         Forgot password?
                       </button>
@@ -685,8 +725,8 @@ export function LoginView() {
                       onClick={() => handleQuickDemoSelect('customer')}
                       className={`h-9 border rounded-lg text-[13px] font-medium transition-all text-center cursor-pointer ${
                         selectedRole === 'customer'
-                          ? 'bg-[#1E6FD9] text-white border-[#1E6FD9] shadow-[2px_2px_0px_0px_#000000]'
-                          : 'bg-white text-black border-black/20 hover:border-[#1E6FD9] hover:text-[#1E6FD9]'
+                          ? 'bg-brand-blue text-white border-brand-blue shadow-[2px_2px_0px_0px_black]'
+                          : 'bg-white text-black border-black/20 hover:border-brand-blue hover:text-brand-blue'
                       }`}
                     >
                       Consumer
@@ -696,8 +736,8 @@ export function LoginView() {
                       onClick={() => handleQuickDemoSelect('staff')}
                       className={`h-9 border rounded-lg text-[13px] font-medium transition-all text-center cursor-pointer ${
                         selectedRole === 'staff'
-                          ? 'bg-[#1E6FD9] text-white border-[#1E6FD9] shadow-[2px_2px_0px_0px_#000000]'
-                          : 'bg-white text-black border-black/20 hover:border-[#1E6FD9] hover:text-[#1E6FD9]'
+                          ? 'bg-brand-blue text-white border-brand-blue shadow-[2px_2px_0px_0px_black]'
+                          : 'bg-white text-black border-black/20 hover:border-brand-blue hover:text-brand-blue'
                       }`}
                     >
                       Staff
@@ -707,8 +747,8 @@ export function LoginView() {
                       onClick={() => handleQuickDemoSelect('admin')}
                       className={`h-9 border rounded-lg text-[13px] font-medium transition-all text-center cursor-pointer ${
                         selectedRole === 'admin'
-                          ? 'bg-[#1E6FD9] text-white border-[#1E6FD9] shadow-[2px_2px_0px_0px_#000000]'
-                          : 'bg-white text-black border-black/20 hover:border-[#1E6FD9] hover:text-[#1E6FD9]'
+                          ? 'bg-brand-blue text-white border-brand-blue shadow-[2px_2px_0px_0px_black]'
+                          : 'bg-white text-black border-black/20 hover:border-brand-blue hover:text-brand-blue'
                       }`}
                     >
                       Admin
@@ -747,7 +787,7 @@ export function LoginView() {
                   <span className="text-black/60">Existing consumer without an online account? </span>
                   <Link
                     to="/register"
-                    className="text-[#1E6FD9] font-medium hover:underline"
+                    className="text-brand-blue font-medium hover:underline"
                   >
                     Register
                   </Link>

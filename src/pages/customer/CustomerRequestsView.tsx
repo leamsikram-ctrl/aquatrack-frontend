@@ -286,13 +286,13 @@ export function CustomerRequestsView() {
                 <Card
                   key={req.id}
                   onClick={() => setSelectedReq(req)}
-                  className="p-4 sm:p-5 border border-black/10 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.06)] space-y-3.5 cursor-pointer hover:border-[#1E6FD9] hover:shadow-[3px_3px_0px_0px_#1E6FD9] transition-all"
+                  className="p-4 sm:p-5 border border-black/10 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.06)] space-y-3.5 cursor-pointer hover:border-brand-blue hover:shadow-[3px_3px_0px_0px_var(--color-brand-blue)] transition-all"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b border-black/10 pb-2.5">
                     <div className="flex items-center gap-2">
                       <span className="font-extrabold text-black text-[14px]">{refNo}</span>
                       <span className="text-black/40">·</span>
-                      <span className="font-bold text-[#1E6FD9] text-[14px]">
+                      <span className="font-bold text-brand-blue text-[14px]">
                         {req.issue_type?.name || 'Pipe leak or burst'}
                       </span>
                     </div>
@@ -340,8 +340,8 @@ export function CustomerRequestsView() {
         )}
 
         {toast && (
-          <div className="fixed bottom-6 right-6 z-[99999] bg-black text-white px-4 py-3 rounded-xl shadow-[3px_3px_0px_0px_#1E6FD9] flex items-center gap-2.5 text-xs font-semibold">
-            <IconCheck size={16} className="text-[#1E6FD9]" />
+          <div className="fixed bottom-6 right-6 z-[99999] bg-black text-white px-4 py-3 rounded-xl shadow-[3px_3px_0px_0px_var(--color-brand-blue)] flex items-center gap-2.5 text-xs font-semibold">
+            <IconCheck size={16} className="text-brand-blue" />
             <span>{toast}</span>
             <button onClick={() => setToast(null)} className="ml-2 text-white/60 hover:text-white">
               <IconX size={14} />
@@ -364,7 +364,7 @@ export function CustomerRequestsView() {
             >
               <div className="flex items-center justify-between border-b border-black/10 pb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-md bg-[#F0F6FD] text-[#1E6FD9] flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-md bg-blue-tint text-brand-blue flex items-center justify-center">
                     <IconCrosshair size={16} />
                   </div>
                   <h2 className="text-[14px] font-bold text-black">Report a Water Service Issue</h2>
@@ -390,7 +390,7 @@ export function CustomerRequestsView() {
                     Issue Category *
                   </label>
                   <select
-                    className="w-full p-2.5 bg-white text-black text-[14px] font-medium border border-black/20 rounded-lg outline-none focus:border-[#1E6FD9]"
+                    className="w-full p-2.5 bg-white text-black text-[14px] font-medium border border-black/20 rounded-lg outline-none focus:border-brand-blue"
                     value={issueTypeId}
                     onChange={(e) => handleSelectIssueType(Number(e.target.value))}
                   >
@@ -412,7 +412,7 @@ export function CustomerRequestsView() {
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     rows={2}
-                    className="w-full p-2.5 bg-white text-black text-[14px] font-normal border border-black/20 rounded-lg outline-none focus:border-[#1E6FD9] resize-none"
+                    className="w-full p-2.5 bg-white text-black text-[14px] font-normal border border-black/20 rounded-lg outline-none focus:border-brand-blue resize-none"
                     required
                   />
                 </div>
@@ -426,7 +426,7 @@ export function CustomerRequestsView() {
                     <button
                       type="button"
                       onClick={handleUseCurrentLocation}
-                      className="text-[#1E6FD9] text-xs font-bold inline-flex items-center gap-1 hover:underline cursor-pointer"
+                      className="text-brand-blue text-xs font-bold inline-flex items-center gap-1 hover:underline cursor-pointer"
                     >
                       <IconCrosshair size={13} />
                       <span>Use Current Location</span>
@@ -436,7 +436,7 @@ export function CustomerRequestsView() {
                   <select
                     value={selectedBarangay}
                     onChange={(e) => handleBarangayChange(e.target.value)}
-                    className="w-full p-2.5 bg-white text-black text-[14px] font-medium border border-black/20 rounded-lg outline-none focus:border-[#1E6FD9]"
+                    className="w-full p-2.5 bg-white text-black text-[14px] font-medium border border-black/20 rounded-lg outline-none focus:border-brand-blue"
                   >
                     {SINACABAN_BARANGAY_LIST.map((b) => (
                       <option key={b.id} value={b.name}>
@@ -468,7 +468,7 @@ export function CustomerRequestsView() {
                     className="hidden"
                   />
                   {photoPreview ? (
-                    <div className="p-2.5 border border-black/20 rounded-lg bg-[#F0F6FD]/50 flex items-center justify-between gap-2">
+                    <div className="p-2.5 border border-black/20 rounded-lg bg-blue-tint/50 flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2.5 min-w-0">
                         <img
                           src={photoPreview}
@@ -482,7 +482,7 @@ export function CustomerRequestsView() {
                           <button
                             type="button"
                             onClick={() => photoInputRef.current?.click()}
-                            className="text-[11px] text-[#1E6FD9] font-semibold hover:underline cursor-pointer"
+                            className="text-[11px] text-brand-blue font-semibold hover:underline cursor-pointer"
                           >
                             Change photo
                           </button>
@@ -501,7 +501,7 @@ export function CustomerRequestsView() {
                     <button
                       type="button"
                       onClick={() => photoInputRef.current?.click()}
-                      className="w-full py-2.5 px-3 border border-black/20 hover:bg-[#F0F6FD] hover:text-[#1E6FD9] text-black rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer text-xs"
+                      className="w-full py-2.5 px-3 border border-black/20 hover:bg-blue-tint hover:text-brand-blue text-black rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer text-xs"
                     >
                       <IconCamera size={16} />
                       <span>Upload Issue Photo (Optional)</span>
@@ -541,7 +541,7 @@ export function CustomerRequestsView() {
             >
               <div className="flex items-center justify-between border-b border-black/10 pb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-md bg-[#F0F6FD] text-[#1E6FD9] flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-md bg-blue-tint text-brand-blue flex items-center justify-center">
                     <IconCrosshair size={16} />
                   </div>
                   <span className="text-[14px] font-extrabold text-black">
@@ -569,7 +569,7 @@ export function CustomerRequestsView() {
               </div>
 
               {/* Request Record Details */}
-              <div className="p-3.5 border border-black/10 rounded-xl bg-[#F0F6FD]/50 space-y-2.5 text-xs">
+              <div className="p-3.5 border border-black/10 rounded-xl bg-blue-tint/50 space-y-2.5 text-xs">
                 <div>
                   <span className="text-[11px] font-bold uppercase text-black/50 block">
                     Issue Type & Barangay
@@ -615,7 +615,7 @@ export function CustomerRequestsView() {
                 )}
                 {selectedReq.resolution_remarks && (
                   <div className="pt-1.5 border-t border-black/10">
-                    <span className="text-[11px] font-bold uppercase text-[#1E6FD9] block">
+                    <span className="text-[11px] font-bold uppercase text-brand-blue block">
                       Resolution Remarks
                     </span>
                     <span className="text-black text-[13px]">{selectedReq.resolution_remarks}</span>
@@ -682,7 +682,7 @@ export function CustomerRequestsView() {
                   placeholder="e.g. Issue resolved on its own..."
                   value={cancelReason}
                   onChange={(e) => setCancelReason(e.target.value)}
-                  className="w-full p-2.5 text-xs bg-white text-black border border-black/20 rounded-lg outline-none focus:border-[#1E6FD9]"
+                  className="w-full p-2.5 text-xs bg-white text-black border border-black/20 rounded-lg outline-none focus:border-brand-blue"
                 />
               </div>
 

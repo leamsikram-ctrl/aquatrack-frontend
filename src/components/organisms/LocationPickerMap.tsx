@@ -106,7 +106,7 @@ export function LocationPickerMap({
             disabled={gpsLoading}
             className="h-6 px-2 text-[10px] font-medium inline-flex items-center gap-1 border border-black/20 bg-white hover:bg-black/5 text-black rounded transition-colors cursor-pointer disabled:opacity-50"
           >
-            <IconCurrentLocation size={13} className="text-[#1E6FD9] shrink-0" />
+            <IconCurrentLocation size={13} className="text-brand-blue shrink-0" />
             <span className="leading-none whitespace-nowrap">
               {gpsLoading ? 'Detecting...' : 'Use Current Location'}
             </span>
@@ -124,7 +124,7 @@ export function LocationPickerMap({
       </div>
 
       {(gpsError || isOutsideMunicipality) && (
-        <div className="p-2.5 bg-[#FFF2F2] border border-[#E53935]/40 rounded-lg text-[12px] font-medium text-[#E53935] flex items-center gap-2">
+        <div className="p-2.5 bg-danger-subtle border border-urgency-high/40 rounded-lg text-[12px] font-medium text-urgency-high flex items-center gap-2">
           <IconAlertCircle size={15} className="shrink-0" />
           <span>
             {gpsError ||

@@ -286,7 +286,7 @@ export function CustomerRegistrationView({ onBackToPortal }: Props) {
         <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 py-6 sm:py-8">
           <div className="max-w-md w-full mx-auto my-auto animate-hero-entrance">
             <Card className="p-6 text-center space-y-4 border border-black/20 rounded-xl bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)]">
-              <div className="w-12 h-12 mx-auto rounded-full bg-[#FB8C00] text-white flex items-center justify-center">
+              <div className="w-12 h-12 mx-auto rounded-full bg-urgency-medium text-white flex items-center justify-center">
                 <IconCheck size={24} />
               </div>
 
@@ -312,7 +312,7 @@ export function CustomerRegistrationView({ onBackToPortal }: Props) {
                 </div>
                 <div className="flex justify-between gap-2">
                   <span className="text-black/60">Meter Number:</span>
-                  <span className="font-mono font-bold text-[#1E6FD9] text-right">
+                  <span className="font-mono font-bold text-brand-blue text-right">
                     {meterNumber.toUpperCase()}
                   </span>
                 </div>
@@ -376,7 +376,7 @@ export function CustomerRegistrationView({ onBackToPortal }: Props) {
 
           <Link
             to="/login"
-            className="text-[14px] font-medium text-black/70 hover:text-[#1E6FD9] flex items-center gap-1.5 transition-colors"
+            className="text-[14px] font-medium text-black/70 hover:text-brand-blue flex items-center gap-1.5 transition-colors"
           >
             <IconArrowLeft size={16} />
             <span>Sign In</span>
@@ -406,7 +406,7 @@ export function CustomerRegistrationView({ onBackToPortal }: Props) {
                 <button
                   type="button"
                   onClick={() => setShowReceiptModal(true)}
-                  className="text-[12px] font-semibold text-[#1E6FD9] hover:underline flex items-center gap-1 cursor-pointer"
+                  className="text-[12px] font-semibold text-brand-blue hover:underline flex items-center gap-1 cursor-pointer"
                 >
                   <IconFileInvoice size={14} />
                   <span>View Sample Receipt Diagram</span>
@@ -418,7 +418,7 @@ export function CustomerRegistrationView({ onBackToPortal }: Props) {
                     key={sample.meterNumber}
                     type="button"
                     onClick={() => handleQuickFillDemo(sample)}
-                    className="px-2.5 py-1 rounded border border-black/20 bg-white hover:border-[#1E6FD9] hover:text-[#1E6FD9] text-[12px] font-medium transition-colors cursor-pointer"
+                    className="px-2.5 py-1 rounded border border-black/20 bg-white hover:border-brand-blue hover:text-brand-blue text-[12px] font-medium transition-colors cursor-pointer"
                   >
                     {sample.name} ({sample.meterNumber})
                   </button>
@@ -427,7 +427,7 @@ export function CustomerRegistrationView({ onBackToPortal }: Props) {
             </div>
 
             {errorMessage && (
-              <div className="p-3 bg-[#FFF2F2] border border-[#E53935]/40 rounded-lg text-[13px] font-medium text-[#E53935] flex items-center gap-2.5">
+              <div className="p-3 bg-danger-subtle border border-urgency-high/40 rounded-lg text-[13px] font-medium text-urgency-high flex items-center gap-2.5">
                 <IconAlertCircle size={16} className="shrink-0" />
                 <span>{errorMessage}</span>
               </div>
@@ -471,7 +471,7 @@ export function CustomerRegistrationView({ onBackToPortal }: Props) {
                     id="reg-barangay-select"
                     value={barangay}
                     onChange={(e) => handleBarangayChange(e.target.value)}
-                    className="w-full h-9 px-3 rounded-lg border border-black/25 bg-white text-[14px] text-black outline-none focus:border-[#1E6FD9]"
+                    className="w-full h-9 px-3 rounded-lg border border-black/25 bg-white text-[14px] text-black outline-none focus:border-brand-blue"
                     required
                   >
                     {barangayList.map((b) => (
@@ -566,7 +566,7 @@ export function CustomerRegistrationView({ onBackToPortal }: Props) {
                 <div className="flex items-center justify-between gap-2">
                   <div>
                     <span className="text-[13px] font-semibold text-black block">
-                      Mark Home Location on the Map <span className="text-[#E53935]">*</span>
+                      Mark Home Location on the Map <span className="text-urgency-high">*</span>
                     </span>
                     <span className="text-[12px] text-black/60">
                       Place the home icon on your house, drag it to adjust, or use your current location.
@@ -576,7 +576,7 @@ export function CustomerRegistrationView({ onBackToPortal }: Props) {
                     type="button"
                     aria-label="Pin location on map"
                     onClick={() => setShowMapModal(true)}
-                    className="px-2.5 py-1.5 rounded-lg border border-black/20 bg-white hover:bg-black/5 text-xs font-semibold text-[#1E6FD9] flex items-center gap-1 cursor-pointer shrink-0"
+                    className="px-2.5 py-1.5 rounded-lg border border-black/20 bg-white hover:bg-black/5 text-xs font-semibold text-brand-blue flex items-center gap-1 cursor-pointer shrink-0"
                   >
                     <IconMapPin size={14} />
                     <span>Expand Map</span>
@@ -602,14 +602,14 @@ export function CustomerRegistrationView({ onBackToPortal }: Props) {
                     type="checkbox"
                     checked={consentTerms}
                     onChange={(e) => setConsentTerms(e.target.checked)}
-                    className="mt-0.5 w-4 h-4 rounded border-black/30 text-[#1E6FD9] focus:ring-[#1E6FD9] cursor-pointer"
+                    className="mt-0.5 w-4 h-4 rounded border-black/30 text-brand-blue focus:ring-brand-blue cursor-pointer"
                   />
                   <span className="text-black/80">
                     I accept the{' '}
                     <button
                       type="button"
                       onClick={() => setLegalModalType('terms')}
-                      className="text-[#1E6FD9] font-semibold hover:underline cursor-pointer"
+                      className="text-brand-blue font-semibold hover:underline cursor-pointer"
                     >
                       Terms of Use (v1.0)
                     </button>
@@ -621,14 +621,14 @@ export function CustomerRegistrationView({ onBackToPortal }: Props) {
                     type="checkbox"
                     checked={consentPrivacy}
                     onChange={(e) => setConsentPrivacy(e.target.checked)}
-                    className="mt-0.5 w-4 h-4 rounded border-black/30 text-[#1E6FD9] focus:ring-[#1E6FD9] cursor-pointer"
+                    className="mt-0.5 w-4 h-4 rounded border-black/30 text-brand-blue focus:ring-brand-blue cursor-pointer"
                   />
                   <span className="text-black/80">
                     I accept the{' '}
                     <button
                       type="button"
                       onClick={() => setLegalModalType('privacy')}
-                      className="text-[#1E6FD9] font-semibold hover:underline cursor-pointer"
+                      className="text-brand-blue font-semibold hover:underline cursor-pointer"
                     >
                       Privacy Notice (v1.0)
                     </button>
@@ -663,7 +663,7 @@ export function CustomerRegistrationView({ onBackToPortal }: Props) {
           <Card className="w-full max-w-2xl bg-white p-5 rounded-xl border border-black/20 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between border-b border-black/15 pb-3">
               <div className="flex items-center gap-2">
-                <IconMapPin size={18} className="text-[#1E6FD9]" />
+                <IconMapPin size={18} className="text-brand-blue" />
                 <h2 className="text-base font-bold text-black">Mark Home Location on Map</h2>
               </div>
               <button
@@ -729,9 +729,9 @@ export function CustomerRegistrationView({ onBackToPortal }: Props) {
                 <span>CONSUMER NAME:</span>
                 <span className="font-bold">ELENA RAMOS</span>
               </div>
-              <div className="flex justify-between bg-[#1E6FD9]/10 p-1.5 rounded border border-[#1E6FD9]/30">
-                <span className="font-bold text-[#1E6FD9]">METER NO.:</span>
-                <span className="font-bold text-[#1E6FD9]">MTR-SIN-0004</span>
+              <div className="flex justify-between bg-brand-blue/10 p-1.5 rounded border border-brand-blue/30">
+                <span className="font-bold text-brand-blue">METER NO.:</span>
+                <span className="font-bold text-brand-blue">MTR-SIN-0004</span>
               </div>
               <div className="flex justify-between">
                 <span>BARANGAY:</span>
@@ -758,7 +758,7 @@ export function CustomerRegistrationView({ onBackToPortal }: Props) {
           <Card className="w-full max-w-lg bg-white p-5 rounded-xl border border-black/20 space-y-4 shadow-2xl max-h-[85vh] flex flex-col">
             <div className="flex items-center justify-between border-b border-black/15 pb-3 shrink-0">
               <div className="flex items-center gap-2">
-                <IconShieldCheck size={18} className="text-[#1E6FD9]" />
+                <IconShieldCheck size={18} className="text-brand-blue" />
                 <h2 className="text-base font-bold text-black">
                   {legalModalType === 'terms'
                     ? 'Sinacaban Water Supply System (SIWASS) Utility Terms of Service'

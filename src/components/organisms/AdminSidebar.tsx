@@ -141,7 +141,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                       }
                       ${
                         isActive
-                          ? 'bg-[#1E6FD9] text-white font-medium shadow-[0_2px_0_0_#104382]'
+                          ? 'bg-brand-blue text-white font-medium shadow-[0_2px_0_0_var(--color-brand-blue-shadow)]'
                           : 'text-black hover:bg-black/5 hover:text-black'
                       }
                     `}
