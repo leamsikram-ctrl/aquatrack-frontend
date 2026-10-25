@@ -60,6 +60,8 @@ describe('Notification Badge Live Sync', () => {
 
       const badge = screen.getByTestId('notification-badge');
       expect(badge).toBeInTheDocument();
+      expect(badge).toHaveTextContent('1');
+      expect(badge).toHaveClass('bg-red-600');
       expect(screen.getByRole('button', { name: /notifications \(1 unread\)/i })).toBeInTheDocument();
     });
 
@@ -112,7 +114,10 @@ describe('Notification Badge Live Sync', () => {
       });
 
       // Badge must appear reactively
-      expect(screen.getByTestId('notification-badge')).toBeInTheDocument();
+      const badge = screen.getByTestId('notification-badge');
+      expect(badge).toBeInTheDocument();
+      expect(badge).toHaveTextContent('1');
+      expect(badge).toHaveClass('bg-red-600');
     });
 
     it('clears badge when user opens NotificationCenter and clicks "Mark all read"', () => {
@@ -133,7 +138,10 @@ describe('Notification Badge Live Sync', () => {
         </MemoryRouter>
       );
 
-      expect(screen.getByTestId('notification-badge')).toBeInTheDocument();
+      const badge = screen.getByTestId('notification-badge');
+      expect(badge).toBeInTheDocument();
+      expect(badge).toHaveTextContent('1');
+      expect(badge).toHaveClass('bg-red-600');
 
       // Open notifications modal
       const bellBtn = screen.getByRole('button', { name: /notifications \(1 unread\)/i });
@@ -171,7 +179,10 @@ describe('Notification Badge Live Sync', () => {
         </MemoryRouter>
       );
 
-      expect(screen.getByTestId('notification-badge')).toBeInTheDocument();
+      const badge = screen.getByTestId('notification-badge');
+      expect(badge).toBeInTheDocument();
+      expect(badge).toHaveTextContent('1');
+      expect(badge).toHaveClass('bg-red-600');
     });
 
     it('hides admin badge when all notifications are read', () => {
@@ -213,7 +224,10 @@ describe('Notification Badge Live Sync', () => {
         </MemoryRouter>
       );
 
-      expect(screen.getByTestId('notification-badge')).toBeInTheDocument();
+      const badge = screen.getByTestId('notification-badge');
+      expect(badge).toBeInTheDocument();
+      expect(badge).toHaveTextContent('1');
+      expect(badge).toHaveClass('bg-red-600');
 
       // Open notification dropdown
       const bellBtn = screen.getByRole('button', { name: /notifications/i });
