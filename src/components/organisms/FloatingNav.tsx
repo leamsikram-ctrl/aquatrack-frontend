@@ -109,13 +109,17 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({
             aria-label={unreadCount > 0 ? `Notifications (${unreadCount} unread)` : 'Notifications'}
             title={unreadCount > 0 ? `Notifications (${unreadCount} unread)` : 'Open Notifications'}
           >
-            <IconBell size={14} />
-            {unreadCount > 0 && (
-              <span
-                data-testid="notification-badge"
-                className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-brand-blue"
-              />
-            )}
+            <div className="relative flex items-center justify-center">
+              <IconBell size={14} />
+              {unreadCount > 0 && (
+                <span
+                  data-testid="notification-badge"
+                  className="absolute -top-2 -right-2.5 min-w-[15px] h-[15px] px-0.5 bg-red-600 text-white text-[9px] font-bold rounded-full border border-white flex items-center justify-center leading-none pointer-events-none shadow-2xs"
+                >
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
+            </div>
           </button>
 
           <div className="h-4 w-px bg-black/15 mx-0.5" />

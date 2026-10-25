@@ -381,18 +381,20 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({
                 setIsTasksOpen(false);
                 setIsProfileOpen(false);
               }}
-              title="Notifications"
-              aria-label="Notifications"
+              title={unreadCount > 0 ? `Notifications (${unreadCount} unread)` : 'Notifications'}
+              aria-label={unreadCount > 0 ? `Notifications (${unreadCount} unread)` : 'Notifications'}
               aria-expanded={isNotificationsOpen}
-              className="flex items-center gap-1 p-2 rounded bg-white border border-black/10 shadow-[0_2px_0_0_rgba(0,0,0,0.08)] hover:border-black/20 active:translate-y-0.5 active:shadow-[0_1px_0_0_rgba(0,0,0,0.08)] text-black hover:bg-black/5 transition-all cursor-pointer"
+              className="flex items-center gap-1 p-2 rounded bg-white border border-black/10 shadow-[0_2px_0_0_rgba(0,0,0,0.08)] hover:border-black/20 active:translate-y-0.5 active:shadow-[0_1px_0_0_rgba(0,0,0,0.08)] text-black hover:bg-black/5 transition-all cursor-pointer relative"
             >
-              <div className="relative">
+              <div className="relative flex items-center justify-center">
                 <IconBell size={16} />
                 {unreadCount > 0 && (
                   <span
                     data-testid="notification-badge"
-                    className="absolute -top-1 -right-1 w-2 h-2 bg-brand-blue rounded-full"
-                  />
+                    className="absolute -top-2 -right-2.5 min-w-[17px] h-[17px] px-1 bg-red-600 text-white text-[10px] font-bold rounded-full border-2 border-white flex items-center justify-center leading-none shadow-xs pointer-events-none"
+                  >
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
                 )}
               </div>
               <IconChevronDown size={12} className="text-black/60 hidden sm:inline" />
@@ -404,7 +406,7 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({
                   <div className="flex items-center gap-1.5">
                     <span>Notifications</span>
                     {unreadCount > 0 && (
-                      <span className="text-[11px] text-brand-blue font-medium bg-black/5 px-1.5 py-0.5 rounded">
+                      <span className="text-[11px] text-white font-bold bg-red-600 px-1.5 py-0.5 rounded-full">
                         {unreadCount} new
                       </span>
                     )}
