@@ -188,7 +188,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
               ← <span className="uppercase tracking-wider text-[14px]">Notifications</span>
             </button>
             {unreadCount > 0 && (
-              <span className="px-1.5 py-0.5 bg-brand-blue text-white rounded font-medium text-xs">
+              <span className="px-1.5 py-0.5 bg-red-600 text-white rounded font-medium text-xs">
                 {unreadCount} new
               </span>
             )}
