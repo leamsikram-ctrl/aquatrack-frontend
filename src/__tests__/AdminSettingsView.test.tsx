@@ -12,7 +12,7 @@ vi.mock('../contexts/AuthContext', () => ({
   }),
 }));
 
-// Mock referenceApi and authApi
+// Mock referenceApi, authApi, and profileApi
 vi.mock('../api', () => ({
   referenceApi: {
     getIssueTypes: vi.fn().mockImplementation(() =>
@@ -27,7 +27,25 @@ vi.mock('../api', () => ({
     ),
   },
   authApi: {
+    me: vi.fn().mockImplementation(() =>
+      Promise.resolve({
+        id: 1,
+        name: 'SIWASS Administrator',
+        email: 'admin@sinacaban.gov.ph',
+        role: 'admin',
+        mobile_number: '09170000001',
+      })
+    ),
     changePassword: vi.fn().mockImplementation(() => Promise.resolve({ message: 'Password updated' })),
+  },
+  profileApi: {
+    updateProfile: vi.fn(),
+    uploadPhoto: vi.fn(),
+    removePhoto: vi.fn(),
+    requestMobilePin: vi.fn(),
+    verifyMobilePin: vi.fn(),
+    requestEmailLink: vi.fn(),
+    verifyEmailLink: vi.fn(),
   },
 }));
 
@@ -119,7 +137,7 @@ describe('AdminSettingsView (Workflow Parameters & System Configuration)', () =>
     });
   });
 
-  it('opens Add Issue Category modal when clicking Add Issue Type', async () => {
+  it('displays read-only issue types and system managed indicator without add controls', async () => {
     await renderComponent();
 
     const issueTab = screen.getByRole('button', { name: /Issue Types & Urgency/i });
@@ -127,16 +145,10 @@ describe('AdminSettingsView (Workflow Parameters & System Configuration)', () =>
       fireEvent.click(issueTab);
     });
 
-    const addButtons = screen.getAllByRole('button', { name: /Add Issue Type/i });
-    expect(addButtons.length).toBeGreaterThan(0);
-
-    await act(async () => {
-      fireEvent.click(addButtons[0]);
-    });
-
     await waitFor(() => {
-      expect(screen.getByText(/Add Issue Category/i)).toBeInTheDocument();
-      expect(screen.getByPlaceholderText(/e.g. Pump Station Surge/i)).toBeInTheDocument();
+      expect(screen.getByText(/Configured Issue Types \(Read-only\)/i)).toBeInTheDocument();
+      expect(screen.getByText(/System Managed/i)).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /Add Issue Type/i })).not.toBeInTheDocument();
     });
   });
 });

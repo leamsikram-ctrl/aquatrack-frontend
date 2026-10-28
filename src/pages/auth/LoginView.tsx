@@ -5,6 +5,7 @@ import { Card } from '../../components/atoms/Card';
 import { Button } from '../../components/atoms/Button';
 import { Input } from '../../components/atoms/Input';
 import { AquaTrackLogo } from '../../components/atoms/AquaTrackLogo';
+import { OtpInput } from '../../components/molecules/OtpInput';
 import { authApi } from '../../api';
 import { accountsStore } from '../../services/accountsStore';
 import type { User } from '../../types';
@@ -15,7 +16,6 @@ import {
   IconArrowLeft,
   IconPhone,
   IconCheck,
-  IconKey,
   IconEye,
   IconEyeOff,
   IconArrowRight,
@@ -67,31 +67,57 @@ export function LoginView() {
     }
   };
 
-  const handleSendResetInstructions = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSendResetInstructions = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!forgotIdentifier.trim()) return;
 
     setIsSendingInstructions(true);
     setForgotError(null);
     setForgotSuccess(null);
 
-    const res = accountsStore.requestPasswordReset(forgotIdentifier.trim(), forgotMethod);
-    setIsSendingInstructions(false);
+    try {
+      const apiRes = await authApi.requestPasswordReset({
+        identifier: forgotIdentifier.trim(),
+        method: forgotMethod,
+      });
 
-    if (!res.success) {
-      setForgotError(res.error || 'Unable to process password reset request.');
-      return;
+      setUniformNotice(
+        apiRes.message || 'If the account is registered, instructions have been sent.'
+      );
+      setDebugResetCredential(apiRes.debug_token_or_pin || null);
+      setResetSent(true);
+      setLinkOpened(false);
+      setResetCode(forgotMethod === 'sms' && apiRes.debug_token_or_pin ? apiRes.debug_token_or_pin : '');
+    } catch (err: any) {
+      if (err?.response?.status === 429) {
+        setIsSendingInstructions(false);
+        setForgotError(
+          err.response?.data?.message ||
+            'Too many password reset requests. Please wait an hour before requesting again.'
+        );
+        return;
+      }
+
+      // Offline / fallback to accountsStore
+      const res = accountsStore.requestPasswordReset(forgotIdentifier.trim(), forgotMethod);
+      if (!res.success) {
+        setIsSendingInstructions(false);
+        setForgotError(res.error || 'Unable to process password reset request.');
+        return;
+      }
+
+      // Section 6 Step 2: Shows the exact same message whether or not the account exists
+      setUniformNotice(res.message);
+      setDebugResetCredential(res.debugCodeOrLink || null);
+      setResetSent(true);
+      setLinkOpened(false);
+      setResetCode(forgotMethod === 'sms' && res.debugCodeOrLink ? res.debugCodeOrLink : '');
+    } finally {
+      setIsSendingInstructions(false);
     }
-
-    // Section 6 Step 2: Shows the exact same message whether or not the account exists
-    setUniformNotice(res.message);
-    setDebugResetCredential(res.debugCodeOrLink || null);
-    setResetSent(true);
-    setLinkOpened(false);
-    setResetCode(forgotMethod === 'sms' && res.debugCodeOrLink ? res.debugCodeOrLink : '');
   };
 
-  const handleConfirmReset = (e: React.FormEvent) => {
+  const handleConfirmReset = async (e: React.FormEvent) => {
     e.preventDefault();
     setForgotError(null);
 
@@ -107,35 +133,99 @@ export function LoginView() {
       return;
     }
 
-    const res = accountsStore.completePasswordReset(
-      forgotIdentifier,
-      forgotMethod,
-      tokenOrPin,
-      newPassword,
-      confirmPassword
-    );
-
-    if (!res.success) {
-      setForgotError(res.error || 'Failed to reset password.');
-      if (res.cancelled) {
-        setDebugResetCredential(null);
-      }
+    if (newPassword.length < 8) {
+      setForgotError('New password must be at least 8 characters long.');
       return;
     }
 
-    setForgotSuccess(
-      'Password reset successfully. Your old password has stopped working — please sign in with your new password.'
-    );
-    setTimeout(() => {
-      setShowForgotPassword(false);
-      setResetSent(false);
-      setLoginInput(forgotIdentifier.trim());
-      setPassword(newPassword);
-      setNewPassword('');
-      setConfirmPassword('');
-      setForgotSuccess(null);
-      setUniformNotice(null);
-    }, 1500);
+    if (newPassword !== confirmPassword) {
+      setForgotError('New password and confirmation do not match.');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const apiRes = await authApi.completePasswordReset({
+        identifier: forgotIdentifier.trim(),
+        method: forgotMethod,
+        token_or_pin: tokenOrPin.trim(),
+        password: newPassword,
+        password_confirmation: confirmPassword,
+      });
+
+      // Synchronize to accountsStore
+      accountsStore.completePasswordReset(
+        forgotIdentifier,
+        forgotMethod,
+        tokenOrPin,
+        newPassword,
+        confirmPassword
+      );
+
+      setForgotSuccess(
+        apiRes?.message ||
+          'Password reset successfully. Your old password has stopped working — please sign in with your new password.'
+      );
+      setTimeout(() => {
+        setShowForgotPassword(false);
+        setResetSent(false);
+        setLoginInput(forgotIdentifier.trim());
+        setPassword(newPassword);
+        setNewPassword('');
+        setConfirmPassword('');
+        setForgotSuccess(null);
+        setUniformNotice(null);
+      }, 1500);
+    } catch (err: any) {
+      const apiMsg =
+        err?.response?.data?.message ||
+        err?.response?.data?.errors?.password?.[0] ||
+        err?.response?.data?.errors?.token_or_pin?.[0];
+
+      if (apiMsg) {
+        setForgotError(apiMsg);
+        if (err?.response?.data?.cancelled) {
+          setDebugResetCredential(null);
+        }
+        setIsLoading(false);
+        return;
+      }
+
+      // Offline / fallback to accountsStore
+      const res = accountsStore.completePasswordReset(
+        forgotIdentifier,
+        forgotMethod,
+        tokenOrPin,
+        newPassword,
+        confirmPassword
+      );
+
+      if (!res.success) {
+        setForgotError(res.error || 'Failed to reset password.');
+        if (res.cancelled) {
+          setDebugResetCredential(null);
+        }
+        setIsLoading(false);
+        return;
+      }
+
+      setForgotSuccess(
+        'Password reset successfully. Your old password has stopped working — please sign in with your new password.'
+      );
+      setTimeout(() => {
+        setShowForgotPassword(false);
+        setResetSent(false);
+        setLoginInput(forgotIdentifier.trim());
+        setPassword(newPassword);
+        setNewPassword('');
+        setConfirmPassword('');
+        setForgotSuccess(null);
+        setUniformNotice(null);
+      }, 1500);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -241,6 +331,14 @@ export function LoginView() {
     }
 
     if (needsTerms) {
+      try {
+        await authApi.acceptTerms({
+          terms_version: '1.0.0',
+          privacy_version: '1.0.0',
+        });
+      } catch {
+        // Fallback to local store if offline
+      }
       const afterTerms = accountsStore.acceptFirstLoginTerms(updatedUser.id, updatedUser);
       if (afterTerms) {
         updatedUser = afterTerms;
@@ -388,7 +486,7 @@ export function LoginView() {
                         Terms of Use (First Login Acceptance)
                       </div>
                       <p className="text-xs text-black/70 leading-relaxed">
-                        As an authorized {firstLoginUser.role} member of the Sinacaban Water Supply System, you agree to handle consumer records, service dispatches, and system credentials in accordance with municipal policies and the Data Privacy Act of 2012.
+                        As an authorized {firstLoginUser.role} member of the Sinacaban Water Supply System, you agree to handle customer records, service dispatches, and system credentials in accordance with municipal policies and the Data Privacy Act of 2012.
                       </p>
                       <label className="flex items-center gap-2 pt-1 cursor-pointer text-xs font-semibold text-black">
                         <input
@@ -447,7 +545,7 @@ export function LoginView() {
                   </div>
                 )}
 
-                {forgotError && (
+                {forgotError && (!resetSent || forgotMethod === 'email') && (
                   <div className="p-3 bg-danger-subtle border border-urgency-high/40 rounded-lg text-[13px] font-medium text-urgency-high flex items-center gap-2.5">
                     <IconAlertCircle size={16} className="shrink-0" />
                     <span>{forgotError}</span>
@@ -546,17 +644,22 @@ export function LoginView() {
                     )}
 
                     {forgotMethod === 'sms' ? (
-                      <Input
-                        label="6-Digit SMS Pin"
-                        type="text"
-                        placeholder="123456"
-                        maxLength={6}
-                        value={resetCode}
-                        onChange={(e) => setResetCode(e.target.value)}
-                        leftIcon={<IconKey size={16} className="text-black/60" />}
-                        className="font-mono tracking-widest font-bold"
-                        required
-                      />
+                      <div className="space-y-1.5">
+                        <label className="block text-[13px] font-semibold text-black text-center">
+                          6-Digit SMS PIN
+                        </label>
+                        <OtpInput
+                          value={resetCode}
+                          onChange={(val) => {
+                            setResetCode(val);
+                            if (forgotError) setForgotError(null);
+                          }}
+                          error={forgotError}
+                          onResend={() => handleSendResetInstructions()}
+                          resendCooldown={30}
+                          autoFocus
+                        />
+                      </div>
                     ) : (
                       <Input
                         label="Reset Link Token"
@@ -729,7 +832,7 @@ export function LoginView() {
                           : 'bg-white text-black border-black/20 hover:border-brand-blue hover:text-brand-blue'
                       }`}
                     >
-                      Consumer
+                      Customer
                     </button>
                     <button
                       type="button"
@@ -784,7 +887,7 @@ export function LoginView() {
 
                 {/* Register Link */}
                 <div className="text-center pt-3 border-t border-black/10 text-[13px]">
-                  <span className="text-black/60">Existing consumer without an online account? </span>
+                  <span className="text-black/60">Existing customer without an online account? </span>
                   <Link
                     to="/register"
                     className="text-brand-blue font-medium hover:underline"

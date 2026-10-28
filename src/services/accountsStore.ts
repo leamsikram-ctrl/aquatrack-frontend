@@ -55,7 +55,7 @@ const EMAIL_CHANGE_KEY = 'aquatrack_pending_email_changes_v1';
 const PASSWORD_RESET_KEY = 'aquatrack_pending_password_resets_v1';
 const RATE_LIMIT_KEY = 'aquatrack_pin_link_rate_limits_v1';
 
-export const MAX_PHOTO_SIZE_BYTES = 2 * 1024 * 1024; // 2 MB
+export const MAX_PHOTO_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB (JPG or PNG, up to 5 MB per workflow)
 export const ALLOWED_PHOTO_MIME_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
 export const PIN_VALIDITY_MS = 10 * 60 * 1000; // 10 minutes
 export const LINK_VALIDITY_MS = 60 * 60 * 1000; // 60 minutes
@@ -112,7 +112,7 @@ export function validateProfilePhotoFile(file: File): { valid: boolean; error?: 
   if (file.size > MAX_PHOTO_SIZE_BYTES) {
     return {
       valid: false,
-      error: 'Profile photo size must not exceed 2 MB.',
+      error: 'Profile photo size must not exceed 5 MB.',
     };
   }
 

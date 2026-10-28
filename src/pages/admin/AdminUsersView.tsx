@@ -6,6 +6,7 @@ import { Card } from '../../components/atoms/Card';
 import { Button } from '../../components/atoms/Button';
 import { Badge } from '../../components/atoms/Badge';
 import { EmptyState } from '../../components/molecules/EmptyState';
+import { NoMatchesIllustration } from '../../components/illustrations';
 import { adminApi, referenceApi, requestsApi } from '../../api';
 import type { User, Barangay, ServiceRequest } from '../../types';
 import { maintenanceStore } from '../../services/maintenanceStore';
@@ -1467,9 +1468,15 @@ export function AdminUsersView() {
           ) : filteredUsers.length === 0 ? (
             <div className="py-12">
               <EmptyState
-                icon={<IconUsers size={36} className="text-black/30" />}
-                title="No users found"
-                description="No team members or consumers match your current filters or search query."
+                illustration={<NoMatchesIllustration />}
+                title="No matches"
+                description="No users match your current filters or search query."
+                actionLabel="Clear filters"
+                onAction={() => {
+                  setSearchQuery('');
+                  setSelectedBarangay('all');
+                  setVerificationFilter('all');
+                }}
               />
             </div>
           ) : (

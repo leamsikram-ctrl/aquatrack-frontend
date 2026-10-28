@@ -5,6 +5,10 @@ import { Card } from '../../components/atoms/Card';
 import { Button } from '../../components/atoms/Button';
 import { Badge } from '../../components/atoms/Badge';
 import { EmptyState } from '../../components/molecules/EmptyState';
+import {
+  NothingPendingIllustration,
+  NoMatchesIllustration,
+} from '../../components/illustrations';
 import { adminApi } from '../../api';
 import type { User } from '../../types';
 import { IconUsers, IconSearch, IconEye, IconX, IconMail, IconPhone, IconMapPin, IconQrcode } from '@tabler/icons-react';
@@ -116,15 +120,31 @@ export function AdminCustomersView() {
               {isLoading ? (
                 <tr>
                   <td colSpan={7} className="px-4 py-8 text-center text-black/50">
-                    Loading consumer directory...
+                    Loading customer directory...
+                  </td>
+                </tr>
+              ) : customers.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-4 py-8 text-center text-black/50">
+                    <EmptyState
+                      illustration={<NothingPendingIllustration />}
+                      title="No customers yet"
+                      description="No registered customer accounts found."
+                    />
                   </td>
                 </tr>
               ) : filteredCustomers.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-4 py-8 text-center text-black/50">
                     <EmptyState
-                      title="No Consumers Found"
-                      description="No registered customer accounts match your search or filter criteria."
+                      illustration={<NoMatchesIllustration />}
+                      title="No matches"
+                      description="No customer accounts match your search or filter."
+                      actionLabel="Clear filters"
+                      onAction={() => {
+                        setStatusFilter('all');
+                        setSearchQuery('');
+                      }}
                     />
                   </td>
                 </tr>

@@ -5,6 +5,10 @@ import { Card } from '../../components/atoms/Card';
 import { Badge } from '../../components/atoms/Badge';
 import { Button } from '../../components/atoms/Button';
 import { EmptyState } from '../../components/molecules/EmptyState';
+import {
+  EmptyTasksIllustration,
+  NoMatchesIllustration,
+} from '../../components/illustrations';
 import { adminApi, referenceApi, requestsApi } from '../../api';
 import type { User, Barangay, ServiceRequest } from '../../types';
 import {
@@ -176,14 +180,27 @@ export function AdminStaffView() {
                       Loading field staff records...
                     </td>
                   </tr>
+                ) : staffList.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="px-4 py-8 text-center text-black/50">
+                      <EmptyState
+                        illustration={<EmptyTasksIllustration />}
+                        title="No staff yet"
+                        description="No field staff members registered yet."
+                        actionLabel="Add Field Staff"
+                        onAction={() => setShowAddModal(true)}
+                      />
+                    </td>
+                  </tr>
                 ) : filteredStaff.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="px-4 py-8 text-center text-black/50">
                       <EmptyState
-                        title="No Staff Found"
+                        illustration={<NoMatchesIllustration />}
+                        title="No matches"
                         description="No technicians match your search filter."
-                        actionLabel="Add Field Staff"
-                        onAction={() => setShowAddModal(true)}
+                        actionLabel="Clear filters"
+                        onAction={() => setSearchQuery('')}
                       />
                     </td>
                   </tr>

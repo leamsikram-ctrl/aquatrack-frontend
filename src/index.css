@@ -263,3 +263,13 @@ button, input, select, textarea {
 .pin-radar-pulse {
   animation: pin-radar 2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
 }
+
+/* Stop animations for reduced motion per Section 6 rules */
+@media (prefers-reduced-motion: reduce) {
+  .pin-radar-pulse,
+  .btn-shimmer::after,
+  .animate-hero-entrance {
+    animation: none !important;
+    transition: none !important;
+  }
+}

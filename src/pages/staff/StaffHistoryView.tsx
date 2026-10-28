@@ -5,6 +5,7 @@ import { Card } from '../../components/atoms/Card';
 import { Button } from '../../components/atoms/Button';
 import { Badge } from '../../components/atoms/Badge';
 import { EmptyState } from '../../components/molecules/EmptyState';
+import { EmptyTasksIllustration } from '../../components/illustrations';
 import { StatusTimeline } from '../../components/organisms/StatusTimeline';
 import { requestsApi } from '../../api';
 import type { ServiceRequest } from '../../types';
@@ -108,7 +109,8 @@ export function StaffHistoryView() {
                   <tr>
                     <td colSpan={6} className="px-4 py-8 text-center text-black/50">
                       <EmptyState
-                        title="No Completed Operations Found"
+                        illustration={<EmptyTasksIllustration />}
+                        title="No tasks"
                         description="No resolved maintenance tasks recorded yet."
                       />
                     </td>

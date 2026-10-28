@@ -6,7 +6,7 @@ import {
   IconVolume,
   IconUser,
   IconClipboardList,
-  IconQrcode,
+  IconHistory,
 } from '@tabler/icons-react';
 
 export interface BottomNavProps {
@@ -32,7 +32,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
 
   const staffItems = [
     { title: 'Tasks', path: '/staff/tasks', icon: IconClipboardList },
-    { title: 'Scan Meter', path: '/staff/scan', icon: IconQrcode },
+    { title: 'History', path: '/staff/history', icon: IconHistory },
     { title: 'Profile', path: '/staff/profile', icon: IconUser },
   ];
 

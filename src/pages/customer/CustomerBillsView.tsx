@@ -5,6 +5,8 @@ import { CustomerLayout } from '../../components/templates/CustomerLayout';
 import { Card } from '../../components/atoms/Card';
 import { Button } from '../../components/atoms/Button';
 import { Badge } from '../../components/atoms/Badge';
+import { EmptyState } from '../../components/molecules/EmptyState';
+import { EmptyBillsIllustration } from '../../components/illustrations';
 import { authApi, billingApi } from '../../api';
 import type { User } from '../../types';
 import {
@@ -25,7 +27,6 @@ import {
   IconCash,
   IconRotate2,
   IconClock,
-  IconAlertCircle,
   IconX,
 } from '@tabler/icons-react';
 
@@ -57,31 +58,80 @@ export function CustomerBillsView() {
     billingApi
       .list()
       .then((res) => {
+        const storeRecords = billingStore.getRecords();
         if (res && Array.isArray(res.data) && res.data.length > 0) {
-          const apiRecords: CustomerBalanceRecord[] = res.data.map((b: any) => ({
-            id: `bill-${b.id}`,
-            period_id: `period-${(b.billing_period || 'current').replace(/\s+/g, '-').toLowerCase()}`,
-            period_label: b.billing_period || 'Current Period',
-            customer_id: b.customer?.id || user?.id || 101,
-            customer_name: b.customer?.full_name || user?.name || 'Customer',
-            account_number: b.customer?.account_number || user?.customer_profile?.account_number || 'ACC-2026-0001',
-            meter_number: selectedMeterNumber || 'MTR-SIN-0001',
-            barangay: b.customer?.barangay || user?.customer_profile?.barangay?.name || 'Poblacion',
-            address: user?.customer_profile?.address || 'Sinacaban',
-            mobile_number: user?.mobile_number || '',
-            is_active_customer: true,
-            original_current_balance: Number(b.amount_paid || 0),
-            original_previous_balance: 0,
-            current_balance: Number(b.amount_paid || 0),
-            previous_balance: 0,
-            total_balance: Number(b.amount_paid || 0),
-            due_date: b.due_date || '2026-10-25',
-            notice_sent: true,
-            last_updated: b.created_at || new Date().toISOString(),
-          }));
-          setRecords(apiRecords);
+          const apiRecords: CustomerBalanceRecord[] = res.data.map((b: any) => {
+            const meter =
+              b.customer?.meter_number || selectedMeterNumber || 'MTR-SIN-0001';
+            const matchingStoreRec = storeRecords.find(
+              (r) =>
+                r.meter_number.toLowerCase() === meter.toLowerCase() &&
+                (r.period_label === b.period_label || r.period_label === b.billing_period)
+            );
+
+            const curBal = Number(
+              b.current_balance !== undefined
+                ? b.current_balance
+                : matchingStoreRec
+                ? matchingStoreRec.current_balance
+                : b.amount_due ?? 0
+            );
+            const prevBal = Number(
+              b.previous_balance !== undefined
+                ? b.previous_balance
+                : matchingStoreRec
+                ? matchingStoreRec.previous_balance
+                : 0
+            );
+            const totBal = Number(
+              b.total_balance !== undefined
+                ? b.total_balance
+                : matchingStoreRec
+                ? matchingStoreRec.total_balance
+                : curBal + prevBal
+            );
+
+            return {
+              id: `bill-${b.id}`,
+              period_id: b.billing_period_id
+                ? `period-${b.billing_period_id}`
+                : `period-${(b.billing_period || 'current').replace(/\s+/g, '-').toLowerCase()}`,
+              period_label: b.period_label || b.billing_period || 'Current Period',
+              customer_id: b.customer?.id || user?.id || 101,
+              customer_name: b.customer?.full_name || user?.name || 'Customer',
+              account_number:
+                b.customer?.account_number ||
+                user?.customer_profile?.account_number ||
+                'ACC-2026-0001',
+              meter_number: meter,
+              barangay:
+                b.customer?.barangay || user?.customer_profile?.barangay?.name || 'Poblacion',
+              address: user?.customer_profile?.address || 'Sinacaban',
+              mobile_number: user?.mobile_number || '',
+              is_active_customer: true,
+              original_current_balance: Number(
+                b.original_current_balance ?? matchingStoreRec?.original_current_balance ?? curBal
+              ),
+              original_previous_balance: Number(
+                b.original_previous_balance ?? matchingStoreRec?.original_previous_balance ?? prevBal
+              ),
+              current_balance: curBal,
+              previous_balance: prevBal,
+              total_balance: totBal,
+              due_date: b.due_date || '2026-10-25',
+              notice_sent: true,
+              last_updated: b.last_updated_at || b.created_at || new Date().toISOString(),
+            };
+          });
+
+          // Merge API records with billingStore records to ensure full directory coverage
+          const existingIds = new Set(apiRecords.map((r) => r.meter_number.toLowerCase()));
+          const extraStoreRecords = storeRecords.filter(
+            (sr) => !existingIds.has(sr.meter_number.toLowerCase())
+          );
+          setRecords([...apiRecords, ...extraStoreRecords]);
         } else {
-          setRecords(billingStore.getRecords());
+          setRecords(storeRecords);
         }
       })
       .catch(() => {
@@ -225,13 +275,12 @@ export function CustomerBillsView() {
 
         {/* Latest Period Record */}
         {!latestRecord ? (
-          <Card className="p-8 border border-black/10 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.06)] text-center space-y-2">
-            <div className="w-10 h-10 rounded-full bg-blue-tint text-black/40 flex items-center justify-center mx-auto">
-              <IconAlertCircle size={22} />
-            </div>
-            <div className="text-base font-bold text-black">
-              No billing information is available
-            </div>
+          <Card className="p-8 border border-black/10 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.06)]">
+            <EmptyState
+              illustration={<EmptyBillsIllustration />}
+              title="No billing yet"
+              description="No billing statements found for your account."
+            />
           </Card>
         ) : (
           <Card className="p-5 border border-black/10 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.06)] space-y-4">

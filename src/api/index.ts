@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import type { ServiceRequest, Billing, WaterInterruption, User, Barangay, Meter, IssueType } from '../types';
+import type { ServiceRequest, Billing, WaterInterruption, User, Barangay, Meter, IssueType, Urgency } from '../types';
 
 export interface OfficeAccountDetails {
   account_number: string;
@@ -114,6 +114,11 @@ export const authApi = {
     const res = await apiClient.post<{ message: string }>('/auth/forgot-password/reset', payload);
     return res.data;
   },
+
+  acceptTerms: async (payload?: { terms_version?: string; privacy_version?: string }) => {
+    const res = await apiClient.post<{ message: string; user: User }>('/auth/accept-terms', payload || {});
+    return res.data;
+  },
 };
 
 export const profileApi = {
@@ -215,6 +220,14 @@ export const requestsApi = {
     });
     return res.data.data;
   },
+
+  adjustUrgency: async (id: number, urgency: Urgency, reason?: string) => {
+    const res = await apiClient.post<{ message: string; data: ServiceRequest }>(`/requests/${id}/urgency`, {
+      urgency,
+      urgency_adjustment_reason: reason,
+    });
+    return res.data.data;
+  },
 };
 
 export const referenceApi = {
@@ -254,7 +267,11 @@ export const adminApi = {
         pending_verifications: number;
         active_advisories: number;
         total_advisories: number;
+        ongoing_advisories?: number;
         total_billed_amount: number;
+        payments_this_month?: number;
+        customers_with_balance?: number;
+        open_billing_period?: string | null;
         unpaid_bills_count: number;
         paid_bills_count: number;
         unpublished_bills_count?: number;
@@ -398,12 +415,27 @@ export const adminApi = {
     return res.data;
   },
 
-  activityLogs: async (params?: { action?: string; from?: string; to?: string; page?: number; per_page?: number }) => {
+  activityLogs: async (params?: {
+    action?: string;
+    category?: string;
+    role?: string;
+    user_id?: number;
+    search?: string;
+    from?: string;
+    to?: string;
+    page?: number;
+    per_page?: number;
+  }) => {
     const res = await apiClient.get<{
       data: Array<{
         id: number;
         user_id: number | null;
+        user_name?: string | null;
+        user_role?: string | null;
+        category?: string;
         action: string;
+        target?: string | null;
+        detail?: string | null;
         subject_type: string | null;
         subject_id: number | null;
         old_values: Record<string, any> | null;
@@ -424,6 +456,16 @@ export const adminApi = {
         last_page: number;
       };
     }>('/admin/activity-logs', { params });
+    return res.data;
+  },
+
+  logActivityExport: async (data: {
+    count: number;
+    from?: string;
+    to?: string;
+    filters?: Record<string, any>;
+  }) => {
+    const res = await apiClient.post<{ message: string }>('/admin/activity-logs/log-export', data);
     return res.data;
   },
 };
@@ -472,17 +514,79 @@ export const metersApi = {
     }>(`/meters/qr/${token}`);
     return res.data.data;
   },
+
+  offlineSync: async () => {
+    const res = await apiClient.get<{
+      synced_at: string;
+      total_meters: number;
+      data: Array<{
+        meter_id: number;
+        meter_number: string;
+        qr_token: string;
+        status: string;
+        barangay?: string;
+        customer?: {
+          id: number;
+          account_number?: string;
+          name: string;
+          address?: string;
+          barangay?: string;
+          mobile_number?: string;
+        };
+      }>;
+    }>('/meters/offline');
+    return res.data;
+  },
 };
 
 export const billingApi = {
-  list: async (params?: { billing_period?: string; payment_status?: string }) => {
-    const res = await apiClient.get<{ data: Billing[]; pagination: { total: number } }>('/billing', { params });
+  list: async (params?: { billing_period_id?: string | number; billing_period?: string; payment_status?: string; search?: string; balance_filter?: string; per_page?: number; page?: number }) => {
+    const res = await apiClient.get<{ data: Billing[]; pagination: { total: number; current_page: number; per_page: number; last_page: number } }>('/billing', { params });
     return res.data;
   },
 
-  publish: async (billingIds: number[]) => {
-    const res = await apiClient.post<{ message: string; published_count: number }>('/billing/publish', {
-      billing_ids: billingIds,
+  periods: async () => {
+    const res = await apiClient.get<{ data: any[] }>('/billing/periods');
+    return res.data;
+  },
+
+  createPeriod: async (payload: { month: number; year: number; due_date: string }) => {
+    const res = await apiClient.post<{ message: string; data: any }>('/billing/periods', payload);
+    return res.data;
+  },
+
+  updatePeriod: async (id: number | string, payload: { due_date: string; month?: number; year?: number }) => {
+    const res = await apiClient.put<{ message: string; data: any }>(`/billing/periods/${id}`, payload);
+    return res.data;
+  },
+
+  closePeriod: async (id: number | string) => {
+    const res = await apiClient.post<{ message: string; data: any }>(`/billing/periods/${id}/close`);
+    return res.data;
+  },
+
+  reopenPeriod: async (id: number | string) => {
+    const res = await apiClient.post<{ message: string; data: any }>(`/billing/periods/${id}/reopen`);
+    return res.data;
+  },
+
+  deletePeriod: async (id: number | string) => {
+    const res = await apiClient.delete<{ message: string }>(`/billing/periods/${id}`);
+    return res.data;
+  },
+
+  previewCsv: async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await apiClient.post<{
+      message: string;
+      data: {
+        valid_rows: any[];
+        invalid_rows: Array<{ row_number: number; meter_number: string; reason: string }>;
+        open_period: any;
+      };
+    }>('/billing/preview', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
     });
     return res.data;
   },
@@ -492,23 +596,135 @@ export const billingApi = {
     formData.append('file', file);
     const res = await apiClient.post<{
       message: string;
-      batch_id: number;
-      summary: { total_rows: number; created: number; updated: number; rejected: number; errors: string[] };
+      data: {
+        created_count: number;
+        rejected_count: number;
+        notices_sent: number;
+        errors: string[];
+        invalid_rows: Array<{ row_number: number; meter_number: string; reason: string }>;
+        period: any;
+      };
     }>('/billing/import', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data;
+  },
+
+  payments: async (params?: { billing_id?: number | string; customer_profile_id?: number; per_page?: number }) => {
+    const res = await apiClient.get<{ data: any[]; pagination: { total: number } }>('/billing/payments', { params });
+    return res.data;
+  },
+
+  recordPayment: async (
+    billingId: number | string,
+    payload: { amount: number; payment_date?: string; or_number?: string; remark?: string }
+  ) => {
+    const res = await apiClient.post<{ message: string; data: any }>(`/billing/records/${billingId}/pay`, payload);
+    return res.data;
+  },
+
+  reversePayment: async (paymentId: number | string) => {
+    const res = await apiClient.post<{ message: string; data: any }>(`/billing/payments/${paymentId}/reverse`);
+    return res.data;
+  },
+
+  publish: async (billingIds: number[]) => {
+    const res = await apiClient.post<{ message: string; published_count: number }>('/billing/publish', {
+      billing_ids: billingIds,
     });
     return res.data;
   },
 };
 
 export const interruptionsApi = {
-  list: async () => {
-    const res = await apiClient.get<{ data: WaterInterruption[]; pagination: { total: number } }>('/interruptions');
+  list: async (params?: { per_page?: number; barangay_id?: number; status?: string }) => {
+    const res = await apiClient.get<{ data: WaterInterruption[]; pagination: { total: number } }>('/interruptions', { params });
     return res.data;
   },
 
-  create: async (data: { message: string; starts_at: string; ends_at: string; barangay_ids: number[] }) => {
+  preview: async (data: { barangay_ids: number[] }) => {
+    const res = await apiClient.post<{
+      total_affected: number;
+      sms_count: number;
+      in_app_only_count: number;
+    }>('/interruptions/preview', data);
+    return res.data;
+  },
+
+  create: async (data: {
+    title: string;
+    reason: string;
+    advisory_type?: string;
+    remarks?: string;
+    starts_at: string;
+    ends_at: string;
+    barangay_ids: number[];
+    message?: string;
+    publish_immediately?: boolean;
+  }) => {
     const res = await apiClient.post<{ message: string; data: WaterInterruption }>('/interruptions', data);
+    return res.data;
+  },
+
+  update: async (
+    id: number,
+    data: {
+      title: string;
+      reason: string;
+      advisory_type?: string;
+      remarks?: string;
+      starts_at: string;
+      ends_at: string;
+      barangay_ids: number[];
+      message?: string;
+    }
+  ) => {
+    const res = await apiClient.put<{ message: string; data: WaterInterruption }>(`/interruptions/${id}`, data);
+    return res.data;
+  },
+
+  cancel: async (id: number, data?: { reason?: string }) => {
+    const res = await apiClient.post<{ message: string; data: WaterInterruption }>(`/interruptions/${id}/cancel`, data);
+    return res.data;
+  },
+
+  restore: async (id: number, data?: { remark?: string }) => {
+    const res = await apiClient.post<{ message: string; data: WaterInterruption }>(`/interruptions/${id}/restore`, data);
+    return res.data;
+  },
+};
+
+export const reportsApi = {
+  getReport: async (params: {
+    type?: string;
+    from?: string;
+    to?: string;
+    barangay?: string;
+  }) => {
+    const res = await apiClient.get<{
+      type: string;
+      title: string;
+      from: string;
+      to: string;
+      scope: string;
+      count: number;
+      summary: Record<string, any>;
+      records?: any[];
+    }>('/admin/reports', { params });
+    return res.data;
+  },
+
+  logExport: async (payload: {
+    report_type: string;
+    from: string;
+    to: string;
+    barangay?: string;
+    format: 'pdf' | 'csv';
+  }) => {
+    const res = await apiClient.post<{ message: string; entry: Record<string, any> }>(
+      '/admin/reports/log',
+      payload
+    );
     return res.data;
   },
 };

@@ -3,11 +3,14 @@ import { notificationsApi } from '../api/notifications';
 
 export interface AppNotification {
   id: string;
-  type: 'request' | 'bill' | 'advisory' | 'system' | 'cancellation';
+  type: 'request' | 'bill' | 'advisory' | 'system' | 'cancellation' | 'payment';
   message: string;
   time: string;
   read: boolean;
   link?: string;
+  created_at?: string;
+  related_type?: string | null;
+  related_id?: number | null;
 }
 
 export const NOTIFICATIONS_UPDATED_EVENT = 'aquatrack:notifications_updated';

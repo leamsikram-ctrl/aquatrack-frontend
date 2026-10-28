@@ -85,6 +85,10 @@ vi.mock('../api', () => ({
   interruptionsApi: {
     list: vi.fn().mockImplementation(() => Promise.resolve({ data: mockAdvisories })),
   },
+  reportsApi: {
+    logExport: vi.fn().mockImplementation(() => Promise.resolve({ message: 'Logged' })),
+    getReport: vi.fn(),
+  },
 }));
 
 const mockSave = vi.fn();
@@ -230,7 +234,7 @@ describe('AdminReportsView (Section 10 & Revised PDF Output Workflow)', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText(/No matching records found/i)).toBeInTheDocument();
+      expect(screen.getByText(/No matches/i)).toBeInTheDocument();
       expect(generateBtn).toBeDisabled();
       expect(exportBtn).toBeDisabled();
     });
@@ -264,7 +268,7 @@ describe('AdminReportsView (Section 10 & Revised PDF Output Workflow)', () => {
     const clickSpy = vi.fn();
     const originalCreateElement = document.createElement.bind(document);
 
-    vi.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
+    const createSpy = vi.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
       const el = originalCreateElement(tagName);
       if (tagName === 'a') {
         el.click = clickSpy;
@@ -280,20 +284,24 @@ describe('AdminReportsView (Section 10 & Revised PDF Output Workflow)', () => {
     window.URL.createObjectURL = vi.fn().mockReturnValue('blob:mock-url');
     window.URL.revokeObjectURL = vi.fn();
 
-    await renderComponent();
+    try {
+      await renderComponent();
 
-    const exportBtn = screen.getByRole('button', { name: /Export CSV/i });
-    expect(exportBtn).not.toBeDisabled();
+      const exportBtn = screen.getByRole('button', { name: /Export CSV/i });
+      expect(exportBtn).not.toBeDisabled();
 
-    await act(async () => {
-      fireEvent.click(exportBtn);
-    });
+      await act(async () => {
+        fireEvent.click(exportBtn);
+      });
 
-    expect(auditSpy).toHaveBeenCalledWith(
-      expect.stringContaining('Exported CSV for Maintenance Summary'),
-      'SIWASS Administrator'
-    );
-    expect(downloadedFileName).toMatch(/^aquatrack-maintenance-summary-.*\.csv$/);
+      expect(auditSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Exported CSV for Maintenance Summary'),
+        'SIWASS Administrator'
+      );
+      expect(downloadedFileName).toMatch(/^aquatrack-maintenance-summary-.*\.csv$/);
+    } finally {
+      createSpy.mockRestore();
+    }
   });
 
   it('generates Landscape PDF for Type 2: Maintenance Request Log', async () => {
@@ -427,5 +435,129 @@ describe('AdminReportsView (Section 10 & Revised PDF Output Workflow)', () => {
       expect(screen.getByText(/Failed to build PDF report\. Please try again\./i)).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /Try again/i })).toBeInTheDocument();
     });
+  });
+
+  it('acceptance criteria: preview, PDF, and CSV show the same counts', async () => {
+    const autoTableMock = (await import('jspdf-autotable')).default;
+    let exportedCsvContent = '';
+
+    const originalCreateElement = document.createElement.bind(document);
+    const createSpy = vi.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
+      const el = originalCreateElement(tagName);
+      if (tagName === 'a') {
+        el.click = vi.fn();
+      }
+      return el;
+    });
+
+    // Capture Blob from URL.createObjectURL
+    const createUrlSpy = vi.spyOn(window.URL, 'createObjectURL').mockImplementation((blob: any) => {
+      if (blob && typeof blob.text === 'function') {
+        blob.text().then((txt: string) => {
+          exportedCsvContent = txt;
+        });
+      }
+      return 'blob:mock-url';
+    });
+
+    const { reportsApi } = await import('../api');
+
+    try {
+      await renderComponent();
+
+      // 1. Verify Preview shows 3 matching requests, 1 resolved, 1 in progress, 1 high urgency
+      await waitFor(() => {
+        expect(screen.getByText('3 Matching Records')).toBeInTheDocument();
+      });
+
+      // 2. Generate PDF and verify autoTable receives matching figures
+      const generateBtn = screen.getByRole('button', { name: /Generate report/i });
+      await act(async () => {
+        fireEvent.click(generateBtn);
+      });
+
+      await waitFor(() => {
+        expect(mockSave).toHaveBeenCalled();
+        expect(reportsApi.logExport).toHaveBeenCalledWith(
+          expect.objectContaining({ format: 'pdf', report_type: 'maintenance_summary' })
+        );
+      });
+
+      // Verify PDF autoTable calls
+      const autoTableCalls = vi.mocked(autoTableMock).mock.calls;
+      const summaryCall = autoTableCalls.find((call: any[]) =>
+        call[1]?.head?.[0]?.includes('Maintenance Metric')
+      );
+      expect(summaryCall).toBeDefined();
+      const bodyRows = (summaryCall as any)[1].body;
+      expect(bodyRows).toContainEqual(['Total Service Requests', '3', 'Overall Requests']);
+      expect(bodyRows).toContainEqual(['Resolved Repairs', '1', 'Status Breakdown']);
+      expect(bodyRows).toContainEqual(['In Progress Jobs', '1', 'Status Breakdown']);
+      expect(bodyRows).toContainEqual(['High Urgency Repairs', '1', 'Urgency Breakdown']);
+
+      // 3. Export CSV and verify matching figures
+      const exportBtn = screen.getByRole('button', { name: /Export CSV/i });
+      await act(async () => {
+        fireEvent.click(exportBtn);
+      });
+
+      await waitFor(() => {
+        expect(reportsApi.logExport).toHaveBeenCalledWith(
+          expect.objectContaining({ format: 'csv', report_type: 'maintenance_summary' })
+        );
+      });
+
+      await waitFor(() => {
+        expect(exportedCsvContent).toContain('"Total Requests","3"');
+        expect(exportedCsvContent).toContain('"Resolved","1"');
+        expect(exportedCsvContent).toContain('"In progress","1"');
+        expect(exportedCsvContent).toContain('"High Urgency","1"');
+      });
+    } finally {
+      createSpy.mockRestore();
+      createUrlSpy.mockRestore();
+    }
+  });
+
+  it('acceptance criteria: an empty period shows the empty state and disables both buttons', async () => {
+    await renderComponent();
+
+    const fromInput = screen.getByLabelText(/From/i);
+    const toInput = screen.getByLabelText(/To/i);
+    const generateBtn = screen.getByRole('button', { name: /Generate report/i });
+    const exportBtn = screen.getByRole('button', { name: /Export CSV/i });
+
+    // Set a date range in the past with 0 mock requests
+    await act(async () => {
+      fireEvent.change(fromInput, { target: { value: '2020-01-01' } });
+      fireEvent.change(toInput, { target: { value: '2020-01-31' } });
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('0 Matching Records')).toBeInTheDocument();
+      expect(screen.getByText('No matches')).toBeInTheDocument();
+      expect(
+        screen.getByText('No records match the selected date range and barangay filter.')
+      ).toBeInTheDocument();
+      expect(generateBtn).toBeDisabled();
+      expect(exportBtn).toBeDisabled();
+    });
+  });
+
+  it('acceptance criteria: no SLA text anywhere on the page', async () => {
+    const { container } = await renderComponent();
+
+    // Verify no SLA or Service-Level Agreement anywhere in the rendered page
+    const pageText = container.textContent || '';
+    expect(pageText).not.toMatch(/\bSLA\b/i);
+    expect(pageText).not.toMatch(/service[-\s]level\s+agreement/i);
+  });
+
+  it('acceptance criteria: uses urgency, not priority', async () => {
+    const { container } = await renderComponent();
+
+    const pageText = container.textContent || '';
+    expect(pageText).not.toMatch(/\bpriority\b/i);
+    expect(screen.getByText(/High Urgency/i)).toBeInTheDocument();
   });
 });

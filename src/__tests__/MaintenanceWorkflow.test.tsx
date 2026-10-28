@@ -20,9 +20,9 @@ describe('AquaTrack Maintenance Request Workflow Rules', () => {
     expect(FIXED_ISSUE_TYPES.map((t) => [t.name, t.default_urgency])).toEqual([
       ['No water supply', 'high'],
       ['Pipe leak or burst', 'high'],
-      ['Water quality problem (discolored water, foul smell)', 'high'],
+      ['Water quality problem', 'high'],
       ['Low water pressure', 'medium'],
-      ['Meter problem (damaged, stuck, or leaking meter)', 'medium'],
+      ['Meter problem', 'medium'],
       ['Other concern', 'low'],
     ]);
   });

@@ -5,6 +5,7 @@ import { Card } from '../../components/atoms/Card';
 import { Button } from '../../components/atoms/Button';
 import { Badge } from '../../components/atoms/Badge';
 import { EmptyState } from '../../components/molecules/EmptyState';
+import { NothingPendingIllustration } from '../../components/illustrations';
 import { adminApi } from '../../api';
 import type { User, Meter } from '../../types';
 import { IconCheck, IconX, IconMapPin } from '@tabler/icons-react';
@@ -180,8 +181,9 @@ export function AdminVerificationView() {
           </Card>
         ) : pendingUsers.length === 0 ? (
           <EmptyState
-            title="All Applications Processed"
-            description="There are currently no customer accounts awaiting administrative meter assignment or verification."
+            illustration={<NothingPendingIllustration />}
+            title="Nothing pending"
+            description="No customer registrations awaiting verification."
           />
         ) : (
           <div className="space-y-4">

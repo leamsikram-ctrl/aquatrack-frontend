@@ -6,6 +6,9 @@ import { Button } from '../../components/atoms/Button';
 import { Badge } from '../../components/atoms/Badge';
 import { authApi, profileApi } from '../../api';
 import { useAuth } from '../../contexts/AuthContext';
+import { OtpInput } from '../../components/molecules/OtpInput';
+import { TermsPrivacyModal } from '../../components/molecules/TermsPrivacyModal';
+import { DownloadMobileAppCard } from '../../components/molecules/DownloadMobileAppCard';
 import {
   accountsStore,
   validateProfilePhotoFile,
@@ -20,7 +23,6 @@ import {
   IconMail,
   IconAlertCircle,
   IconX,
-  IconKey,
   IconLink,
 } from '@tabler/icons-react';
 
@@ -55,7 +57,8 @@ export function StaffProfileView() {
   const [pendingEmailLinkUrl, setPendingEmailLinkUrl] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
 
-  // Change Password (Section 4)
+  // Modal: Terms of Use & Privacy Notice Viewer
+  const [showTermsModal, setShowTermsModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -155,27 +158,62 @@ export function StaffProfileView() {
       });
   };
 
-  // Section 5.2: Request 6-digit SMS Pin
-  const handleRequestMobilePin = (e: React.FormEvent) => {
-    e.preventDefault();
+  // Section 5.2 & 12.B.2: Request 6-digit SMS Pin
+  const handleRequestMobilePin = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!user) return;
     setMobileError(null);
 
-    const res = accountsStore.requestMobileChangePin(user.id, newMobileInput);
-    if (!res.success) {
-      setMobileError(res.error || 'Failed to send SMS pin.');
-      return;
+    try {
+      const apiRes = await profileApi.requestMobilePin({ mobile_number: newMobileInput.trim() });
+      setMobilePinSent(true);
+      setDebugMobilePin(apiRes.debug_pin || null);
+      setMobilePinInput(apiRes.debug_pin || '');
+    } catch (err: any) {
+      if (err?.response?.status === 429) {
+        setMobileError(err.response?.data?.message || 'Pin and link requests are limited to 3 per hour.');
+        return;
+      }
+      const res = accountsStore.requestMobileChangePin(user.id, newMobileInput);
+      if (!res.success) {
+        setMobileError(res.error || 'Failed to send SMS pin.');
+        return;
+      }
+      setMobilePinSent(true);
+      setDebugMobilePin(res.debugPin || null);
+      setMobilePinInput(res.debugPin || '');
     }
-
-    setMobilePinSent(true);
-    setDebugMobilePin(res.debugPin || null);
-    setMobilePinInput(res.debugPin || '');
   };
 
-  const handleConfirmMobilePin = (e: React.FormEvent) => {
+  const handleConfirmMobilePin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
     setMobileError(null);
+
+    try {
+      const apiRes = await profileApi.verifyMobilePin({ pin: mobilePinInput.trim() });
+      if (apiRes?.user) {
+        accountsStore.confirmMobileChangePin(user.id, mobilePinInput.trim());
+        syncUpdatedUser(
+          apiRes.user,
+          `Mobile number changed to ${apiRes.user.mobile_number}. In-app notification sent & logged in Activity Log.`
+        );
+        setShowMobileModal(false);
+        setMobilePinSent(false);
+        setNewMobileInput('');
+        setMobilePinInput('');
+        return;
+      }
+    } catch (err: any) {
+      const errMsg = err?.response?.data?.message;
+      if (errMsg) {
+        setMobileError(errMsg);
+        if (err?.response?.data?.cancelled) {
+          setDebugMobilePin(null);
+        }
+        return;
+      }
+    }
 
     const res = accountsStore.confirmMobileChangePin(user.id, mobilePinInput);
     if (!res.success || !res.user) {
@@ -196,26 +234,58 @@ export function StaffProfileView() {
     setMobilePinInput('');
   };
 
-  // Section 5.3: Request Single-Use Email Confirmation Link
-  const handleRequestEmailLink = (e: React.FormEvent) => {
+  // Section 5.3 & 12.B.2: Request Single-Use Email Confirmation Link
+  const handleRequestEmailLink = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
     setEmailError(null);
 
-    const res = accountsStore.requestEmailChangeLink(user.id, newEmailInput);
-    if (!res.success) {
-      setEmailError(res.error || 'Failed to send confirmation link.');
-      return;
+    try {
+      const apiRes = await profileApi.requestEmailLink({ email: newEmailInput.trim() });
+      setEmailLinkSent(true);
+      setPendingEmailToken(apiRes.debug_token || null);
+      setPendingEmailLinkUrl(apiRes.link_url || null);
+    } catch (err: any) {
+      if (err?.response?.status === 429) {
+        setEmailError(err.response?.data?.message || 'Pin and link requests are limited to 3 per hour.');
+        return;
+      }
+      const res = accountsStore.requestEmailChangeLink(user.id, newEmailInput);
+      if (!res.success) {
+        setEmailError(res.error || 'Failed to send confirmation link.');
+        return;
+      }
+      setEmailLinkSent(true);
+      setPendingEmailToken(res.token || null);
+      setPendingEmailLinkUrl(res.linkUrl || null);
     }
-
-    setEmailLinkSent(true);
-    setPendingEmailToken(res.token || null);
-    setPendingEmailLinkUrl(res.linkUrl || null);
   };
 
-  const handleOpenEmailConfirmationLink = () => {
+  const handleOpenEmailConfirmationLink = async () => {
     if (!user || !pendingEmailToken) return;
     setEmailError(null);
+
+    try {
+      const apiRes = await profileApi.verifyEmailLink({ token: pendingEmailToken });
+      if (apiRes?.user) {
+        accountsStore.confirmEmailChangeLink(user.id, pendingEmailToken);
+        syncUpdatedUser(
+          apiRes.user,
+          `Email address changed to ${apiRes.user.email}. In-app notification sent, notice sent to old email, and logged in Activity Log.`
+        );
+        setShowEmailModal(false);
+        setEmailLinkSent(false);
+        setNewEmailInput('');
+        setPendingEmailToken(null);
+        return;
+      }
+    } catch (err: any) {
+      const errMsg = err?.response?.data?.message;
+      if (errMsg) {
+        setEmailError(errMsg);
+        return;
+      }
+    }
 
     const res = accountsStore.confirmEmailChangeLink(user.id, pendingEmailToken);
     if (!res.success || !res.user) {
@@ -233,7 +303,7 @@ export function StaffProfileView() {
     setPendingEmailToken(null);
   };
 
-  // Section 4: Change Password
+  // Section 4 & 12.B.2: Change Password (signs out other sessions)
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
@@ -247,7 +317,7 @@ export function StaffProfileView() {
         password_confirmation: confirmPassword,
       });
       setIsChangingPassword(false);
-      setPasswordSuccess('Password successfully updated!');
+      setPasswordSuccess('Password successfully updated! Your other active sessions have been signed out.');
       if (apiRes?.user) {
         syncUpdatedUser(apiRes.user, 'Password changed and saved in Activity Log.');
       }
@@ -257,7 +327,7 @@ export function StaffProfileView() {
       setTimeout(() => {
         setPasswordSuccess(null);
         setShowPasswordModal(false);
-      }, 1200);
+      }, 1400);
     } catch (err: any) {
       const res = accountsStore.changePassword(
         user.id,
@@ -274,7 +344,7 @@ export function StaffProfileView() {
         return;
       }
 
-      setPasswordSuccess('Password successfully updated!');
+      setPasswordSuccess('Password successfully updated! Your other active sessions have been signed out.');
       syncUpdatedUser(res.user, 'Password changed and saved in Activity Log.');
       setCurrentPassword('');
       setNewPassword('');
@@ -282,7 +352,7 @@ export function StaffProfileView() {
       setTimeout(() => {
         setPasswordSuccess(null);
         setShowPasswordModal(false);
-      }, 1200);
+      }, 1400);
     }
   };
 
@@ -345,7 +415,7 @@ export function StaffProfileView() {
                     <h2 className="text-base font-bold text-black">{staffName}</h2>
                     <p className="text-xs text-black/60 font-normal">{assignedArea}</p>
                     <p className="text-[11px] text-black/50 mt-0.5">
-                      Accepted photo formats: JPG, PNG (Max 2 MB)
+                      Accepted photo formats: JPG, PNG (Max 5 MB)
                     </p>
                   </div>
                 </div>
@@ -363,7 +433,7 @@ export function StaffProfileView() {
                     type="button"
                     onClick={() => photoInputRef.current?.click()}
                     leftIcon={<IconCamera size={14} />}
-                    className="text-xs"
+                    className="text-xs min-h-[44px]"
                   >
                     {hasCustomAvatar ? 'Change Photo' : 'Upload Photo'}
                   </Button>
@@ -373,7 +443,7 @@ export function StaffProfileView() {
                       type="button"
                       onClick={handleRemovePhoto}
                       leftIcon={<IconTrash size={14} />}
-                      className="text-xs text-urgency-high"
+                      className="text-xs text-urgency-high min-h-[44px]"
                     >
                       Remove
                     </Button>
@@ -388,16 +458,34 @@ export function StaffProfileView() {
                 </div>
               )}
 
-              {/* Locked Full Name (Section 5: Full name locked for staff) */}
-              <div className="p-3 bg-slate-50 border border-black/10 rounded-lg flex items-center justify-between">
-                <div>
-                  <span className="text-xs font-semibold text-black/60 block">Full Name</span>
-                  <span className="font-semibold text-black">{staffName}</span>
+              {/* Locked Verified Details (Workflow Part C.2: full name, role, and assigned barangays) */}
+              <div className="p-3 bg-slate-50 border border-black/10 rounded-lg space-y-2 text-xs">
+                <div className="flex items-center justify-between border-b border-black/10 pb-2">
+                  <span className="font-bold text-black uppercase tracking-wider text-[11px]">
+                    Verified Staff Assignment
+                  </span>
+                  <Badge variant="outline" className="text-[10px]">
+                    <IconLock size={11} className="inline mr-1" />
+                    Locked (Office Record)
+                  </Badge>
                 </div>
-                <Badge variant="outline" className="text-[10px]">
-                  <IconLock size={11} className="inline mr-1" />
-                  Locked (Admin Editable)
-                </Badge>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[12px]">
+                  <div>
+                    <span className="text-black/60 text-[11px] block">Full Name</span>
+                    <span className="font-semibold text-black">{staffName}</span>
+                  </div>
+                  <div>
+                    <span className="text-black/60 text-[11px] block">System Role</span>
+                    <span className="font-semibold text-black">Field Technician / Staff</span>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <span className="text-black/60 text-[11px] block">Assigned Barangays</span>
+                    <span className="font-semibold text-brand-blue">{assignedArea}</span>
+                  </div>
+                </div>
+                <p className="text-[10px] text-black/50 pt-1 border-t border-black/10 leading-relaxed">
+                  Full name, role, and assigned barangays are set by the SIWASS administrator and can only be modified through User Management.
+                </p>
               </div>
 
               {/* Editable Mobile Number & Email Address (Section 5.2 & 5.3) */}
@@ -419,7 +507,7 @@ export function StaffProfileView() {
                       setShowMobileModal(true);
                     }}
                     leftIcon={<IconPhone size={14} />}
-                    className="text-xs shrink-0"
+                    className="text-xs shrink-0 min-h-[44px]"
                   >
                     Change mobile number
                   </Button>
@@ -442,7 +530,7 @@ export function StaffProfileView() {
                       setShowEmailModal(true);
                     }}
                     leftIcon={<IconMail size={14} />}
-                    className="text-xs shrink-0"
+                    className="text-xs shrink-0 min-h-[44px]"
                   >
                     Change email
                   </Button>
@@ -457,7 +545,7 @@ export function StaffProfileView() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <Button
                     variant="secondary"
-                    className="w-full justify-center"
+                    className="w-full justify-center min-h-[44px]"
                     onClick={() => {
                       setPasswordError(null);
                       setPasswordSuccess(null);
@@ -469,16 +557,38 @@ export function StaffProfileView() {
 
                   <Button
                     variant="secondary"
-                    className="w-full justify-center"
+                    className="w-full justify-center min-h-[44px]"
                     onClick={handleLogout}
                   >
                     Log out
                   </Button>
                 </div>
               </div>
+
+              {/* Legal Consent Info (Workflow Part A.5) */}
+              <div className="p-3 bg-slate-50 border border-black/10 rounded-lg flex items-center justify-between text-xs">
+                <div>
+                  <span className="font-semibold text-black block">Terms of Use & Privacy Notice</span>
+                  <span className="text-[11px] text-black/60">Accepted on first login (Version 1.0)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="blue">Accepted</Badge>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setShowTermsModal(true)}
+                    className="text-xs"
+                  >
+                    View
+                  </Button>
+                </div>
+              </div>
             </>
           )}
         </Card>
+
+        {/* Mobile App Download Card (no sync controls here) */}
+        <DownloadMobileAppCard downloadUrl="/downloads/aquatrack-scanner.apk" />
 
         {/* Modal: Change Mobile Number (Section 5.2) */}
         {showMobileModal && (
@@ -529,7 +639,7 @@ export function StaffProfileView() {
                   </div>
                 </form>
               ) : (
-                <form onSubmit={handleConfirmMobilePin} className="space-y-3">
+                <form onSubmit={handleConfirmMobilePin} className="space-y-3.5">
                   <div className="p-2.5 bg-blue-50 border border-brand-blue/30 rounded text-xs text-black space-y-1">
                     <div>
                       A 6-digit pin was sent by SMS to <strong>{newMobileInput}</strong> (valid 10 mins, max 5 wrong attempts).
@@ -541,21 +651,21 @@ export function StaffProfileView() {
                     )}
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-semibold text-black/70 mb-1">
-                      Enter 6-Digit SMS Pin
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-black/70 mb-1 uppercase tracking-wider text-center">
+                      Enter 6-Digit SMS PIN
                     </label>
-                    <div className="relative">
-                      <IconKey size={15} className="absolute left-2.5 top-2.5 text-black/50" />
-                      <input
-                        type="text"
-                        maxLength={6}
-                        value={mobilePinInput}
-                        onChange={(e) => setMobilePinInput(e.target.value)}
-                        className="w-full pl-8 pr-3 py-2 text-[14px] font-mono font-bold tracking-widest bg-white text-black border border-black/30 rounded-lg outline-none focus:border-brand-blue"
-                        required
-                      />
-                    </div>
+                    <OtpInput
+                      value={mobilePinInput}
+                      onChange={(val) => {
+                        setMobilePinInput(val);
+                        if (mobileError) setMobileError(null);
+                      }}
+                      error={mobileError}
+                      onResend={() => handleRequestMobilePin()}
+                      resendCooldown={30}
+                      autoFocus
+                    />
                   </div>
 
                   <div className="flex justify-between gap-2 pt-2 border-t border-black/15">
@@ -748,6 +858,13 @@ export function StaffProfileView() {
             </div>
           </div>
         )}
+        {/* Modal: Terms of Use & Privacy Notice Viewer */}
+        <TermsPrivacyModal
+          isOpen={showTermsModal}
+          onClose={() => setShowTermsModal(false)}
+          version="v1.0.0"
+          acceptedAt="First Login"
+        />
       </div>
     </StaffLayout>
   );

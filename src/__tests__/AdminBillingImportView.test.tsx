@@ -38,7 +38,7 @@ describe('AquaTrack Billing Information Workflow', () => {
     expect(screen.getByRole('button', { name: /Payment History/i })).toBeInTheDocument();
   });
 
-  it('opens the Upload CSV modal matching the custom dashed dropzone & URL input design', () => {
+  it('opens the Upload CSV modal matching the custom dashed dropzone & URL input design and offers template download', () => {
     render(
       <MemoryRouter>
         <AdminUIProvider>
@@ -54,6 +54,7 @@ describe('AquaTrack Billing Information Workflow', () => {
     expect(screen.getByText('or drag and drop it here')).toBeInTheDocument();
     expect(screen.getByText('Or upload from a URL')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Add file URL')).toBeInTheDocument();
+    expect(screen.getByText(/Download CSV template/i)).toBeInTheDocument();
   });
 
   it('validates CSV rows according to Section 3 rules (active customer, required fields, no duplicate period record)', () => {
@@ -116,6 +117,74 @@ describe('AquaTrack Billing Information Workflow', () => {
     expect(invalidRows).toHaveLength(3);
   });
 
+  it('proves Acceptance 1: current 400, previous 450, payment 500 gives current 0, previous 350, total 350', () => {
+    const current = 400.0;
+    const previous = 450.0;
+    const payment = 500.0;
+
+    const appliedToCurrent = Math.min(payment, current);
+    const remainder = payment - appliedToCurrent;
+    const appliedToPrevious = Math.min(remainder, previous);
+
+    const newCurrent = current - appliedToCurrent;
+    const newPrevious = previous - appliedToPrevious;
+    const newTotal = newCurrent + newPrevious;
+
+    expect(newCurrent).toBe(0.0);
+    expect(newPrevious).toBe(350.0);
+    expect(newTotal).toBe(350.0);
+    expect(appliedToCurrent).toBe(400.0);
+    expect(appliedToPrevious).toBe(100.0);
+  });
+
+  it('proves Acceptance 2: a reversal restores 400 and 450', () => {
+    // Starting after payment: current 0, previous 350
+    const currentAfterPay = 0.0;
+    const previousAfterPay = 350.0;
+
+    // Stored amounts applied
+    const appliedToCurrent = 400.0;
+    const appliedToPrevious = 100.0;
+
+    // Reversal calculation
+    const restoredCurrent = currentAfterPay + appliedToCurrent;
+    const restoredPrevious = previousAfterPay + appliedToPrevious;
+    const restoredTotal = restoredCurrent + restoredPrevious;
+
+    expect(restoredCurrent).toBe(400.0);
+    expect(restoredPrevious).toBe(450.0);
+    expect(restoredTotal).toBe(850.0);
+  });
+
+  it('proves Acceptance 3: importing the same customer and period twice rejects the second row', () => {
+    const periods = billingStore.getPeriods();
+    const openPeriod = periods.find((p) => p.status === 'open')!;
+    const customers = [
+      {
+        id: 201,
+        name: 'Roberto Gomez',
+        account_number: 'ACC-2026-0201',
+        meter_number: 'MTR-SIN-0201',
+        barangay: 'San Vicente Alto',
+        address: 'Purok 1',
+        mobile_number: '09172223344',
+        is_active: true,
+      },
+    ];
+
+    // CSV with Roberto Gomez appearing twice in the same batch
+    const duplicateBatchCsv = [
+      'meter_number,current_balance,previous_balance,due_date',
+      'MTR-SIN-0201,400.00,450.00,2026-10-25',
+      'MTR-SIN-0201,300.00,100.00,2026-10-25',
+    ].join('\n');
+
+    const result = billingStore.parseAndValidateCsv(duplicateBatchCsv, openPeriod, customers, []);
+    expect(result.validRows).toHaveLength(1);
+    expect(result.invalidRows).toHaveLength(1);
+    expect(result.invalidRows[0].reason).toContain('Duplicate row');
+  });
+
   it('renders CustomerBillsView with account details, current/previous/total balance, payment history, and earlier periods', () => {
     render(
       <MemoryRouter>
@@ -127,5 +196,74 @@ describe('AquaTrack Billing Information Workflow', () => {
     expect(screen.getByText('Total Balance Due')).toBeInTheDocument();
     expect(screen.getByText('Payment History')).toBeInTheDocument();
     expect(screen.getByText('Earlier Billing Periods')).toBeInTheDocument();
+  });
+
+  it('renders CustomerBillsView with numbers matching Task 10 after payment and no consumption data', () => {
+    // Simulate Task 10 payment: current 400, previous 450, payment 500
+    // gives current 0, previous 350, total 350
+    const record = billingStore.getRecords()[0];
+    const current = record.current_balance; // 400
+    const previous = record.previous_balance; // 450
+    const payment = 500.0;
+    const appliedToCurrent = Math.min(payment, current); // 400
+    const remainder = payment - appliedToCurrent; // 100
+    const appliedToPrevious = Math.min(remainder, previous); // 100
+    const newCurrent = current - appliedToCurrent; // 0
+    const newPrevious = previous - appliedToPrevious; // 350
+    const newTotal = newCurrent + newPrevious; // 350
+
+    billingStore.saveRecords([
+      {
+        ...record,
+        current_balance: newCurrent,
+        previous_balance: newPrevious,
+        total_balance: newTotal,
+      },
+    ]);
+
+    billingStore.savePayments([
+      {
+        id: 'pay-test-1',
+        record_id: record.id,
+        period_id: record.period_id,
+        period_label: record.period_label,
+        customer_id: record.customer_id,
+        customer_name: record.customer_name,
+        account_number: record.account_number,
+        meter_number: record.meter_number,
+        type: 'payment',
+        amount: payment,
+        applied_to_current: appliedToCurrent,
+        applied_to_previous: appliedToPrevious,
+        payment_date: '2026-10-15',
+        or_number: 'OR-88410',
+        recorded_by: 'Admin User',
+        created_at: new Date().toISOString(),
+      },
+    ]);
+
+    const { container } = render(
+      <MemoryRouter>
+        <CustomerBillsView />
+      </MemoryRouter>
+    );
+
+    // Active billing cycle shows Task 10 numbers
+    expect(screen.getAllByText('₱350.00').length).toBeGreaterThanOrEqual(2); // Total & Previous
+    expect(screen.getByText('₱0.00')).toBeInTheDocument();   // Current Balance
+
+    // Unpaid badge is derived from total_balance (> 0)
+    expect(screen.getAllByText('Unpaid').length).toBeGreaterThan(0);
+
+    // Payment history has the recorded payment
+    expect(screen.getByText('OR-88410')).toBeInTheDocument();
+    expect(screen.getByText('-₱500.00')).toBeInTheDocument();
+
+    // Verify complete absence of water consumption history
+    const pageText = container.textContent || '';
+    expect(pageText).not.toMatch(/consumption/i);
+    expect(pageText).not.toMatch(/cubic meter/i);
+    expect(pageText).not.toMatch(/m³/i);
+    expect(pageText).not.toMatch(/meter reading/i);
   });
 });

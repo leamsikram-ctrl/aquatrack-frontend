@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { notificationsApi } from '../../api/notifications';
+import { EmptyState } from '../molecules/EmptyState';
+import { AllCaughtUpIllustration } from '../illustrations';
 import {
   NOTIFICATIONS_UPDATED_EVENT,
   dispatchNotificationsUpdated,
@@ -423,9 +425,12 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({
 
                 <div className="divide-y divide-black/10 max-h-72 overflow-y-auto">
                   {notifications.length === 0 ? (
-                    <div className="py-6 text-center text-black/50 text-[12px]">
-                      No notifications
-                    </div>
+                    <EmptyState
+                      illustration={<AllCaughtUpIllustration className="h-24 w-auto" />}
+                      title="All caught up"
+                      description="You have no notifications."
+                      className="border-none shadow-none py-4 bg-transparent"
+                    />
                   ) : (
                     notifications.map((notif) => (
                       <div

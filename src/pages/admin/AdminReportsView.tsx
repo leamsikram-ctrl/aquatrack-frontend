@@ -7,9 +7,10 @@ import { Card } from '../../components/atoms/Card';
 import { Badge } from '../../components/atoms/Badge';
 import { Button } from '../../components/atoms/Button';
 import { EmptyState } from '../../components/molecules/EmptyState';
+import { NoMatchesIllustration } from '../../components/illustrations';
 import { SystemModal } from '../../components/molecules/SystemModal';
 import { useAuth } from '../../contexts/AuthContext';
-import { requestsApi, referenceApi, interruptionsApi, adminApi } from '../../api';
+import { requestsApi, referenceApi, interruptionsApi, adminApi, reportsApi } from '../../api';
 import type { ServiceRequest, Barangay, WaterInterruption, User } from '../../types';
 import { DEFAULT_ACTIVE_STAFF } from '../../services/maintenanceStore';
 import { SINACABAN_BARANGAY_LIST, advisoriesStore } from '../../services/advisoriesStore';
@@ -671,7 +672,7 @@ export function AdminReportsView() {
             ['High Urgency Repairs', String(countsByUrgency.high), 'Urgency Breakdown'],
             ['Medium Urgency Repairs', String(countsByUrgency.medium), 'Urgency Breakdown'],
             ['Low Urgency Repairs', String(countsByUrgency.low), 'Urgency Breakdown'],
-            ['Average Resolution Time (Submitted to Resolved)', averageResolutionTime, 'SLA Performance'],
+            ['Average Resolution Time (Submitted to Resolved)', averageResolutionTime, 'Resolution Performance'],
           ],
           showHead: 'everyPage',
           theme: 'striped',
@@ -756,7 +757,7 @@ export function AdminReportsView() {
                 ? `${r.customer_profile.first_name || ''} ${r.customer_profile.last_name || ''}`.trim()
                 : '') ||
               (r as any).customer_name ||
-              'Resident Consumer';
+              'Resident Customer';
             const dateSub = formatPhilippineDate(r.created_at);
             const dateRes =
               r.status === 'resolved'
@@ -894,6 +895,13 @@ export function AdminReportsView() {
       // 5. Activity Log recording (admin, type, period, barangay, and format: PDF)
       const actionMsg = `Generated PDF: ${REPORT_TITLES[reportType]} Report | Period: ${fromDate} to ${toDate} | Barangay: ${scopeText} | Format: PDF`;
       advisoriesStore.appendAuditLog(actionMsg, generatedByName);
+      reportsApi.logExport({
+        report_type: reportType,
+        from: fromDate,
+        to: toDate,
+        barangay: scopeText,
+        format: 'pdf',
+      }).catch(() => {});
 
       // 6. Confirmation message
       setReportReadyMessage(`Report ready: "${fileName}" has been generated and downloaded.`);
@@ -949,7 +957,7 @@ export function AdminReportsView() {
             ? `${r.customer_profile.first_name || ''} ${r.customer_profile.last_name || ''}`.trim()
             : '') ||
           (r as any).customer_name ||
-          'Resident Consumer';
+          'Resident Customer';
         const dateSub = formatPhilippineDate(r.created_at);
         const dateRes =
           r.status === 'resolved'
@@ -1042,6 +1050,13 @@ export function AdminReportsView() {
         : selectedBarangay;
     const actionMsg = `Exported CSV for ${REPORT_TITLES[reportType]} (Period: ${fromDate} to ${toDate}, Barangay: ${scopeText}, Format: CSV)`;
     advisoriesStore.appendAuditLog(actionMsg, generatedByName);
+    reportsApi.logExport({
+      report_type: reportType,
+      from: fromDate,
+      to: toDate,
+      barangay: scopeText,
+      format: 'csv',
+    }).catch(() => {});
 
     setModalState({
       isOpen: true,
@@ -1302,9 +1317,13 @@ export function AdminReportsView() {
               ) : activeRecordsCount === 0 ? (
                 <div className="py-6">
                   <EmptyState
-                    icon={<IconFileSpreadsheet size={36} className="text-black/30" />}
-                    title="No matching records found"
-                    description="No records match the selected date range and barangay filter. Adjust your filters to preview and generate reports."
+                    illustration={<NoMatchesIllustration />}
+                    title="No matches"
+                    description="No records match the selected date range and barangay filter."
+                    actionLabel="Clear filters"
+                    onAction={() => {
+                      setSelectedBarangay('all');
+                    }}
                   />
                 </div>
               ) : (

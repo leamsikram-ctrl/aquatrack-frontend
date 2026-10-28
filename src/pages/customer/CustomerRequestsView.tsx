@@ -6,12 +6,10 @@ import { Card } from '../../components/atoms/Card';
 import { Button } from '../../components/atoms/Button';
 import { Badge } from '../../components/atoms/Badge';
 import { EmptyState } from '../../components/molecules/EmptyState';
+import { UrgencyDerivation, deriveUrgency } from '../../components/molecules/UrgencyDerivation';
 import { StatusTimeline } from '../../components/organisms/StatusTimeline';
-import {
-  MunicipalMap,
-  getSinacabanBarangayCoords,
-  isWithinSinacabanBounds,
-} from '../../components/organisms/MunicipalMap';
+import { LocationPickerMap } from '../../components/organisms/LocationPickerMap';
+import { getSinacabanBarangayCoords } from '../../components/organisms/MunicipalMap';
 import { requestsApi } from '../../api';
 import type { ServiceRequest, IssueType, Urgency } from '../../types';
 import {
@@ -21,11 +19,33 @@ import {
 } from '../../services/maintenanceStore';
 import { SINACABAN_BARANGAY_LIST } from '../../services/advisoriesStore';
 import {
+  EmptyRequestsIllustration,
+  NoMatchesIllustration,
+} from '../../components/illustrations';
+import { validatePhotoFile, resizeImage } from '../../utils/imageResize';
+import {
   IconCamera,
   IconCrosshair,
   IconCheck,
   IconX,
+  IconSearch,
+  IconDropletOff,
+  IconTool,
+  IconDropletFilled,
+  IconGauge,
+  IconDashboard,
+  IconHelpCircle,
+  IconAlertCircle,
 } from '@tabler/icons-react';
+
+const ISSUE_TYPE_ICONS: Record<string, React.ReactNode> = {
+  'No water supply': <IconDropletOff size={22} className="shrink-0" />,
+  'Pipe leak or burst': <IconTool size={22} className="shrink-0" />,
+  'Water quality problem': <IconDropletFilled size={22} className="shrink-0" />,
+  'Low water pressure': <IconGauge size={22} className="shrink-0" />,
+  'Meter problem': <IconDashboard size={22} className="shrink-0" />,
+  'Other concern': <IconHelpCircle size={22} className="shrink-0" />,
+};
 
 export function CustomerRequestsView() {
   const navigate = useNavigate();
@@ -37,13 +57,14 @@ export function CustomerRequestsView() {
   // Report an Issue Modal
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [issueTypeId, setIssueTypeId] = useState<number>(FIXED_ISSUE_TYPES[3].id);
+  const [customerUrgency, setCustomerUrgency] = useState<Urgency>(
+    FIXED_ISSUE_TYPES[3].default_urgency
+  );
   const [description, setDescription] = useState('');
   const [selectedBarangay, setSelectedBarangay] = useState<string>('Poblacion');
   const [pinCoords, setPinCoords] = useState<[number, number]>(() =>
     getSinacabanBarangayCoords('Poblacion')
   );
-  const [mapZoom, setMapZoom] = useState<number>(15);
-  const [mapResetKey, setMapResetKey] = useState<number>(0);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoFileName, setPhotoFileName] = useState<string | null>(null);
   const photoInputRef = useRef<HTMLInputElement | null>(null);
@@ -52,6 +73,26 @@ export function CustomerRequestsView() {
 
   // Request Details Modal
   const [selectedReq, setSelectedReq] = useState<ServiceRequest | null>(null);
+
+  // Filters for requests
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'resolved' | 'cancelled'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredRequests = useMemo(() => {
+    return requests.filter((req) => {
+      if (statusFilter === 'active' && (req.status === 'resolved' || req.status === 'cancelled')) return false;
+      if (statusFilter === 'resolved' && req.status !== 'resolved') return false;
+      if (statusFilter === 'cancelled' && req.status !== 'cancelled') return false;
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const ref = (req.reference_no || req.reference || '').toLowerCase();
+        const issue = (req.issue_type?.name || '').toLowerCase();
+        const desc = (req.description || '').toLowerCase();
+        if (!ref.includes(q) && !issue.includes(q) && !desc.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [requests, statusFilter, searchQuery]);
 
   // Cancel Confirmation Modal
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -79,63 +120,51 @@ export function CustomerRequestsView() {
     fetchRequests();
   }, []);
 
-  // Selected Issue Type object (automatically determines default urgency internally for Admin/Staff)
+  // Selected Issue Type object
   const currentIssueType = useMemo(() => {
     return issueTypes.find((t) => t.id === issueTypeId) || FIXED_ISSUE_TYPES[0];
   }, [issueTypes, issueTypeId]);
 
-  const handleSelectIssueType = (id: number) => {
+  const handleOpenCreateModal = (typeId?: number) => {
+    const id = typeId ?? FIXED_ISSUE_TYPES[3].id;
+    const found = FIXED_ISSUE_TYPES.find((t) => t.id === id) || FIXED_ISSUE_TYPES[0];
     setIssueTypeId(id);
+    setCustomerUrgency(found.default_urgency);
+    setCreateError(null);
+    setShowCreateModal(true);
   };
 
-  // Automatically adjust map center, zoom, and pin when Barangay changes
+  const handleSelectIssueType = (id: number) => {
+    const found = FIXED_ISSUE_TYPES.find((t) => t.id === id) || FIXED_ISSUE_TYPES[0];
+    setIssueTypeId(id);
+    setCustomerUrgency(found.default_urgency);
+  };
+
   const handleBarangayChange = (barangayName: string) => {
     setSelectedBarangay(barangayName);
     const coords = getSinacabanBarangayCoords(barangayName);
     setPinCoords(coords);
-    setMapZoom(15);
-    setMapResetKey((k) => k + 1);
   };
 
-  // Automatically adjust map center, zoom, and pin when Current Location is added
-  const handleUseCurrentLocation = () => {
-    const fallbackCoords = getSinacabanBarangayCoords(selectedBarangay);
-    if (typeof navigator !== 'undefined' && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const { latitude, longitude } = pos.coords;
-          const target: [number, number] = isWithinSinacabanBounds(latitude, longitude)
-            ? [latitude, longitude]
-            : fallbackCoords;
-          setPinCoords(target);
-          setMapZoom(16);
-          setMapResetKey((k) => k + 1);
-        },
-        () => {
-          setPinCoords(fallbackCoords);
-          setMapZoom(16);
-          setMapResetKey((k) => k + 1);
-        },
-        { enableHighAccuracy: true, timeout: 6000 }
-      );
-    } else {
-      setPinCoords(fallbackCoords);
-      setMapZoom(16);
-      setMapResetKey((k) => k + 1);
-    }
-  };
-
-  const handlePhotoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    const validation = validatePhotoFile(file);
+    if (!validation.valid) {
+      setCreateError(validation.error || 'Invalid photo file.');
+      if (photoInputRef.current) photoInputRef.current.value = '';
+      return;
+    }
+
+    setCreateError(null);
     setPhotoFileName(file.name);
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        setPhotoPreview(reader.result);
-      }
-    };
-    reader.readAsDataURL(file);
+    try {
+      const resized = await resizeImage(file);
+      setPhotoPreview(resized);
+    } catch {
+      setCreateError('Could not process photo. Please try another image.');
+    }
   };
 
   const handleRemovePhoto = () => {
@@ -156,8 +185,8 @@ export function CustomerRequestsView() {
     setIsSubmitting(true);
     setCreateError(null);
 
-    // Urgency is assigned automatically from the selected Issue Type (not shown to customer)
-    const autoUrgency: Urgency = currentIssueType.default_urgency;
+    // Urgency derivation: customer can raise by at most 1 level and never lower
+    const finalUrgency = deriveUrgency(currentIssueType.default_urgency, customerUrgency);
 
     const customerChoiceMap: Record<Urgency, string> = {
       low: 'can_wait',
@@ -168,7 +197,7 @@ export function CustomerRequestsView() {
     try {
       const apiReq = await requestsApi.create({
         issue_type_id: issueTypeId,
-        customer_urgency: customerChoiceMap[autoUrgency],
+        customer_urgency: customerChoiceMap[customerUrgency],
         description: description.trim(),
         latitude: pinCoords[0],
         longitude: pinCoords[1],
@@ -183,7 +212,7 @@ export function CustomerRequestsView() {
     } catch {
       const created = maintenanceStore.createRequest({
         issueTypeId,
-        customerUrgency: autoUrgency,
+        customerUrgency: finalUrgency,
         description: description.trim(),
         latitude: pinCoords[0],
         longitude: pinCoords[1],
@@ -211,7 +240,7 @@ export function CustomerRequestsView() {
     try {
       await requestsApi.cancel(selectedReq.id, cancelReason);
       await fetchRequests();
-      const nextSelected = { ...selectedReq, status: 'cancelled' as const, cancelled_reason: cancelReason };
+      const nextSelected = { ...selectedReq, status: 'cancelled' as const, cancellation_reason: cancelReason };
       setSelectedReq(nextSelected);
       setShowCancelModal(false);
       setCancelReason('');
@@ -254,29 +283,73 @@ export function CustomerRequestsView() {
           <Button
             variant="primary"
             leftIcon={<IconCrosshair size={15} />}
-            onClick={() => {
-              handleSelectIssueType(FIXED_ISSUE_TYPES[3].id);
-              setShowCreateModal(true);
-            }}
+            onClick={() => handleOpenCreateModal()}
             className="shadow-[2px_2px_0px_0px_rgba(0,0,0,0.15)] self-start sm:self-auto"
           >
             Report an Issue
           </Button>
         </div>
 
+        {/* Filter bar when requests exist */}
+        {requests.length > 0 && (
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 bg-white p-3 rounded-xl border border-black/10 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.06)]">
+            <div className="relative flex-1">
+              <IconSearch size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-black/40" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search reference, issue, description..."
+                className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-black/10 rounded-lg outline-none focus:border-brand-blue"
+              />
+            </div>
+            <div className="flex items-center gap-1.5 self-end sm:self-auto">
+              <span className="text-xs font-semibold text-black/60 mr-1">Status:</span>
+              {(['all', 'active', 'resolved', 'cancelled'] as const).map((st) => (
+                <button
+                  key={st}
+                  type="button"
+                  onClick={() => setStatusFilter(st)}
+                  className={`px-2.5 py-1 rounded text-xs font-semibold transition-colors capitalize ${
+                    statusFilter === st
+                      ? 'bg-brand-blue text-white shadow-xs'
+                      : 'bg-slate-100 text-black/70 hover:bg-slate-200'
+                  }`}
+                >
+                  {st}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Requests List */}
         {requests.length === 0 ? (
           <Card className="p-8 border border-black/10 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.06)]">
             <EmptyState
-              title="No Requests"
+              illustration={<EmptyRequestsIllustration />}
+              title="No requests yet"
               description="No maintenance requests submitted yet."
-              actionLabel="Report an Issue"
-              onAction={() => setShowCreateModal(true)}
+              actionLabel="Report an issue"
+              onAction={() => handleOpenCreateModal()}
+            />
+          </Card>
+        ) : filteredRequests.length === 0 ? (
+          <Card className="p-8 border border-black/10 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.06)]">
+            <EmptyState
+              illustration={<NoMatchesIllustration />}
+              title="No matches"
+              description="No requests match the selected filters."
+              actionLabel="Clear filters"
+              onAction={() => {
+                setStatusFilter('all');
+                setSearchQuery('');
+              }}
             />
           </Card>
         ) : (
           <div className="space-y-3.5">
-            {requests.map((req) => {
+            {filteredRequests.map((req) => {
               const refNo =
                 req.reference_no ||
                 req.reference ||
@@ -332,6 +405,7 @@ export function CustomerRequestsView() {
                     startedAt={req.started_at}
                     resolvedAt={req.resolved_at}
                     cancelledAt={req.cancelled_at}
+                    cancelledReason={req.cancellation_reason}
                   />
                 </Card>
               );
@@ -343,24 +417,24 @@ export function CustomerRequestsView() {
           <div className="fixed bottom-6 right-6 z-[99999] bg-black text-white px-4 py-3 rounded-xl shadow-[3px_3px_0px_0px_var(--color-brand-blue)] flex items-center gap-2.5 text-xs font-semibold">
             <IconCheck size={16} className="text-brand-blue" />
             <span>{toast}</span>
-            <button onClick={() => setToast(null)} className="ml-2 text-white/60 hover:text-white">
+            <button onClick={() => setToast(null)} className="ml-2 text-white/60 hover:text-white cursor-pointer">
               <IconX size={14} />
             </button>
           </div>
         )}
       </div>
 
-      {/* Report an Issue Modal (Urgency is hidden from customer and set automatically by issue type) */}
+      {/* Report an Issue Modal */}
       {showCreateModal &&
         typeof document !== 'undefined' &&
         createPortal(
           <div
-            className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto"
+            className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto"
             onClick={() => setShowCreateModal(false)}
           >
             <Card
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-md bg-white rounded-xl border border-black/15 p-5 space-y-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] my-auto text-[14px]"
+              className="w-full max-w-lg bg-white rounded-xl border border-black/15 p-4 sm:p-5 space-y-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] my-auto text-[14px]"
             >
               <div className="flex items-center justify-between border-b border-black/10 pb-3">
                 <div className="flex items-center gap-2">
@@ -371,7 +445,8 @@ export function CustomerRequestsView() {
                 </div>
                 <button
                   onClick={() => setShowCreateModal(false)}
-                  className="text-black/50 hover:text-black p-1 rounded-md hover:bg-black/5 transition-colors"
+                  className="text-black/50 hover:text-black p-1 rounded-md hover:bg-black/5 transition-colors cursor-pointer"
+                  aria-label="Close"
                 >
                   <IconX size={18} />
                 </button>
@@ -383,26 +458,44 @@ export function CustomerRequestsView() {
                 </div>
               )}
 
-              <form onSubmit={handleCreateRequest} className="space-y-3.5">
-                {/* 1. Fixed Issue Type List */}
+              <form onSubmit={handleCreateRequest} className="space-y-4">
+                {/* 1. Fixed Issue Type Cards (icon + title only) */}
                 <div>
-                  <label className="block text-xs font-bold text-black/70 mb-1 uppercase tracking-wider">
+                  <label className="block text-xs font-bold text-black/70 mb-2 uppercase tracking-wider">
                     Issue Category *
                   </label>
-                  <select
-                    className="w-full p-2.5 bg-white text-black text-[14px] font-medium border border-black/20 rounded-lg outline-none focus:border-brand-blue"
-                    value={issueTypeId}
-                    onChange={(e) => handleSelectIssueType(Number(e.target.value))}
-                  >
-                    {issueTypes.map((t) => (
-                      <option key={t.id} value={t.id}>
-                        {t.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {issueTypes.map((t) => {
+                      const isSelected = t.id === issueTypeId;
+                      return (
+                        <button
+                          key={t.id}
+                          type="button"
+                          onClick={() => handleSelectIssueType(t.id)}
+                          className={`p-3 rounded-xl border flex flex-col items-center justify-center text-center gap-1.5 transition-all cursor-pointer ${
+                            isSelected
+                              ? 'border-brand-blue bg-blue-tint text-brand-blue ring-2 ring-brand-blue/30 font-bold shadow-xs'
+                              : 'border-black/15 bg-white text-black hover:border-black/30 hover:bg-slate-50 font-medium'
+                          }`}
+                        >
+                          <div className={isSelected ? 'text-brand-blue' : 'text-black/60'}>
+                            {ISSUE_TYPE_ICONS[t.name] || <IconAlertCircle size={22} />}
+                          </div>
+                          <span className="text-xs leading-tight">{t.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
-                {/* 2. Description */}
+                {/* 2. Urgency Derivation (default, customer choice, min(max(def, choice), def + 1), no hours) */}
+                <UrgencyDerivation
+                  defaultUrgency={currentIssueType.default_urgency}
+                  customerUrgency={customerUrgency}
+                  onCustomerUrgencyChange={(newUrgency) => setCustomerUrgency(newUrgency)}
+                />
+
+                {/* 3. Description */}
                 <div>
                   <label className="block text-xs font-bold text-black/70 mb-1 uppercase tracking-wider">
                     Problem Description *
@@ -417,26 +510,16 @@ export function CustomerRequestsView() {
                   />
                 </div>
 
-                {/* 3. Location: Barangay + Map Pin or Current Location */}
+                {/* 4. Incident Location: Barangay + LocationPickerMap with pin marker */}
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold text-black/70 uppercase tracking-wider">
-                      Incident Location (Pin on Map)
-                    </label>
-                    <button
-                      type="button"
-                      onClick={handleUseCurrentLocation}
-                      className="text-brand-blue text-xs font-bold inline-flex items-center gap-1 hover:underline cursor-pointer"
-                    >
-                      <IconCrosshair size={13} />
-                      <span>Use Current Location</span>
-                    </button>
-                  </div>
+                  <label className="block text-xs font-bold text-black/70 uppercase tracking-wider">
+                    Incident Location (Pin on Map) *
+                  </label>
 
                   <select
                     value={selectedBarangay}
                     onChange={(e) => handleBarangayChange(e.target.value)}
-                    className="w-full p-2.5 bg-white text-black text-[14px] font-medium border border-black/20 rounded-lg outline-none focus:border-brand-blue"
+                    className="w-full p-2.5 bg-white text-black text-[14px] font-medium border border-black/20 rounded-lg outline-none focus:border-brand-blue mb-1"
                   >
                     {SINACABAN_BARANGAY_LIST.map((b) => (
                       <option key={b.id} value={b.name}>
@@ -445,25 +528,22 @@ export function CustomerRequestsView() {
                     ))}
                   </select>
 
-                  <div className="h-40 w-full rounded-lg border border-black/15 overflow-hidden shadow-inner">
-                    <MunicipalMap
-                      center={pinCoords}
-                      zoom={mapZoom}
-                      selectedCoords={pinCoords}
-                      interactivePicker={true}
-                      viewResetKey={mapResetKey}
-                      onSelectCoords={(lat, lng) => setPinCoords([lat, lng])}
-                      className="h-full w-full"
-                    />
-                  </div>
+                  <LocationPickerMap
+                    latitude={pinCoords[0]}
+                    longitude={pinCoords[1]}
+                    barangay={selectedBarangay}
+                    onChange={(lat, lng) => setPinCoords([parseFloat(lat), parseFloat(lng)])}
+                    pickerType="pin"
+                    showCoordinates={true}
+                  />
                 </div>
 
-                {/* 4. Optional Photo */}
+                {/* 5. Optional Photo Upload (max 5 MB, JPG/PNG, resized) */}
                 <div className="space-y-2">
                   <input
                     ref={photoInputRef}
                     type="file"
-                    accept="image/*"
+                    accept=".jpg,.jpeg,.png,image/jpeg,image/png"
                     onChange={handlePhotoFileChange}
                     className="hidden"
                   />
@@ -504,7 +584,7 @@ export function CustomerRequestsView() {
                       className="w-full py-2.5 px-3 border border-black/20 hover:bg-blue-tint hover:text-brand-blue text-black rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer text-xs"
                     >
                       <IconCamera size={16} />
-                      <span>Upload Issue Photo (Optional)</span>
+                      <span>Upload Issue Photo (Optional, JPG/PNG up to 5 MB)</span>
                     </button>
                   )}
                 </div>
@@ -532,12 +612,12 @@ export function CustomerRequestsView() {
         typeof document !== 'undefined' &&
         createPortal(
           <div
-            className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto"
+            className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto"
             onClick={() => setSelectedReq(null)}
           >
             <Card
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-md bg-white rounded-xl border border-black/15 p-5 space-y-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] my-auto text-[14px]"
+              className="w-full max-w-lg bg-white rounded-xl border border-black/15 p-4 sm:p-5 space-y-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] my-auto text-[14px]"
             >
               <div className="flex items-center justify-between border-b border-black/10 pb-3">
                 <div className="flex items-center gap-2">
@@ -551,12 +631,13 @@ export function CustomerRequestsView() {
                 <button
                   onClick={() => setSelectedReq(null)}
                   className="p-1 text-black/50 hover:text-black rounded-md hover:bg-black/5 transition-colors cursor-pointer"
+                  aria-label="Close"
                 >
                   <IconX size={18} />
                 </button>
               </div>
 
-              {/* Status Timeline with Date & Time */}
+              {/* Status Timeline with Droplet marker and Vertical Mobile Support */}
               <div className="py-1">
                 <StatusTimeline
                   status={selectedReq.status}
@@ -565,8 +646,18 @@ export function CustomerRequestsView() {
                   startedAt={selectedReq.started_at}
                   resolvedAt={selectedReq.resolved_at}
                   cancelledAt={selectedReq.cancelled_at}
+                  cancelledReason={selectedReq.cancellation_reason}
                 />
               </div>
+
+              {/* Urgency Derivation in display mode (shows default, final urgency, no SLA/hours) */}
+              <UrgencyDerivation
+                defaultUrgency={selectedReq.issue_type?.default_urgency || 'medium'}
+                customerUrgency={selectedReq.customer_urgency as Urgency || undefined}
+                finalUrgency={selectedReq.urgency as Urgency}
+                adjustedByAdmin={Boolean(selectedReq.urgency_adjustment_reason) || selectedReq.urgency !== selectedReq.customer_urgency}
+                adjustmentReason={selectedReq.urgency_adjustment_reason}
+              />
 
               {/* Request Record Details */}
               <div className="p-3.5 border border-black/10 rounded-xl bg-blue-tint/50 space-y-2.5 text-xs">

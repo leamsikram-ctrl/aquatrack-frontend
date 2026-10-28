@@ -6,7 +6,11 @@ import { Card } from '../../components/atoms/Card';
 import { Button } from '../../components/atoms/Button';
 import { Badge } from '../../components/atoms/Badge';
 import { EmptyState } from '../../components/molecules/EmptyState';
-import { adminApi, referenceApi } from '../../api';
+import {
+  EmptyBillsIllustration,
+  NoMatchesIllustration,
+} from '../../components/illustrations';
+import { adminApi, referenceApi, billingApi } from '../../api';
 import type { Barangay, User } from '../../types';
 import {
   billingStore,
@@ -120,14 +124,32 @@ export function AdminBillingImportView() {
     const syncBackendDirectory = async () => {
       setIsLoading(true);
       try {
-        const [custRes, bgRes] = await Promise.all([
+        const [custRes, bgRes, periodsRes] = await Promise.all([
           adminApi.customersList({ per_page: 100 }).catch(() => ({ data: [] as User[] })),
           referenceApi.getBarangays().catch(() => [] as Barangay[]),
+          billingApi.periods().catch(() => null),
         ]);
         if (!isMounted) return;
 
         if (bgRes.length > 0) {
           setBarangays(bgRes);
+        }
+
+        if (periodsRes?.data && Array.isArray(periodsRes.data) && periodsRes.data.length > 0) {
+          const mappedPeriods: BillingPeriod[] = periodsRes.data.map((p: any) => ({
+            id: String(p.id),
+            month: p.month,
+            year: p.year,
+            label: p.period_label,
+            due_date: typeof p.due_date === 'string' ? p.due_date.slice(0, 10) : '2026-10-25',
+            status: p.status,
+            records_count: p.records_count ?? 0,
+            notices_sent: p.notices_sent_count ?? 0,
+            created_at: p.created_at || formatNowTimestamp(),
+            updated_at: p.updated_at || formatNowTimestamp(),
+          }));
+          setPeriods(mappedPeriods);
+          billingStore.savePeriods(mappedPeriods);
         }
 
         if (custRes.data && Array.isArray(custRes.data)) {
@@ -344,6 +366,9 @@ export function AdminBillingImportView() {
       );
       updatePeriods(nextPeriods);
       setSelectedPeriodId(newPeriod.id);
+      billingApi
+        .createPeriod({ month: periodMonth, year: periodYear, due_date: periodDueDate })
+        .catch(() => null);
       billingStore.appendAuditLog(`Added Billing Period "${label}" (Due: ${periodDueDate})`);
       showToastNotification(label, 'added as Open Period');
       setShowPeriodModal(false);
@@ -374,6 +399,9 @@ export function AdminBillingImportView() {
           : p
       );
       updatePeriods(nextPeriods);
+      billingApi
+        .updatePeriod(editingPeriod.id, { due_date: periodDueDate, month: targetMonth, year: targetYear })
+        .catch(() => null);
 
       if (targetLabel !== editingPeriod.label) {
         updateRecords(
@@ -396,6 +424,7 @@ export function AdminBillingImportView() {
         p.id === period.id ? { ...p, status: 'closed' as const, updated_at: formatNowTimestamp() } : p
       );
       updatePeriods(next);
+      billingApi.closePeriod(period.id).catch(() => null);
       billingStore.appendAuditLog(`Closed Billing Period "${period.label}"`);
       showToastNotification(period.label, 'closed');
     } else {
@@ -409,6 +438,7 @@ export function AdminBillingImportView() {
       );
       updatePeriods(next);
       setSelectedPeriodId(period.id);
+      billingApi.reopenPeriod(period.id).catch(() => null);
       billingStore.appendAuditLog(`Reopened Billing Period "${period.label}"`);
       showToastNotification(period.label, 'reopened');
     }
@@ -420,11 +450,13 @@ export function AdminBillingImportView() {
       return;
     }
     const deletedLabel = periodToDelete.label;
-    const next = periods.filter((p) => p.id !== periodToDelete.id);
+    const deletedId = periodToDelete.id;
+    const next = periods.filter((p) => p.id !== deletedId);
     updatePeriods(next);
-    if (selectedPeriodId === periodToDelete.id) {
+    if (selectedPeriodId === deletedId) {
       setSelectedPeriodId(next[0]?.id || 'all');
     }
+    billingApi.deletePeriod(deletedId).catch(() => null);
     billingStore.appendAuditLog(`Deleted Billing Period "${deletedLabel}"`);
     showToastNotification(deletedLabel, 'deleted');
     setPeriodToDelete(null);
@@ -553,6 +585,43 @@ export function AdminBillingImportView() {
     const fileName = `siwass_${openPeriod.label.toLowerCase().replace(/\s+/g, '_')}_bills.csv`;
     const sampleCsv = generateSampleCsvText();
     startSimulatedUploadAndParse(sampleCsv, fileName, 'file');
+  };
+
+  const handleDownloadTemplate = () => {
+    const due = openPeriod?.due_date || '2026-10-25';
+    const csvContent = [
+      'meter_number,current_balance,previous_balance,due_date',
+      `MTR-SIN-0001,400.00,450.00,${due}`,
+      `MTR-SIN-0002,350.00,0.00,${due}`,
+      `MTR-SIN-0003,520.00,180.00,${due}`,
+    ].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'aquatrack_billing_template.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadSkippedRows = () => {
+    if (previewInvalidRows.length === 0) return;
+    const header = 'row_number,meter_number,reason';
+    const lines = previewInvalidRows.map(
+      (r) => `${r.row_number},"${r.raw_meter_number}","${r.reason.replace(/"/g, '""')}"`
+    );
+    const csvContent = [header, ...lines].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'aquatrack_skipped_billing_rows.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const handleConfirmCsvImport = () => {
@@ -731,6 +800,17 @@ export function AdminBillingImportView() {
 
     updatePayments([newPaymentEntry, ...payments]);
 
+    if (!recordForPayment.id.startsWith('rec-')) {
+      billingApi
+        .recordPayment(recordForPayment.id, {
+          amount: amt,
+          payment_date: paymentDate,
+          or_number: paymentOrNumber.trim() || undefined,
+          remark: paymentRemark.trim() || undefined,
+        })
+        .catch(() => null);
+    }
+
     billingStore.appendAuditLog(
       `Recorded payment of ₱${amt.toFixed(2)} for ${recordForPayment.customer_name} (${recordForPayment.account_number}) on ${paymentDate}`
     );
@@ -808,6 +888,10 @@ export function AdminBillingImportView() {
       ),
     ];
     updatePayments(nextPayments);
+
+    if (!paymentToReverse.id.startsWith('pay-')) {
+      billingApi.reversePayment(paymentToReverse.id).catch(() => null);
+    }
 
     billingStore.appendAuditLog(
       `Reversed payment of ₱${paymentToReverse.amount.toFixed(2)} for ${paymentToReverse.customer_name}`
@@ -1147,14 +1231,28 @@ export function AdminBillingImportView() {
           <Card className="p-0 bg-white shadow-[0_10px_25px_-5px_rgba(0,0,0,0.14),0_6px_10px_-4px_rgba(0,0,0,0.08)] rounded-md border border-black/10 overflow-hidden">
             {isLoading ? (
               <div className="py-16 text-center text-black/40 text-xs">Loading...</div>
+            ) : records.length === 0 ? (
+              <div className="py-12">
+                <EmptyState
+                  illustration={<EmptyBillsIllustration />}
+                  title="No billing yet"
+                  description="No billing records have been imported yet."
+                  actionLabel={openPeriod ? 'Upload CSV' : 'Billing Periods'}
+                  onAction={() => (openPeriod ? handleOpenUploadModal() : setActiveTab('periods'))}
+                />
+              </div>
             ) : filteredRecords.length === 0 ? (
               <div className="py-12">
                 <EmptyState
-                  icon={<IconReceipt size={36} className="text-black/30" />}
-                  title="No records found"
+                  illustration={<NoMatchesIllustration />}
+                  title="No matches"
                   description="No billing records match the selected filter."
-                  actionLabel={openPeriod ? 'Upload CSV' : 'Billing Periods'}
-                  onAction={() => (openPeriod ? handleOpenUploadModal() : setActiveTab('periods'))}
+                  actionLabel="Clear filters"
+                  onAction={() => {
+                    setSelectedBarangay('all');
+                    setBalanceFilter('all');
+                    setSearchQuery('');
+                  }}
                 />
               </div>
             ) : (
@@ -1458,12 +1556,24 @@ export function AdminBillingImportView() {
         {/* TAB 3: PAYMENT HISTORY */}
         {activeTab === 'payments' && (
           <Card className="p-0 bg-white shadow-[0_10px_25px_-5px_rgba(0,0,0,0.14),0_6px_10px_-4px_rgba(0,0,0,0.08)] rounded-md border border-black/10 overflow-hidden">
-            {filteredPayments.length === 0 ? (
+            {payments.length === 0 ? (
               <div className="py-12">
                 <EmptyState
-                  icon={<IconCash size={36} className="text-black/30" />}
-                  title="No payments found"
+                  illustration={<EmptyBillsIllustration />}
+                  title="No billing yet"
+                  description="No payment records recorded yet."
+                />
+              </div>
+            ) : filteredPayments.length === 0 ? (
+              <div className="py-12">
+                <EmptyState
+                  illustration={<NoMatchesIllustration />}
+                  title="No matches"
                   description="No payment records match the selected filter."
+                  actionLabel="Clear filters"
+                  onAction={() => {
+                    setSearchQuery('');
+                  }}
                 />
               </div>
             ) : (
@@ -1832,13 +1942,23 @@ export function AdminBillingImportView() {
 
                   <div className="flex items-center justify-between pt-2 border-t border-black/10 text-[11px] text-black/50">
                     <span>Period: {openPeriod.label}</span>
-                    <button
-                      type="button"
-                      onClick={handleLoadSampleCsv}
-                      className="text-brand-blue font-bold hover:underline cursor-pointer"
-                    >
-                      Load sample CSV
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={handleDownloadTemplate}
+                        className="text-brand-blue font-bold hover:underline cursor-pointer flex items-center gap-1"
+                      >
+                        <IconFileSpreadsheet size={13} />
+                        Download CSV template
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleLoadSampleCsv}
+                        className="text-brand-blue font-bold hover:underline cursor-pointer"
+                      >
+                        Load sample CSV
+                      </button>
+                    </div>
                   </div>
                 </div>
               ) : (
@@ -1917,9 +2037,19 @@ export function AdminBillingImportView() {
 
                   {previewInvalidRows.length > 0 && (
                     <div className="space-y-1.5">
-                      <div className="font-extrabold text-urgency-high uppercase tracking-wider text-[11px] flex items-center gap-1">
-                        <IconAlertCircle size={14} />
-                        <span>Skipped Rows ({previewInvalidRows.length})</span>
+                      <div className="flex items-center justify-between">
+                        <div className="font-extrabold text-urgency-high uppercase tracking-wider text-[11px] flex items-center gap-1">
+                          <IconAlertCircle size={14} />
+                          <span>Skipped Rows ({previewInvalidRows.length})</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleDownloadSkippedRows}
+                          className="text-xs font-bold text-urgency-high hover:underline cursor-pointer flex items-center gap-1"
+                        >
+                          <IconFileSpreadsheet size={13} />
+                          Download skipped rows (CSV)
+                        </button>
                       </div>
                       <div className="border border-urgency-high/30 bg-red-50/40 rounded p-3 space-y-1.5 max-h-32 overflow-y-auto">
                         {previewInvalidRows.map((inv, idx) => (

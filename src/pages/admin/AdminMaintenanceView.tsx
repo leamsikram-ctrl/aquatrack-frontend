@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AdminLayout } from '../../components/templates/AdminLayout';
 import { Card } from '../../components/atoms/Card';
 import { EmptyState } from '../../components/molecules/EmptyState';
+import { NoMatchesIllustration } from '../../components/illustrations';
 import { StatusTimeline } from '../../components/organisms/StatusTimeline';
 import { MunicipalMap, SINACABAN_CENTER, isWithinSinacabanBounds, type MapMarker, type MapHotspot } from '../../components/organisms/MunicipalMap';
 import { SystemModal } from '../../components/molecules/SystemModal';
@@ -22,7 +23,6 @@ import {
   IconSearch,
   IconTool,
   IconX,
-  IconCheck,
   IconFlame,
   IconZoomReset,
   IconFilter,
@@ -870,20 +870,23 @@ export function AdminMaintenanceView() {
     setUrgencySavedNotice(false);
   };
 
-  const handleSaveUrgencyAdjustment = () => {
+  const handleSaveUrgencyAdjustment = async () => {
     if (!drawerReq || drawerReq.status === 'resolved' || drawerReq.status === 'cancelled') return;
 
     setIsSavingUrgency(true);
-    setTimeout(() => {
-      setIsSavingUrgency(false);
-      setUrgencySavedNotice(true);
-      const updated = maintenanceStore.adjustUrgency(drawerReq.id, adjustedUrgency, urgencyReason);
+    try {
+      const apiUpdated = await requestsApi.adjustUrgency(drawerReq.id, adjustedUrgency, urgencyReason || undefined).catch(() => null);
+      const storeUpdated = maintenanceStore.adjustUrgency(drawerReq.id, adjustedUrgency, urgencyReason);
+      const updated = apiUpdated || storeUpdated;
       if (updated) {
-        setRequests(maintenanceStore.getRequests());
+        setRequests((prev) => prev.map((r) => (r.id === drawerReq.id ? { ...r, urgency: adjustedUrgency, urgency_adjustment_reason: urgencyReason } : r)));
         setDrawerReq(updated);
       }
+      setUrgencySavedNotice(true);
       setTimeout(() => setUrgencySavedNotice(false), 2500);
-    }, 300);
+    } finally {
+      setIsSavingUrgency(false);
+    }
   };
 
   const getStatusDot = (status: string) => {
@@ -923,9 +926,9 @@ export function AdminMaintenanceView() {
       case 'low':
       default:
         return {
-          bg: 'bg-brand-blue',
-          accentColor: 'var(--color-brand-blue)',
-          badgeBg: 'bg-blue-50 text-blue-700 border-blue-200',
+          bg: 'bg-urgency-low',
+          accentColor: 'var(--color-urgency-low)',
+          badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200',
           label: 'Low Urgency',
         };
     }
@@ -1268,9 +1271,14 @@ export function AdminMaintenanceView() {
             activeCustomersForMap.length === 0 ? (
               <div className="p-8 text-center bg-black/15 rounded-xl border border-white/20">
                 <EmptyState
-                  icon={<IconHome size={28} className="text-white" />}
-                  title="No Active Customers"
-                  description="No active customer homes match the selected barangay or search."
+                  illustration={<NoMatchesIllustration />}
+                  title="No matches"
+                  description="No active customer homes match the filters."
+                  actionLabel="Clear filters"
+                  onAction={() => {
+                    setSearchQuery('');
+                    setSelectedBarangay('all');
+                  }}
                 />
               </div>
             ) : (
@@ -1392,9 +1400,15 @@ export function AdminMaintenanceView() {
           ) : filteredRequests.length === 0 ? (
             <div className="p-8 text-center bg-black/15 rounded-xl border border-white/20">
               <EmptyState
-                icon={<IconCheck size={28} className="text-white" />}
-                title="No Matching Requests"
-                description="All maintenance tickets are resolved or no open requests match."
+                illustration={<NoMatchesIllustration />}
+                title="No matches"
+                description="No maintenance requests match the active filters."
+                actionLabel="Clear filters"
+                onAction={() => {
+                  setSelectedBarangay('all');
+                  setStatusFilter('all');
+                  setSearchQuery('');
+                }}
               />
             </div>
           ) : (
@@ -1587,17 +1601,17 @@ export function AdminMaintenanceView() {
           <div className="absolute top-4 left-16 z-[400] hidden sm:flex items-center gap-2.5 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-xl border border-black/10 shadow-[0_8px_20px_rgba(0,0,0,0.15)] text-[11px] text-black/70">
             <span className="text-black/50">Urgency:</span>
             <span className="inline-flex items-center gap-1 text-black">
-              <span className="w-2 h-2 rounded-full bg-urgency-high" /> High
+              <span className="w-2 h-2 rounded-full bg-urgency-high" style={{ backgroundColor: 'var(--color-urgency-high)' }} /> High
             </span>
             <span className="inline-flex items-center gap-1 text-black">
-              <span className="w-2 h-2 rounded-full bg-urgency-medium" /> Medium
+              <span className="w-2 h-2 rounded-full bg-urgency-medium" style={{ backgroundColor: 'var(--color-urgency-medium)' }} /> Medium
             </span>
             <span className="inline-flex items-center gap-1 text-black">
-              <span className="w-2 h-2 rounded-full bg-urgency-low" /> Low
+              <span className="w-2 h-2 rounded-full bg-urgency-low" style={{ backgroundColor: 'var(--color-urgency-low)' }} /> Low
             </span>
             {statusFilter !== 'active' && (
               <span className="inline-flex items-center gap-1 text-black">
-                <span className="w-2 h-2 rounded-full bg-assigned" /> Closed
+                <span className="w-2 h-2 rounded-full bg-assigned" style={{ backgroundColor: 'var(--color-assigned)' }} /> Closed
               </span>
             )}
           </div>

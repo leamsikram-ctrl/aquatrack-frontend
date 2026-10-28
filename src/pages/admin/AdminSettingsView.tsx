@@ -1,22 +1,23 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '../../components/templates/AdminLayout';
 import { Card } from '../../components/atoms/Card';
 import { Button } from '../../components/atoms/Button';
 import { Badge } from '../../components/atoms/Badge';
 import { SystemModal } from '../../components/molecules/SystemModal';
-import { referenceApi, authApi } from '../../api';
-import { accountsStore } from '../../services/accountsStore';
+import { referenceApi, authApi, profileApi } from '../../api';
+import { accountsStore, validateProfilePhotoFile } from '../../services/accountsStore';
 import { useAuth } from '../../contexts/AuthContext';
 import { SINACABAN_BARANGAY_COORDS } from '../../components/organisms/MunicipalMap';
-import type { IssueType, Urgency } from '../../types';
+import { OtpInput } from '../../components/molecules/OtpInput';
+import { TermsPrivacyModal } from '../../components/molecules/TermsPrivacyModal';
+import type { IssueType } from '../../types';
 import {
   IconBuilding,
   IconList,
   IconMessage,
   IconLock,
   IconMapPin,
-  IconPlus,
   IconSend,
   IconShieldCheck,
   IconFlame,
@@ -24,6 +25,13 @@ import {
   IconPhoneCall,
   IconMail,
   IconClockHour4,
+  IconCamera,
+  IconTrash,
+  IconLogout,
+  IconAlertTriangle,
+  IconPhone,
+  IconLink,
+  IconX,
 } from '@tabler/icons-react';
 
 export type SettingsTab = 'profile' | 'issue_types' | 'sms' | 'gis' | 'security';
@@ -34,8 +42,9 @@ interface ExtendedIssueType extends IssueType {
 
 export function AdminSettingsView() {
   const navigate = useNavigate();
-  const { user: authUser } = useAuth();
+  const { user: authUser, setUser: setAuthUser, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
+  const photoInputRef = useRef<HTMLInputElement | null>(null);
 
   // Modern System Modal State
   const [systemModal, setSystemModal] = useState<{
@@ -59,7 +68,7 @@ export function AdminSettingsView() {
   const [supportEmail, setSupportEmail] = useState('siwass@sinacaban.gov.ph');
   const [officeHours, setOfficeHours] = useState('Monday – Friday, 8:00 AM – 5:00 PM (In-office payments & applications)');
 
-  // Tab 2: Issue Types & Urgency Derivation (Section 5.2)
+  // Tab 2: Issue Types & Urgency Derivation (Section 5.2 - Read-Only)
   const [issueTypes, setIssueTypes] = useState<ExtendedIssueType[]>([
     { id: 1, name: 'No water supply', default_urgency: 'high', description: 'Complete disruption of municipal supply' },
     { id: 2, name: 'Pipe leak or burst', default_urgency: 'high', description: 'Active leak or pipeline rupture causing water loss' },
@@ -69,12 +78,9 @@ export function AdminSettingsView() {
     { id: 6, name: 'Other concern', default_urgency: 'low', description: 'General inquiry, valve check, or pipe realignment' },
   ]);
 
-  const [showAddIssueModal, setShowAddIssueModal] = useState(false);
-  const [newIssueName, setNewIssueName] = useState('');
-  const [newIssueUrgency, setNewIssueUrgency] = useState<Urgency>('medium');
-
   // Tab 3: SMS Gateway & Notifications (Section 11)
   const [smsSenderId, setSmsSenderId] = useState('AquaTrack');
+  const [remainingSmsCredits] = useState(85); // Low SMS credits demonstration (< 100 per Workflow D.2)
   const [notifyOnVerification, setNotifyOnVerification] = useState(true);
   const [notifyOnAssign, setNotifyOnAssign] = useState(true);
   const [notifyOnStart, setNotifyOnStart] = useState(true);
@@ -98,13 +104,39 @@ export function AdminSettingsView() {
     }));
   }, []);
 
-  // Tab 5: Account & Security (Section 3 & 4)
-  const [adminEmail, setAdminEmail] = useState('admin@sinacaban.gov.ph');
+  // Tab 5: Account & Security (Workflow Part A & Part D)
+  const [adminName, setAdminName] = useState(authUser?.name || 'SIWASS Administrator');
+  const [isSavingName, setIsSavingName] = useState(false);
+  const [adminAvatar, setAdminAvatar] = useState(authUser?.avatar || '/default-avatar.svg');
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const [adminEmail, setAdminEmail] = useState(authUser?.email || 'admin@sinacaban.gov.ph');
+  const [adminMobile, setAdminMobile] = useState(authUser?.mobile_number || '09170000001');
+
+  // Change Mobile Number (Section 5.2 & 12.D.1)
+  const [showMobileModal, setShowMobileModal] = useState(false);
+  const [newMobileInput, setNewMobileInput] = useState('');
+  const [mobilePinSent, setMobilePinSent] = useState(false);
+  const [mobilePinInput, setMobilePinInput] = useState('');
+  const [debugMobilePin, setDebugMobilePin] = useState<string | null>(null);
+  const [mobileError, setMobileError] = useState<string | null>(null);
+
+  // Change Email Address (Section 5.3 & 12.D.1)
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [newEmailInput, setNewEmailInput] = useState('');
+  const [emailLinkSent, setEmailLinkSent] = useState(false);
+  const [pendingEmailToken, setPendingEmailToken] = useState<string | null>(null);
+  const [pendingEmailLinkUrl, setPendingEmailLinkUrl] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
+
+  // Password Change
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [sessionTimeoutMins, setSessionTimeoutMins] = useState(60);
   const [securityError, setSecurityError] = useState<string | null>(null);
+
+  // Terms and Privacy Modal
+  const [showTermsModal, setShowTermsModal] = useState(false);
 
   useEffect(() => {
     referenceApi.getIssueTypes().then((types) => {
@@ -122,7 +154,32 @@ export function AdminSettingsView() {
         );
       }
     }).catch(() => {});
+
+    if (typeof authApi.me === 'function') {
+      authApi.me().then((u) => {
+        if (u.role === 'admin') {
+          if (u.name) setAdminName(u.name);
+          if (u.avatar) setAdminAvatar(u.avatar);
+          if (u.email) setAdminEmail(u.email);
+          if (u.mobile_number) setAdminMobile(u.mobile_number);
+        }
+      }).catch(() => {});
+    }
   }, []);
+
+  const syncUpdatedUser = (updated: any, message: string) => {
+    setAuthUser(updated);
+    if (updated.name) setAdminName(updated.name);
+    if (updated.avatar) setAdminAvatar(updated.avatar);
+    if (updated.email) setAdminEmail(updated.email);
+    if (updated.mobile_number) setAdminMobile(updated.mobile_number);
+    setSystemModal({
+      isOpen: true,
+      type: 'success',
+      title: 'Settings Updated',
+      message,
+    });
+  };
 
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
@@ -134,48 +191,226 @@ export function AdminSettingsView() {
     });
   };
 
-  const handleSaveIssueTypes = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSystemModal({
-      isOpen: true,
-      type: 'success',
-      title: 'Issue Rules Saved',
-      message: 'Base urgency priorities have been synchronized with the dispatch engine.',
-    });
-  };
-
-  const handleAddIssueType = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newIssueName.trim()) return;
-
-    const newType: ExtendedIssueType = {
-      id: Date.now(),
-      name: newIssueName.trim(),
-      default_urgency: newIssueUrgency,
-      description: 'Custom municipal issue classification',
-    };
-
-    setIssueTypes((prev) => [...prev, newType]);
-    setNewIssueName('');
-    setShowAddIssueModal(false);
-
-    setSystemModal({
-      isOpen: true,
-      type: 'success',
-      title: 'Issue Category Added',
-      message: `Category "${newType.name}" added with default urgency ${newIssueUrgency.toUpperCase()}.`,
-    });
-  };
-
-  const handleUrgencyChange = (id: number, urgency: Urgency) => {
-    setIssueTypes((prev) =>
-      prev.map((it) => {
-        if (it.id === id) {
-          return { ...it, default_urgency: urgency };
+  const handleSaveAdminName = async () => {
+    if (!adminName.trim()) return;
+    setIsSavingName(true);
+    try {
+      const res = await profileApi.updateProfile({ name: adminName.trim() });
+      if (res?.user) {
+        syncUpdatedUser(res.user, 'Administrator display name updated.');
+      }
+    } catch {
+      if (authUser?.id) {
+        const res = accountsStore.updateOwnProfile(authUser.id, { name: adminName.trim() });
+        if (res.user) {
+          syncUpdatedUser(res.user, 'Administrator display name updated.');
         }
-        return it;
+      }
+    } finally {
+      setIsSavingName(false);
+    }
+  };
+
+  const handlePhotoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPhotoError(null);
+
+    const validation = validateProfilePhotoFile(file);
+    if (!validation.valid) {
+      setPhotoError(validation.error || 'Invalid profile photo.');
+      e.target.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        const photoData = reader.result;
+        profileApi
+          .uploadPhoto({ photo_data: photoData })
+          .then((res) => {
+            if (res?.user) {
+              syncUpdatedUser(res.user, 'Profile photo updated and saved in Activity Log.');
+            }
+          })
+          .catch(() => {
+            if (authUser?.id) {
+              const res = accountsStore.updateProfilePhoto(authUser.id, photoData);
+              if (res.success && res.user) {
+                syncUpdatedUser(res.user, 'Profile photo updated and saved in Activity Log.');
+              }
+            }
+          });
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleRemovePhoto = () => {
+    setPhotoError(null);
+    profileApi
+      .removePhoto()
+      .then((res) => {
+        if (res?.user) {
+          syncUpdatedUser(res.user, 'Profile photo removed.');
+        }
       })
+      .catch(() => {
+        if (authUser?.id) {
+          const res = accountsStore.updateProfilePhoto(authUser.id, null);
+          if (res.success && res.user) {
+            syncUpdatedUser(res.user, 'Profile photo removed.');
+          }
+        }
+      });
+  };
+
+  const handleRequestMobilePin = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setMobileError(null);
+
+    try {
+      const apiRes = await profileApi.requestMobilePin({ mobile_number: newMobileInput.trim() });
+      setMobilePinSent(true);
+      setDebugMobilePin(apiRes.debug_pin || null);
+      setMobilePinInput(apiRes.debug_pin || '');
+    } catch (err: any) {
+      if (err?.response?.status === 429) {
+        setMobileError(err.response?.data?.message || 'Pin and link requests are limited to 3 per hour.');
+        return;
+      }
+      const adminId = authUser?.id || 1;
+      const res = accountsStore.requestMobileChangePin(adminId, newMobileInput);
+      if (!res.success) {
+        setMobileError(res.error || 'Failed to send SMS pin.');
+        return;
+      }
+      setMobilePinSent(true);
+      setDebugMobilePin(res.debugPin || null);
+      setMobilePinInput(res.debugPin || '');
+    }
+  };
+
+  const handleConfirmMobilePin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMobileError(null);
+
+    try {
+      const apiRes = await profileApi.verifyMobilePin({ pin: mobilePinInput.trim() });
+      if (apiRes?.user) {
+        const adminId = authUser?.id || 1;
+        accountsStore.confirmMobileChangePin(adminId, mobilePinInput.trim());
+        syncUpdatedUser(
+          apiRes.user,
+          `Mobile number changed to ${apiRes.user.mobile_number}. In-app notification sent & logged in Activity Log.`
+        );
+        setShowMobileModal(false);
+        setMobilePinSent(false);
+        setNewMobileInput('');
+        setMobilePinInput('');
+        return;
+      }
+    } catch (err: any) {
+      const errMsg = err?.response?.data?.message;
+      if (errMsg) {
+        setMobileError(errMsg);
+        if (err?.response?.data?.cancelled) {
+          setDebugMobilePin(null);
+        }
+        return;
+      }
+    }
+
+    const adminId = authUser?.id || 1;
+    const res = accountsStore.confirmMobileChangePin(adminId, mobilePinInput);
+    if (!res.success || !res.user) {
+      setMobileError(res.error || 'Invalid pin.');
+      if (res.cancelled) {
+        setDebugMobilePin(null);
+      }
+      return;
+    }
+
+    syncUpdatedUser(
+      res.user,
+      `Mobile number changed to ${res.user.mobile_number}. In-app notification sent & logged in Activity Log.`
     );
+    setShowMobileModal(false);
+    setMobilePinSent(false);
+    setNewMobileInput('');
+    setMobilePinInput('');
+  };
+
+  const handleRequestEmailLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEmailError(null);
+
+    try {
+      const apiRes = await profileApi.requestEmailLink({ email: newEmailInput.trim() });
+      setEmailLinkSent(true);
+      setPendingEmailToken(apiRes.debug_token || null);
+      setPendingEmailLinkUrl(apiRes.link_url || null);
+    } catch (err: any) {
+      if (err?.response?.status === 429) {
+        setEmailError(err.response?.data?.message || 'Pin and link requests are limited to 3 per hour.');
+        return;
+      }
+      const adminId = authUser?.id || 1;
+      const res = accountsStore.requestEmailChangeLink(adminId, newEmailInput);
+      if (!res.success) {
+        setEmailError(res.error || 'Failed to send confirmation link.');
+        return;
+      }
+      setEmailLinkSent(true);
+      setPendingEmailToken(res.token || null);
+      setPendingEmailLinkUrl(res.linkUrl || null);
+    }
+  };
+
+  const handleOpenEmailConfirmationLink = async () => {
+    if (!pendingEmailToken) return;
+    setEmailError(null);
+
+    try {
+      const apiRes = await profileApi.verifyEmailLink({ token: pendingEmailToken });
+      if (apiRes?.user) {
+        const adminId = authUser?.id || 1;
+        accountsStore.confirmEmailChangeLink(adminId, pendingEmailToken);
+        syncUpdatedUser(
+          apiRes.user,
+          `Email address changed to ${apiRes.user.email}. Notice sent to old email, and logged in Activity Log.`
+        );
+        setShowEmailModal(false);
+        setEmailLinkSent(false);
+        setNewEmailInput('');
+        setPendingEmailToken(null);
+        return;
+      }
+    } catch (err: any) {
+      const errMsg = err?.response?.data?.message;
+      if (errMsg) {
+        setEmailError(errMsg);
+        return;
+      }
+    }
+
+    const adminId = authUser?.id || 1;
+    const res = accountsStore.confirmEmailChangeLink(adminId, pendingEmailToken);
+    if (!res.success || !res.user) {
+      setEmailError(res.error || 'Failed to confirm email link.');
+      return;
+    }
+
+    syncUpdatedUser(
+      res.user,
+      `Email address changed to ${res.user.email}. Notice sent to old email, and logged in Activity Log.`
+    );
+    setShowEmailModal(false);
+    setEmailLinkSent(false);
+    setNewEmailInput('');
+    setPendingEmailToken(null);
   };
 
   const handleSendTestSms = (e: React.FormEvent) => {
@@ -240,7 +475,7 @@ export function AdminSettingsView() {
         isOpen: true,
         type: 'success',
         title: 'Credentials Updated',
-        message: 'Your administrator password has been successfully updated.',
+        message: 'Your administrator password has been successfully updated! Your other active sessions have been signed out.',
       });
     } catch (err: any) {
       const adminId = authUser?.id || 1;
@@ -253,7 +488,7 @@ export function AdminSettingsView() {
           isOpen: true,
           type: 'success',
           title: 'Credentials Updated',
-          message: 'Your administrator password has been successfully updated.',
+          message: 'Your administrator password has been successfully updated! Your other active sessions have been signed out.',
         });
       } else {
         setSecurityError(err?.response?.data?.message || res.error || 'Failed to update security credentials.');
@@ -448,6 +683,42 @@ export function AdminSettingsView() {
                   Official statement header printed on customer water bills and communications.
                 </p>
               </Card>
+
+              {/* System Specifications Card (Workflow Part D.2) */}
+              <Card className="p-4 border border-black/10 rounded-md shadow-[0_10px_25px_-5px_rgba(0,0,0,0.14),0_6px_10px_-4px_rgba(0,0,0,0.08)] bg-white space-y-3">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-black/60 block">
+                  System Information (Read-only)
+                </span>
+                <div className="space-y-2 text-xs">
+                  <div>
+                    <span className="font-semibold text-black block">Premade Advisory Types (Section 7.5):</span>
+                    <ul className="list-disc pl-4 text-black/70 space-y-0.5 text-[11px] mt-1">
+                      <li>Emergency Repair</li>
+                      <li>Scheduled Maintenance</li>
+                      <li>Low Pressure</li>
+                      <li>Water Quality Advisory</li>
+                      <li>Pipeline Flushing</li>
+                      <li>Power Interruption</li>
+                      <li>Other</li>
+                    </ul>
+                  </div>
+                  <div className="pt-2 border-t border-black/10">
+                    <span className="font-semibold text-black block">Remaining SMS Credits:</span>
+                    <span className="text-[11px] font-bold text-amber-800 block">
+                      {remainingSmsCredits} Credits (Low warning: &lt; 100 credits)
+                    </span>
+                  </div>
+                  <div className="pt-2 border-t border-black/10">
+                    <span className="font-semibold text-black block">Terms &amp; Privacy Version:</span>
+                    <span className="text-[11px] text-black/70 block">Version 1.0 (Sinacaban Municipal Water Code)</span>
+                  </div>
+                  <div className="pt-2 border-t border-black/10">
+                    <span className="text-[10px] text-black/50 italic block leading-relaxed">
+                      There are no SLA settings and no editable thresholds.
+                    </span>
+                  </div>
+                </div>
+              </Card>
             </div>
           </div>
         )}
@@ -477,18 +748,12 @@ export function AdminSettingsView() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-black/10 pb-3">
                 <h2 className="text-sm font-bold text-black flex items-center gap-2">
                   <IconList size={16} className="text-brand-blue" />
-                  <span>Configured Issue Types</span>
+                  <span>Configured Issue Types (Read-only)</span>
                 </h2>
-
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setShowAddIssueModal(true)}
-                  leftIcon={<IconPlus size={14} />}
-                  className="self-start sm:self-auto"
-                >
-                  Add Issue Type
-                </Button>
+                <Badge variant="outline" className="text-[11px]">
+                  <IconLock size={12} className="inline mr-1" />
+                  System Managed
+                </Badge>
               </div>
 
               {/* Issue Types Table */}
@@ -511,15 +776,9 @@ export function AdminSettingsView() {
                           {it.description || 'Standard municipal water repair classification'}
                         </td>
                         <td className="px-4 py-3 text-right whitespace-nowrap">
-                          <select
-                            value={it.default_urgency}
-                            onChange={(e) => handleUrgencyChange(it.id, e.target.value as Urgency)}
-                            className="p-1.5 text-xs bg-white border border-black/20 rounded-lg font-bold uppercase outline-none focus:border-brand-blue"
-                          >
-                            <option value="high">HIGH</option>
-                            <option value="medium">MEDIUM</option>
-                            <option value="low">LOW</option>
-                          </select>
+                          <Badge variant={it.default_urgency}>
+                            {it.default_urgency.toUpperCase()}
+                          </Badge>
                         </td>
                       </tr>
                     ))}
@@ -527,25 +786,9 @@ export function AdminSettingsView() {
                 </table>
               </div>
 
-              <div className="flex justify-between items-center pt-3 border-t border-black/10">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setShowAddIssueModal(true)}
-                  leftIcon={<IconPlus size={14} />}
-                >
-                  Add Issue Type
-                </Button>
-
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={handleSaveIssueTypes}
-                  leftIcon={<IconDeviceFloppy size={14} />}
-                >
-                  Save Urgency Rules
-                </Button>
-              </div>
+              <p className="text-[11px] text-black/50 italic leading-relaxed pt-1">
+                Issue types and default urgencies are system-defined and read-only. SLA rules and countdowns are strictly excluded.
+              </p>
             </Card>
           </div>
         )}
@@ -562,6 +805,25 @@ export function AdminSettingsView() {
                   <span>SMS Gateway & Automatic Dispatch Triggers</span>
                 </h2>
                 <Badge variant="blue">Connected</Badge>
+              </div>
+
+              {/* Remaining SMS Credits Banner with Low Credit Warning (Workflow Part D.2) */}
+              <div className="p-3 bg-amber-50 border border-amber-300 rounded-lg flex items-center justify-between">
+                <div>
+                  <span className="text-[11px] font-bold text-amber-900 uppercase tracking-wider block">
+                    Remaining SMS Gateway Balance
+                  </span>
+                  <span className="text-base font-extrabold text-amber-950 font-mono">
+                    {remainingSmsCredits} / 1,000 Credits
+                  </span>
+                  <span className="text-[11px] text-amber-800 block mt-0.5">
+                    Low balance warning: Credits are below 100 threshold. Contact gateway provider to top up.
+                  </span>
+                </div>
+                <Badge variant="outline" className="border-amber-500 text-amber-800 bg-amber-100 font-bold shrink-0">
+                  <IconAlertTriangle size={12} className="inline mr-1" />
+                  Low Credits
+                </Badge>
               </div>
 
               <div className="space-y-4 text-xs">
@@ -777,167 +1039,454 @@ export function AdminSettingsView() {
         )}
 
         {/* ------------------------------------------------------------- */}
-        {/* TAB 5: Account & Institutional Security */}
+        {/* TAB 5: Account & Institutional Security (Workflow Part A & D) */}
         {/* ------------------------------------------------------------- */}
         {activeTab === 'security' && (
-          <Card className="p-5 border border-black/10 rounded-md shadow-[0_10px_25px_-5px_rgba(0,0,0,0.14),0_6px_10px_-4px_rgba(0,0,0,0.08)] space-y-4 max-w-xl bg-white">
-            <div className="border-b border-black/10 pb-2">
-              <h2 className="text-sm font-bold text-black flex items-center gap-2">
-                <IconShieldCheck size={16} className="text-brand-blue" />
-                <span>Institutional Security & Access Credentials</span>
-              </h2>
-            </div>
-
-            {securityError && (
-              <div className="p-2.5 bg-black/5 border border-black/20 rounded-lg text-xs text-black font-medium">
-                {securityError}
+          <div className="space-y-4 max-w-xl">
+            {/* Account Profile Section (Part A: Common to all roles) */}
+            <Card className="p-5 border border-black/10 rounded-md shadow-[0_10px_25px_-5px_rgba(0,0,0,0.14),0_6px_10px_-4px_rgba(0,0,0,0.08)] space-y-4 bg-white">
+              <div className="border-b border-black/10 pb-2">
+                <h2 className="text-sm font-bold text-black flex items-center gap-2">
+                  <IconShieldCheck size={16} className="text-brand-blue" />
+                  <span>Institutional Security & Access Credentials</span>
+                </h2>
               </div>
-            )}
 
-            <form onSubmit={handleSaveSecurity} className="space-y-3 text-xs">
+              {securityError && (
+                <div className="p-2.5 bg-black/5 border border-black/20 rounded-lg text-xs text-black font-medium">
+                  {securityError}
+                </div>
+              )}
+
+              {/* Profile Photo (Part A.1: JPG/PNG up to 5 MB) */}
+              <div className="p-3.5 bg-slate-50 border border-black/10 rounded-lg flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <img
+                    src={adminAvatar}
+                    alt={adminName}
+                    className="w-12 h-12 rounded-full object-cover border border-black/20 bg-white shrink-0"
+                  />
+                  <div>
+                    <span className="font-bold text-black block text-xs">{adminName}</span>
+                    <span className="text-[11px] text-black/50 block">Administrator (SIWASS)</span>
+                    <span className="text-[10px] text-black/40 block">Max 5 MB (JPG or PNG)</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <input
+                    ref={photoInputRef}
+                    type="file"
+                    accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                    className="hidden"
+                    onChange={handlePhotoFileChange}
+                  />
+                  <Button
+                    variant="secondary"
+                    type="button"
+                    size="sm"
+                    onClick={() => photoInputRef.current?.click()}
+                    leftIcon={<IconCamera size={13} />}
+                    className="text-xs"
+                  >
+                    {adminAvatar !== '/default-avatar.svg' ? 'Change Photo' : 'Upload'}
+                  </Button>
+                  {adminAvatar !== '/default-avatar.svg' && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={handleRemovePhoto}
+                      className="text-xs px-2 py-1 text-urgency-high"
+                    >
+                      <IconTrash size={13} />
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {photoError && (
+                <div className="p-2.5 bg-danger-subtle border border-urgency-high/40 rounded-lg text-xs text-urgency-high font-medium">
+                  {photoError}
+                </div>
+              )}
+
+              {/* Editable Admin Name (Part A.2 & Part D.1) */}
               <div>
-                <label className="block font-semibold text-black/70 mb-1">
-                  Master Administrator Email
+                <label className="block font-semibold text-black/70 mb-1 text-xs">
+                  Administrator Display Name (Editable for Admin)
                 </label>
-                <input
-                  type="email"
-                  className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none"
-                  value={adminEmail}
-                  onChange={(e) => setAdminEmail(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-black/70 mb-1">
-                  Current Master Password
-                </label>
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-brand-blue"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-black/70 mb-1">
-                  New Master Password
-                </label>
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-brand-blue"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                />
-                <p className="text-[11px] text-black/50 mt-1">
-                  Min. 8 characters, uppercase, lowercase, number, and special character.
-                </p>
-              </div>
-
-              <div>
-                <label className="block font-semibold text-black/70 mb-1">
-                  Confirm New Password
-                </label>
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-brand-blue"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                />
-              </div>
-
-              <div className="pt-2 border-t border-black/10">
-                <label className="block font-semibold text-black/70 mb-1">
-                  Inactivity Session Timeout (Minutes)
-                </label>
-                <input
-                  type="number"
-                  min={15}
-                  max={480}
-                  className="w-32 p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-brand-blue"
-                  value={sessionTimeoutMins}
-                  onChange={(e) => setSessionTimeoutMins(Number(e.target.value))}
-                />
-              </div>
-
-              <div className="pt-3 border-t border-black/10 flex justify-end">
-                <Button type="submit" variant="primary">
-                  Update Master Password
-                </Button>
-              </div>
-            </form>
-          </Card>
-        )}
-
-        {/* Add Issue Type Modal */}
-        {showAddIssueModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-sm bg-white rounded-xl border border-black p-5 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
-              <div className="flex items-center justify-between border-b border-black/15 pb-2">
-                <span className="text-sm font-bold text-black">
-                  Add Issue Category
-                </span>
-                <button
-                  onClick={() => setShowAddIssueModal(false)}
-                  className="text-black hover:text-brand-blue p-1 text-[14px]"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <form onSubmit={handleAddIssueType} className="space-y-3 text-xs">
-                <div>
-                  <label className="block font-semibold text-black/70 mb-1">
-                    Category Name
-                  </label>
+                <div className="flex gap-2">
                   <input
                     type="text"
-                    placeholder="e.g. Pump Station Surge"
                     className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-brand-blue"
-                    value={newIssueName}
-                    onChange={(e) => setNewIssueName(e.target.value)}
+                    value={adminName}
+                    onChange={(e) => setAdminName(e.target.value)}
                     required
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={handleSaveAdminName}
+                    isLoading={isSavingName}
+                    className="text-xs shrink-0"
+                  >
+                    Save Name
+                  </Button>
+                </div>
+              </div>
+
+              {/* Editable Mobile Number & Email Address (Section 5.2 & 5.3) */}
+              <div className="divide-y divide-black/10 text-xs">
+                <div className="flex items-center justify-between py-2.5 gap-3">
+                  <div>
+                    <span className="text-[11px] font-semibold text-black/60 block">
+                      Administrative Mobile Number
+                    </span>
+                    <span className="text-black font-medium font-mono">{adminMobile}</span>
+                  </div>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => {
+                      setNewMobileInput('');
+                      setMobilePinSent(false);
+                      setMobilePinInput('');
+                      setMobileError(null);
+                      setShowMobileModal(true);
+                    }}
+                    leftIcon={<IconPhone size={13} />}
+                    className="text-xs shrink-0"
+                  >
+                    Change mobile number
+                  </Button>
+                </div>
+
+                <div className="flex items-center justify-between py-2.5 gap-3">
+                  <div>
+                    <span className="text-[11px] font-semibold text-black/60 block">
+                      Master Administrator Email
+                    </span>
+                    <span className="text-black font-medium">{adminEmail}</span>
+                  </div>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => {
+                      setNewEmailInput('');
+                      setEmailLinkSent(false);
+                      setPendingEmailToken(null);
+                      setEmailError(null);
+                      setShowEmailModal(true);
+                    }}
+                    leftIcon={<IconMail size={13} />}
+                    className="text-xs shrink-0"
+                  >
+                    Change email
+                  </Button>
+                </div>
+              </div>
+
+              {/* Password Section (Part A.4) */}
+              <form onSubmit={handleSaveSecurity} className="space-y-3 text-xs pt-3 border-t border-black/10">
+                <span className="font-bold text-black uppercase tracking-wider block text-[11px]">
+                  Change Password
+                </span>
+
+                <div>
+                  <label className="block font-semibold text-black/70 mb-1">
+                    Current Master Password
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="••••••••"
+                    className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-brand-blue"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
                   />
                 </div>
 
                 <div>
                   <label className="block font-semibold text-black/70 mb-1">
-                    Default Base Urgency
+                    New Master Password
                   </label>
-                  <select
-                    className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none uppercase font-bold"
-                    value={newIssueUrgency}
-                    onChange={(e) => {
-                      const u = e.target.value as Urgency;
-                      setNewIssueUrgency(u);
-                    }}
-                  >
-                    <option value="high">HIGH</option>
-                    <option value="medium">MEDIUM</option>
-                    <option value="low">LOW</option>
-                  </select>
+                  <input
+                    type="password"
+                    placeholder="••••••••"
+                    className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-brand-blue"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                  />
+                  <p className="text-[11px] text-black/50 mt-1">
+                    Min. 8 characters, uppercase, lowercase, number, and special character.
+                  </p>
                 </div>
 
-                <div className="flex justify-end gap-2 pt-2 border-t border-black/10">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => setShowAddIssueModal(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit" variant="primary" size="sm">
-                    Add Category
+                <div>
+                  <label className="block font-semibold text-black/70 mb-1">
+                    Confirm New Password
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="••••••••"
+                    className="w-full p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-brand-blue"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                </div>
+
+                <div className="pt-2 border-t border-black/10">
+                  <label className="block font-semibold text-black/70 mb-1">
+                    Inactivity Session Timeout (Minutes)
+                  </label>
+                  <input
+                    type="number"
+                    min={15}
+                    max={480}
+                    className="w-32 p-2 bg-white text-black border border-black/20 rounded-lg text-xs outline-none focus:border-brand-blue"
+                    value={sessionTimeoutMins}
+                    onChange={(e) => setSessionTimeoutMins(Number(e.target.value))}
+                  />
+                </div>
+
+                <div className="pt-3 border-t border-black/10 flex justify-end">
+                  <Button type="submit" variant="primary">
+                    Update Master Password
                   </Button>
                 </div>
               </form>
+
+              {/* Legal Consent Display (Part A.5) */}
+              <div className="p-3 bg-slate-50 border border-black/10 rounded-lg flex items-center justify-between text-xs">
+                <div>
+                  <span className="font-semibold text-black block">Terms of Use & Privacy Notice</span>
+                  <span className="text-[11px] text-black/60">
+                    Accepted on institutional account provisioning (Version 1.0)
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="blue">Accepted</Badge>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setShowTermsModal(true)}
+                    className="text-xs"
+                  >
+                    View
+                  </Button>
+                </div>
+              </div>
+
+              {/* Sign Out Button (Part A.6) */}
+              <div className="pt-3 border-t border-black/10 flex justify-end">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  leftIcon={<IconLogout size={14} />}
+                  onClick={async () => {
+                    await logout();
+                    navigate('/login');
+                  }}
+                  className="text-xs font-semibold"
+                >
+                  Sign Out
+                </Button>
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {/* Modal: Change Mobile Number (Section 5.2 & 12.D.1) */}
+        {showMobileModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="w-full max-w-sm bg-white rounded-xl border border-black/20 p-5 space-y-4 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-black/15 pb-2.5">
+                <h2 className="font-bold text-sm text-black">Change Mobile Number</h2>
+                <button
+                  onClick={() => setShowMobileModal(false)}
+                  className="text-black/60 hover:text-black p-1 cursor-pointer"
+                >
+                  <IconX size={16} />
+                </button>
+              </div>
+
+              {mobileError && (
+                <div className="p-2.5 bg-danger-subtle border border-urgency-high/40 rounded text-xs text-urgency-high font-medium">
+                  {mobileError}
+                </div>
+              )}
+
+              {!mobilePinSent ? (
+                <form onSubmit={handleRequestMobilePin} className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-black/70 mb-1">
+                      New Philippine Mobile Number
+                    </label>
+                    <input
+                      type="tel"
+                      value={newMobileInput}
+                      onChange={(e) => setNewMobileInput(e.target.value)}
+                      placeholder="09170009988"
+                      className="w-full p-2 text-[14px] bg-white text-black border border-black/30 rounded-lg outline-none focus:border-brand-blue"
+                      required
+                    />
+                    <span className="text-[11px] text-black/50 mt-1 block">
+                      A 6-digit PIN will be sent by SMS (valid 10 minutes). Your old number stays in use until confirmed.
+                    </span>
+                  </div>
+                  <div className="flex justify-end gap-2 pt-2 border-t border-black/15">
+                    <Button
+                      variant="secondary"
+                      type="button"
+                      onClick={() => setShowMobileModal(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button variant="primary" type="submit">
+                      Send 6-Digit PIN
+                    </Button>
+                  </div>
+                </form>
+              ) : (
+                <form onSubmit={handleConfirmMobilePin} className="space-y-3.5">
+                  <div className="p-2.5 bg-blue-50 border border-brand-blue/30 rounded text-xs text-black space-y-1">
+                    <div>
+                      A 6-digit PIN was sent by SMS to <strong>{newMobileInput}</strong> (valid 10 mins, max 5 wrong attempts).
+                    </div>
+                    {debugMobilePin && (
+                      <div className="font-mono text-[11px] text-brand-blue font-bold">
+                        Simulated SMS PIN: {debugMobilePin}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-black/70 mb-1 uppercase tracking-wider text-center">
+                      Enter 6-Digit SMS PIN
+                    </label>
+                    <OtpInput
+                      value={mobilePinInput}
+                      onChange={(val) => {
+                        setMobilePinInput(val);
+                        if (mobileError) setMobileError(null);
+                      }}
+                      error={mobileError}
+                      onResend={() => handleRequestMobilePin()}
+                      resendCooldown={30}
+                      autoFocus
+                    />
+                  </div>
+
+                  <div className="flex justify-between gap-2 pt-2 border-t border-black/15">
+                    <Button
+                      variant="secondary"
+                      type="button"
+                      onClick={() => {
+                        setMobilePinSent(false);
+                        setMobileError(null);
+                      }}
+                    >
+                      Request New PIN
+                    </Button>
+                    <Button variant="primary" type="submit">
+                      Confirm PIN
+                    </Button>
+                  </div>
+                </form>
+              )}
             </div>
           </div>
         )}
+
+        {/* Modal: Change Email Address (Section 5.3 & 12.D.1) */}
+        {showEmailModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="w-full max-w-sm bg-white rounded-xl border border-black/20 p-5 space-y-4 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-black/15 pb-2.5">
+                <h2 className="font-bold text-sm text-black">Change Master Email Address</h2>
+                <button
+                  onClick={() => setShowEmailModal(false)}
+                  className="text-black/60 hover:text-black p-1 cursor-pointer"
+                >
+                  <IconX size={16} />
+                </button>
+              </div>
+
+              {emailError && (
+                <div className="p-2.5 bg-danger-subtle border border-urgency-high/40 rounded text-xs text-urgency-high font-medium">
+                  {emailError}
+                </div>
+              )}
+
+              {!emailLinkSent ? (
+                <form onSubmit={handleRequestEmailLink} className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-black/70 mb-1">
+                      New Administrator Email Address
+                    </label>
+                    <input
+                      type="email"
+                      value={newEmailInput}
+                      onChange={(e) => setNewEmailInput(e.target.value)}
+                      placeholder="admin.new@sinacaban.gov.ph"
+                      className="w-full p-2 text-[14px] bg-white text-black border border-black/30 rounded-lg outline-none focus:border-brand-blue"
+                      required
+                    />
+                    <span className="text-[11px] text-black/50 mt-1 block">
+                      A single-use confirmation link will be sent (valid for 60 minutes). Your old email stays in use until confirmed.
+                    </span>
+                  </div>
+                  <div className="flex justify-end gap-2 pt-2 border-t border-black/15">
+                    <Button
+                      variant="secondary"
+                      type="button"
+                      onClick={() => setShowEmailModal(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button variant="primary" type="submit">
+                      Send Confirmation Link
+                    </Button>
+                  </div>
+                </form>
+              ) : (
+                <div className="space-y-3 text-xs">
+                  <div className="p-3 bg-blue-50 border border-brand-blue/30 rounded-lg space-y-1.5 text-black">
+                    <div className="font-bold text-brand-blue">
+                      Confirmation Link Sent to {newEmailInput}
+                    </div>
+                    <p className="text-black/70">
+                      Open the single-use confirmation link within 60 minutes to confirm your new email address.
+                    </p>
+                    {pendingEmailLinkUrl && (
+                      <div className="font-mono text-[10px] text-black/60 break-all pt-1 border-t border-brand-blue/20">
+                        {pendingEmailLinkUrl}
+                      </div>
+                    )}
+                  </div>
+
+                  <Button
+                    variant="primary"
+                    type="button"
+                    onClick={handleOpenEmailConfirmationLink}
+                    leftIcon={<IconLink size={14} />}
+                    className="w-full justify-center"
+                  >
+                    Open Confirmation Link Now
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Modal: Terms & Privacy Notice Viewer */}
+        <TermsPrivacyModal
+          isOpen={showTermsModal}
+          onClose={() => setShowTermsModal(false)}
+          version="v1.0.0"
+          acceptedAt="Institutional Provisioning"
+        />
 
         {/* Send Test SMS Modal */}
         {showTestSmsModal && (

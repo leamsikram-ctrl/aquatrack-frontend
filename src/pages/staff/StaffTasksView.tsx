@@ -5,8 +5,14 @@ import { Card } from '../../components/atoms/Card';
 import { Badge } from '../../components/atoms/Badge';
 import { Button } from '../../components/atoms/Button';
 import { EmptyState } from '../../components/molecules/EmptyState';
+import { DownloadMobileAppCard } from '../../components/molecules/DownloadMobileAppCard';
+import {
+  EmptyTasksIllustration,
+  NoMatchesIllustration,
+} from '../../components/illustrations';
 import { InterruptionCalendar } from '../../components/organisms/InterruptionCalendar';
 import { StatusTimeline } from '../../components/organisms/StatusTimeline';
+import { validatePhotoFile, resizeImage } from '../../utils/imageResize';
 import { requestsApi, interruptionsApi } from '../../api';
 import type { ServiceRequest, WaterInterruption, Urgency } from '../../types';
 import { advisoriesStore, computeAdvisoryStatus } from '../../services/advisoriesStore';
@@ -44,22 +50,48 @@ export function StaffTasksView() {
   const [evidencePhotoAttached, setEvidencePhotoAttached] = useState<boolean>(false);
   const [evidencePhotoUrl, setEvidencePhotoUrl] = useState<string>('');
   const [evidencePhotoName, setEvidencePhotoName] = useState<string>('');
+  const [photoError, setPhotoError] = useState<string | null>(null);
   const evidenceInputRef = useRef<HTMLInputElement | null>(null);
   const [isResolving, setIsResolving] = useState<boolean>(false);
   const [isStarting, setIsStarting] = useState<boolean>(false);
 
-  const handleEvidenceFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEvidenceFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    const validation = validatePhotoFile(file);
+    if (!validation.valid) {
+      setPhotoError(validation.error || 'Only JPG and PNG images up to 5 MB are allowed.');
+      if (evidenceInputRef.current) evidenceInputRef.current.value = '';
+      return;
+    }
+
+    setPhotoError(null);
     setEvidencePhotoName(file.name);
     setEvidencePhotoAttached(true);
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        setEvidencePhotoUrl(reader.result);
-      }
-    };
-    reader.readAsDataURL(file);
+
+    try {
+      const resized = await resizeImage(file);
+      setEvidencePhotoUrl(resized);
+    } catch {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          setEvidencePhotoUrl(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveEvidencePhoto = () => {
+    setEvidencePhotoAttached(false);
+    setEvidencePhotoUrl('');
+    setEvidencePhotoName('');
+    setPhotoError(null);
+    if (evidenceInputRef.current) {
+      evidenceInputRef.current.value = '';
+    }
   };
 
   const fetchTasksAndData = async () => {
@@ -128,13 +160,12 @@ export function StaffTasksView() {
       return;
     }
     setRemarksError(null);
+    setPhotoError(null);
     setIsResolving(true);
     try {
-      const photoPath =
-        evidencePhotoUrl ||
-        (evidencePhotoAttached ? '/storage/evidence/simulated_repair.jpg' : undefined);
-      const apiUpdated = await requestsApi.resolve(taskId, remarks, photoPath).catch(() => null);
-      const storeUpdated = maintenanceStore.resolveRequest(taskId, remarks, photoPath);
+      const photoPath = evidencePhotoUrl || undefined;
+      const apiUpdated = await requestsApi.resolve(taskId, remarks.trim(), photoPath).catch(() => null);
+      const storeUpdated = maintenanceStore.resolveRequest(taskId, remarks.trim(), photoPath);
       const finalUpdated = apiUpdated || storeUpdated;
       if (finalUpdated) {
         setTasks((prev) => prev.map((t) => (t.id === taskId ? finalUpdated : t)));
@@ -143,6 +174,10 @@ export function StaffTasksView() {
       setRemarks('');
       setEvidencePhotoAttached(false);
       setEvidencePhotoUrl('');
+      setEvidencePhotoName('');
+      if (evidenceInputRef.current) {
+        evidenceInputRef.current.value = '';
+      }
     } finally {
       setIsResolving(false);
     }
@@ -210,7 +245,7 @@ export function StaffTasksView() {
 
   return (
     <StaffLayout currentPath="/staff/tasks" onNavigate={(path) => navigate(path)}>
-      <div className="space-y-4 text-black">
+      <div className="space-y-4 text-black w-full max-w-full min-w-0 overflow-x-hidden">
         {/* Header */}
         <div className="pb-1">
           <h1 className="text-xl sm:text-2xl font-bold text-black">
@@ -220,30 +255,32 @@ export function StaffTasksView() {
 
         {/* Task Controls & Filters Card */}
         <Card className="p-3.5 bg-white space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
             {/* Active vs History Switcher */}
-            <div className="flex border border-black/15 rounded p-0.5 bg-black/5">
+            <div className="flex border border-black/15 rounded p-0.5 bg-black/5 shrink-0">
               <button
+                type="button"
                 onClick={() => {
                   setActiveTab('active');
                   setStatusFilter('all');
                 }}
-                className={`px-3 py-1 text-[14px] rounded transition-colors ${
+                className={`min-h-[44px] px-4 py-2 text-[14px] rounded transition-colors flex items-center justify-center font-medium ${
                   activeTab === 'active'
-                    ? 'bg-brand-blue text-white font-medium'
+                    ? 'bg-brand-blue text-white'
                     : 'text-black hover:text-brand-blue'
                 }`}
               >
                 Active
               </button>
               <button
+                type="button"
                 onClick={() => {
                   setActiveTab('history');
                   setStatusFilter('all');
                 }}
-                className={`px-3 py-1 text-[14px] rounded transition-colors ${
+                className={`min-h-[44px] px-4 py-2 text-[14px] rounded transition-colors flex items-center justify-center font-medium ${
                   activeTab === 'history'
-                    ? 'bg-brand-blue text-white font-medium'
+                    ? 'bg-brand-blue text-white'
                     : 'text-black hover:text-brand-blue'
                 }`}
               >
@@ -251,32 +288,38 @@ export function StaffTasksView() {
               </button>
             </div>
 
-            {/* Top-Right Action Icons: Map, Calendar */}
-            <div className="flex items-center gap-1.5">
+            {/* Top-Right Action Icons: Map, Calendar with visible text labels */}
+            <div className="flex items-center gap-2 flex-wrap">
               <button
+                type="button"
                 onClick={() => setShowMapModal(true)}
-                className="p-1.5 bg-white hover:bg-black/5 text-black border border-black/15 rounded transition-colors"
+                className="min-h-[44px] px-3.5 py-2 bg-white hover:bg-black/5 text-black border border-black/15 rounded-lg transition-colors flex items-center gap-2 text-[14px] font-medium"
                 title="Assigned Area Map"
+                aria-label="Assigned Area Map"
               >
-                <IconMapPin size={16} />
+                <IconMapPin size={16} className="text-brand-blue shrink-0" />
+                <span>Map</span>
               </button>
 
               <button
+                type="button"
                 onClick={() => setShowCalendarModal(true)}
-                className="p-1.5 bg-white hover:bg-black/5 text-black border border-black/15 rounded transition-colors"
+                className="min-h-[44px] px-3.5 py-2 bg-white hover:bg-black/5 text-black border border-black/15 rounded-lg transition-colors flex items-center gap-2 text-[14px] font-medium"
                 title="Interruptions Calendar"
+                aria-label="Interruptions Calendar"
               >
-                <IconCalendar size={16} />
+                <IconCalendar size={16} className="text-brand-blue shrink-0" />
+                <span>Calendar</span>
               </button>
             </div>
           </div>
 
-          {/* Filter Dropdowns */}
+          {/* Filter Dropdowns with min-h-[44px] */}
           <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-black/10">
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-2 py-1 bg-white border border-black/20 rounded text-[14px] outline-none font-sans"
+              className="min-h-[44px] px-3 py-2 bg-white border border-black/20 rounded-lg text-[14px] outline-none font-sans"
             >
               <option value="all">Status ∨ (All)</option>
               {activeTab === 'active' ? (
@@ -295,7 +338,7 @@ export function StaffTasksView() {
             <select
               value={sortUrgency}
               onChange={(e) => setSortUrgency(e.target.value as 'high_first' | 'newest')}
-              className="px-2 py-1 bg-white border border-black/20 rounded text-[14px] outline-none font-sans"
+              className="min-h-[44px] px-3 py-2 bg-white border border-black/20 rounded-lg text-[14px] outline-none font-sans"
             >
               <option value="high_first">Sort: Urgency ∨</option>
               <option value="newest">Sort: Newest First</option>
@@ -308,14 +351,22 @@ export function StaffTasksView() {
           <Card className="p-8 text-center text-black/50 bg-white">
             Loading assigned field tasks...
           </Card>
+        ) : tasks.length === 0 ? (
+          <EmptyState
+            illustration={<EmptyTasksIllustration />}
+            title="No tasks"
+            description="No maintenance tasks assigned."
+          />
         ) : filteredTasks.length === 0 ? (
           <EmptyState
-            title={activeTab === 'active' ? 'No active tasks found' : 'No history records'}
-            description={
-              activeTab === 'active'
-                ? 'All field tasks in your area have been handled.'
-                : 'No completed or cancelled service requests in archive.'
-            }
+            illustration={<NoMatchesIllustration />}
+            title="No matches"
+            description="No tasks match the active filters."
+            actionLabel="Clear filters"
+            onAction={() => {
+              setStatusFilter('all');
+              setSortUrgency('high_first');
+            }}
           />
         ) : (
           <div className="space-y-3">
@@ -357,25 +408,27 @@ export function StaffTasksView() {
                       {task.status === 'assigned' && (
                         <Button
                           variant="primary"
+                          className="min-h-[44px] px-4"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleStartTask(task.id);
                           }}
                           disabled={isStarting}
                         >
-                          Get started
+                          Start Work
                         </Button>
                       )}
 
                       {task.status === 'in_progress' && (
                         <Button
                           variant="secondary"
+                          className="min-h-[44px] px-4"
                           onClick={(e) => {
                             e.stopPropagation();
                             setSelectedTask(task);
                           }}
                         >
-                          Resolve details
+                          Complete Repair
                         </Button>
                       )}
                     </div>
@@ -386,12 +439,15 @@ export function StaffTasksView() {
           </div>
         )}
 
+        {/* Download the Mobile App Card */}
+        <DownloadMobileAppCard className="mt-6" />
+
         {/* ------------------------------------------------------------- */}
         {/* Wireframe S3: Task Details Modal / Overlay */}
         {/* ------------------------------------------------------------- */}
         {selectedTask && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-lg bg-white rounded border border-black p-5 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
+            <div className="w-full max-w-lg bg-white rounded border border-black p-5 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto overflow-x-hidden min-w-0">
               {/* Header: ← AT-0000 & Status */}
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <button
@@ -417,7 +473,7 @@ export function StaffTasksView() {
                 <div className="space-y-0.5 text-black">
                   <div>
                     <span className="font-medium text-black">
-                      {selectedTask.customer?.full_name || selectedTask.customer_profile?.first_name || 'Consumer Household'}
+                      {selectedTask.customer?.full_name || selectedTask.customer_profile?.first_name || 'Customer Residence'}
                     </span>
                     <span className="text-black/50 mx-1.5">·</span>
                     <span className="font-normal text-black/70">
@@ -488,25 +544,26 @@ export function StaffTasksView() {
                 />
               </div>
 
-              {/* Action Area: Mark as resolved / Get started */}
+              {/* Action Area: Start Work */}
               {selectedTask.status === 'assigned' && (
                 <div className="p-3 bg-white border border-black/15 rounded space-y-2">
                   <span className="text-xs font-medium text-black/60 block">Task Ready to Begin</span>
                   <Button
                     variant="primary"
-                    className="w-full"
+                    className="w-full min-h-[44px]"
                     onClick={() => handleStartTask(selectedTask.id)}
                     isLoading={isStarting}
                   >
-                    Get Started
+                    Start Work
                   </Button>
                 </div>
               )}
 
+              {/* Action Area: Complete Repair */}
               {selectedTask.status === 'in_progress' && (
                 <div className="border-t border-black/15 pt-3 space-y-3">
                   <h3 className="text-sm font-bold text-black block">
-                    Mark as resolved
+                    Complete Repair
                   </h3>
                   <div>
                     <label className="block text-xs font-medium text-black/70 mb-1">
@@ -535,31 +592,43 @@ export function StaffTasksView() {
                     <input
                       ref={evidenceInputRef}
                       type="file"
-                      accept="image/*"
+                      accept=".jpg,.jpeg,.png,image/jpeg,image/png"
                       onChange={handleEvidenceFileChange}
                       className="hidden"
                     />
-                    <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
                       <button
                         type="button"
                         onClick={() => evidenceInputRef.current?.click()}
-                        className={`px-3 py-1.5 border rounded text-[14px] font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
+                        className={`min-h-[44px] px-3.5 py-2 border rounded-lg text-[14px] font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
                           evidencePhotoAttached
                             ? 'bg-brand-blue text-white border-brand-blue'
                             : 'bg-white text-black border-black/30 hover:bg-black/5'
                         }`}
                       >
-                        <IconCamera size={14} />
+                        <IconCamera size={16} />
                         <span>
-                          {evidencePhotoAttached ? '✓ Photo Attached' : 'Add evidence photo'}
+                          {evidencePhotoAttached ? '✓ Photo Attached' : 'Add evidence photo (Optional)'}
                         </span>
                       </button>
                       {evidencePhotoAttached && (
-                        <span className="text-[11px] text-brand-blue font-medium truncate max-w-[180px]">
-                          {evidencePhotoName || 'repair_proof_sinacaban.jpg'}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] text-brand-blue font-medium truncate max-w-[140px]">
+                            {evidencePhotoName || 'repair_photo.jpg'}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={handleRemoveEvidencePhoto}
+                            className="min-h-[44px] px-2 text-xs text-black/50 hover:text-red-600 cursor-pointer flex items-center"
+                          >
+                            Remove
+                          </button>
+                        </div>
                       )}
                     </div>
+                    {photoError && (
+                      <p className="text-xs text-red-600 font-semibold">{photoError}</p>
+                    )}
                     {evidencePhotoUrl && (
                       <img
                         src={evidencePhotoUrl}
@@ -571,12 +640,12 @@ export function StaffTasksView() {
 
                   <Button
                     variant="primary"
-                    className="w-full py-2"
+                    className="w-full min-h-[44px] py-2"
                     onClick={() => handleResolveTask(selectedTask.id)}
                     isLoading={isResolving}
                   >
-                    <IconCheck size={14} className="inline mr-1" />
-                    Mark Resolved
+                    <IconCheck size={16} className="inline mr-1" />
+                    Complete Repair
                   </Button>
                 </div>
               )}
@@ -591,7 +660,7 @@ export function StaffTasksView() {
               )}
 
               <div className="flex justify-end pt-2 border-t border-black/10">
-                <Button variant="secondary" onClick={() => setSelectedTask(null)}>
+                <Button variant="secondary" className="min-h-[44px] px-4" onClick={() => setSelectedTask(null)}>
                   Close
                 </Button>
               </div>
@@ -604,7 +673,7 @@ export function StaffTasksView() {
         {/* ------------------------------------------------------------- */}
         {showMapModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-lg bg-white rounded border border-black p-5 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
+            <div className="w-full max-w-lg bg-white rounded border border-black p-5 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto overflow-x-hidden min-w-0">
               {/* Header */}
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <button
@@ -661,22 +730,22 @@ export function StaffTasksView() {
                         <span className="text-black/70 text-[14px]">
                           {activeCardTask.customer?.barangay || 'Poblacion'}
                         </span>
-                        <div className="text-[9px] text-black/60 truncate max-w-xs">
+                        <div className="text-[11px] text-black/60 truncate max-w-xs">
                           {activeCardTask.description}
                         </div>
                       </div>
-                      <div className="flex items-center gap-1.5 shrink-0">
+                      <div className="flex items-center gap-2 shrink-0">
                         <a
                           href={`https://www.google.com/maps/dir/?api=1&destination=${destLat},${destLng}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="py-1 px-2.5 text-[11px] font-medium border border-black/20 rounded text-black hover:bg-black/5"
+                          className="min-h-[44px] px-3.5 py-2 text-[13px] font-medium border border-black/20 rounded-lg text-black hover:bg-black/5 inline-flex items-center"
                         >
                           Directions
                         </a>
                         <Button
                           variant="primary"
-                          className="py-1 px-2.5 text-[9px] shrink-0"
+                          className="min-h-[44px] px-3.5 py-2 text-[13px] shrink-0"
                           onClick={() => {
                             setShowMapModal(false);
                             setSelectedTask(activeCardTask);
@@ -691,7 +760,7 @@ export function StaffTasksView() {
               </div>
 
               <div className="flex justify-end pt-1">
-                <Button variant="secondary" onClick={() => setShowMapModal(false)}>
+                <Button variant="secondary" className="min-h-[44px] px-4" onClick={() => setShowMapModal(false)}>
                   Close Map
                 </Button>
               </div>
@@ -704,7 +773,7 @@ export function StaffTasksView() {
         {/* ------------------------------------------------------------- */}
         {showCalendarModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-lg bg-white rounded border border-black p-5 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
+            <div className="w-full max-w-lg bg-white rounded border border-black p-5 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto overflow-x-hidden min-w-0">
               {/* Header */}
               <div className="flex items-center justify-between border-b border-black/15 pb-2">
                 <button
@@ -757,7 +826,7 @@ export function StaffTasksView() {
               </div>
 
               <div className="flex justify-end pt-1">
-                <Button variant="secondary" onClick={() => setShowCalendarModal(false)}>
+                <Button variant="secondary" className="min-h-[44px] px-4" onClick={() => setShowCalendarModal(false)}>
                   Close
                 </Button>
               </div>

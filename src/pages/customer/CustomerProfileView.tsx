@@ -6,6 +6,8 @@ import { Button } from '../../components/atoms/Button';
 import { Badge } from '../../components/atoms/Badge';
 import { LocationPickerMap } from '../../components/organisms/LocationPickerMap';
 import { getSinacabanBarangayCoords } from '../../components/organisms/MunicipalMap';
+import { OtpInput } from '../../components/molecules/OtpInput';
+import { TermsPrivacyModal } from '../../components/molecules/TermsPrivacyModal';
 import { authApi, profileApi } from '../../api';
 import { useAuth } from '../../contexts/AuthContext';
 import {
@@ -23,7 +25,6 @@ import {
   IconCheck,
   IconAlertCircle,
   IconX,
-  IconKey,
   IconLink,
 } from '@tabler/icons-react';
 
@@ -73,6 +74,9 @@ export function CustomerProfileView() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordSuccess, setPasswordSuccess] = useState(false);
   const [passwordError, setPasswordError] = useState('');
+
+  // Modal 5: Terms of Use & Privacy Notice Viewer (Section 12.A.5)
+  const [showTermsModal, setShowTermsModal] = useState(false);
 
   useEffect(() => {
     const localAccount = authUser?.email
@@ -219,28 +223,63 @@ export function CustomerProfileView() {
       });
   };
 
-  // Section 5.2: Request 6-digit SMS PIN for Mobile Number Change
-  const handleRequestMobilePin = (e: React.FormEvent) => {
-    e.preventDefault();
+  // Section 5.2 & 12.A.3: Request 6-digit SMS PIN for Mobile Number Change
+  const handleRequestMobilePin = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!user) return;
     setMobileError(null);
 
-    const res = accountsStore.requestMobileChangePin(user.id, newMobileInput);
-    if (!res.success) {
-      setMobileError(res.error || 'Failed to send SMS pin.');
-      return;
+    try {
+      const apiRes = await profileApi.requestMobilePin({ mobile_number: newMobileInput.trim() });
+      setMobilePinSent(true);
+      setDebugMobilePin(apiRes.debug_pin || null);
+      setMobilePinInput(apiRes.debug_pin || '');
+    } catch (err: any) {
+      if (err?.response?.status === 429) {
+        setMobileError(err.response?.data?.message || 'Pin and link requests are limited to 3 per hour.');
+        return;
+      }
+      const res = accountsStore.requestMobileChangePin(user.id, newMobileInput);
+      if (!res.success) {
+        setMobileError(res.error || 'Failed to send SMS pin.');
+        return;
+      }
+      setMobilePinSent(true);
+      setDebugMobilePin(res.debugPin || null);
+      setMobilePinInput(res.debugPin || '');
     }
-
-    setMobilePinSent(true);
-    setDebugMobilePin(res.debugPin || null);
-    setMobilePinInput(res.debugPin || '');
   };
 
-  // Section 5.2: Confirm 6-digit SMS PIN
-  const handleConfirmMobilePin = (e: React.FormEvent) => {
+  // Section 5.2 & 12.A.3: Confirm 6-digit SMS PIN
+  const handleConfirmMobilePin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
     setMobileError(null);
+
+    try {
+      const apiRes = await profileApi.verifyMobilePin({ pin: mobilePinInput.trim() });
+      if (apiRes?.user) {
+        accountsStore.confirmMobileChangePin(user.id, mobilePinInput.trim());
+        syncUpdatedUser(
+          apiRes.user,
+          `Mobile number changed to ${apiRes.user.mobile_number}. In-app notification sent & logged in Activity Log.`
+        );
+        setShowMobileModal(false);
+        setMobilePinSent(false);
+        setNewMobileInput('');
+        setMobilePinInput('');
+        return;
+      }
+    } catch (err: any) {
+      const errMsg = err?.response?.data?.message;
+      if (errMsg) {
+        setMobileError(errMsg);
+        if (err?.response?.data?.cancelled) {
+          setDebugMobilePin(null);
+        }
+        return;
+      }
+    }
 
     const res = accountsStore.confirmMobileChangePin(user.id, mobilePinInput);
     if (!res.success || !res.user) {
@@ -261,27 +300,59 @@ export function CustomerProfileView() {
     setMobilePinInput('');
   };
 
-  // Section 5.3: Request Single-Use Confirmation Link for Email Change
-  const handleRequestEmailLink = (e: React.FormEvent) => {
+  // Section 5.3 & 12.A.3: Request Single-Use Confirmation Link for Email Change
+  const handleRequestEmailLink = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
     setEmailError(null);
 
-    const res = accountsStore.requestEmailChangeLink(user.id, newEmailInput);
-    if (!res.success) {
-      setEmailError(res.error || 'Failed to send confirmation link.');
-      return;
+    try {
+      const apiRes = await profileApi.requestEmailLink({ email: newEmailInput.trim() });
+      setEmailLinkSent(true);
+      setPendingEmailToken(apiRes.debug_token || null);
+      setPendingEmailLinkUrl(apiRes.link_url || null);
+    } catch (err: any) {
+      if (err?.response?.status === 429) {
+        setEmailError(err.response?.data?.message || 'Pin and link requests are limited to 3 per hour.');
+        return;
+      }
+      const res = accountsStore.requestEmailChangeLink(user.id, newEmailInput);
+      if (!res.success) {
+        setEmailError(res.error || 'Failed to send confirmation link.');
+        return;
+      }
+      setEmailLinkSent(true);
+      setPendingEmailToken(res.token || null);
+      setPendingEmailLinkUrl(res.linkUrl || null);
     }
-
-    setEmailLinkSent(true);
-    setPendingEmailToken(res.token || null);
-    setPendingEmailLinkUrl(res.linkUrl || null);
   };
 
-  // Section 5.3: Open Single-Use Confirmation Link
-  const handleOpenEmailConfirmationLink = () => {
+  // Section 5.3 & 12.A.3: Open Single-Use Confirmation Link
+  const handleOpenEmailConfirmationLink = async () => {
     if (!user || !pendingEmailToken) return;
     setEmailError(null);
+
+    try {
+      const apiRes = await profileApi.verifyEmailLink({ token: pendingEmailToken });
+      if (apiRes?.user) {
+        accountsStore.confirmEmailChangeLink(user.id, pendingEmailToken);
+        syncUpdatedUser(
+          apiRes.user,
+          `Email address changed to ${apiRes.user.email}. In-app notification sent, notice sent to old email address, and logged in Activity Log.`
+        );
+        setShowEmailModal(false);
+        setEmailLinkSent(false);
+        setNewEmailInput('');
+        setPendingEmailToken(null);
+        return;
+      }
+    } catch (err: any) {
+      const errMsg = err?.response?.data?.message;
+      if (errMsg) {
+        setEmailError(errMsg);
+        return;
+      }
+    }
 
     const res = accountsStore.confirmEmailChangeLink(user.id, pendingEmailToken);
     if (!res.success || !res.user) {
@@ -299,7 +370,7 @@ export function CustomerProfileView() {
     setPendingEmailToken(null);
   };
 
-  // Section 4: Change Password in Settings
+  // Section 4 & 12.A.4: Change Password in Settings (signs out other sessions)
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
@@ -313,7 +384,10 @@ export function CustomerProfileView() {
       });
       setPasswordSuccess(true);
       if (apiRes?.user) {
-        syncUpdatedUser(apiRes.user, 'Password changed successfully and saved in Activity Log.');
+        syncUpdatedUser(
+          apiRes.user,
+          'Password changed successfully. Your other signed-in sessions have been signed out.'
+        );
       }
       setTimeout(() => {
         setPasswordSuccess(false);
@@ -321,7 +395,7 @@ export function CustomerProfileView() {
         setCurrentPassword('');
         setNewPassword('');
         setConfirmPassword('');
-      }, 1200);
+      }, 1400);
     } catch (err: any) {
       const res = accountsStore.changePassword(
         user.id,
@@ -337,14 +411,17 @@ export function CustomerProfileView() {
       }
 
       setPasswordSuccess(true);
-      syncUpdatedUser(res.user, 'Password changed successfully and saved in Activity Log.');
+      syncUpdatedUser(
+        res.user,
+        'Password changed successfully. Your other signed-in sessions have been signed out.'
+      );
       setTimeout(() => {
         setPasswordSuccess(false);
         setShowPasswordModal(false);
         setCurrentPassword('');
         setNewPassword('');
         setConfirmPassword('');
-      }, 1200);
+      }, 1400);
     }
   };
 
@@ -411,7 +488,7 @@ export function CustomerProfileView() {
                 <div className="font-bold text-base text-black">{customerName}</div>
                 <div className="text-xs text-brand-blue font-mono font-bold">{accountNumber}</div>
                 <div className="text-[11px] text-black/50 mt-0.5">
-                  Accepted photo formats: JPG, PNG (Max 2 MB)
+                  Accepted photo formats: JPG, PNG (Max 5 MB)
                 </div>
               </div>
             </div>
@@ -458,7 +535,7 @@ export function CustomerProfileView() {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-black/60">
-                Verified Consumer Record (Locked)
+                Verified Customer Record (Locked)
               </span>
               <Badge variant="outline" className="text-[10px] font-semibold">
                 <IconLock size={11} className="inline mr-1 text-brand-blue" />
@@ -480,7 +557,7 @@ export function CustomerProfileView() {
               </div>
             </div>
             <p className="text-[11px] text-black/55 leading-relaxed">
-              Your name, meter number, and barangay are locked because they were verified against the office&apos;s records, and the barangay decides which advisories you receive. Corrections are made through the office.
+              Your name, meter number, and barangay are locked because they were verified against the office&apos;s records, and the barangay decides which advisories you receive. Corrections are made through the SIWASS office.
             </p>
           </div>
 
@@ -583,6 +660,36 @@ export function CustomerProfileView() {
               >
                 Log out
               </Button>
+            </div>
+          </div>
+
+          {/* Legal Consent & Account Status (Workflow Part A.5 & B.5) */}
+          <div className="border-t border-black/10 pt-3 text-xs space-y-2">
+            <span className="font-bold uppercase tracking-wider text-black/60 block text-[11px]">
+              Terms, Privacy & Account Status
+            </span>
+            <div className="p-3 bg-blue-tint/30 border border-black/10 rounded-xl space-y-2 text-[12px] text-black">
+              <div className="flex justify-between items-center">
+                <span className="text-black/70 font-semibold">Terms of Use & Privacy Notice</span>
+                <div className="flex items-center gap-2">
+                  <Badge variant="blue">Version 1.0 (Accepted)</Badge>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setShowTermsModal(true)}
+                    className="text-xs"
+                  >
+                    View
+                  </Button>
+                </div>
+              </div>
+              <div className="flex justify-between items-center text-[11px] text-black/60">
+                <span>Consent Date</span>
+                <span>October 2026 (Registration)</span>
+              </div>
+              <p className="text-[11px] text-black/55 pt-1.5 border-t border-black/10 leading-relaxed">
+                The customer cannot deactivate or delete the account online. Account cancellations and closures are handled in person at the SIWASS office.
+              </p>
             </div>
           </div>
         </Card>
@@ -720,22 +827,21 @@ export function CustomerProfileView() {
                     )}
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-black/70 mb-1 uppercase tracking-wider">
-                      Enter 6-Digit SMS Pin
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-black/70 mb-1 uppercase tracking-wider text-center">
+                      Enter 6-Digit SMS PIN
                     </label>
-                    <div className="relative">
-                      <IconKey size={15} className="absolute left-3 top-3 text-black/40" />
-                      <input
-                        type="text"
-                        maxLength={6}
-                        value={mobilePinInput}
-                        onChange={(e) => setMobilePinInput(e.target.value)}
-                        placeholder="123456"
-                        className="w-full pl-9 pr-3 py-2.5 text-[14px] font-mono font-bold tracking-widest bg-white text-black border border-black/20 rounded-lg outline-none focus:border-brand-blue"
-                        required
-                      />
-                    </div>
+                    <OtpInput
+                      value={mobilePinInput}
+                      onChange={(val) => {
+                        setMobilePinInput(val);
+                        if (mobileError) setMobileError(null);
+                      }}
+                      error={mobileError}
+                      onResend={() => handleRequestMobilePin()}
+                      resendCooldown={30}
+                      autoFocus
+                    />
                   </div>
 
                   <div className="flex justify-between gap-2 pt-3 border-t border-black/10">
@@ -907,6 +1013,10 @@ export function CustomerProfileView() {
                     />
                   </div>
 
+                  <p className="text-[11px] text-black/55 leading-normal">
+                    Changing your password will sign out your other signed-in sessions across all devices.
+                  </p>
+
                   <div className="grid grid-cols-2 gap-2 pt-3 border-t border-black/10">
                     <Button
                       variant="secondary"
@@ -925,6 +1035,14 @@ export function CustomerProfileView() {
             </div>
           </div>
         )}
+
+        {/* Modal 5: Terms of Use & Privacy Notice Viewer (Section 12.A.5) */}
+        <TermsPrivacyModal
+          isOpen={showTermsModal}
+          onClose={() => setShowTermsModal(false)}
+          version="v1.0.0"
+          acceptedAt="October 2026 (Registration)"
+        />
       </div>
     </CustomerLayout>
   );

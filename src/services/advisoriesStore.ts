@@ -1,16 +1,74 @@
 export type AdvisoryStatus = 'scheduled' | 'ongoing' | 'completed' | 'cancelled';
 
+export interface PremadeAdvisoryType {
+  id: string;
+  name: string;
+  defaultTitle: string;
+  defaultReason: string;
+}
+
+export const PREMADE_ADVISORY_TYPES: PremadeAdvisoryType[] = [
+  {
+    id: 'scheduled_maintenance',
+    name: 'Scheduled maintenance',
+    defaultTitle: 'Scheduled Maintenance',
+    defaultReason: 'Planned pipe or valve works',
+  },
+  {
+    id: 'pipe_repair',
+    name: 'Pipe repair',
+    defaultTitle: 'Pipe Repair',
+    defaultReason: 'Leak or burst repair',
+  },
+  {
+    id: 'tank_cleaning',
+    name: 'Reservoir or tank cleaning',
+    defaultTitle: 'Reservoir Cleaning',
+    defaultReason: 'Reservoir or tank cleaning and disinfection',
+  },
+  {
+    id: 'pump_problem',
+    name: 'Pump, power, or water source problem',
+    defaultTitle: 'Water Source Problem',
+    defaultReason: 'Pump, power, or water source problem',
+  },
+  {
+    id: 'line_flushing',
+    name: 'Line flushing',
+    defaultTitle: 'Line Flushing',
+    defaultReason: 'Line flushing: water may be discolored',
+  },
+  {
+    id: 'pipeline_extension',
+    name: 'New connection or pipeline extension works',
+    defaultTitle: 'Pipeline Extension Works',
+    defaultReason: 'New connection or pipeline extension works',
+  },
+  {
+    id: 'other',
+    name: 'Other',
+    defaultTitle: 'Water Service Advisory',
+    defaultReason: '',
+  },
+];
+
 export interface AdvisoryRecord {
   id: number;
+  advisory_type?: string;
   title: string;
   reason: string;
+  message?: string;
+  status?: AdvisoryStatus;
   barangay_ids: number[];
   barangay_names: string[];
+  barangays?: any[];
   starts_at: string; // YYYY-MM-DDTHH:mm
   ends_at: string; // Expected end (or actual end when restored)
   actual_restored_at?: string;
   remarks?: string;
   restoration_remark?: string;
+  cancelled_at?: string;
+  cancellation_reason?: string;
   is_cancelled?: boolean;
   is_restored?: boolean;
   affected_customers_count: number;
@@ -27,7 +85,7 @@ export interface AdvisoryAuditLogItem {
   user: string;
   role: string;
   action: string;
-  category: 'assignment';
+  category: 'Advisories' | 'assignment';
 }
 
 export interface AdvisoryConsumer {
@@ -195,7 +253,7 @@ function createInitialAdvisories(): AdvisoryRecord[] {
       id: 201,
       title: 'Main Feeder Pipe Repair',
       reason: 'Emergency leak repair along National Highway main distribution line',
-      barangay_ids: [1, 2],
+      barangay_ids: [1, 2, 10, 11],
       barangay_names: ['Poblacion', 'San Isidro Alto'],
       starts_at: ongoingStart,
       ends_at: ongoingEnd,
@@ -221,7 +279,7 @@ function createInitialAdvisories(): AdvisoryRecord[] {
       id: 202,
       title: 'Valve Replacement',
       reason: 'Scheduled gate valve replacement and pressure testing',
-      barangay_ids: [1, 3, 4],
+      barangay_ids: [1, 3, 4, 10],
       barangay_names: ['Poblacion', 'Cagay-anon', 'Colupan Bajo'],
       starts_at: sched1Start,
       ends_at: sched1End,
@@ -366,7 +424,7 @@ export const advisoriesStore = {
       user: adminName,
       role: 'Admin',
       action,
-      category: 'assignment',
+      category: 'Advisories',
     };
     safeWrite(STORAGE_KEY_ADVISORY_LOGS, [entry, ...logs]);
     return entry;

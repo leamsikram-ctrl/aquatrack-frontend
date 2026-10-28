@@ -5,12 +5,17 @@ import { AdminLayout } from '../../components/templates/AdminLayout';
 import { Card } from '../../components/atoms/Card';
 import { Button } from '../../components/atoms/Button';
 import { EmptyState } from '../../components/molecules/EmptyState';
+import {
+  EmptyAdvisoriesIllustration,
+  NoMatchesIllustration,
+} from '../../components/illustrations';
 import { adminApi, interruptionsApi, referenceApi } from '../../api';
 import type { Barangay, User } from '../../types';
 import {
   advisoriesStore,
   SINACABAN_BARANGAY_LIST,
   DEFAULT_ADVISORY_CONSUMERS,
+  PREMADE_ADVISORY_TYPES,
   computeAdvisoryStatus,
   buildUniformAdvisorySms,
   formatTimestampNow,
@@ -24,7 +29,6 @@ import {
   IconX,
   IconCheck,
   IconAlertTriangle,
-  IconCalendarTime,
   IconPencil,
   IconBan,
   IconDropletFilled,
@@ -78,6 +82,7 @@ export function AdminInterruptionsView() {
   const [showFormModal, setShowFormModal] = useState<boolean>(false);
   const [formStep, setFormStep] = useState<'form' | 'preview'>('form');
   const [editingAdvisory, setEditingAdvisory] = useState<AdvisoryRecord | null>(null);
+  const [advisoryTypeInput, setAdvisoryTypeInput] = useState<string>('scheduled_maintenance');
   const [titleInput, setTitleInput] = useState<string>('');
   const [reasonInput, setReasonInput] = useState<string>('');
   const [startsAtInput, setStartsAtInput] = useState<string>('');
@@ -117,7 +122,7 @@ export function AdminInterruptionsView() {
             name:
               u.name ||
               `${u.customer_profile?.first_name || ''} ${u.customer_profile?.last_name || ''}`.trim() ||
-              'Consumer',
+              'Customer',
             barangay_id: u.customer_profile!.barangay_id,
             barangay_name: u.customer_profile?.barangay?.name || 'Poblacion',
             mobile_number: u.mobile_number || u.customer_profile?.mobile_number || '',
@@ -286,13 +291,15 @@ export function AdminInterruptionsView() {
     setSelectedDate(next);
   };
 
-  // Open Add Advisory Modal
+  // Open Add Advisory Modal (Section 7.2 & 7.5: Premade advisory types prefill title & reason)
   const handleOpenAddModal = () => {
     setEditingAdvisory(null);
     setFormError(null);
     setFormStep('form');
-    setTitleInput('');
-    setReasonInput('');
+    const defaultType = PREMADE_ADVISORY_TYPES[0];
+    setAdvisoryTypeInput(defaultType.id);
+    setTitleInput(defaultType.defaultTitle);
+    setReasonInput(defaultType.defaultReason);
 
     // Default start: tomorrow 08:00, end: tomorrow 17:00 (ensures start is not in the past)
     const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
@@ -306,12 +313,27 @@ export function AdminInterruptionsView() {
     setShowFormModal(true);
   };
 
-  // Open Edit Advisory Modal (Section 4.1: Only while Scheduled or Ongoing)
+  const handleTypeChange = (typeId: string) => {
+    setAdvisoryTypeInput(typeId);
+    const selected = PREMADE_ADVISORY_TYPES.find((t) => t.id === typeId);
+    if (selected) {
+      if (typeId === 'other') {
+        setTitleInput(selected.defaultTitle);
+        setReasonInput('');
+      } else {
+        setTitleInput(selected.defaultTitle);
+        setReasonInput(selected.defaultReason);
+      }
+    }
+  };
+
+  // Open Edit Advisory Modal (Section 7.3: Only while Scheduled or Ongoing)
   const handleOpenEditModal = (adv: AdvisoryRecord) => {
     setSelectedAdvisoryDetail(null);
     setEditingAdvisory(adv);
     setFormError(null);
     setFormStep('form');
+    setAdvisoryTypeInput(adv.advisory_type || 'other');
     setTitleInput(adv.title);
     setReasonInput(adv.reason);
     setStartsAtInput(adv.starts_at.slice(0, 16));
@@ -418,18 +440,37 @@ export function AdminInterruptionsView() {
     const nowStr = formatTimestampNow();
 
     try {
-      await interruptionsApi
-        .create({
-          message: `${titleInput.trim()} — ${reasonInput.trim()}`,
-          starts_at: startsAtInput,
-          ends_at: endsAtInput,
-          barangay_ids: selectedBarangayIds,
-        })
-        .catch(() => null);
+      if (!editingAdvisory) {
+        await interruptionsApi
+          .create({
+            title: titleInput.trim(),
+            reason: reasonInput.trim(),
+            advisory_type: advisoryTypeInput,
+            remarks: remarksInput.trim() || undefined,
+            starts_at: startsAtInput,
+            ends_at: endsAtInput,
+            barangay_ids: selectedBarangayIds,
+            publish_immediately: true,
+          })
+          .catch(() => null);
+      } else {
+        await interruptionsApi
+          .update(editingAdvisory.id, {
+            title: titleInput.trim(),
+            reason: reasonInput.trim(),
+            advisory_type: advisoryTypeInput,
+            remarks: remarksInput.trim() || undefined,
+            starts_at: startsAtInput,
+            ends_at: endsAtInput,
+            barangay_ids: selectedBarangayIds,
+          })
+          .catch(() => null);
+      }
     } finally {
       if (!editingAdvisory) {
         const newAdvisory: AdvisoryRecord = {
           id: Date.now(),
+          advisory_type: advisoryTypeInput,
           title: titleInput.trim(),
           reason: reasonInput.trim(),
           barangay_ids: [...selectedBarangayIds],
@@ -551,6 +592,10 @@ export function AdminInterruptionsView() {
       setSelectedAdvisoryDetail(updated);
     }
 
+    interruptionsApi
+      .restore(advisoryToRestore.id, { remark: restorationRemarkInput.trim() || undefined })
+      .catch(() => null);
+
     advisoriesStore.appendAuditLog(
       `Marked Water Advisory "${advisoryToRestore.title}" as Restored at ${nowStr} (${advisoryToRestore.barangay_names.join(', ')})`
     );
@@ -581,6 +626,10 @@ export function AdminInterruptionsView() {
     };
 
     updateAdvisories(advisories.map((a) => (a.id === advisoryToCancel.id ? updated : a)));
+
+    interruptionsApi
+      .cancel(advisoryToCancel.id, { reason: 'Cancelled by administrator' })
+      .catch(() => null);
 
     if (selectedAdvisoryDetail?.id === advisoryToCancel.id) {
       setSelectedAdvisoryDetail(updated);
@@ -948,14 +997,27 @@ export function AdminInterruptionsView() {
             ) : (
               /* VIEW 2: LIST SCHEDULE TABLE */
               <div className="mt-3 flex-1 bg-white rounded-md shadow-[0_10px_25px_-5px_rgba(0,0,0,0.14),0_6px_10px_-4px_rgba(0,0,0,0.08)] border border-black/10 overflow-x-auto">
-                {filteredAdvisories.length === 0 ? (
+                {advisories.length === 0 ? (
                   <div className="py-16">
                     <EmptyState
-                      icon={<IconCalendarTime size={36} className="text-black/30" />}
-                      title="No advisories scheduled"
-                      description="No water interruption advisories match the selected view."
+                      illustration={<EmptyAdvisoriesIllustration />}
+                      title="No advisories"
+                      description="No water interruption advisories scheduled yet."
                       actionLabel="Add Advisory"
                       onAction={handleOpenAddModal}
+                    />
+                  </div>
+                ) : filteredAdvisories.length === 0 ? (
+                  <div className="py-16">
+                    <EmptyState
+                      illustration={<NoMatchesIllustration />}
+                      title="No matches"
+                      description="No advisories match the current filter."
+                      actionLabel="Clear filters"
+                      onAction={() => {
+                        setSelectedBarangayFilter('all');
+                        setStatusFilter('all');
+                      }}
                     />
                   </div>
                 ) : (
@@ -1133,6 +1195,22 @@ export function AdminInterruptionsView() {
 
               {formStep === 'form' ? (
                 <form onSubmit={handleProceedToPreview} className="space-y-3.5">
+                  <div>
+                    <label className="block font-bold text-black mb-1">Advisory Type *</label>
+                    <select
+                      value={advisoryTypeInput}
+                      onChange={(e) => handleTypeChange(e.target.value)}
+                      className="w-full px-3 py-2 bg-white text-black border border-black/20 rounded outline-none focus:border-brand-blue"
+                      aria-label="Advisory Type"
+                    >
+                      {PREMADE_ADVISORY_TYPES.map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
                   <div>
                     <label className="block font-bold text-black mb-1">Title *</label>
                     <input

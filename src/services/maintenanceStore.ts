@@ -5,9 +5,9 @@ import { pushRoleNotification } from './accountsStore';
 export const FIXED_ISSUE_TYPES: IssueType[] = [
   { id: 1, name: 'No water supply', default_urgency: 'high' },
   { id: 2, name: 'Pipe leak or burst', default_urgency: 'high' },
-  { id: 3, name: 'Water quality problem (discolored water, foul smell)', default_urgency: 'high' },
+  { id: 3, name: 'Water quality problem', default_urgency: 'high' },
   { id: 4, name: 'Low water pressure', default_urgency: 'medium' },
-  { id: 5, name: 'Meter problem (damaged, stuck, or leaking meter)', default_urgency: 'medium' },
+  { id: 5, name: 'Meter problem', default_urgency: 'medium' },
   { id: 6, name: 'Other concern', default_urgency: 'low' },
 ];
 

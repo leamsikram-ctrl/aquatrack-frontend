@@ -4,9 +4,15 @@ import { CustomerLayout } from '../../components/templates/CustomerLayout';
 import { Card } from '../../components/atoms/Card';
 import { Badge } from '../../components/atoms/Badge';
 import { Button } from '../../components/atoms/Button';
+import { AdvisoryBanner } from '../../components/molecules/AdvisoryBanner';
 import { requestsApi, billingApi, authApi, interruptionsApi } from '../../api';
 import type { ServiceRequest, Billing, User, WaterInterruption } from '../../types';
 import { FIXED_ISSUE_TYPES, maintenanceStore } from '../../services/maintenanceStore';
+import { advisoriesStore } from '../../services/advisoriesStore';
+import {
+  billingStore,
+  type CustomerBalanceRecord,
+} from '../../services/billingStore';
 import {
   IconReceipt,
   IconTool,
@@ -24,29 +30,48 @@ import {
   IconPhone,
 } from '@tabler/icons-react';
 
+function formatDueDate(dateStr?: string): string {
+  if (!dateStr) return 'Due Oct 25, 2026';
+  const parts = dateStr.split('-');
+  if (parts.length === 3) {
+    const [y, m, d] = parts;
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthName = months[parseInt(m, 10) - 1];
+    if (monthName) {
+      return `Due ${monthName} ${parseInt(d, 10)}, ${y}`;
+    }
+  }
+  return `Due ${dateStr}`;
+}
+
 export function CustomerHomeView() {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [activeRequest, setActiveRequest] = useState<ServiceRequest | null>(null);
   const [currentBill, setCurrentBill] = useState<Billing | null>(null);
+  const [balanceRecord, setBalanceRecord] = useState<CustomerBalanceRecord | null>(() => {
+    const all = billingStore.getRecords();
+    return all.find((r) => r.meter_number === 'MTR-SIN-0001') || all[0] || null;
+  });
   const [latestAdvisory, setLatestAdvisory] = useState<WaterInterruption | null>(null);
+  const [ongoingAdvisory, setOngoingAdvisory] = useState<any>(null);
   const [showReportModal, setShowReportModal] = useState(false);
   const [issueTypeId, setIssueTypeId] = useState<number>(FIXED_ISSUE_TYPES[3].id);
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const fetchConsumerData = async () => {
+  const fetchCustomerData = async () => {
     try {
       const [userData, reqData, billData, intData] = await Promise.all([
         authApi.me().catch(() => null),
         requestsApi.list({ per_page: 5 }).catch(() => ({ data: [] })),
-        billingApi.list({ payment_status: 'unpaid' }).catch(() => ({ data: [] })),
+        billingApi.list().catch(() => ({ data: [] })),
         interruptionsApi.list().catch(() => ({ data: [] })),
       ]);
 
       if (userData) setUser(userData);
 
-      if (reqData.data && reqData.data.length > 0) {
+      if (reqData?.data && reqData.data.length > 0) {
         const active = reqData.data.find(
           (r) => ['submitted', 'assigned', 'in_progress'].includes(r.status)
         );
@@ -59,25 +84,124 @@ export function CustomerHomeView() {
         if (active) setActiveRequest(active);
       }
 
-      if (billData.data && billData.data.length > 0) {
-        setCurrentBill(billData.data[0]);
+      const userMeter = userData?.customer_profile?.meter?.meter_number || 'MTR-SIN-0001';
+      const storeRecords = billingStore.getRecords();
+      const matchedStoreRecord =
+        storeRecords.find((r) => r.meter_number.toLowerCase() === userMeter.toLowerCase()) ||
+        storeRecords[0] ||
+        null;
+
+      if (billData?.data && billData.data.length > 0) {
+        const b: any = billData.data[0];
+        setCurrentBill(b);
+
+        if (b.current_balance !== undefined && b.total_balance !== undefined) {
+          setBalanceRecord({
+            id: `bill-${b.id}`,
+            period_id: b.billing_period_id ? `period-${b.billing_period_id}` : 'period-current',
+            period_label: b.period_label || b.billing_period || 'October 2026',
+            customer_id: b.customer?.id || userData?.id || 101,
+            customer_name: b.customer?.full_name || userData?.name || 'Customer',
+            account_number:
+              b.customer?.account_number ||
+              userData?.customer_profile?.account_number ||
+              'ACC-2026-0001',
+            meter_number: userMeter,
+            barangay:
+              b.customer?.barangay || userData?.customer_profile?.barangay?.name || 'Poblacion',
+            address: userData?.customer_profile?.address || 'Sinacaban',
+            mobile_number: userData?.mobile_number || '',
+            is_active_customer: true,
+            original_current_balance: Number(b.original_current_balance ?? b.current_balance),
+            original_previous_balance: Number(b.original_previous_balance ?? b.previous_balance ?? 0),
+            current_balance: Number(b.current_balance),
+            previous_balance: Number(b.previous_balance ?? 0),
+            total_balance: Number(b.total_balance),
+            due_date: b.due_date || '2026-10-25',
+            notice_sent: true,
+            last_updated: b.last_updated_at || b.created_at || new Date().toISOString(),
+          });
+        } else if (matchedStoreRecord) {
+          setBalanceRecord(matchedStoreRecord);
+        } else {
+          const curBal = Number(b.amount_due ?? 350);
+          setBalanceRecord({
+            id: `bill-${b.id}`,
+            period_id: 'period-current',
+            period_label: b.billing_period || 'October 2026',
+            customer_id: userData?.id || 101,
+            customer_name: userData?.name || 'Customer',
+            account_number: userData?.customer_profile?.account_number || 'ACC-2026-0001',
+            meter_number: userMeter,
+            barangay: userData?.customer_profile?.barangay?.name || 'Poblacion',
+            address: userData?.customer_profile?.address || 'Sinacaban',
+            mobile_number: userData?.mobile_number || '',
+            is_active_customer: true,
+            original_current_balance: curBal,
+            original_previous_balance: 0,
+            current_balance: curBal,
+            previous_balance: 0,
+            total_balance: curBal,
+            due_date: b.due_date || '2026-10-25',
+            notice_sent: true,
+            last_updated: b.created_at || new Date().toISOString(),
+          });
+        }
+      } else if (matchedStoreRecord) {
+        setBalanceRecord(matchedStoreRecord);
       }
 
-      if (intData.data && intData.data.length > 0) {
+      const userBrgyId = userData?.customer_profile?.barangay_id;
+      const allAdvs =
+        intData?.data && intData.data.length > 0
+          ? intData.data
+          : advisoriesStore.getAdvisories();
+
+      if (intData?.data && intData.data.length > 0) {
         setLatestAdvisory(intData.data[0]);
+      } else if (allAdvs.length > 0) {
+        setLatestAdvisory(allAdvs[0] as any);
       }
+
+      // Detect active ongoing advisory for customer's own barangay (Section 7)
+      const ongoing = allAdvs.find((adv: any) => {
+        const isCancelled = adv.is_cancelled || adv.status === 'cancelled';
+        const isRestored =
+          adv.is_restored || adv.actual_restored_at || adv.status === 'completed';
+        if (isCancelled || isRestored) return false;
+
+        const brgyIds = Array.isArray(adv.barangay_ids)
+          ? adv.barangay_ids
+          : adv.barangays?.map((b: any) => b.id) || [];
+
+        if (userBrgyId && brgyIds.length > 0 && !brgyIds.includes(userBrgyId)) {
+          return false;
+        }
+
+        const startMs = new Date(adv.starts_at).getTime();
+        const endMs = new Date(adv.ends_at).getTime();
+        const nowMs = Date.now();
+        return nowMs >= startMs && nowMs < endMs;
+      });
+
+      setOngoingAdvisory(ongoing || null);
     } catch {
       // Offline fallback
       const localRequests = maintenanceStore.getRequests();
-      const active = localRequests.find(
-        (r) => ['submitted', 'assigned', 'in_progress'].includes(r.status)
+      const active = localRequests.find((r) =>
+        ['submitted', 'assigned', 'in_progress'].includes(r.status)
       );
       if (active) setActiveRequest(active);
+
+      const storeRecords = billingStore.getRecords();
+      if (storeRecords.length > 0) {
+        setBalanceRecord(storeRecords[0]);
+      }
     }
   };
 
   useEffect(() => {
-    fetchConsumerData();
+    fetchCustomerData();
   }, []);
 
   const handleReportSubmit = async (e: React.FormEvent) => {
@@ -100,7 +224,7 @@ export function CustomerHomeView() {
         customer_urgency: customerChoiceMap[autoUrgency],
         description: description.trim(),
       });
-      await fetchConsumerData();
+      await fetchCustomerData();
       if (apiReq) {
         setActiveRequest(apiReq);
       }
@@ -127,7 +251,7 @@ export function CustomerHomeView() {
   const accountNumber = profile?.account_number || 'ACC-2026-0001';
   const meterNumber = profile?.meter?.meter_number || 'MTR-SIN-0001';
   const barangayName = profile?.barangay?.name || 'Poblacion';
-  const consumerName = user?.name || 'Maria Santos';
+  const customerName = user?.name || 'Maria Santos';
 
   const getProgressStepIndex = (status?: string) => {
     switch (status) {
@@ -145,16 +269,25 @@ export function CustomerHomeView() {
   };
 
   const currentStepIdx = activeRequest ? getProgressStepIndex(activeRequest.status) : 0;
-  const billAmount = Number(
-    (currentBill?.payment_status === 'paid' ? currentBill?.amount_paid : currentBill?.amount_due) ??
-      (currentBill ? 350.0 : 350.0)
+
+  const currentBalance = Number(balanceRecord?.current_balance ?? 0);
+  const previousBalance = Number(balanceRecord?.previous_balance ?? 0);
+  const totalBalance = Number(
+    balanceRecord?.total_balance ??
+      (currentBill?.amount_due !== undefined ? currentBill.amount_due : currentBalance + previousBalance)
   );
+  const dueDate = balanceRecord?.due_date || currentBill?.due_date || '2026-10-25';
+  const periodLabel = balanceRecord?.period_label || currentBill?.billing_period || 'October 2026 Statement';
+  const isSettled = totalBalance <= 0;
+
+  const currentPercent = totalBalance > 0 ? (Math.max(0, currentBalance) / totalBalance) * 100 : 0;
+  const previousPercent = totalBalance > 0 ? (Math.max(0, previousBalance) / totalBalance) * 100 : 0;
 
   return (
     <CustomerLayout
       currentPath="/customer/home"
       onNavigate={(path) => navigate(path)}
-      userName={consumerName}
+      userName={customerName}
       accountNumber={accountNumber}
     >
       <div className="space-y-5 text-[14px]">
@@ -165,7 +298,7 @@ export function CustomerHomeView() {
               Home
             </h1>
             <div className="text-black/60 text-[14px]">
-              Welcome back, <span className="font-semibold text-black">{consumerName}</span>
+              Welcome back, <span className="font-semibold text-black">{customerName}</span>
             </div>
           </div>
 
@@ -180,6 +313,11 @@ export function CustomerHomeView() {
             </Button>
           </div>
         </div>
+
+        {/* Section 7: Ongoing Advisory Banner for Customer's Barangay */}
+        {ongoingAdvisory && (
+          <AdvisoryBanner advisory={ongoingAdvisory} />
+        )}
 
         {/* Card 1: Account Snapshot (Clean encapsulated banner) */}
         <Card className="p-4 sm:p-5 border border-black/10 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.06)]">
@@ -223,7 +361,7 @@ export function CustomerHomeView() {
 
         {/* 2-Column Grid: Billing (Col 1) and Active Request (Col 2) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          {/* Card 2: Current Bill */}
+          {/* Card 2: Balance Card */}
           <Card className="p-5 border border-black/10 bg-white rounded-xl shadow-[3px_3px_0px_0px_rgba(0,0,0,0.06)] flex flex-col justify-between space-y-4">
             <div>
               <div className="flex items-center justify-between border-b border-black/10 pb-3 mb-3">
@@ -236,46 +374,74 @@ export function CustomerHomeView() {
                       Current Bill
                     </span>
                     <span className="text-[14px] font-semibold text-black">
-                      October 2026 Statement
+                      {periodLabel.includes('Statement') ? periodLabel : `${periodLabel} Statement`}
                     </span>
                   </div>
                 </div>
 
-                <Badge variant={currentBill?.payment_status === 'paid' ? 'blue' : 'outline'}>
-                  {currentBill?.payment_status === 'paid' ? 'Paid' : 'Unpaid'}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-tint text-brand-blue border border-brand-blue/20">
+                    <IconCalendar size={13} />
+                    {formatDueDate(dueDate)}
+                  </span>
+                  <Badge variant={isSettled ? 'blue' : 'outline'}>
+                    {isSettled ? 'Settled' : 'Unpaid'}
+                  </Badge>
+                </div>
               </div>
 
-              <div className="space-y-1">
-                <div className="text-xs text-black/60 font-medium">Total Amount Due</div>
-                <div className="text-3xl font-extrabold text-black tracking-tight">
-                  ₱{billAmount.toFixed(2)}
+              <div className="space-y-3">
+                <div className="space-y-0.5">
+                  <div className="text-xs text-black/60 font-medium">Total Balance Due</div>
+                  <div className="text-3xl font-extrabold text-black tracking-tight">
+                    ₱{totalBalance.toFixed(2)}
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5 text-[14px] text-black/60 pt-0.5">
-                  <IconCalendar size={15} className="text-brand-blue" />
-                  <span>
-                    {currentBill?.due_date
-                      ? `Due ${new Date(currentBill.due_date).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric',
-                        })}`
-                      : 'Due Oct 25, 2026'}
-                  </span>
+
+                {/* Proportional Split Bar (Current vs Previous) */}
+                <div className="space-y-1.5 pt-1">
+                  <div className="h-2.5 w-full rounded-full bg-black/10 overflow-hidden flex">
+                    {currentPercent > 0 && (
+                      <div
+                        className="bg-brand-blue transition-all"
+                        style={{ width: `${currentPercent}%` }}
+                        title={`Current: ₱${currentBalance.toFixed(2)}`}
+                      />
+                    )}
+                    {previousPercent > 0 && (
+                      <div
+                        className="bg-slate-400 transition-all"
+                        style={{ width: `${previousPercent}%` }}
+                        title={`Previous: ₱${previousBalance.toFixed(2)}`}
+                      />
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-black/70">
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-brand-blue inline-block" />
+                      <span>Current:</span>
+                      <strong className="text-black">₱{currentBalance.toFixed(2)}</strong>
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-slate-400 inline-block" />
+                      <span>Previous:</span>
+                      <strong className="text-black">₱{previousBalance.toFixed(2)}</strong>
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
 
             <div className="space-y-3">
-              <div className="p-2.5 bg-blue-tint border border-brand-blue/20 rounded-lg text-xs text-black/80 flex items-start gap-2">
-                <IconBuildingCommunity size={16} className="text-brand-blue shrink-0 mt-0.5" />
+              <div className="p-2.5 bg-blue-tint border border-brand-blue/20 rounded-lg text-xs text-black/80 flex items-center gap-2">
+                <IconBuildingCommunity size={16} className="text-brand-blue shrink-0" />
                 <span>
-                  Official payments are received in person at the Sinacaban Municipal Treasury Office (Monday–Friday, 8:00 AM – 5:00 PM).
+                  Pay at the Sinacaban Municipal Treasury Office (Mon–Fri, 8 AM–5 PM).
                 </span>
               </div>
 
               <div className="flex items-center justify-between pt-2 border-t border-black/10">
-                <span className="text-xs text-black/50 font-medium">SIWASS Billing Service</span>
+                <span className="text-xs text-black/50 font-medium">SIWASS Billing</span>
                 <Button
                   variant="secondary"
                   size="sm"

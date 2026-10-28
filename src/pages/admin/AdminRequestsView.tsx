@@ -5,6 +5,10 @@ import { Card } from '../../components/atoms/Card';
 import { Button } from '../../components/atoms/Button';
 import { Badge } from '../../components/atoms/Badge';
 import { EmptyState } from '../../components/molecules/EmptyState';
+import {
+  EmptyRequestsIllustration,
+  NoMatchesIllustration,
+} from '../../components/illustrations';
 import { StatusTimeline } from '../../components/organisms/StatusTimeline';
 import { SystemModal } from '../../components/molecules/SystemModal';
 import { requestsApi, adminApi } from '../../api';
@@ -39,6 +43,12 @@ export function AdminRequestsView() {
   const [selectedStaffId, setSelectedStaffId] = useState<number | null>(null);
   const [assignmentNotes, setAssignmentNotes] = useState('');
   const [isSubmittingAssign, setIsSubmittingAssign] = useState(false);
+  const [isUnassigning, setIsUnassigning] = useState(false);
+
+  // Cancellation Modal State
+  const [cancelPromptReq, setCancelPromptReq] = useState<ServiceRequest | null>(null);
+  const [cancellationReasonInput, setCancellationReasonInput] = useState('');
+  const [isCancelling, setIsCancelling] = useState(false);
 
   // Modern System Alert Modal
   const [systemModal, setSystemModal] = useState<{
@@ -111,9 +121,10 @@ export function AdminRequestsView() {
     setAssignmentNotes('');
     try {
       const staff = await adminApi.staffList();
-      setStaffList(staff);
-      if (staff.length > 0) {
-        setSelectedStaffId(staff[0].id);
+      const activeStaff = staff.filter((s) => !s.status || s.status === 'active');
+      setStaffList(activeStaff);
+      if (activeStaff.length > 0) {
+        setSelectedStaffId(activeStaff[0].id);
       }
     } catch {
       setStaffList([]);
@@ -144,12 +155,75 @@ export function AdminRequestsView() {
     }
   };
 
-  const handleSaveUrgencyAdjustment = () => {
+  const handleUnassign = async (requestId: number) => {
+    setIsUnassigning(true);
+    try {
+      await requestsApi.unassign(requestId);
+      setRequests((prev) =>
+        prev.map((r) =>
+          r.id === requestId
+            ? { ...r, status: 'submitted', assigned_staff: undefined, assigned_staff_id: undefined }
+            : r
+        )
+      );
+      if (drawerReq && drawerReq.id === requestId) {
+        setDrawerReq((prev) =>
+          prev
+            ? { ...prev, status: 'submitted', assigned_staff: undefined, assigned_staff_id: undefined }
+            : null
+        );
+      }
+      fetchRequests();
+    } catch (err: unknown) {
+      const errObj = err as { response?: { data?: { message?: string } } };
+      setSystemModal({
+        isOpen: true,
+        type: 'error',
+        title: 'Unassign Failed',
+        message: errObj?.response?.data?.message || 'Failed to unassign staff.',
+      });
+    } finally {
+      setIsUnassigning(false);
+    }
+  };
+
+  const handleConfirmCancel = async () => {
+    if (!cancelPromptReq) return;
+    setIsCancelling(true);
+    try {
+      await requestsApi.cancel(cancelPromptReq.id, cancellationReasonInput.trim() || undefined);
+      setCancelPromptReq(null);
+      setCancellationReasonInput('');
+      if (drawerReq && drawerReq.id === cancelPromptReq.id) {
+        setDrawerReq((prev) =>
+          prev ? { ...prev, status: 'cancelled', cancellation_reason: cancellationReasonInput } : null
+        );
+      }
+      fetchRequests();
+    } catch (err: unknown) {
+      const errObj = err as { response?: { data?: { message?: string } } };
+      setSystemModal({
+        isOpen: true,
+        type: 'error',
+        title: 'Cancellation Failed',
+        message: errObj?.response?.data?.message || 'Failed to cancel request.',
+      });
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
+  const handleSaveUrgencyAdjustment = async () => {
     if (!drawerReq) return;
 
     setIsSavingUrgency(true);
-    setTimeout(() => {
-      setIsSavingUrgency(false);
+    try {
+      await requestsApi.adjustUrgency(
+        drawerReq.id,
+        adjustedUrgency,
+        urgencyReason.trim() || undefined
+      ).catch(() => null);
+
       setUrgencySavedNotice(true);
       // Update local state
       setRequests((prev) =>
@@ -163,7 +237,9 @@ export function AdminRequestsView() {
         prev ? { ...prev, urgency: adjustedUrgency, urgency_adjustment_reason: urgencyReason } : null
       );
       setTimeout(() => setUrgencySavedNotice(false), 2500);
-    }, 400);
+    } finally {
+      setIsSavingUrgency(false);
+    }
   };
 
   return (
@@ -275,12 +351,28 @@ export function AdminRequestsView() {
                       Loading service requests...
                     </td>
                   </tr>
+                ) : requests.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="px-4 py-8 text-center text-black/50">
+                      <EmptyState
+                        illustration={<EmptyRequestsIllustration />}
+                        title="No requests yet"
+                        description="No maintenance requests submitted yet."
+                      />
+                    </td>
+                  </tr>
                 ) : filteredRequests.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="px-4 py-8 text-center text-black/50">
                       <EmptyState
-                        title="No Requests Matching Query"
-                        description="There are currently no maintenance requests meeting the selected filter criteria."
+                        illustration={<NoMatchesIllustration />}
+                        title="No matches"
+                        description="No requests match the active filters."
+                        actionLabel="Clear filters"
+                        onAction={() => {
+                          setStatusFilter('all');
+                          setSearchQuery('');
+                        }}
                       />
                     </td>
                   </tr>
@@ -516,20 +608,46 @@ export function AdminRequestsView() {
               ) : null}
 
               {/* Drawer Actions */}
-              <div className="flex justify-between items-center pt-3 border-t border-black/15">
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-black/15">
                 <Button variant="secondary" onClick={() => setDrawerReq(null)}>
                   Close
                 </Button>
 
-                {(drawerReq.status === 'submitted' || drawerReq.status === 'assigned') && (
-                  <Button
-                    variant="primary"
-                    onClick={() => handleOpenAssignModal(drawerReq)}
-                  >
-                    <IconUserPlus size={12} className="inline mr-1" />
-                    {drawerReq.status === 'assigned' ? 'Reassign Staff' : 'Assign Staff'}
-                  </Button>
-                )}
+                <div className="flex items-center gap-1.5">
+                  {(drawerReq.status === 'submitted' || drawerReq.status === 'assigned') && (
+                    <Button
+                      variant="secondary"
+                      onClick={() => {
+                        setCancelPromptReq(drawerReq);
+                        setCancellationReasonInput('');
+                      }}
+                      className="text-red-600 border-red-300 hover:bg-red-50"
+                    >
+                      Cancel
+                    </Button>
+                  )}
+
+                  {drawerReq.status === 'assigned' && (
+                    <Button
+                      variant="secondary"
+                      onClick={() => handleUnassign(drawerReq.id)}
+                      isLoading={isUnassigning}
+                      disabled={isUnassigning}
+                    >
+                      Unassign
+                    </Button>
+                  )}
+
+                  {(drawerReq.status === 'submitted' || drawerReq.status === 'assigned') && (
+                    <Button
+                      variant="primary"
+                      onClick={() => handleOpenAssignModal(drawerReq)}
+                    >
+                      <IconUserPlus size={12} className="inline mr-1" />
+                      {drawerReq.status === 'assigned' ? 'Reassign Staff' : 'Assign Staff'}
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -617,6 +735,62 @@ export function AdminRequestsView() {
                   isLoading={isSubmittingAssign}
                 >
                   Assign
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Cancel Request Modal */}
+        {cancelPromptReq && (
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <div className="bg-white border-2 border-black rounded-lg max-w-md w-full p-5 space-y-4 shadow-xl text-[14px]">
+              <div className="flex items-center justify-between border-b border-black/15 pb-2">
+                <h3 className="text-base font-bold text-black">Cancel Service Request</h3>
+                <button
+                  onClick={() => setCancelPromptReq(null)}
+                  className="text-black hover:text-brand-blue"
+                >
+                  <IconX size={14} />
+                </button>
+              </div>
+
+              <p className="text-black/80 text-xs">
+                Are you sure you want to cancel request{' '}
+                <span className="font-semibold text-black">
+                  {cancelPromptReq.reference_no || cancelPromptReq.reference}
+                </span>
+                ? This action cannot be reversed.
+              </p>
+
+              <div>
+                <label className="block text-xs font-medium text-black/70 mb-1">
+                  Cancellation Reason (Optional)
+                </label>
+                <textarea
+                  className="w-full p-2 bg-white text-black border border-black rounded outline-none focus:border-brand-blue text-[14px]"
+                  rows={2}
+                  placeholder="e.g. Duplicate report, resolved by resident..."
+                  value={cancellationReasonInput}
+                  onChange={(e) => setCancellationReasonInput(e.target.value)}
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-black/15">
+                <Button
+                  variant="secondary"
+                  onClick={() => setCancelPromptReq(null)}
+                  disabled={isCancelling}
+                >
+                  Keep Request
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={handleConfirmCancel}
+                  isLoading={isCancelling}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  Confirm Cancel
                 </Button>
               </div>
             </div>

@@ -118,26 +118,40 @@ export interface ServiceRequest {
 
 export interface Billing {
   id: number;
+  billing_period_id?: number;
   customer_profile_id: number;
   customer_profile?: CustomerProfile;
   billing_period: string;
-  amount_due: number;
+  period_label?: string;
+  current_balance?: number;
+  previous_balance?: number;
+  total_balance?: number;
+  amount_due?: number;
   amount_paid: number;
   due_date: string;
   payment_status: PaymentStatus;
   is_published: boolean;
   published_at?: string;
+  last_updated_at?: string;
+  payments?: any[];
 }
 
 export interface WaterInterruption {
   id: number;
+  advisory_type?: string;
   title?: string;
+  reason?: string;
   description?: string;
+  remarks?: string;
   message?: string;
   starts_at: string;
   ends_at: string;
+  actual_restored_at?: string;
+  restoration_remark?: string;
+  cancelled_at?: string;
+  cancellation_reason?: string;
   is_published?: boolean;
-  status?: 'scheduled' | 'ongoing' | 'ended' | 'cancelled';
+  status?: 'scheduled' | 'ongoing' | 'completed' | 'cancelled' | 'ended';
   barangays?: Barangay[];
 }
 

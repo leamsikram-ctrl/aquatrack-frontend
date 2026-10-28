@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { notificationsApi } from '../../api/notifications';
+import { EmptyState } from '../molecules/EmptyState';
+import { AllCaughtUpIllustration } from '../illustrations';
 import type { AppNotification } from '../../services/notificationService';
 import {
   DEFAULT_NOTIFICATIONS,
@@ -15,6 +18,7 @@ import {
   IconCheck,
   IconX,
   IconBell,
+  IconCash,
 } from '@tabler/icons-react';
 
 export type { AppNotification };
@@ -25,11 +29,70 @@ interface NotificationCenterProps {
   role?: 'customer' | 'staff' | 'admin';
 }
 
+export function groupNotificationsByDay(notifications: AppNotification[]): Record<string, AppNotification[]> {
+  const groups: Record<string, AppNotification[]> = {};
+
+  for (const n of notifications) {
+    let day = 'Today';
+
+    if (n.created_at) {
+      const d = new Date(n.created_at);
+      if (!isNaN(d.getTime())) {
+        const today = new Date();
+        const yesterday = new Date();
+        yesterday.setDate(today.getDate() - 1);
+
+        if (
+          d.getDate() === today.getDate() &&
+          d.getMonth() === today.getMonth() &&
+          d.getFullYear() === today.getFullYear()
+        ) {
+          day = 'Today';
+        } else if (
+          d.getDate() === yesterday.getDate() &&
+          d.getMonth() === yesterday.getMonth() &&
+          d.getFullYear() === yesterday.getFullYear()
+        ) {
+          day = 'Yesterday';
+        } else {
+          day = d.toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+          });
+        }
+      }
+    } else if (n.time) {
+      const lower = n.time.toLowerCase();
+      if (
+        lower.includes('min') ||
+        lower.includes('hour') ||
+        lower.includes('now') ||
+        lower.includes('today')
+      ) {
+        day = 'Today';
+      } else if (lower.includes('yesterday') || lower.includes('1 day')) {
+        day = 'Yesterday';
+      } else {
+        day = 'Earlier';
+      }
+    }
+
+    if (!groups[day]) {
+      groups[day] = [];
+    }
+    groups[day].push(n);
+  }
+
+  return groups;
+}
+
 export const NotificationCenter: React.FC<NotificationCenterProps> = ({
   isOpen,
   onClose,
   role = 'customer',
 }) => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const currentMeterNo =
     user?.customer_profile?.meter?.meter_number ||
@@ -88,7 +151,9 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
         const mapped: AppNotification[] = res.data.map((n) => {
           let type: AppNotification['type'] = 'system';
           if (n.related_type === 'service_request') type = 'request';
-          else if (n.related_type === 'billing') type = 'bill';
+          else if (n.related_type === 'billing') {
+            type = n.message?.toLowerCase().includes('payment') ? 'payment' : 'bill';
+          }
           else if (n.related_type === 'interruption') type = 'advisory';
 
           const d = new Date(n.created_at);
@@ -100,6 +165,9 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
             message: n.message,
             time,
             read: Boolean(n.read_at),
+            created_at: n.created_at,
+            related_type: n.related_type,
+            related_id: n.related_id,
           };
         });
 
@@ -138,13 +206,55 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
     notificationsApi?.markAllAsRead?.().catch(() => {});
   };
 
-  const toggleRead = (id: string) => {
-    saveNotifications(
-      notifications.map((n) => (n.id === id ? { ...n, read: !n.read } : n))
-    );
-    if (id.startsWith('api-notif-')) {
-      const realId = id.replace('api-notif-', '');
-      notificationsApi?.markAsRead?.(realId).catch(() => {});
+  const handleItemClick = (n: AppNotification) => {
+    // 1. Mark notification as read
+    if (!n.read) {
+      saveNotifications(
+        notifications.map((item) => (item.id === n.id ? { ...item, read: true } : item))
+      );
+      if (n.id.startsWith('api-notif-')) {
+        const realId = n.id.replace('api-notif-', '');
+        notificationsApi?.markAsRead?.(realId).catch(() => {});
+      }
+    }
+
+    // 2. Determine target route based on explicit link, notification type, and user role
+    let targetLink = n.link;
+    if (!targetLink) {
+      const type = n.type;
+      const relType = n.related_type;
+
+      if (type === 'request' || relType === 'service_request') {
+        if (role === 'customer') targetLink = '/customer/requests';
+        else if (role === 'staff') targetLink = '/staff/tasks';
+        else targetLink = '/admin/maintenance';
+      } else if (type === 'bill' || relType === 'billing') {
+        if (role === 'customer') targetLink = '/customer/bills';
+        else targetLink = '/admin/billing';
+      } else if (type === 'advisory' || relType === 'interruption') {
+        if (role === 'customer') targetLink = '/customer/advisories';
+        else if (role === 'staff') targetLink = '/staff/tasks';
+        else targetLink = '/admin/interruptions';
+      } else if (type === 'cancellation') {
+        if (role === 'customer') targetLink = '/customer/requests';
+        else if (role === 'staff') targetLink = '/staff/tasks';
+        else targetLink = '/admin/maintenance';
+      } else if (type === 'payment') {
+        if (role === 'customer') targetLink = '/customer/bills';
+        else targetLink = '/admin/billing';
+      } else if (type === 'system' || relType === 'customer_registration' || relType === 'customer_profile') {
+        if (role === 'admin') targetLink = '/admin/users?verification=pending';
+        else if (role === 'staff') targetLink = '/staff/profile';
+        else targetLink = '/customer/profile';
+      }
+    }
+
+    // 3. Close the drawer
+    onClose();
+
+    // 4. Navigate to destination
+    if (targetLink) {
+      navigate(targetLink);
     }
   };
 
@@ -160,19 +270,22 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
   const renderIcon = (type: AppNotification['type']) => {
     switch (type) {
       case 'request':
-        return <IconTool size={13} className="text-brand-blue shrink-0" />;
+        return <IconTool size={15} className="text-brand-blue shrink-0" />;
       case 'bill':
-        return <IconReceipt size={13} className="text-black shrink-0" />;
+        return <IconReceipt size={15} className="text-black shrink-0" />;
       case 'advisory':
-        return <IconVolume size={13} className="text-brand-blue shrink-0" />;
+        return <IconVolume size={15} className="text-brand-blue shrink-0" />;
+      case 'payment':
+        return <IconCash size={15} className="text-emerald-600 shrink-0" />;
       case 'cancellation':
-        return <IconX size={13} className="text-black shrink-0" />;
+        return <IconX size={15} className="text-red-600 shrink-0" />;
       default:
         return <IconBell size={15} className="text-black shrink-0" />;
     }
   };
 
   const unreadCount = notifications.filter((n) => !n.read).length;
+  const groupedNotifications = groupNotificationsByDay(notifications);
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-end bg-black/40 p-2 sm:p-4 animate-fade-in">
@@ -210,50 +323,65 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
           </div>
         </div>
 
-        {/* Notifications List */}
-        <div className="flex-1 max-h-[calc(100vh-7rem)] overflow-y-auto divide-y divide-black/10">
+        {/* Notifications List Grouped by Day */}
+        <div className="flex-1 max-h-[calc(100vh-7rem)] overflow-y-auto">
           {notifications.length === 0 ? (
-            <div className="p-8 text-center text-black/60">
-              <IconBell size={28} className="mx-auto mb-2 text-black/30" />
-              <div className="font-medium text-[14px] uppercase tracking-wider">No notifications</div>
-              <div className="text-[14px] font-normal text-black/50 mt-1">
-                You are all caught up.
-              </div>
+            <div className="p-4">
+              <EmptyState
+                illustration={<AllCaughtUpIllustration />}
+                title="All caught up"
+                description="You have no notifications."
+                className="border-none shadow-none py-8 bg-transparent"
+              />
             </div>
           ) : (
-            notifications.map((n) => (
-              <div
-                key={n.id}
-                onClick={() => toggleRead(n.id)}
-                className={`p-3.5 flex items-start justify-between gap-3 cursor-pointer transition-colors ${
-                  n.read ? 'bg-white hover:bg-black/5' : 'bg-black/[0.03] hover:bg-black/5'
-                }`}
-              >
-                <div className="flex items-start gap-2.5 flex-1">
-                  <div className="mt-0.5">{renderIcon(n.type)}</div>
-                  <div className="space-y-1 flex-1">
-                    <p
-                      className={`text-[14px] leading-snug ${
-                        n.read ? 'text-black/80 font-normal' : 'text-black font-medium'
+            Object.entries(groupedNotifications).map(([dayLabel, items]) => (
+              <div key={dayLabel} className="space-y-0">
+                <div className="bg-gray-100/95 sticky top-0 z-10 px-3.5 py-1 text-xs font-semibold text-black/60 uppercase tracking-wider border-b border-black/10">
+                  {dayLabel}
+                </div>
+                <div className="divide-y divide-black/10">
+                  {items.map((n) => (
+                    <div
+                      key={n.id}
+                      data-testid={`notification-item-${n.id}`}
+                      onClick={() => handleItemClick(n)}
+                      className={`p-3.5 flex items-start justify-between gap-3 cursor-pointer transition-colors ${
+                        n.read ? 'bg-white hover:bg-black/5' : 'bg-black/[0.03] hover:bg-black/5'
                       }`}
                     >
-                      {n.message}
-                    </p>
-                    <div className="text-[14px] font-normal text-black/50 flex items-center gap-2">
-                      <span>{n.time}</span>
-                      {!n.read && (
-                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-brand-blue" />
-                      )}
+                      <div className="flex items-start gap-2.5 flex-1">
+                        <div className="mt-0.5">{renderIcon(n.type)}</div>
+                        <div className="space-y-1 flex-1">
+                          <p
+                            className={`text-[14px] leading-snug ${
+                              n.read ? 'text-black/80 font-normal' : 'text-black font-medium'
+                            }`}
+                          >
+                            {n.message}
+                          </p>
+                          <div className="text-[14px] font-normal text-black/50 flex items-center gap-2">
+                            <span>{n.time}</span>
+                            {!n.read && (
+                              <span
+                                data-testid="unread-dot"
+                                className="inline-block w-2 h-2 rounded-full bg-brand-blue shrink-0"
+                                title="Unread notification"
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        onClick={(e) => deleteNotif(e, n.id)}
+                        className="p-1 text-black/40 hover:text-black rounded transition-colors"
+                        title="Delete notification"
+                      >
+                        <IconTrash size={14} />
+                      </button>
                     </div>
-                  </div>
+                  ))}
                 </div>
-                <button
-                  onClick={(e) => deleteNotif(e, n.id)}
-                  className="p-1 text-black/40 hover:text-black rounded transition-colors"
-                  title="Delete notification"
-                >
-                  <IconTrash size={14} />
-                </button>
               </div>
             ))
           )}
@@ -262,4 +390,3 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
     </div>
   );
 };
-

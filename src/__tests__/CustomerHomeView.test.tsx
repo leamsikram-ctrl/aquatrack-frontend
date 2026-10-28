@@ -61,7 +61,11 @@ vi.mock('../api', () => ({
         {
           id: 1,
           billing_period: 'October 2026',
+          period_label: 'October 2026',
           amount_due: 350.0,
+          current_balance: 0.0,
+          previous_balance: 350.0,
+          total_balance: 350.0,
           payment_status: 'unpaid',
           due_date: '2026-10-25',
         },
@@ -113,10 +117,58 @@ describe('CustomerHomeView (Modern Customer Dashboard UI)', () => {
 
     await waitFor(() => {
       expect(screen.getAllByText(/Current Bill/i).length).toBeGreaterThan(0);
-      expect(screen.getByText(/₱350.00/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/₱350.00/i).length).toBeGreaterThanOrEqual(1);
       expect(screen.getAllByText(/Unpaid/i).length).toBeGreaterThan(0);
       expect(screen.getAllByText(/View Bill/i).length).toBeGreaterThan(0);
     });
+  });
+
+  it('renders one balance card with total, due-date chip, split bar, and single office payment line matching Task 10', async () => {
+    render(
+      <BrowserRouter>
+        <CustomerHomeView />
+      </BrowserRouter>
+    );
+
+    await waitFor(() => {
+      // Total Balance Due matching Task 10 after payment (Total: 350.00)
+      expect(screen.getByText('Total Balance Due')).toBeInTheDocument();
+      expect(screen.getAllByText('₱350.00').length).toBe(2); // Total balance and Previous in split bar
+
+      // Due-date chip
+      expect(screen.getByText('Due Oct 25, 2026')).toBeInTheDocument();
+
+      // Proportional bar split into Current (₱0.00) and Previous (₱350.00)
+      expect(screen.getByText('Current:')).toBeInTheDocument();
+      expect(screen.getByText('₱0.00')).toBeInTheDocument();
+      expect(screen.getByText('Previous:')).toBeInTheDocument();
+
+      // Exactly one short line about paying at the office
+      expect(
+        screen.getByText('Pay at the Sinacaban Municipal Treasury Office (Mon–Fri, 8 AM–5 PM).')
+      ).toBeInTheDocument();
+
+      // Unpaid badge derived from total balance
+      expect(screen.getAllByText('Unpaid').length).toBeGreaterThan(0);
+    });
+  });
+
+  it('verifies that no water consumption data, cubic meters, or readings appear on the page', async () => {
+    const { container } = render(
+      <BrowserRouter>
+        <CustomerHomeView />
+      </BrowserRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Total Balance Due')).toBeInTheDocument();
+    });
+
+    const pageText = container.textContent || '';
+    expect(pageText).not.toMatch(/consumption/i);
+    expect(pageText).not.toMatch(/cubic meter/i);
+    expect(pageText).not.toMatch(/m³/i);
+    expect(pageText).not.toMatch(/meter reading/i);
   });
 
   it('renders active request tracker with 4-step progress bar', async () => {

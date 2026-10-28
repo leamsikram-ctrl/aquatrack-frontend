@@ -3,7 +3,6 @@ import { Topbar } from '../organisms/Topbar';
 import { BottomNav } from '../organisms/BottomNav';
 import {
   IconClipboardList,
-  IconQrcode,
   IconHistory,
   IconUser,
 } from '@tabler/icons-react';
@@ -25,13 +24,12 @@ export const StaffLayout: React.FC<StaffLayoutProps> = ({
 }) => {
   const navItems = [
     { name: 'Tasks', path: '/staff/tasks', icon: IconClipboardList },
-    { name: 'Scan Meter', path: '/staff/scan', icon: IconQrcode },
     { name: 'History', path: '/staff/history', icon: IconHistory },
     { name: 'Profile', path: '/staff/profile', icon: IconUser },
   ];
 
   return (
-    <div className="min-h-screen bg-white flex flex-col text-black pb-16 md:pb-4 text-[14px]">
+    <div className="min-h-screen bg-white flex flex-col text-black pb-16 md:pb-4 text-[14px] w-full max-w-full overflow-x-hidden">
       <Topbar
         title="Field Staff"
         subtitle={assignedArea}
@@ -39,7 +37,7 @@ export const StaffLayout: React.FC<StaffLayoutProps> = ({
         userRole="Field Technician"
       />
 
-      <div className="flex flex-1 max-w-[1440px] w-full mx-auto">
+      <div className="flex flex-1 max-w-[1440px] w-full mx-auto min-w-0 overflow-x-hidden">
         {/* Desktop Sidebar (>= 768px) */}
         <aside className="hidden md:flex w-52 shrink-0 flex-col border-r border-black/15 bg-white p-3">
           <div className="mb-2 px-2 text-xs font-medium text-black/50 border-b border-black/10 pb-1 uppercase tracking-wider">
@@ -54,7 +52,7 @@ export const StaffLayout: React.FC<StaffLayoutProps> = ({
                 <button
                   key={item.path}
                   onClick={() => onNavigate?.(item.path)}
-                  className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded text-[14px] transition-colors text-left ${
+                  className={`w-full flex items-center gap-2.5 px-2.5 py-2 min-h-[44px] rounded text-[14px] transition-colors text-left ${
                     isActive
                       ? 'bg-brand-blue text-white font-medium'
                       : 'text-black hover:bg-black/5 hover:text-black font-normal'
@@ -69,7 +67,7 @@ export const StaffLayout: React.FC<StaffLayoutProps> = ({
         </aside>
 
         {/* Content Area */}
-        <main className="flex-1 px-4 sm:px-8 lg:px-14 py-4 sm:py-6 overflow-y-auto">{children}</main>
+        <main className="flex-1 min-w-0 px-4 sm:px-8 lg:px-14 py-4 sm:py-6 overflow-y-auto overflow-x-hidden">{children}</main>
       </div>
 
       <BottomNav
